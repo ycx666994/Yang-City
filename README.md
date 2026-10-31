@@ -220,6 +220,7 @@ node mazecaught.mjs   # 追捕：入塔时机、答题冻结、被抓无证书
 | [yangcheng/README.md](yangcheng/README.md) | 杨城完整设计说明：六馆仪器、估计量推导、拒判线、空间与光线的做法 |
 | [README-trustlab.md](README-trustlab.md) | 老馆 Trust Lab 开发记录（逐步交付日志） |
 | [docs/老馆-README-原版.md](docs/老馆-README-原版.md) | 合并前的老馆 README（历史存档） |
+| [docs/archive/](docs/archive/README.md) | 老馆建成前的三份一次性原型（存档，不参与构建） |
 | [docs/作品描述-2000字.md](docs/作品描述-2000字.md) | 作品介绍（长版） |
 | [docs/作品描述-1500字.md](docs/作品描述-1500字.md) | 作品介绍（中版） |
 | [docs/作品介绍-表单版.md](docs/作品介绍-表单版.md) | 作品介绍（表单版） |

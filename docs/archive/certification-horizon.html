@@ -1,0 +1,3499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>认证地平线 · The Certification Horizon of Learned Computation</title>
+<meta name="description" content="学习所得计算的可认证边界：受保护切口、证据代价 ρ^{-2ℓ}、写入预算前沿、检测时钟与能力时钟的分离。论文交互伴侣。">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2305060b'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%235ee7ff' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23ffc76b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   认证地平线 · design tokens
+   ============================================================ */
+:root{
+  color-scheme:dark;
+
+  --void:#05060b;
+  --void-2:#080a12;
+  --panel:#0b0e18;
+  --panel-2:#0e1220;
+  --line:rgba(150,168,205,.13);
+  --line-2:rgba(150,168,205,.24);
+  --line-3:rgba(150,168,205,.42);
+
+  --ink:#e9edf7;
+  --ink-2:#c2cadc;
+  --dim:#8b95ad;
+  --dim-2:#69738c;
+  --faint:#434c62;
+
+  --cyan:#5ee7ff;
+  --cyan-d:#1b6b80;
+  --violet:#a78bfa;
+  --violet-d:#4b3a86;
+  --amber:#ffc76b;
+  --amber-d:#7a5320;
+  --rose:#ff6b8b;
+  --rose-d:#7c2438;
+  --emerald:#4ade80;
+  --emerald-d:#1e6b3c;
+  --gold:#f5d67b;
+
+  --f-display:'Instrument Serif','Source Han Serif SC','Noto Serif SC','Songti SC','SimSun',Georgia,serif;
+  --f-ui:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  --f-mono:'JetBrains Mono','SF Mono',ui-monospace,'Cascadia Code',Consolas,monospace;
+
+  --r-s:6px; --r-m:10px; --r-l:16px; --r-xl:22px;
+  --shadow:0 24px 70px -28px rgba(0,0,0,.9);
+  --ease:cubic-bezier(.22,.9,.24,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--void);color:var(--ink);
+  font-family:var(--f-ui);font-size:16px;line-height:1.62;
+  font-weight:400;letter-spacing:.005em;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+::selection{background:rgba(94,231,255,.24);color:#fff}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;color:inherit}
+svg{display:block;overflow:visible}
+img{max-width:100%}
+
+/* ---------- ambient layers ---------- */
+#field{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55}
+.atmos{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(1100px 620px at 78% -8%,rgba(94,231,255,.11),transparent 62%),
+    radial-gradient(900px 560px at 8% 22%,rgba(167,139,250,.10),transparent 60%),
+    radial-gradient(1000px 700px at 50% 118%,rgba(255,199,107,.07),transparent 62%);
+}
+.grain{
+  position:fixed;inset:-120px;z-index:1;pointer-events:none;opacity:.055;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grainShift 8s steps(6) infinite;
+}
+@keyframes grainShift{
+  0%{transform:translate(0,0)} 16%{transform:translate(-14px,9px)}
+  33%{transform:translate(11px,-12px)} 50%{transform:translate(-9px,-8px)}
+  66%{transform:translate(13px,10px)} 83%{transform:translate(-12px,4px)}
+  100%{transform:translate(0,0)}
+}
+.scan{
+  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.22;
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.028) 0 1px,transparent 1px 3px);
+  mix-blend-mode:overlay;
+}
+#glow{
+  position:fixed;width:620px;height:620px;left:0;top:0;z-index:2;pointer-events:none;
+  border-radius:50%;transform:translate(-50%,-50%);opacity:0;
+  background:radial-gradient(circle,rgba(94,231,255,.075),rgba(94,231,255,.02) 42%,transparent 68%);
+  transition:opacity .6s var(--ease);
+  will-change:transform;
+}
+body.has-pointer #glow{opacity:1}
+
+/* ---------- layout ---------- */
+main,footer,header.nav{position:relative;z-index:3}
+.wrap{width:100%;max-width:1260px;margin:0 auto;padding:0 34px}
+.wrap-wide{width:100%;max-width:1460px;margin:0 auto;padding:0 34px}
+.sec{padding:112px 0;position:relative}
+.sec-tight{padding:78px 0}
+.sec-bordered{border-top:1px solid var(--line)}
+
+/* ---------- typography ---------- */
+.kicker{
+  font-family:var(--f-mono);font-size:10.5px;font-weight:500;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--dim-2);
+  display:flex;align-items:center;gap:11px;
+}
+.kicker::before{
+  content:'';width:26px;height:1px;background:var(--line-3);display:block;flex:none;
+}
+.kicker .n{color:var(--cyan);font-weight:700}
+.kicker.plain::before{display:none}
+
+h1,h2,h3,h4{margin:0;font-weight:400;letter-spacing:-.012em}
+.display{
+  font-family:var(--f-display);line-height:.96;letter-spacing:-.02em;
+}
+.h1{font-family:var(--f-display);font-size:clamp(50px,7vw,98px);line-height:.92;letter-spacing:-.028em;text-wrap:balance}
+.h2{font-family:var(--f-display);font-size:clamp(30px,3.5vw,46px);line-height:1.1;letter-spacing:-.018em;text-wrap:balance}
+.h3{font-family:var(--f-display);font-size:clamp(22px,2.2vw,30px);line-height:1.18}
+.h4{font-family:var(--f-ui);font-size:15px;font-weight:600;letter-spacing:.01em;line-height:1.4}
+.hl{color:var(--cyan)}
+.hl-v{color:var(--violet)}
+.hl-a{color:var(--amber)}
+.hl-r{color:var(--rose)}
+.hl-e{color:var(--emerald)}
+.dim2{color:var(--dim)}
+.faint2{color:var(--faint)}
+.lede{font-size:17.5px;line-height:1.72;color:var(--ink-2);font-weight:300;max-width:62ch}
+.lede strong{font-weight:600;color:var(--ink)}
+p{margin:0 0 1.05em}
+p:last-child{margin-bottom:0}
+.body{font-size:15px;line-height:1.78;color:var(--ink-2);font-weight:300}
+.body strong{font-weight:600;color:var(--ink)}
+.small{font-size:13.5px;line-height:1.7;color:var(--dim);font-weight:300}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ---------- reveal ---------- */
+.rv{opacity:0;transform:translateY(26px);filter:blur(6px);transition:opacity .95s var(--ease-out),transform .95s var(--ease-out),filter .95s var(--ease-out)}
+.rv.in{opacity:1;transform:none;filter:none}
+.rv-d1{transition-delay:.07s}.rv-d2{transition-delay:.14s}.rv-d3{transition-delay:.21s}
+.rv-d4{transition-delay:.28s}.rv-d5{transition-delay:.35s}.rv-d6{transition-delay:.42s}
+.rv-d7{transition-delay:.49s}.rv-d8{transition-delay:.56s}
+
+/* ---------- nav ---------- */
+header.nav{
+  position:fixed;top:0;left:0;right:0;z-index:60;
+  transition:background .45s var(--ease),border-color .45s var(--ease),backdrop-filter .45s;
+  border-bottom:1px solid transparent;
+}
+header.nav.stuck{
+  background:rgba(5,6,11,.78);backdrop-filter:blur(18px) saturate(1.4);
+  border-bottom-color:var(--line);
+}
+.nav-in{
+  display:flex;align-items:center;gap:22px;height:62px;
+  max-width:1460px;margin:0 auto;padding:0 34px;
+}
+.brand{display:flex;align-items:center;gap:11px;flex:none}
+.brand-mark{width:22px;height:22px;flex:none}
+.brand-txt{font-family:var(--f-display);font-size:18.5px;letter-spacing:.01em}
+.brand-txt b{font-weight:400;color:var(--cyan)}
+.nav-links{display:flex;gap:2px;margin-left:auto;align-items:center}
+.nav-links a{
+  font-size:12.5px;color:var(--dim);padding:7px 11px;border-radius:6px;
+  transition:color .25s,background .25s;white-space:nowrap;font-weight:450;
+}
+.nav-links a:hover{color:var(--ink);background:rgba(150,168,205,.08)}
+.nav-links a.on{color:var(--cyan)}
+.nav-cta{
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--line-2);padding:8px 15px;border-radius:100px;
+  color:var(--ink-2);transition:all .3s var(--ease);flex:none;
+}
+.nav-cta:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(94,231,255,.06)}
+@media(max-width:1080px){.nav-links{display:none}}
+
+/* ---------- generic panel ---------- */
+.panel{
+  background:linear-gradient(168deg,rgba(14,18,32,.9),rgba(8,10,18,.94));
+  border:1px solid var(--line);border-radius:var(--r-l);
+  position:relative;overflow:hidden;
+}
+.panel::before{
+  content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(420px 240px at var(--mx,50%) var(--my,0%),rgba(94,231,255,.09),transparent 70%);
+  opacity:0;transition:opacity .5s var(--ease);
+}
+.panel:hover::before{opacity:1}
+.panel-head{
+  display:flex;align-items:center;gap:12px;padding:13px 18px;
+  border-bottom:1px solid var(--line);
+  font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim-2);
+}
+.panel-head .dot{width:5px;height:5px;border-radius:50%;background:var(--cyan);flex:none;box-shadow:0 0 9px var(--cyan)}
+.panel-head .r{margin-left:auto;color:var(--faint);letter-spacing:.06em}
+.panel-body{padding:20px}
+
+/* ---------- chips / tags ---------- */
+.chip{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.04em;
+  padding:4.5px 10px;border-radius:100px;
+  border:1px solid var(--line-2);color:var(--dim);background:rgba(150,168,205,.04);
+  white-space:nowrap;
+}
+.chip.cy{border-color:rgba(94,231,255,.34);color:var(--cyan);background:rgba(94,231,255,.07)}
+.chip.vi{border-color:rgba(167,139,250,.34);color:var(--violet);background:rgba(167,139,250,.07)}
+.chip.am{border-color:rgba(255,199,107,.34);color:var(--amber);background:rgba(255,199,107,.07)}
+.chip.ro{border-color:rgba(255,107,139,.34);color:var(--rose);background:rgba(255,107,139,.07)}
+.chip.em{border-color:rgba(74,222,128,.34);color:var(--emerald);background:rgba(74,222,128,.07)}
+
+.thm-tag{
+  font-family:var(--f-mono);font-size:10px;font-weight:700;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--gold);
+  border:1px solid rgba(245,214,123,.32);background:rgba(245,214,123,.07);
+  padding:3px 8px;border-radius:4px;white-space:nowrap;
+}
+
+/* ---------- buttons ---------- */
+.btn{
+  font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;
+  padding:8px 14px;border-radius:7px;border:1px solid var(--line-2);
+  background:rgba(150,168,205,.05);color:var(--ink-2);
+  cursor:pointer;transition:all .26s var(--ease);white-space:nowrap;
+}
+.btn:hover{border-color:var(--line-3);color:var(--ink);background:rgba(150,168,205,.1)}
+.btn.on{border-color:var(--cyan);color:var(--void);background:var(--cyan);font-weight:600}
+.seg{display:inline-flex;gap:3px;padding:3px;border:1px solid var(--line);border-radius:9px;background:rgba(5,6,11,.6)}
+.seg .btn{border:none;background:transparent;border-radius:6px;padding:6px 11px;font-size:11px}
+.seg .btn:hover{background:rgba(150,168,205,.09)}
+.seg .btn.on{background:var(--cyan);color:#04121a;font-weight:700}
+
+/* ---------- sliders ---------- */
+.sl{margin-bottom:15px}
+.sl:last-child{margin-bottom:0}
+.sl-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
+.sl-lab{font-size:12px;color:var(--dim);font-weight:450;letter-spacing:.01em}
+.sl-lab b{color:var(--ink);font-weight:600}
+.sl-val{font-family:var(--f-mono);font-size:12px;color:var(--cyan);font-weight:500;font-variant-numeric:tabular-nums}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:16px;background:transparent;cursor:pointer;margin:0;display:block;
+}
+input[type=range]::-webkit-slider-runnable-track{
+  height:2px;border-radius:2px;
+  background:linear-gradient(to right,var(--cyan) var(--p,50%),rgba(150,168,205,.17) var(--p,50%));
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:12px;height:12px;border-radius:50%;
+  background:var(--void);border:1.5px solid var(--cyan);margin-top:-5px;
+  box-shadow:0 0 0 0 rgba(94,231,255,.32);transition:box-shadow .3s;
+}
+input[type=range]:hover::-webkit-slider-thumb{box-shadow:0 0 0 6px rgba(94,231,255,.14)}
+input[type=range]::-moz-range-track{height:2px;border-radius:2px;background:rgba(150,168,205,.17)}
+input[type=range]::-moz-range-progress{height:2px;border-radius:2px;background:var(--cyan)}
+input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--void);border:1.5px solid var(--cyan)}
+
+/* ---------- formula block ---------- */
+.eq{
+  font-family:var(--f-mono);font-size:15px;line-height:1.95;
+  color:var(--ink);background:rgba(94,231,255,.035);
+  border-left:2px solid var(--cyan);border-radius:0 var(--r-s) var(--r-s) 0;
+  padding:14px 18px;margin:18px 0;overflow-x:auto;
+  letter-spacing:.01em;
+}
+.eq .v{color:var(--cyan)}
+.eq .vv{color:var(--violet)}
+.eq .a{color:var(--amber)}
+.eq .r{color:var(--rose)}
+.eq .c{color:var(--dim-2);font-size:12.5px}
+.eq-sm{font-size:13px;line-height:1.85;padding:11px 14px}
+sup,sub{font-size:.72em;line-height:0}
+
+/* ---------- ticker ---------- */
+.ticker{
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  overflow:hidden;background:rgba(5,6,11,.5);position:relative;
+}
+.ticker::before,.ticker::after{
+  content:'';position:absolute;top:0;bottom:0;width:130px;z-index:2;pointer-events:none;
+}
+.ticker::before{left:0;background:linear-gradient(to right,var(--void),transparent)}
+.ticker::after{right:0;background:linear-gradient(to left,var(--void),transparent)}
+.ticker-track{
+  display:flex;gap:0;width:max-content;
+  animation:tick 58s linear infinite;
+}
+.ticker:hover .ticker-track{animation-play-state:paused}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ticker-item{
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dim-2);padding:11px 26px;display:flex;align-items:center;gap:14px;white-space:nowrap;
+}
+.ticker-item::after{content:'';width:3px;height:3px;border-radius:50%;background:var(--faint);flex:none}
+.ticker-item b{color:var(--cyan);font-weight:600}
+
+/* ---------- footer ---------- */
+footer{
+  border-top:1px solid var(--line);padding:56px 0 34px;position:relative;overflow:hidden;
+}
+.foot-mark{
+  font-family:var(--f-display);font-size:clamp(64px,13vw,190px);line-height:.8;
+  color:transparent;-webkit-text-stroke:1px rgba(150,168,205,.11);
+  letter-spacing:-.03em;user-select:none;pointer-events:none;margin-top:44px;
+  white-space:nowrap;
+}
+.foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:34px}
+@media(max-width:820px){.foot-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.foot-grid{grid-template-columns:1fr}}
+.foot-h{font-family:var(--f-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin-bottom:11px}
+.foot-l{font-size:12.5px;color:var(--dim);line-height:2;display:block;transition:color .25s}
+.foot-l:hover{color:var(--cyan)}
+
+/* ---------- table ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{
+  text-align:left;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--faint);font-weight:500;
+  padding:0 12px 10px;border-bottom:1px solid var(--line-2);white-space:nowrap;
+}
+.tbl td{padding:11px 12px;border-bottom:1px solid var(--line);color:var(--ink-2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.tbl tbody tr{transition:background .2s}
+.tbl tbody tr:hover{background:rgba(150,168,205,.04)}
+
+/* ---------- misc ---------- */
+.hr{height:1px;background:var(--line);border:none;margin:0}
+.noscript{padding:120px 34px;max-width:720px;margin:0 auto;font-family:var(--f-mono);font-size:13px;line-height:2;color:var(--dim)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  .rv{opacity:1;transform:none;filter:none}
+}
+@media print{
+  #field,.atmos,.grain,.scan,#glow,header.nav,.ticker,.nav-cta{display:none!important}
+  body{background:#fff;color:#111}
+  .rv{opacity:1!important;transform:none!important;filter:none!important}
+  .sec{padding:28px 0;break-inside:avoid}
+}
+<style>
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  min-height:100svh;display:flex;flex-direction:column;
+  padding:104px 0 0;position:relative;
+}
+.hero-grid{
+  display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);
+  gap:58px;align-items:center;margin-bottom:54px;
+}
+.hero-kicker{margin-bottom:26px}
+.hero h1{margin-bottom:24px}
+.hero h1 .l2{
+  display:block;color:var(--dim);font-size:.3em;letter-spacing:.01em;margin-top:.42em;
+  line-height:1.24;font-family:var(--f-display);
+}
+.hero-lede{max-width:52ch;font-size:16.5px}
+.hero-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:26px}
+.hero-cta{display:flex;gap:10px;margin-top:30px;flex-wrap:wrap}
+.cta{
+  display:inline-flex;align-items:center;gap:9px;
+  font-size:13px;font-weight:500;padding:11px 19px;border-radius:8px;
+  border:1px solid var(--line-2);color:var(--ink-2);
+  transition:all .3s var(--ease);background:rgba(150,168,205,.04);
+}
+.cta:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(94,231,255,.07);transform:translateY(-1px)}
+.cta.primary{background:var(--cyan);color:#04121a;border-color:var(--cyan);font-weight:600}
+.cta.primary:hover{background:#8df0ff;color:#04121a;box-shadow:0 12px 34px -12px rgba(94,231,255,.6)}
+.cta .ar{font-family:var(--f-mono);font-size:11px}
+
+/* hero matrix panel */
+.hm{position:relative}
+.hm-frame{
+  border:1px solid var(--line);border-radius:var(--r-l);overflow:hidden;
+  background:linear-gradient(165deg,rgba(14,18,32,.94),rgba(6,8,14,.97));
+  box-shadow:var(--shadow);
+}
+.hm-bar{
+  display:flex;align-items:center;gap:10px;padding:10px 15px;
+  border-bottom:1px solid var(--line);font-family:var(--f-mono);
+  font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim-2);
+}
+.hm-bar .d{width:5px;height:5px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.hm-bar .r{margin-left:auto;color:var(--faint);letter-spacing:.05em}
+.hm-body{padding:20px 20px 16px;display:grid;grid-template-columns:minmax(0,1fr) 118px;gap:18px;align-items:center}
+.hm-mat{min-width:0}
+.hm-side{display:flex;flex-direction:column;gap:14px}
+.hm-read{font-family:var(--f-mono)}
+.hm-read .k{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:2px}
+.hm-read .v{font-size:20px;font-weight:500;color:var(--cyan);font-variant-numeric:tabular-nums;line-height:1.1}
+.hm-read .u{font-size:10px;color:var(--dim-2);margin-left:3px}
+.hm-foot{
+  padding:11px 15px;border-top:1px solid var(--line);
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.05em;color:var(--faint);
+  display:flex;justify-content:space-between;gap:14px;
+}
+.hm-foot b{color:var(--dim);font-weight:500}
+
+/* kpi strip */
+.kpis{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border-top:1px solid var(--line);margin-top:auto;
+}
+.kpi{
+  padding:22px 26px 24px;border-right:1px solid var(--line);
+  position:relative;transition:background .35s var(--ease);
+}
+.kpi:last-child{border-right:none}
+.kpi:hover{background:rgba(150,168,205,.035)}
+.kpi .k{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-bottom:9px}
+.kpi .v{font-family:var(--f-mono);font-size:26px;font-weight:500;letter-spacing:-.02em;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
+.kpi .v em{font-style:normal;font-size:14px;color:var(--dim-2);margin-left:2px}
+.kpi .s{font-size:12px;color:var(--dim);margin-top:9px;line-height:1.55;max-width:30ch}
+.kpi.cy .v{color:var(--cyan)}.kpi.vi .v{color:var(--violet)}
+.kpi.am .v{color:var(--amber)}.kpi.ro .v{color:var(--rose)}
+
+/* hero ticker pinned to bottom */
+.hero-tick{margin-top:0}
+.hero-scroll{
+  position:absolute;left:50%;bottom:74px;transform:translateX(-50%);
+  font-family:var(--f-mono);font-size:9px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--faint);display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.hero-scroll i{display:block;width:1px;height:34px;background:linear-gradient(to bottom,var(--faint),transparent);animation:scrollPulse 2.6s var(--ease) infinite}
+@keyframes scrollPulse{0%,100%{opacity:.25;transform:scaleY(.6)}50%{opacity:1;transform:scaleY(1)}}
+
+@media(max-width:980px){
+  .hero-grid{grid-template-columns:1fr;gap:40px}
+  .hero{min-height:0;padding:104px 0 0}
+  .kpis{grid-template-columns:1fr 1fr;margin-top:44px}
+  .kpi:nth-child(2){border-right:none}
+  .kpi:nth-child(1),.kpi:nth-child(2){border-bottom:1px solid var(--line)}
+  .hero-scroll{display:none}
+  .hm-body{grid-template-columns:1fr;gap:14px}
+  .hm-side{flex-direction:row;gap:22px;flex-wrap:wrap}
+}
+
+/* ============================================================
+   SECTION HEADER PATTERN
+   ============================================================ */
+.sh{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:52px;align-items:end;margin-bottom:46px}
+.sh-l .kicker{margin-bottom:17px}
+.sh-r{padding-bottom:6px}
+.sh-r .body{font-size:14.5px}
+.sh-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}
+@media(max-width:900px){.sh{grid-template-columns:1fr;gap:24px;align-items:start}}
+
+/* ============================================================
+   SECTION 02 — three questions
+   ============================================================ */
+.q3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.qc{
+  border:1px solid var(--line);border-radius:var(--r-l);padding:24px 22px 22px;
+  background:linear-gradient(170deg,rgba(14,18,32,.72),rgba(7,9,16,.86));
+  position:relative;overflow:hidden;transition:border-color .4s var(--ease),transform .4s var(--ease);
+}
+.qc::after{
+  content:'';position:absolute;left:0;right:0;top:0;height:2px;
+  background:var(--qc,var(--cyan));opacity:.7;
+  transform:scaleX(0);transform-origin:left;transition:transform .6s var(--ease-out);
+}
+.qc.in::after{transform:scaleX(1)}
+.qc:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.qc-n{
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.2em;color:var(--qc,var(--cyan));
+  margin-bottom:14px;display:flex;align-items:center;gap:9px;
+}
+.qc-n .bar{height:1px;flex:1;background:currentColor;opacity:.28}
+.qc-t{font-family:var(--f-display);font-size:26px;line-height:1.12;margin-bottom:6px}
+.qc-en{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);margin-bottom:15px}
+.qc-q{font-size:13.5px;line-height:1.66;color:var(--ink-2);font-weight:300;margin-bottom:16px;min-height:4.9em}
+.qc-row{display:flex;gap:9px;padding-top:11px;border-top:1px solid var(--line);font-size:12px;line-height:1.55}
+.qc-row+.qc-row{margin-top:9px}
+.qc-row .kk{font-family:var(--f-mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);flex:none;width:52px;padding-top:2px}
+.qc-row .vv{color:var(--ink-2);font-weight:300}
+.qc-row .vv.bad{color:var(--rose)}
+.qc-row .vv.ok{color:var(--emerald)}
+@media(max-width:900px){.q3{grid-template-columns:1fr}.qc-q{min-height:0}}
+
+/* xor figure */
+.xor{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:34px;align-items:center;margin-top:44px}
+@media(max-width:860px){.xor{grid-template-columns:1fr;gap:20px}}
+
+/* ============================================================
+   SECTION 03 — protected cut
+   ============================================================ */
+.bay{display:grid;grid-template-columns:306px minmax(0,1fr);gap:22px;align-items:start}
+@media(max-width:1040px){.bay{grid-template-columns:1fr}}
+.rail{
+  border:1px solid var(--line);border-radius:var(--r-l);
+  background:linear-gradient(170deg,rgba(13,17,29,.82),rgba(7,9,16,.9));
+  padding:18px 18px 20px;position:sticky;top:78px;
+}
+@media(max-width:1040px){.rail{position:static}}
+.rail-g{margin-bottom:18px}
+.rail-g:last-child{margin-bottom:0}
+.rail-h{
+  font-family:var(--f-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:11px;display:flex;align-items:center;gap:8px;
+}
+.rail-h::after{content:'';flex:1;height:1px;background:var(--line)}
+.stage{
+  border:1px solid var(--line);border-radius:var(--r-l);overflow:hidden;
+  background:linear-gradient(170deg,rgba(11,14,24,.9),rgba(6,8,14,.96));
+}
+.stage-bar{
+  display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--line);
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim-2);
+  flex-wrap:wrap;
+}
+.stage-bar .r{margin-left:auto;color:var(--faint);letter-spacing:.05em}
+.stage-body{padding:18px 16px 14px}
+.stage-foot{
+  padding:10px 16px;border-top:1px solid var(--line);
+  font-family:var(--f-mono);font-size:10.5px;color:var(--faint);letter-spacing:.03em;
+  display:flex;gap:18px;flex-wrap:wrap;
+}
+.stage-foot b{color:var(--dim);font-weight:500}
+
+/* matrix grid */
+.mat-wrap{display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:20px;align-items:start}
+@media(max-width:760px){.mat-wrap{grid-template-columns:1fr}}
+.mat-cell{transition:fill .45s var(--ease)}
+.mat-lab{font-family:var(--f-mono);font-size:9.5px;fill:var(--dim-2)}
+.mat-lab2{font-family:var(--f-mono);font-size:10px;fill:var(--ink-2);font-weight:500}
+
+/* legend */
+.leg{display:flex;flex-wrap:wrap;gap:14px;font-family:var(--f-mono);font-size:10px;color:var(--dim-2);letter-spacing:.04em}
+.leg i{display:inline-block;width:16px;height:2px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.leg .sq{width:9px;height:9px;border-radius:2px}
+
+/* ============================================================
+   SECTION 04 — evidence cost
+   ============================================================ */
+.split{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:22px;align-items:start}
+@media(max-width:1040px){.split{grid-template-columns:1fr}}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-radius:var(--r-m);overflow:hidden}
+.stat{background:var(--void-2);padding:15px 16px}
+.stat .k{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.08em;color:var(--dim-2);margin-bottom:6px;line-height:1.35}
+.stat .v{font-family:var(--f-mono);font-size:18px;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.15}
+.stat .s{font-size:10.5px;color:var(--dim-2);margin-top:5px;line-height:1.45}
+.stat.cy .v{color:var(--cyan)}.stat.ro .v{color:var(--rose)}.stat.em .v{color:var(--emerald)}.stat.am .v{color:var(--amber)}
+
+.note{
+  border-left:2px solid var(--line-3);padding:2px 0 2px 15px;
+  font-size:12.5px;line-height:1.72;color:var(--dim);font-weight:300;
+}
+.note.warn{border-left-color:var(--rose)}
+.note.warn b{color:var(--rose);font-weight:600}
+.note b{color:var(--ink-2);font-weight:600}
+
+/* ============================================================
+   SECTION 05 — writable budget
+   ============================================================ */
+.bits{display:flex;gap:8px;flex-wrap:wrap;margin:0}
+.bit{
+  width:54px;height:68px;border-radius:10px;border:1px solid var(--line-2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  font-family:var(--f-mono);cursor:pointer;user-select:none;
+  transition:all .32s var(--ease);background:rgba(150,168,205,.05);
+}
+.bit .b{font-size:24px;font-weight:600;color:var(--ink);line-height:1}
+.bit .i{font-size:9px;color:var(--faint);letter-spacing:.05em}
+.bit-row{display:flex;gap:28px;align-items:center;flex-wrap:wrap;margin:2px 0 20px}
+.bit-out{min-width:168px}
+.bit-out .k{font-family:var(--f-mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);margin-bottom:4px}
+.bit-out .v{font-family:var(--f-mono);font-size:30px;font-weight:500;line-height:1;color:var(--cyan);font-variant-numeric:tabular-nums}
+.bit-out .s{font-size:11.5px;color:var(--dim-2);margin-top:6px;line-height:1.5;max-width:24ch}
+.bit-out.on .v{color:var(--rose)}
+.bit-out.on .s{color:rgba(255,107,139,.8)}
+.bit:hover{border-color:var(--line-3);background:rgba(150,168,205,.1)}
+.bit.flip{background:rgba(255,107,139,.14);border-color:rgba(255,107,139,.6);box-shadow:0 0 18px -4px rgba(255,107,139,.5)}
+.bit.flip .b{color:var(--rose)}
+.bit.flip .i{color:rgba(255,107,139,.7)}
+.bit.core{border-color:rgba(94,231,255,.5)}
+.bit.core::after{content:'';position:absolute}
+.bits-hint{font-family:var(--f-mono);font-size:10.5px;color:var(--dim-2);letter-spacing:.03em;margin-bottom:14px}
+.bits-hint b{color:var(--rose);font-weight:600}
+.bits-hint.ok b{color:var(--emerald)}
+
+.bud-bar{height:6px;border-radius:3px;background:rgba(150,168,205,.12);overflow:hidden;display:flex;margin:2px 0 8px}
+.bud-bar i{display:block;height:100%;transition:width .4s var(--ease)}
+.bud-lab{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:10px;color:var(--dim-2);letter-spacing:.04em}
+
+/* ============================================================
+   SECTION 06 — clocks
+   ============================================================ */
+.clocks{display:grid;grid-template-columns:minmax(0,1fr) 288px;gap:22px;align-items:start}
+@media(max-width:1040px){.clocks{grid-template-columns:1fr}}
+.clock-row{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+.clock-row:last-child{border-bottom:none}
+.clock-dot{width:8px;height:8px;border-radius:2px;flex:none}
+.clock-n{font-size:12.5px;color:var(--ink-2);flex:1;font-weight:300}
+.clock-v{font-family:var(--f-mono);font-size:12.5px;color:var(--ink);font-variant-numeric:tabular-nums;font-weight:500}
+
+/* ============================================================
+   SECTION 07 — audit console
+   ============================================================ */
+.console{display:grid;grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr);gap:22px;align-items:start}
+@media(max-width:1040px){.console{grid-template-columns:1fr}}
+.console .rail{display:flex;flex-direction:column}
+.console .rail .rail-tail{margin-top:auto;padding-top:20px;border-top:1px solid var(--line)}
+.console .rail .rail-tail p{font-size:11.5px;line-height:1.7;color:var(--dim-2);font-weight:300;margin:0}
+.verdict{
+  border:1px solid var(--line);border-radius:var(--r-l);padding:20px 20px 18px;
+  position:relative;overflow:hidden;transition:border-color .45s var(--ease);
+  background:linear-gradient(170deg,rgba(14,18,32,.8),rgba(7,9,16,.9));
+}
+.verdict[data-state=ok]{border-color:rgba(74,222,128,.34)}
+.verdict[data-state=no]{border-color:rgba(255,107,139,.34)}
+.verdict[data-state=thin]{border-color:rgba(255,199,107,.34)}
+.verdict::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(320px 160px at 12% 0%,var(--vc,transparent),transparent 72%);
+  opacity:.5;
+}
+.verdict[data-state=ok]{--vc:rgba(74,222,128,.14)}
+.verdict[data-state=no]{--vc:rgba(255,107,139,.14)}
+.verdict[data-state=thin]{--vc:rgba(255,199,107,.14)}
+.vd-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;position:relative}
+.vd-ic{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:13px;flex:none;margin-top:1px}
+[data-state=ok] .vd-ic{background:rgba(74,222,128,.14);color:var(--emerald);border:1px solid rgba(74,222,128,.34)}
+[data-state=no] .vd-ic{background:rgba(255,107,139,.14);color:var(--rose);border:1px solid rgba(255,107,139,.34)}
+[data-state=thin] .vd-ic{background:rgba(255,199,107,.14);color:var(--amber);border:1px solid rgba(255,199,107,.34)}
+.vd-t{font-family:var(--f-display);font-size:21px;line-height:1.16;flex:1}
+[data-state=ok] .vd-t{color:var(--emerald)}
+[data-state=no] .vd-t{color:var(--rose)}
+[data-state=thin] .vd-t{color:var(--amber)}
+.vd-s{font-size:12.5px;line-height:1.66;color:var(--dim);font-weight:300;position:relative}
+.vd-kv{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-radius:8px;overflow:hidden;margin-top:14px;position:relative}
+.vd-kv div{background:rgba(8,10,18,.86);padding:9px 11px}
+.vd-kv .k{font-family:var(--f-mono);font-size:8.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint)}
+.vd-kv .v{font-family:var(--f-mono);font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums;margin-top:2px}
+
+/* ============================================================
+   SECTION 08 — limits
+   ============================================================ */
+.lim{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media(max-width:860px){.lim{grid-template-columns:1fr}}
+.lim-c{
+  border:1px solid var(--line);border-radius:var(--r-l);padding:22px;
+  background:linear-gradient(170deg,rgba(13,17,29,.7),rgba(7,9,16,.88));
+  position:relative;overflow:hidden;
+}
+.lim-c::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--lc,var(--rose));opacity:.65;
+}
+.lim-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.lim-h .t{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--lc,var(--rose))}
+.lim-t{font-family:var(--f-display);font-size:22px;line-height:1.2;margin-bottom:9px}
+.lim-b{font-size:13px;line-height:1.7;color:var(--dim);font-weight:300}
+.lim-b b{color:var(--ink-2);font-weight:600}
+
+/* quote block */
+.quote{
+  border:1px solid rgba(255,107,139,.24);border-radius:var(--r-l);
+  background:linear-gradient(170deg,rgba(255,107,139,.055),rgba(7,9,16,.9));
+  padding:28px 30px;position:relative;overflow:hidden;
+}
+.quote::before{
+  content:'“';position:absolute;left:14px;top:-14px;font-family:var(--f-display);
+  font-size:120px;color:rgba(255,107,139,.14);line-height:1;pointer-events:none;
+}
+.quote-q{
+  font-family:var(--f-display);font-size:clamp(19px,2.1vw,26px);line-height:1.45;
+  color:var(--ink);position:relative;margin-bottom:14px;letter-spacing:-.005em;
+}
+.quote-a{font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--rose);opacity:.8}
+
+/* ============================================================
+   SECTION 09 — reproduction
+   ============================================================ */
+.repro{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:22px;align-items:start}
+@media(max-width:1040px){.repro{grid-template-columns:1fr}}
+.bar-mini{display:flex;align-items:center;gap:10px}
+.bar-mini .track{flex:1;height:6px;border-radius:3px;background:rgba(150,168,205,.10);overflow:hidden;min-width:44px}
+.bar-mini .fill{height:100%;border-radius:3px;background:var(--cyan);transform-origin:left;transform:scaleX(0);transition:transform 1.1s var(--ease-out);opacity:.85}
+.bar-mini.in .fill{transform:scaleX(1)}
+
+/* ============================================================
+   SECTION 10 — legacy contrast
+   ============================================================ */
+.legacy{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
+@media(max-width:1040px){.legacy{grid-template-columns:1fr}}
+.cmp{border:1px solid var(--line);border-radius:var(--r-l);overflow:hidden}
+.cmp-h{padding:13px 18px;border-bottom:1px solid var(--line);font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:9px}
+.cmp-b{padding:18px}
+.cmp-row{display:grid;grid-template-columns:88px 1fr;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px;line-height:1.55}
+.cmp-row:last-child{border-bottom:none}
+.cmp-row .k{font-family:var(--f-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);padding-top:3px}
+.cmp-row .v{color:var(--ink-2);font-weight:300}
+.cmp-row .v b{color:var(--ink);font-weight:600}
+
+/* ============================================================
+   MISC
+   ============================================================ */
+.axis text{font-family:var(--f-mono);font-size:9.5px;fill:var(--dim-2)}
+.gridline{stroke:rgba(150,168,205,.1);stroke-width:1}
+.gridline.strong{stroke:rgba(150,168,205,.2)}
+.tip{
+  position:absolute;pointer-events:none;opacity:0;z-index:40;
+  background:rgba(5,6,11,.96);border:1px solid var(--line-2);border-radius:8px;
+  padding:8px 11px;font-family:var(--f-mono);font-size:10.5px;line-height:1.65;
+  color:var(--ink-2);white-space:nowrap;transform:translate(-50%,-124%);
+  transition:opacity .16s;box-shadow:0 14px 40px -14px #000;letter-spacing:.02em;
+}
+.tip.on{opacity:1}
+.tip b{color:var(--cyan);font-weight:600}
+.tip .k{color:var(--faint)}
+
+.mx{position:relative}
+.mx svg{width:100%;height:auto;display:block}
+
+.pill-row{display:flex;gap:6px;flex-wrap:wrap}
+.hide{display:none!important}
+
+@media(max-width:720px){
+  .sec{padding:74px 0}
+  .wrap,.wrap-wide,.nav-in{padding:0 20px}
+  .eq{font-size:12.5px;padding:11px 13px}
+  .stat-grid{grid-template-columns:1fr}
+  .vd-kv{grid-template-columns:1fr}
+  .hm-body{padding:16px 14px 12px}
+  .stage-body{padding:14px 10px 10px}
+  .bits{gap:4px}
+  .bit{width:29px;height:39px}
+}
+@media(max-width:600px){
+  .tbl{font-size:12px}
+  .tbl th,.tbl td{padding-left:6px;padding-right:6px}
+  .tbl th:nth-child(4),.tbl td:nth-child(4){display:none}
+  .tbl td.num{font-size:11.5px}
+  .quote{padding:20px 20px}
+  .quote-q{font-size:17px}
+}
+
+/* 截图/静态模式：关闭全部入场动画，确保无 rAF 时也能满不透明 */
+html.no-anim .rv{transition:none!important;opacity:1!important;transform:none!important;filter:none!important}
+html.no-anim .ticker-track{animation:none!important}
+html.no-anim .grain{animation:none!important}
+html.no-anim .bar-mini .fill{transform:none!important}
+</style>
+</head>
+<body>
+<canvas id="field" aria-hidden="true"></canvas>
+<div class="atmos" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="scan" aria-hidden="true"></div>
+<div id="glow" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="brand" href="#top">
+      <svg class="brand-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9.2" stroke="#5ee7ff" stroke-width="1.1" opacity=".8"/>
+        <circle cx="12" cy="12" r="5.4" stroke="#a78bfa" stroke-width=".9" opacity=".55" stroke-dasharray="2 3"/>
+        <circle cx="12" cy="12" r="1.9" fill="#ffc76b"/>
+      </svg>
+      <span class="brand-txt">认证<b>地平线</b></span>
+    </a>
+    <nav class="nav-links">
+      <a href="#three">三种问题</a>
+      <a href="#cut">受保护切口</a>
+      <a href="#evidence">证据代价</a>
+      <a href="#budget">写入预算</a>
+      <a href="#dynamics">三条时钟</a>
+      <a href="#console">认证台</a>
+      <a href="#limits">边界</a>
+      <a href="#repro">复现</a>
+    </nav>
+    <a class="nav-cta" href="#console">开始审计</a>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ============================ HERO ============================ -->
+<section class="hero">
+  <div class="wrap-wide">
+    <div class="hero-grid">
+      <div class="hero-l">
+        <div class="kicker hero-kicker rv"><span class="n">预印本</span> 2026.09.16 · 27 页 · 5 定理 4 命题</div>
+        <h1 class="h1 rv rv-d1">认证<br>地平线<span class="l2">The Certification Horizon<br>of Learned Computation</span></h1>
+        <p class="lede hero-lede rv rv-d2">
+          一个变量可以<strong>编码</strong>答案，却不参与产生输出的计算。即使它参与了，
+          有限的证据也可能在计算变得可靠之前很久就暴露出它的影响。
+          本页把这两件事拆开：<span class="hl">观测者能证明什么</span>，
+          与<span class="hl-v">学习器学到了什么</span>，服从不同的定律。
+        </p>
+        <div class="hero-chips rv rv-d3">
+          <span class="chip cy">ρ<sup>ℓ</sup> 端点可分离度</span>
+          <span class="chip ro">ρ<sup>−2ℓ</sup> 证据代价</span>
+          <span class="chip vi">2L / log N 检测时钟</span>
+          <span class="chip am">⌊W/c⌋ 写入前沿</span>
+        </div>
+        <div class="hero-cta rv rv-d4">
+          <a class="cta primary" href="#console">打开认证台 <span class="ar">→</span></a>
+          <a class="cta" href="#dynamics">看三条时钟如何分岔</a>
+        </div>
+      </div>
+
+      <div class="hm rv rv-d3">
+        <div class="hm-frame">
+          <div class="hm-bar"><span class="d"></span>Theorem 2 · 受保护切口代数<span class="r" id="hmEqTag">T<sub>w</sub> = ρ<sup>ℓ</sup>P<sub>w</sub> + (1−ρ<sup>ℓ</sup>)U</span></div>
+          <div class="hm-body">
+            <div class="hm-mat"><div class="mx"><svg id="heroMat" viewBox="0 0 420 300" role="img" aria-label="受保护切口转移矩阵随未观测长度衰减"></svg></div></div>
+            <div class="hm-side">
+              <div class="hm-read"><span class="k">未观测长度 ℓ</span><span class="v" id="hmL">8</span></div>
+              <div class="hm-read"><span class="k">端点对比 ρ<sup>ℓ</sup></span><span class="v" id="hmR">0.0430</span></div>
+              <div class="mx" style="margin-top:2px"><svg id="hmSpark" viewBox="0 0 118 54" role="img" aria-label="端点对比随未观测长度指数衰减"></svg></div>
+            </div>
+          </div>
+          <div class="hm-foot"><span>K = <b id="hmK">4</b> · ρ = <b id="hmRho">0.67</b></span><span>ℓ ↑ → 端点分布 → 均匀</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpis rv rv-d5">
+      <div class="kpi cy">
+        <div class="k">单次替换的可分离度</div>
+        <div class="v">ρ<sup>ℓ</sup></div>
+        <div class="s">活系统与旁路系统在原生端点上的总变差距离，<em>恰好</em>等于保留率的 ℓ 次幂。</div>
+      </div>
+      <div class="kpi ro">
+        <div class="k">固定误差的证据代价</div>
+        <div class="v">Θ(ρ<sup>−2ℓ</sup>)</div>
+        <div class="s">信号按 ρ<sup>ℓ</sup> 衰减，判别所需试验数按其平方反比爆炸。</div>
+      </div>
+      <div class="kpi vi">
+        <div class="k">检测时钟</div>
+        <div class="v">2L<span style="font-size:14px;color:var(--dim-2)">/</span>log N</div>
+        <div class="s">加试验只能让<span class="dim2">可检测的因果影响</span>提前，不能改变学习器。</div>
+      </div>
+      <div class="kpi am">
+        <div class="k">可写入的有效试验</div>
+        <div class="v">⌊W<span style="font-size:14px;color:var(--dim-2)">/</span>c⌋</div>
+        <div class="s">一位可读的状态，可能要 c 次写才翻得动；写不够，试验再多也无效。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-tick ticker">
+    <div class="ticker-track" id="tickTrack"></div>
+  </div>
+  <div class="hero-scroll" aria-hidden="true"><span>SCROLL</span><i></i></div>
+</section>
+
+<!-- ============================ 01 三种问题 ============================ -->
+<section class="sec sec-bordered" id="three">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-l rv">
+        <div class="kicker"><span class="n">01</span> 三种被混为一谈的问题</div>
+        <h2 class="h2" style="margin-top:16px">「模型里有没有这个概念」<br>其实是三个问题</h2>
+      </div>
+      <div class="sh-r rv rv-d1">
+        <p class="body">
+          论文把常被合并的三个判断拆成三条独立命题。它们的证据要求、可反驳方式、
+          以及能被外推的范围都不同。把它们压成一个 onset 分数，是这个领域最常见的错误。
+        </p>
+        <div class="sh-tags">
+          <span class="thm-tag">Prop 9</span>
+          <span class="thm-tag">Thm 2</span>
+          <span class="thm-tag">Def 1</span>
+          <span class="thm-tag">Prop 10</span>
+          <span class="thm-tag">Prop 14</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="q3" id="q3">
+      <article class="qc rv" style="--qc:var(--cyan)">
+        <div class="qc-n"><span>可用性</span><span class="bar"></span><span>01</span></div>
+        <h3 class="qc-t">表示可得</h3>
+        <div class="qc-en">Representation availability</div>
+        <p class="qc-q">一个读出能否从这个表示里<strong>恢复</strong>目标信息？</p>
+        <div class="qc-row"><span class="kk">典型测法</span><span class="vv">探针、互信息、MDL 描述长度</span></div>
+        <div class="qc-row"><span class="kk">能推出</span><span class="vv ok">信息在那里</span></div>
+        <div class="qc-row"><span class="kk">推不出</span><span class="vv bad">它在被使用 · 提取它有多贵</span></div>
+      </article>
+
+      <article class="qc rv rv-d1" style="--qc:var(--violet)">
+        <div class="qc-n"><span>因果性</span><span class="bar"></span><span>02</span></div>
+        <h3 class="qc-t">因果使用</h3>
+        <div class="qc-en">Causal use</div>
+        <p class="qc-q">替换它，会不会<strong>改变</strong>后续计算的原生输出？</p>
+        <div class="qc-row"><span class="kk">典型测法</span><span class="vv">受保护切口干预、激活替换</span></div>
+        <div class="qc-row"><span class="kk">能推出</span><span class="vv ok">该寄存器参与了这次续算</span></div>
+        <div class="qc-row"><span class="kk">推不出</span><span class="vv bad">算法是对的 · 唯一的程序</span></div>
+      </article>
+
+      <article class="qc rv rv-d2" style="--qc:var(--amber)">
+        <div class="qc-n"><span>保真性</span><span class="bar"></span><span>03</span></div>
+        <h3 class="qc-t">算法保真</h3>
+        <div class="qc-en">Algorithmic fidelity</div>
+        <p class="qc-q">整条长度为 L 的轨迹，是否<strong>逐步</strong>复现目标算法？</p>
+        <div class="qc-row"><span class="kk">典型测法</span><span class="vv">完整轨迹的 TV 距离、局部重置证书</span></div>
+        <div class="qc-row"><span class="kk">能推出</span><span class="vv ok">行为正确（Prop 10）</span></div>
+        <div class="qc-row"><span class="kk">推不出</span><span class="vv bad">无界外推（Prop 14）</span></div>
+      </article>
+    </div>
+
+    <div class="xor">
+      <div class="panel rv rv-d1">
+        <div class="panel-head"><span class="dot"></span>Proposition 9 · 可得 ≠ 可提取<span class="r">n = 4 示例</span></div>
+        <div class="panel-body">
+          <div class="mx"><svg id="xorSvg" viewBox="0 0 560 250" role="img" aria-label="两种等价表示在查询预算下的预测错误率"></svg></div>
+          <div class="leg" style="margin-top:14px">
+            <span><i style="background:var(--rose)"></i>H₀ = X（原始比特）</span>
+            <span><i style="background:var(--emerald)"></i>H₁ = (X₁…X<sub>n−1</sub>, Y)</span>
+          </div>
+        </div>
+        <div class="stage-foot">
+          <span>两种表示<b>双射</b>，且 <b>I(H₀;Y) = I(H₁;Y) = 1 bit</b></span>
+          <span>但查询成本相差 n−1 倍</span>
+        </div>
+      </div>
+      <div class="rv rv-d2">
+        <p class="body">
+          令 X 在 {0,1}<sup>n</sup> 上均匀，Y = ⊕<sub>j</sub> X<sub>j</sub>。
+          两种表示 <span class="mono">H₀ = X</span> 与 <span class="mono">H₁ = (X₁,…,X<sub>n−1</sub>, Y)</span>
+          互为双射——逆映射就是 <span class="mono">X<sub>n</sub> = Y ⊕ X₁ ⊕ … ⊕ X<sub>n−1</sub></span>。
+          两者的互信息完全相同，都是一比特。
+        </p>
+        <p class="body">
+          但任何自适应随机读取器，只要<strong>每次执行</strong>最多查询 n−1 个坐标，
+          对 H₀ 的预测错误率就恒为 <span class="hl-r mono">1/2</span>：
+          条件在任意叶子转录上，总有一个比特没被查到，把它翻转得到另一个同样可能的赋值，
+          而两者的奇偶性相反。对 H₁ 只要<strong>一次</strong>查询就精确。
+        </p>
+        <div class="eq eq-sm">
+          <span class="c">// 可得性与提取成本是两个资源</span><br>
+          I(H₀;Y) = I(H₁;Y) = <span class="v">1</span> bit<br>
+          err(H₀, q ≤ n−1) = <span class="r">1/2</span>&nbsp;&nbsp;·&nbsp;&nbsp;err(H₁, q = 1) = <span class="em" style="color:var(--emerald)">0</span>
+        </div>
+        <p class="note">
+          这个论证只关乎<strong>提取成本</strong>，与因果使用无关。产生 H₁ 的系统，
+          完全可以<strong>无视</strong>它的最后一个坐标。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 02 受保护切口 ============================ -->
+<section class="sec sec-bordered" id="cut">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-l rv">
+        <div class="kicker"><span class="n">02</span> 受保护切口 · Theorem 2</div>
+        <h2 class="h2" style="margin-top:16px">把「它在不在用」<br>变成一个有限的统计实验</h2>
+      </div>
+      <div class="sh-r rv rv-d1">
+        <p class="body">
+          在一个声明好的因果切口上，两个可见寄存器满足 <span class="mono">S = B = s</span>。
+          <strong>S 可编辑，B 受保护</strong>。活系统从 S 续算，旁路系统从 B 续算。
+          唯一允许的干预是把 S 换成 <span class="mono">a₀ ≠ s</span>，然后看 ℓ 步之后的原生端点。
+        </p>
+      </div>
+    </div>
+
+    <div class="bay">
+      <aside class="rail rv">
+        <div class="rail-g">
+          <div class="rail-h">状态空间</div>
+          <div class="seg" id="cutK">
+            <button class="btn on" data-k="2">K = 2</button>
+            <button class="btn" data-k="3">K = 3</button>
+            <button class="btn" data-k="4">K = 4</button>
+            <button class="btn" data-k="5">K = 5</button>
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">保留率 ρ</div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">每步保留原转移的概率</span><span class="sl-val" id="cutRhoV">0.85</span></div>
+            <input type="range" id="cutRho" min="0.05" max="0.99" step="0.01" value="0.85">
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">未观测长度 ℓ</div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">切口到端点的步数</span><span class="sl-val" id="cutLV">6</span></div>
+            <input type="range" id="cutL" min="1" max="60" step="1" value="6">
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">读数</div>
+          <div class="stat-grid" style="grid-template-columns:1fr">
+            <div class="stat cy"><div class="k">端点对比 r = ρ<sup>ℓ</sup></div><div class="v" id="cutR">0.377</div><div class="s">唯一允许的替换造成的 TV 距离</div></div>
+            <div class="stat"><div class="k">分辨该信号所需试验 N*</div><div class="v" id="cutN">—</div><div class="s">δ = 0.05，Theorem 3 充分条件</div></div>
+            <div class="stat ro"><div class="k">每多 1 步，代价乘数</div><div class="v" id="cutMul">1/ρ²</div><div class="s">指数而非线性</div></div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="stage rv rv-d1">
+        <div class="stage-bar"><span>续算核 T<sub>w</sub> 的完整矩阵</span><span class="r" id="cutBarR">ℓ = 6</span></div>
+        <div class="stage-body">
+          <div class="mat-wrap">
+            <div class="mx"><svg id="cutMat" viewBox="0 0 520 400" role="img" aria-label="受保护切口的续算核矩阵"></svg></div>
+            <div>
+              <div class="eq eq-sm" style="margin-top:0">
+                T<sub>a</sub> = ρP<sub>a</sub> + (1−ρ)U<br>
+                T<sub>w</sub> = <span class="v">ρ<sup>ℓ</sup></span>P<sub>w</sub> + (1−<span class="v">ρ<sup>ℓ</sup></span>)U
+              </div>
+              <div class="mx"><svg id="cutDecay" viewBox="0 0 210 150" role="img" aria-label="端点对比随未观测长度衰减"></svg></div>
+              <div class="leg" style="margin-top:8px;flex-direction:column;gap:5px">
+                <span><i class="sq" style="background:var(--cyan)"></i>置换分量 P<sub>w</sub></span>
+                <span><i class="sq" style="background:rgba(150,168,205,.28)"></i>均匀分量 U = 1/K</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="stage-foot">
+          <span>置换矩阵双随机 ⇒ <b>P<sub>a</sub>U = U P<sub>a</sub> = U</b>，故乘积可归纳为 ρ<sup>ℓ</sup>P<sub>w</sub> + (1−ρ<sup>ℓ</sup>)U</span>
+          <span>不要求 P<sub>a</sub> 两两交换</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="split" style="margin-top:22px">
+      <div class="panel rv">
+        <div class="panel-head"><span class="dot"></span>被动访问下的不可区分性<span class="r">coupling 论证</span></div>
+        <div class="panel-body">
+          <p class="body" style="font-size:13.5px">
+            在被动访问下 <span class="mono">S = B = s</span>。把两个系统耦合到同一组「保留/重置」决策
+            和同一组均匀抽样上，它们的续算状态<strong>每一步都相同</strong>，
+            因此任何数量的重置、任何自适应选择的无干预输入，其转录律都逐点相等。
+            先验相等时，每个被动二分类器的错误率至少 1/2，随机猜测即可达到。
+          </p>
+          <p class="body" style="font-size:13.5px;margin-top:12px">
+            这正是关键：<strong>接口本身不暴露接线或参数</strong>。
+            定理 2 的等式只关于被允许的运行时观测——两个机制的接线图、源码、梯度、权重、
+            侧信道时序都不必相同。<span class="hl">这里没有主张任何白盒不可能性。</span>
+          </p>
+        </div>
+      </div>
+      <div class="panel rv rv-d1">
+        <div class="panel-head"><span class="dot" style="background:var(--amber);box-shadow:0 0 9px var(--amber)"></span>为什么 ℓ ≥ 1 是必须的</div>
+        <div class="panel-body">
+          <p class="body" style="font-size:13.5px">
+            若允许 <span class="mono">ℓ = 0</span>，直接观测切口起始状态就会给出
+            <span class="mono">r = 1</span>，与学习完全无关。定理刻意研究 <span class="mono">ℓ ≥ 1</span>：
+            信号必须穿过一段<strong>未观测</strong>的续算。
+          </p>
+          <div class="eq eq-sm" style="margin-bottom:0">
+            <span class="c">// 端点律</span><br>
+            P<sub>r</sub> = rδ<sub>y₁</sub> + (1−r)u<sub>K</sub><br>
+            Q<sub>r</sub> = rδ<sub>y₀</sub> + (1−r)u<sub>K</sub><br>
+            d<sub>TV</sub>(P<sub>r</sub>,Q<sub>r</sub>) = <span class="v">r = ρ<sup>ℓ</sup></span>
+          </div>
+          <p class="note" style="margin-top:12px">
+            写者只选择了一个<strong>当前状态</strong>；它没有提供未来答案，没有替换原生输出，也没有改动 B。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 03 证据代价 ============================ -->
+<section class="sec sec-bordered" id="evidence">
+  <div class="wrap-wide">
+    <div class="wrap" style="padding:0">
+      <div class="sh">
+        <div class="sh-l rv">
+          <div class="kicker"><span class="n">03</span> 证据代价 · Theorem 3</div>
+          <h2 class="h2" style="margin-top:16px">每多看一步未观测续算<br>代价是<em class="hl-r" style="font-style:normal">平方指数</em>的</h2>
+        </div>
+        <div class="sh-r rv rv-d1">
+          <p class="body">
+            端点对比 r = ρ<sup>ℓ</sup> 已经很小，而判别两个几乎相同的分布所需样本数按
+            <span class="mono">1/r²</span> 增长。两者相乘，得到固定误差下的证据代价
+            <span class="hl-r mono">Θ(ρ<sup>−2ℓ</sup>)</span>。这是本文最容易被低估的一条。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bay">
+      <aside class="rail rv">
+        <div class="rail-g">
+          <div class="rail-h">状态空间 K</div>
+          <div class="seg" id="evK">
+            <button class="btn on" data-k="2">2</button>
+            <button class="btn" data-k="3">3</button>
+            <button class="btn" data-k="4">4</button>
+            <button class="btn" data-k="6">6</button>
+            <button class="btn" data-k="8">8</button>
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">保留率 ρ</div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">决定衰减速度</span><span class="sl-val" id="evRhoV">0.90</span></div>
+            <input type="range" id="evRho" min="0.3" max="0.99" step="0.005" value="0.90">
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">目标误差 δ</div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">等先验分类错误率上限</span><span class="sl-val" id="evDeltaV">0.05</span></div>
+            <input type="range" id="evDelta" min="1" max="20" step="1" value="5">
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">当前 ℓ</div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">光标位置</span><span class="sl-val" id="evLV">18</span></div>
+            <input type="range" id="evL" min="0" max="120" step="1" value="18">
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">该点读数</div>
+          <div class="stat-grid" style="grid-template-columns:1fr">
+            <div class="stat cy"><div class="k">r = ρ<sup>ℓ</sup></div><div class="v" id="evR">0.150</div></div>
+            <div class="stat"><div class="k">C<sub>K</sub>(r) 切尔诺夫系数</div><div class="v" id="evC">0.0051</div></div>
+            <div class="stat ro"><div class="k">所需试验 N*</div><div class="v" id="evN">590</div><div class="s" id="evNs">⌈log(1/δ)/C<sub>K</sub>(r)⌉</div></div>
+          </div>
+        </div>
+      </aside>
+
+      <div>
+        <div class="stage rv rv-d1">
+          <div class="stage-bar"><span>所需重置试验数 vs 未观测长度</span><span class="r" id="evBarR">δ = 0.05</span></div>
+          <div class="stage-body">
+            <div class="mx"><svg id="evChart" viewBox="0 0 900 400" role="img" aria-label="不同保留率下证据代价随未观测长度的增长"></svg></div>
+          </div>
+          <div class="stage-foot">
+            <span>纵轴对数 · <b>N* = ⌈log(1/δ)/C<sub>K</sub>(ρ<sup>ℓ</sup>)⌉</b></span>
+            <span>虚线：论文 Figure 1 的保留率 0.5 / 0.75 / 0.9</span>
+          </div>
+        </div>
+
+        <div class="split" style="margin-top:22px">
+          <div class="stage rv rv-d2">
+            <div class="stage-bar"><span>精确有限递归 vs 定理上下界</span><span class="r" id="evExBar">K=3 · r=0.2</span></div>
+            <div class="stage-body">
+              <div class="mx"><svg id="evExact" viewBox="0 0 460 260" role="img" aria-label="精确递归错误率与解析上下界对比"></svg></div>
+            </div>
+            <div class="stage-foot"><span>递归按 <b>D<sub>N</sub> = n₁−n₀</b> 的三点分布卷积，非渐近近似</span></div>
+          </div>
+          <div class="rv rv-d3">
+            <div class="eq" style="margin-top:0">
+              α = r + (1−r)/K&nbsp;&nbsp;<span class="c">β = (1−r)/K</span><br>
+              B<sub>K</sub>(r) = (K−2)β + 2<span class="v">√(αβ)</span><br>
+              C<sub>K</sub>(r) = −log B<sub>K</sub>(r) = <span class="v">Kr²/4</span> + O<sub>K</sub>(r³)<br>
+              <span class="a">¼</span>e<sup>−2NC</sup> ≤ e*<sub>N</sub> ≤ <span class="a">½</span>e<sup>−NC</sup>
+            </div>
+            <p class="body" style="font-size:13.5px">
+              上下界相差一个<strong>常数因子 2</strong>（指数上是 2 倍），不是指数级差距。
+              这已经足够把代价量级钉死：固定 δ 时
+              <span class="mono">N* = Θ(1/C<sub>K</sub>(ρ<sup>ℓ</sup>)) = Θ(ρ<sup>−2ℓ</sup>)</span>。
+            </p>
+            <p class="note" style="margin-top:12px">
+              <b>注意常数不随 K 一致。</b>小 r 展开的分母是 <span class="mono">4/K + O<sub>K</sub>(r)</span>，
+              当 K 增长时这一项本身会变。
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 04 写入预算 ============================ -->
+<section class="sec sec-bordered" id="budget">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-l rv">
+        <div class="kicker"><span class="n">04</span> 写入预算 · Theorem 4</div>
+        <h2 class="h2" style="margin-top:16px">读得动，不等于<br>改得动</h2>
+      </div>
+      <div class="sh-r rv rv-d1">
+        <p class="body">
+          把状态编码成 <span class="mono">m = 2h+1</span> 个<strong>相同</strong>的比特，
+          读数只需一位，写者却必须翻动多数才能改变它：<span class="mono">c = h+1</span>。
+          于是有效试验数被物理写入预算卡住，而不是被观测次数卡住。
+        </p>
+      </div>
+    </div>
+
+    <div class="bay">
+      <aside class="rail rv">
+        <div class="rail-g">
+          <div class="rail-h">编码位数 m（奇数）</div>
+          <div class="seg" id="bdM">
+            <button class="btn on" data-m="3">3</button>
+            <button class="btn" data-m="5">5</button>
+            <button class="btn" data-m="7">7</button>
+            <button class="btn" data-m="9">9</button>
+            <button class="btn" data-m="11">11</button>
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">写入预算 W</div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">总可用写操作数</span><span class="sl-val" id="bdWV">8</span></div>
+            <input type="range" id="bdW" min="0" max="24" step="1" value="8">
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">重置次数 N</div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">独立重置试验上限</span><span class="sl-val" id="bdNV">12</span></div>
+            <input type="range" id="bdN" min="1" max="60" step="1" value="12">
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">信号 r = ρ<sup>ℓ</sup></div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">单次有效试验的可分离度</span><span class="sl-val" id="bdRV">0.35</span></div>
+            <input type="range" id="bdR" min="0.02" max="0.95" step="0.01" value="0.35">
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">判定</div>
+          <div class="stat-grid" style="grid-template-columns:1fr">
+            <div class="stat"><div class="k">有效试验 M = min(N, ⌊W/c⌋)</div><div class="v" id="bdMv">4</div></div>
+            <div class="stat" id="bdEstarBox"><div class="k">最优审计错误 e*<sub>M</sub>(r)</div><div class="v" id="bdEstar">0.077</div><div class="s" id="bdEstarS">已越过写入阈值</div></div>
+          </div>
+        </div>
+      </aside>
+
+      <div>
+        <div class="stage rv rv-d1">
+          <div class="stage-bar"><span>多数编码块 · 点击任一比特手动翻转</span><span class="r" id="bdBitR">c = 3</span></div>
+          <div class="stage-body">
+            <div class="bit-row">
+              <div class="bits" id="bdBits"></div>
+              <div class="bit-out" id="bdMajorBox">
+                <div class="k">当前多数</div>
+                <div class="v" id="bdMajor">0</div>
+                <div class="s" id="bdMajorS">= s，与旁路不可区分</div>
+              </div>
+            </div>
+            <div class="bits-hint" id="bdHint">已翻转 <b>0</b> 位 · 还需 <b>2</b> 位才能改变多数</div>
+            <div class="bud-bar">
+              <i id="bdBarFlip" style="width:0%;background:var(--rose)"></i>
+              <i id="bdBarRest" style="width:0%;background:rgba(150,168,205,.22)"></i>
+            </div>
+            <div class="bud-lab"><span id="bdBarL">0 次写已用</span><span id="bdBarR2">W = 8</span></div>
+          </div>
+          <div class="stage-foot">
+            <span>少数位保留 s ⇒ 多数仍是 s ⇒ 两假设端点律相同</span>
+            <span>翻转 c 个不同位 ⇒ 多数变 1−s ⇒ 一次信息性重置</span>
+          </div>
+        </div>
+
+        <div class="stage rv rv-d2" style="margin-top:22px">
+          <div class="stage-bar"><span>写入悬崖 · e* 随 W 的变化</span><span class="r" id="bdCliffR">N = 12 · r = 0.35</span></div>
+          <div class="stage-body">
+            <div class="mx"><svg id="bdCliff" viewBox="0 0 900 300" role="img" aria-label="最优审计错误随写入预算的悬崖式下降"></svg></div>
+          </div>
+          <div class="stage-foot">
+            <span>W &lt; c 时 <b>e* = 1/2</b>，与 N 无关，也与学习进行到多晚无关</span>
+            <span>W ≥ c 后每多 c 次写换来一次有效试验</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quote rv" style="margin-top:26px">
+      <div class="quote-q">
+        W<sub>L</sub> &lt; (m<sub>L</sub>+1)/2 时，检测在任何训练时刻都不可能——包括确定性极限。
+      </div>
+      <div class="quote-a">Corollary 11 · 联合证据–写入检测时钟</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 05 三条时钟 ============================ -->
+<section class="sec sec-bordered" id="dynamics">
+  <div class="wrap-wide">
+    <div class="wrap" style="padding:0">
+      <div class="sh">
+        <div class="sh-l rv">
+          <div class="kicker"><span class="n">05</span> 学习动力学 · Theorem 5 &amp; Corollary 6</div>
+          <h2 class="h2" style="margin-top:16px">检测时钟跑得比<br>能力时钟快</h2>
+        </div>
+        <div class="sh-r rv rv-d1">
+          <p class="body">
+            在一个完全参数化的类别转移表上，梯度流有精确解。由此推出的
+            <span class="hl mono">t<sub>det</sub> ~ 2L/log N</span> 与
+            <span class="hl-v mono">t<sub>acc</sub> ~ L</span> 具有<strong>不同的渐近尺度</strong>。
+            观测者收集更多证据，只会让可检测的影响提前，学习器本身没有改变。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="clocks">
+      <div class="stage rv">
+        <div class="stage-bar"><span>端点正确率 A<sub>L</sub>(t) 与完整轨迹保真 F<sub>L</sub>(t)</span><span class="r" id="dyBarR">K = 3 · L = 64</span></div>
+        <div class="stage-body">
+          <div class="mx"><svg id="dyChart" viewBox="0 0 900 420" role="img" aria-label="端点正确率与完整轨迹保真度随训练时间的变化"></svg></div>
+        </div>
+        <div class="stage-foot">
+          <span>横轴为<b>累积损失梯度流时间</b>，不是实测 GPU 时间</span>
+          <span id="dyFootNote">在 t<sub>det</sub> 处 F<sub>L</sub> = N<sup>−(K−1)/(2K)</sup> → 0</span>
+        </div>
+      </div>
+
+      <aside class="rail rv rv-d1" style="position:static">
+        <div class="rail-g">
+          <div class="rail-h">状态空间 K</div>
+          <div class="seg" id="dyK">
+            <button class="btn on" data-k="2">2</button>
+            <button class="btn" data-k="3">3</button>
+            <button class="btn" data-k="5">5</button>
+            <button class="btn" data-k="8">8</button>
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">序列长度 L</div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">轨迹视野</span><span class="sl-val" id="dyLV">64</span></div>
+            <input type="range" id="dyL" min="4" max="512" step="1" value="64">
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">重置试验 N</div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">审计预算</span><span class="sl-val" id="dyNV">1024</span></div>
+            <input type="range" id="dyN" min="1" max="24" step="1" value="10">
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">三条时刻</div>
+          <div class="clock-row"><span class="clock-dot" style="background:var(--cyan)"></span><span class="clock-n">可检测 t<sub>det</sub></span><span class="clock-v" id="dyDet">12.8</span></div>
+          <div class="clock-row"><span class="clock-dot" style="background:var(--violet)"></span><span class="clock-n">端点达标 t<sub>acc</sub> (ε=.1)</span><span class="clock-v" id="dyAcc">793</span></div>
+          <div class="clock-row"><span class="clock-dot" style="background:var(--amber)"></span><span class="clock-n">轨迹达标 t<sub>tr</sub> (ε=.1)</span><span class="clock-v" id="dyTr">814</span></div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">t<sub>det</sub> 处的保真</div>
+          <div class="stat-grid" style="grid-template-columns:1fr">
+            <div class="stat ro"><div class="k">F<sub>L</sub>(t<sub>det</sub>)</div><div class="v" id="dyFDet">0.000</div><div class="s">检测到了，但整条轨迹几乎全错</div></div>
+            <div class="stat cy"><div class="k">A<sub>L</sub>(t<sub>det</sub>)</div><div class="v" id="dyADet">0.334</div><div class="s">仅略高于随机 1/K</div></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="wrap" style="padding:0">
+      <div class="split" style="margin-top:22px">
+        <div class="panel rv">
+          <div class="panel-head"><span class="dot"></span>精确解 · 从梯度流推出来的，不是规定的</div>
+          <div class="panel-body">
+            <div class="eq" style="margin-top:0">
+              z − 1 + (K−1) log z = K t&nbsp;&nbsp;<span class="c">// 隐式，z(0)=1，唯一递增</span><br>
+              p(t) = z/(z+K−1)&nbsp;&nbsp;<span class="c">// 单步正确</span><br>
+              ρ(t) = (z−1)/(z+K−1)&nbsp;&nbsp;<span class="c">// 保留率</span><br>
+              A<sub>L</sub>(t) = (1+(K−1)ρ<sup>L</sup>)/K<br>
+              F<sub>L</sub>(t) = p<sup>L</sup>
+            </div>
+            <p class="body" style="font-size:13.5px">
+              行之间解耦，只差正确目标的位置，因此共享同一对 <span class="mono">(u, v)</span>。
+              错误坐标的置换对称性 + 零初始化 + 解的唯一性 ⇒ 所有错误 logit 恒等。
+              推导<strong>不</strong>要求把可训练表约束成这个形式——它是从数据、初始化与动力学<strong>推出</strong>的。
+            </p>
+          </div>
+        </div>
+        <div class="panel rv rv-d1">
+          <div class="panel-head"><span class="dot" style="background:var(--amber);box-shadow:0 0 9px var(--amber)"></span>两个极限不可交换</div>
+          <div class="panel-body">
+            <div class="eq eq-sm" style="margin-top:0">
+              lim<sub>t→∞</sub> lim<sub>L→∞</sub> A<sub>L</sub>(t) = <span class="r">1/K</span><br>
+              lim<sub>L→∞</sub> lim<sub>t→∞</sub> A<sub>L</sub>(t) = <span class="em" style="color:var(--emerald)">1</span>
+            </div>
+            <p class="body" style="font-size:13.5px">
+              固定 t 时 ρ(t) &lt; 1、p(t) &lt; 1，内层长度极限立刻成立。
+              两个不相等的迭代极限只表达<strong>非零局部误差在无界序列上的累积</strong>；
+              它们既不需要有限时刻的奇点，也不定义一个普适的「涌现」概念。
+            </p>
+            <p class="note" style="margin-top:12px">
+              有限尺寸标度函数是<strong>连续</strong>的。论文明确写道：这些不相交换的极限
+              <b>不</b>构成热力学相变。
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 06 认证台 ============================ -->
+<section class="sec sec-bordered" id="console">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-l rv">
+        <div class="kicker"><span class="n">06</span> 认证台 · 三张证书同时判</div>
+        <h2 class="h2" style="margin-top:16px">给定物理条件<br>哪条路先断</h2>
+      </div>
+      <div class="sh-r rv rv-d1">
+        <p class="body">
+          把定理 2、3、4、7 放在同一组参数上。改任意一个滑块，
+          三张证书会各自给出<strong>可认证 / 不可认证 / 勉强</strong>。
+          这是本页最实用的一块：它回答「我的实验条件下，我到底能主张什么」。
+        </p>
+      </div>
+    </div>
+
+    <div class="console">
+      <div class="rail rv" style="position:static">
+        <div class="rail-g">
+          <div class="rail-h">状态空间 K</div>
+          <div class="seg" id="coK">
+            <button class="btn on" data-k="2">2</button>
+            <button class="btn" data-k="3">3</button>
+            <button class="btn" data-k="4">4</button>
+            <button class="btn" data-k="6">6</button>
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">保留率 ρ</div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">由梯度流推出，此处手动给定</span><span class="sl-val" id="coRhoV">0.90</span></div>
+            <input type="range" id="coRho" min="0.3" max="0.995" step="0.005" value="0.90">
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">未观测长度 ℓ</div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">切口到端点</span><span class="sl-val" id="coLV">8</span></div>
+            <input type="range" id="coL" min="1" max="120" step="1" value="8">
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">重置试验 N</div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">独立重置上限</span><span class="sl-val" id="coNV">256</span></div>
+            <input type="range" id="coN" min="1" max="20" step="1" value="8">
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">目标误差 δ</div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">错误接受率上限</span><span class="sl-val" id="coDeltaV">0.05</span></div>
+            <input type="range" id="coDelta" min="1" max="20" step="1" value="5">
+          </div>
+        </div>
+        <div class="rail-g">
+          <div class="rail-h">写入预算 W / 编码位 m</div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">W</span><span class="sl-val" id="coWV">48</span></div>
+            <input type="range" id="coW" min="0" max="60" step="1" value="48">
+          </div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">m（奇数）</span><span class="sl-val" id="coMV">3</span></div>
+            <input type="range" id="coM" min="1" max="15" step="2" value="3">
+          </div>
+        </div>
+        <div class="rail-tail">
+          <p>三张证书的<strong>主张强度不同</strong>：①只说明该寄存器参与续算；②在写入受限下仍达到目标误差；③说明整条长度 L 的轨迹逐步保真。强度越高，代价的量级越大。</p>
+        </div>
+      </div>
+
+      <div>
+        <div class="verdict rv rv-d1" id="vEvidence" data-state="thin">
+          <div class="vd-top">
+            <div class="vd-ic">①</div>
+            <div class="vd-t">延迟认证</div>
+            <span class="thm-tag">Thm 3</span>
+          </div>
+          <div class="vd-s" id="vEvidenceS">—</div>
+          <div class="vd-kv">
+            <div><div class="k">r = ρ<sup>ℓ</sup></div><div class="v" id="vEvR">—</div></div>
+            <div><div class="k">C<sub>K</sub>(r)</div><div class="v" id="vEvC">—</div></div>
+            <div><div class="k">所需 N*</div><div class="v" id="vEvN">—</div></div>
+            <div><div class="k">你有 N</div><div class="v" id="vEvHave">—</div></div>
+          </div>
+        </div>
+
+        <div class="verdict rv rv-d2" id="vBudget" data-state="thin" style="margin-top:14px">
+          <div class="vd-top">
+            <div class="vd-ic">②</div>
+            <div class="vd-t">写入受限审计</div>
+            <span class="thm-tag">Thm 4</span>
+          </div>
+          <div class="vd-s" id="vBudgetS">—</div>
+          <div class="vd-kv">
+            <div><div class="k">c = (m+1)/2</div><div class="v" id="vBdC">—</div></div>
+            <div><div class="k">M = min(N,⌊W/c⌋)</div><div class="v" id="vBdM">—</div></div>
+            <div><div class="k">最优错误 e*<sub>M</sub></div><div class="v" id="vBdE">—</div></div>
+            <div><div class="k">写入是否够</div><div class="v" id="vBdOk">—</div></div>
+          </div>
+        </div>
+
+        <div class="verdict rv rv-d3" id="vLocal" data-state="thin" style="margin-top:14px">
+          <div class="vd-top">
+            <div class="vd-ic">③</div>
+            <div class="vd-t">局部重置证书</div>
+            <span class="thm-tag">Thm 7</span>
+          </div>
+          <div class="vd-s" id="vLocalS">—</div>
+          <div class="vd-kv">
+            <div><div class="k">行数 D</div><div class="v" id="vLcD">—</div></div>
+            <div><div class="k">行错误阈值 η</div><div class="v" id="vLcEta">—</div></div>
+            <div><div class="k">查询预算 Q*</div><div class="v" id="vLcQ">—</div></div>
+            <div><div class="k">组合保真 1−(1−η)<sup>L</sup></div><div class="v" id="vLcComp">—</div></div>
+          </div>
+        </div>
+
+        <div class="panel rv rv-d4" style="margin-top:14px">
+          <div class="panel-head"><span class="dot" style="background:var(--rose);box-shadow:0 0 9px var(--rose)"></span>一句话判词</div>
+          <div class="panel-body" style="padding:16px 18px">
+            <p class="body" id="coVerdict" style="font-size:14px;margin:0">—</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 07 边界 ============================ -->
+<section class="sec sec-bordered" id="limits">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-l rv">
+        <div class="kicker"><span class="n">07</span> 边界 · 论文自己划的线</div>
+        <h2 class="h2" style="margin-top:16px">什么会把这套结论<br>直接推翻</h2>
+      </div>
+      <div class="sh-r rv rv-d1">
+        <p class="body">
+          一篇理论文章的可信度，主要看它把失效条件写得多清楚。下面四条是论文
+          用命题形式固定下来的失败模式，不是脚注。
+        </p>
+      </div>
+    </div>
+
+    <div class="lim">
+      <article class="lim-c rv" style="--lc:var(--rose)">
+        <div class="lim-h"><span class="thm-tag">Prop 12</span><span class="t">扰动地板</span></div>
+        <h3 class="lim-t">ρ<sup>ℓ</sup> 一旦小于 2ℓξ，信号不可辨</h3>
+        <p class="lim-b">
+          若每个实际后缀核与理想核的行级 TV 距离不超过 ξ，则实际端点对比
+          <span class="mono">r̃</span> 满足 <span class="mono">|r̃ − ρ<sup>ℓ</sup>| ≤ 2ℓξ</span>。
+          <b>理想对比本身不再保证存在正的实际信号。</b>
+        </p>
+        <div class="mx" style="margin-top:14px"><svg id="floorChart" viewBox="0 0 460 190" role="img" aria-label="扰动地板与信号衰减的交点"></svg></div>
+        <div style="margin-top:12px">
+          <div class="sl" style="margin-bottom:9px">
+            <div class="sl-top"><span class="sl-lab">保留率 ρ</span><span class="sl-val" id="flRhoV">0.85</span></div>
+            <input type="range" id="flRho" min="0.5" max="0.99" step="0.01" value="0.85">
+          </div>
+          <div class="sl">
+            <div class="sl-top"><span class="sl-lab">行级扰动 ξ</span><span class="sl-val" id="flXiV">0.004</span></div>
+            <input type="range" id="flXi" min="0" max="0.02" step="0.0005" value="0.004">
+          </div>
+        </div>
+      </article>
+
+      <article class="lim-c rv rv-d1" style="--lc:var(--amber)">
+        <div class="lim-h"><span class="thm-tag">Prop 13</span><span class="t">置换结构</span></div>
+        <h3 class="lim-t">常数转移会抹掉被替换的状态</h3>
+        <p class="lim-b">
+          取任意符号，其规定转移是常数映射 <span class="mono">f(s) = s*</span>。
+          活状态 a₀ 与旁路状态 s <b>都确定性地到达 s*</b>，端点律相同——
+          尽管活系统确实把状态当作更新参数用了。
+          <b>局部完全正确 + 语法上使用状态参数，都不保证端点可区分。</b>
+          定理 2 的单射性恰好排除了这种坍缩。
+        </p>
+        <div class="mx" style="margin-top:16px"><svg id="p13Svg" viewBox="0 0 460 132" role="img" aria-label="常数转移使两个初始状态到达同一端点"></svg></div>
+      </article>
+
+      <article class="lim-c rv rv-d2" style="--lc:var(--violet)">
+        <div class="lim-h"><span class="thm-tag">Prop 14</span><span class="t">有限视野</span></div>
+        <h3 class="lim-t">有界长度测试不能认证无界行为</h3>
+        <p class="lim-b">
+          若声明的状态不保证包含全部内部记忆，就存在两个有限状态实现：
+          在该协议下<b>转录完全相同</b>，但在更长的轨迹上输出不同。
+          构造方式是一个隐藏计数器，在第 L<sub>max</sub>+1 步改输出。
+          <b>这正是定理 7 的「完整状态 + 时齐马尔可夫」承诺所排除的。</b>
+        </p>
+      </article>
+
+      <article class="lim-c rv rv-d3" style="--lc:var(--cyan)">
+        <div class="lim-h"><span class="thm-tag">§7</span><span class="t">保护是物理假设</span></div>
+        <h3 class="lim-t">写者若能改 B，归因立即失效</h3>
+        <p class="lim-b">
+          如果写者可以同时改 B 和 S，令 <span class="mono">S = B = a₀</span>，
+          旁路系统就会遵循与活系统相同的续算律，
+          把它归因给 S 的审计<b>无效</b>。同理，允许写者注入未来输出就能制造任意响应。
+          <b>协议靠干预语义禁止这些操作，而不是靠正则项去「劝」。</b>
+        </p>
+      </article>
+    </div>
+
+    <div class="quote rv" style="margin-top:26px">
+      <div class="quote-q">
+        这些结果校准的是显式访问与监督假设下的认证；它们<strong>并不</strong>建立语言模型中的算法发现，
+        也不建立普适的涌现相变。
+      </div>
+      <div class="quote-a">Abstract · 原文末句 · 作者自我限制</div>
+    </div>
+
+    <div class="split" style="margin-top:22px">
+      <div class="panel rv">
+        <div class="panel-head"><span class="dot" style="background:var(--rose);box-shadow:0 0 9px var(--rose)"></span>被动不可区分<b style="color:var(--dim-2);font-weight:400">不</b>意味着什么</div>
+        <div class="panel-body">
+          <p class="body" style="font-size:13.5px">
+            定理 2 的等式只关于<strong>被允许的运行时观测</strong>。两个机制不必拥有相同的接线图、源码、
+            梯度、权重或侧信道时序。观察这些对象可能在不使用规定统计检验的情况下识别出机制。
+            <span class="hl">论文没有主张任何白盒不可能性定理。</span>
+          </p>
+        </div>
+      </div>
+      <div class="panel rv rv-d1">
+        <div class="panel-head"><span class="dot" style="background:var(--amber);box-shadow:0 0 9px var(--amber)"></span>局部证书是单边的</div>
+        <div class="panel-body">
+          <p class="body" style="font-size:13.5px">
+            定理 7 是一个<strong>单边承诺检验</strong>：在 H<sub>good</sub> 下所有行精确，
+            在 H<sub>bad</sub>(η) 下至少一行误差 ≥ η。它对精确零假设完备，
+            <span class="hl-a">但对每个近似忠实的实现并不完备</span>——
+            行误差小而非零的模型仍可能被频繁拒绝。
+            想要「对噪声良好类高接受、对分离坏类低接受」，需要显式的无差异区间与二项检验。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 08 复现 ============================ -->
+<section class="sec sec-bordered" id="repro">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-l rv">
+        <div class="kicker"><span class="n">08</span> 确定性验证 · 表 1</div>
+        <h2 class="h2" style="margin-top:16px">没有数据集<br>只有独立算法互检</h2>
+      </div>
+      <div class="sh-r rv rv-d1">
+        <p class="body">
+          论文的所有数值结果都来自文中陈述的有限模型。没有私有数据、预训练权重、
+          人类被试、被当作真实观测的合成测量，也没有未报告的 benchmark 运行。
+          验证脚本<strong>不</strong>只是去算公式右边。
+        </p>
+      </div>
+    </div>
+
+    <div class="repro">
+      <div class="stage rv">
+        <div class="stage-bar"><span>Table 1 · 实际执行的确定性检查</span><span class="r">双精度最大绝对偏差</span></div>
+        <div class="stage-body" style="padding:14px 16px 8px">
+          <table class="tbl">
+            <thead><tr><th>独立检查</th><th style="text-align:right">案例数</th><th style="text-align:right">结果</th><th style="width:130px">规模</th></tr></thead>
+            <tbody id="reproBody"></tbody>
+          </table>
+        </div>
+        <div class="stage-foot">
+          <span>这些数值检查<b>补充</b>证明，不<b>替代</b>证明</span>
+        </div>
+      </div>
+
+      <div class="rv rv-d1">
+        <div class="panel">
+          <div class="panel-head"><span class="dot"></span>三条命令复现</div>
+          <div class="panel-body">
+            <div class="eq eq-sm" style="margin-top:0">
+              python code/verify_results.py<br>
+              python code/verify_writable_budget.py<br>
+              python code/make_figures.py
+            </div>
+            <p class="body" style="font-size:12.5px">
+              核心运行环境：Python 3.13.5 · NumPy 2.3.5 · SciPy 1.17.0 · Linux x86_64 CPU。
+              记录的实际耗时约 <strong>7.32 秒</strong>，峰值常驻内存 <strong>122,796 KiB</strong>。
+              不需要 GPU、外部 API 或网络。
+            </p>
+          </div>
+        </div>
+        <div class="panel rv rv-d2" style="margin-top:16px">
+          <div class="panel-head"><span class="dot" style="background:var(--amber);box-shadow:0 0 9px var(--amber)"></span>验证到不了的地方</div>
+          <div class="panel-body">
+            <p class="body" style="font-size:12.5px">
+              数值一致<strong>不</strong>建立定理新颖性、<strong>不</strong>校验每一步逻辑、
+              <strong>不</strong>证明超出假设范围的稳健性。证明未经过独立复核。
+              ODE 容差与浮点偏差是相关的数值限定；有限穷举检查不是证明助手验证。
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 09 对照 ============================ -->
+<section class="sec sec-bordered" id="legacy">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-l rv">
+        <div class="kicker"><span class="n">09</span> 对照 · 为什么单一 onset 分数不够</div>
+        <h2 class="h2" style="margin-top:16px">曲线上的拐点<br>不是计算上的证据</h2>
+      </div>
+      <div class="sh-r rv rv-d1">
+        <p class="body">
+          本页前一版是一个<strong>缩放曲线涌现检测器</strong>：在曲线上找变点、
+          用重标定判断「真台阶 vs 量纲假象」、用 BIC 在 linear/sigmoid/step 之间比模型。
+          它有用，但它回答的只是三种问题里的<strong>第一种的一个代理</strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="legacy">
+      <div class="cmp rv">
+        <div class="cmp-h" style="color:var(--cyan)"><span style="width:6px;height:6px;border-radius:50%;background:var(--cyan)"></span>曲线变点检测</div>
+        <div class="cmp-b">
+          <div class="cmp-row"><span class="k">测的是</span><span class="v">评测分数随规模的<b>形状</b>——有没有跳变、跳变是否在换标尺后消失</span></div>
+          <div class="cmp-row"><span class="k">接口</span><span class="v">只有 (规模, 分数) 两个外部量；无重置、无干预、无中间状态</span></div>
+          <div class="cmp-row"><span class="k">能主张</span><span class="v">「在这条曲线上，某个尺度的跳变在重标定后仍然存在」</span></div>
+          <div class="cmp-row"><span class="k">不能主张</span><span class="v bad">内部有某个寄存器被因果使用；更不能主张整条轨迹保真</span></div>
+          <div class="cmp-row"><span class="k">典型失败</span><span class="v">非线性评测制造出表面不连续；反之，任务相关的内部特征可以在损失明显改善<b>之前</b>就形成</span></div>
+        </div>
+      </div>
+
+      <div class="cmp rv rv-d1">
+        <div class="cmp-h" style="color:var(--violet)"><span style="width:6px;height:6px;border-radius:50%;background:var(--violet)"></span>受保护切口认证</div>
+        <div class="cmp-b">
+          <div class="cmp-row"><span class="k">测的是</span><span class="v">一个<b>声明的</b>寄存器是否参与产生原生输出的计算</span></div>
+          <div class="cmp-row"><span class="k">接口</span><span class="v">重置、可读/可写寄存器、受保护副本、规定的干预目标、输入后缀、原生端点</span></div>
+          <div class="cmp-row"><span class="k">能主张</span><span class="v">「在误差 δ、视野 L、给定访问模型下，该寄存器被因果使用」</span></div>
+          <div class="cmp-row"><span class="k">不能主张</span><span class="v bad">识别出唯一的程序；恢复未知表示；证明该变量在<b>所有</b>替代实现下都必要</span></div>
+          <div class="cmp-row"><span class="k">代价</span><span class="v">信号 ρ<sup>ℓ</sup> 指数衰减 ⇒ 证据 Θ(ρ<sup>−2ℓ</sup>)；写入不足则完全不可检测</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel rv" style="margin-top:22px">
+      <div class="panel-head"><span class="dot" style="background:var(--gold);box-shadow:0 0 9px var(--gold)"></span>论文给出的方法论建议</div>
+      <div class="panel-body">
+        <p class="body" style="font-size:14.5px;max-width:78ch">
+          一份关于「内部前兆」的报告，应当说明它测的是<span class="hl">信息可得</span>、
+          <span class="hl-v">因果影响</span>、还是<span class="hl-a">组合正确性</span>。
+          提高审计灵敏度可以让第一处可检测的影响提前出现，而学习器的能力毫无进展；
+          反过来，改善单步行为并不能消除长视野的误差累积。
+          <strong>有用的经验扩展应当保留这三类主张的区别，而不是用一个 onset 分数去拟合全部三者。</strong>
+        </p>
+        <p class="small" style="margin-top:14px">
+          旧检测器仍保留在
+          <a href="emergence-lab.html" style="color:var(--cyan);border-bottom:1px solid rgba(94,231,255,.3)">emergence-lab.html</a>
+          ——作为「只测第一种问题」的具体例子，而不是本页结论的一部分。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="brand" style="margin-bottom:14px">
+          <svg class="brand-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9.2" stroke="#5ee7ff" stroke-width="1.1" opacity=".8"/>
+            <circle cx="12" cy="12" r="5.4" stroke="#a78bfa" stroke-width=".9" opacity=".55" stroke-dasharray="2 3"/>
+            <circle cx="12" cy="12" r="1.9" fill="#ffc76b"/>
+          </svg>
+          <span class="brand-txt">认证<b>地平线</b></span>
+        </div>
+        <p class="small" style="max-width:34ch">
+          论文《The Certification Horizon of Learned Computation》的交互伴侣。
+          本页所有曲线与数字都由页面内的定理表达式实时计算，无预生成数据。
+        </p>
+      </div>
+      <div>
+        <div class="foot-h">章节</div>
+        <a class="foot-l" href="#three">三种问题</a>
+        <a class="foot-l" href="#cut">受保护切口</a>
+        <a class="foot-l" href="#evidence">证据代价</a>
+        <a class="foot-l" href="#budget">写入预算</a>
+      </div>
+      <div>
+        <div class="foot-h">结果</div>
+        <a class="foot-l" href="#dynamics">三条时钟</a>
+        <a class="foot-l" href="#console">认证台</a>
+        <a class="foot-l" href="#limits">边界与失效</a>
+        <a class="foot-l" href="#repro">确定性验证</a>
+      </div>
+      <div>
+        <div class="foot-h">原文</div>
+        <span class="foot-l" style="color:var(--dim-2)">预印本 · 2026-09-16</span>
+        <span class="foot-l" style="color:var(--dim-2)">27 页 · 5 定理 4 命题</span>
+        <a class="foot-l" href="emergence-lab.html">旧版：涌现检测器</a>
+      </div>
+    </div>
+    <div class="foot-mark" aria-hidden="true">Certification Horizon</div>
+  </div>
+</footer>
+
+<noscript>
+  <div class="noscript">
+    本页的图表与判词由页面内的定理表达式实时计算，需要启用 JavaScript。
+    论文结论不受影响：受保护切口的端点对比恰为 ρ<sup>ℓ</sup>，固定误差的证据代价为 Θ(ρ<sup>−2ℓ</sup>)，
+    检测时钟 t<sub>det</sub> ~ 2L/log N 与能力时钟 t<sub>acc</sub> ~ L 具有不同渐近尺度。
+  </div>
+</noscript>
+<script>
+/* ============================================================================
+   认证地平线 · 数学内核
+   ----------------------------------------------------------------------------
+   所有函数都是论文公式的直接实现，纯函数、无依赖、无副作用。
+   与论文编号的对应关系写在每个函数上方。
+   ========================================================================== */
+const E = (function () {
+  "use strict";
+
+  const LOG = Math.log;
+
+  /* ---------- 小工具 ---------- */
+  const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  /* ==========================================================================
+     §3 核与保留率
+     T_a = ρ P_a + (1-ρ) U        (2)
+     ========================================================================== */
+
+  /** 行随机矩阵：ρ·P + (1-ρ)·U，P 是置换矩阵（用 shift 表示） */
+  function kernel(rho, K, shift) {
+    const M = [];
+    const u = 1 / K;
+    for (let i = 0; i < K; i++) {
+      const row = new Array(K).fill(0);
+      for (let j = 0; j < K; j++) row[j] = (1 - rho) * u;
+      row[((i + shift) % K + K) % K] += rho;
+      M.push(row);
+    }
+    return M;
+  }
+
+  /** 矩阵乘 */
+  function matmul(A, B) {
+    const K = A.length;
+    const C = [];
+    for (let i = 0; i < K; i++) {
+      const row = new Array(K).fill(0);
+      for (let k = 0; k < K; k++) {
+        const a = A[i][k];
+        if (a === 0) continue;
+        for (let j = 0; j < K; j++) row[j] += a * B[k][j];
+      }
+      C.push(row);
+    }
+    return C;
+  }
+
+  /** T_w = ρ^ℓ P_w + (1-ρ^ℓ) U  —— 逐元素直接构造，用于和 matmul 结果对照 */
+  function kernelWord(rho, K, shift, l) {
+    const r = Math.pow(rho, l);
+    const u = 1 / K;
+    const M = [];
+    for (let i = 0; i < K; i++) {
+      const row = new Array(K).fill((1 - r) * u);
+      row[((i + shift * l) % K + K) % K] += r;
+      M.push(row);
+    }
+    return M;
+  }
+
+  /** 用 ℓ 次 matmul 累积，检验定理 2 的归纳（返回最大偏差） */
+  function verifyTheorem2(rho, K, shift, l) {
+    let acc = null;
+    for (let i = 0; i < l; i++) {
+      const T = kernel(rho, K, shift);
+      acc = acc === null ? T : matmul(acc, T);
+    }
+    if (acc === null) acc = kernel(rho, K, 0);
+    const direct = kernelWord(rho, K, shift, l);
+    let d = 0;
+    for (let i = 0; i < K; i++) for (let j = 0; j < K; j++) d = Math.max(d, Math.abs(acc[i][j] - direct[i][j]));
+    return d;
+  }
+
+  /* ==========================================================================
+     §4 证据代价 · Theorem 3
+     α = r + (1-r)/K,  β = (1-r)/K
+     B_K(r) = (K-2)β + 2√(αβ)
+     C_K(r) = -log B_K(r)
+     ========================================================================== */
+  function alphaBeta(r, K) {
+    const b = (1 - r) / K;
+    return { a: r + b, b: b };
+  }
+
+  function BK(r, K) {
+    const { a, b } = alphaBeta(r, K);
+    return (K - 2) * b + 2 * Math.sqrt(a * b);
+  }
+
+  function CK(r, K) {
+    if (r <= 0) return 0;
+    if (r >= 1) return Infinity;
+    const B = BK(r, K);
+    return B <= 0 ? Infinity : -LOG(B);
+  }
+
+  /** 小 r 展开：C_K(r) ≈ K r² / 4 */
+  function CKsmall(r, K) {
+    return (K * r * r) / 4;
+  }
+
+  /** 充分试验数 N* = ⌈log(1/δ)/C_K(r)⌉（eq. 8 的整数上界） */
+  function nStar(delta, r, K) {
+    const c = CK(r, K);
+    if (!isFinite(c) || c <= 0) return Infinity;
+    return Math.ceil(LOG(1 / delta) / c);
+  }
+
+  /** 定理 3 的两侧界：¼e^{-2NC} ≤ e*_N ≤ ½e^{-NC} */
+  function estarBounds(N, r, K) {
+    const c = CK(r, K);
+    return { lo: 0.25 * Math.exp(-2 * N * c), hi: 0.5 * Math.exp(-N * c) };
+  }
+
+  /**
+   * 精确有限递归（eq. 46）：D_N = n₁ − n₀ 的三点分布卷积 N 次，
+   * e*_N = P(D_N < 0) + ½ P(D_N = 0)。这是精确的概率表达式，非渐近。
+   */
+  function estarExact(N, r, K) {
+    const { a, b } = alphaBeta(r, K);
+    const z0 = (K - 2) * b;
+    const size = 2 * N + 1;
+    const off = N;
+    let cur = new Float64Array(size);
+    cur[off] = 1;
+    for (let step = 0; step < N; step++) {
+      const nxt = new Float64Array(size);
+      for (let i = 0; i < size; i++) {
+        const p = cur[i];
+        if (p === 0) continue;
+        if (i + 1 < size) nxt[i + 1] += p * a;
+        if (i - 1 >= 0) nxt[i - 1] += p * b;
+        if (z0 > 0) nxt[i] += p * z0;
+      }
+      cur = nxt;
+    }
+    let neg = 0;
+    for (let i = 0; i < off; i++) neg += cur[i];
+    return neg + 0.5 * cur[off];
+  }
+
+  /* ==========================================================================
+     §5 写入预算 · Theorem 4
+     m = 2h+1,  c = h+1,  M = min(N, ⌊W/c⌋),  e* = e*_M(ρ^ℓ)
+     ========================================================================== */
+  function cOf(m) {
+    return (m + 1) / 2;
+  }
+
+  function budgetM(N, W, m) {
+    const c = cOf(m);
+    return Math.min(N, Math.floor(W / c));
+  }
+
+  function budgetError(N, W, m, r, K) {
+    const M = budgetM(N, W, m);
+    if (M <= 0) return 0.5;
+    return estarExact(Math.min(M, 400), r, K || 2);
+  }
+
+  /* ==========================================================================
+     §6 学习动力学 · Theorem 5
+     z − 1 + (K−1) log z = K t
+     ========================================================================== */
+  function zOfT(t, K) {
+    if (t <= 0) return 1;
+    const target = 1 + K * t;
+    let lo = 1,
+      hi = 1 + K * t + 2;
+    for (let i = 0; i < 90; i++) {
+      const mid = 0.5 * (lo + hi);
+      if (mid + (K - 1) * LOG(mid) < target) lo = mid;
+      else hi = mid;
+    }
+    return 0.5 * (lo + hi);
+  }
+
+  function stateOfT(t, K) {
+    const z = zOfT(t, K);
+    return { z, p: z / (z + K - 1), rho: (z - 1) / (z + K - 1) };
+  }
+
+  function AL(t, K, L) {
+    const { rho } = stateOfT(t, K);
+    return (1 + (K - 1) * Math.pow(rho, L)) / K;
+  }
+
+  function FL(t, K, L) {
+    const { p } = stateOfT(t, K);
+    return Math.pow(p, L);
+  }
+
+  /** z = (1 + (K−1)r)/(1−r)  —— ρ 到 z 的逆 */
+  function zFromRho(r, K) {
+    return (1 + (K - 1) * r) / (1 - r);
+  }
+
+  /** z = (K−1)q/(1−q)  —— p 到 z 的逆 */
+  function zFromP(q, K) {
+    return ((K - 1) * q) / (1 - q);
+  }
+
+  /** t 由 z 反解：(z−1+(K−1)log z)/K */
+  function tOfZ(z, K) {
+    return (z - 1 + (K - 1) * LOG(z)) / K;
+  }
+
+  /** eq. 39 端点达标时刻（精确） */
+  function tAcc(K, L, eps) {
+    const h = 1 - (K * eps) / (K - 1);
+    if (h <= 0) return Infinity;
+    const r = Math.pow(h, 1 / L);
+    return tOfZ(zFromRho(r, K), K);
+  }
+
+  /** eq. 40 轨迹达标时刻（精确），可能为 0 */
+  function tTr(K, L, eps) {
+    const q = Math.pow(1 - eps, 1 / L);
+    if (q <= 1 / K) return 0;
+    return tOfZ(zFromP(q, K), K);
+  }
+
+  /** Corollary 6：t_det ~ 2L / log N */
+  function tDet(L, N) {
+    if (N <= 1) return Infinity;
+    return (2 * L) / LOG(N);
+  }
+
+  /** 渐近斜率（每单位 L） */
+  function accSlope(K, eps) {
+    const h = 1 - (K * eps) / (K - 1);
+    return h <= 0 ? Infinity : 1 / -LOG(h);
+  }
+  function trSlope(K, eps) {
+    return ((K - 1) / K) * -LOG(1 - eps);
+  }
+
+  /* ==========================================================================
+     §6 局部重置证书 · Theorem 7
+     Q* = D · log(1/δ) / (−log(1−η))
+     组合：1 − (1−η)^L ≤ Lη
+     ========================================================================== */
+  function qStar(D, delta, eta) {
+    return (D * LOG(1 / delta)) / -LOG(1 - eta);
+  }
+
+  function etaForEps(eps, L) {
+    return 1 - Math.pow(1 - eps, 1 / L);
+  }
+
+  /** 用 η 阈值时的充分预算：D·⌈L·log(1/δ)/(−log(1−ε))⌉ */
+  function qSufficient(D, delta, eps, L) {
+    return D * Math.ceil((L * LOG(1 / delta)) / -LOG(1 - eps));
+  }
+
+  /* ==========================================================================
+     §7 扰动地板 · Proposition 12
+     |r̃ − ρ^ℓ| ≤ 2ℓξ
+     ========================================================================== */
+  function floorBound(l, xi) {
+    return Math.min(1, 2 * l * xi);
+  }
+
+  /** 信号 ρ^ℓ 掉到地板之下的临界 ℓ（二分） */
+  function floorCrossL(rho, xi, lMax) {
+    let lo = 1,
+      hi = lMax;
+    if (Math.pow(rho, lo) <= floorBound(lo, xi)) return lo;
+    if (Math.pow(rho, hi) > floorBound(hi, xi)) return null;
+    for (let i = 0; i < 60; i++) {
+      const mid = (lo + hi) / 2;
+      if (Math.pow(rho, mid) > floorBound(mid, xi)) lo = mid;
+      else hi = mid;
+    }
+    return 0.5 * (lo + hi);
+  }
+
+  /* ==========================================================================
+     格式化
+     ========================================================================== */
+  function fmtNum(v, d) {
+    if (!isFinite(v)) return "∞";
+    if (v === 0) return "0";
+    const a = Math.abs(v);
+    if (a >= 1e6 || a < 1e-3) {
+      const e = Math.floor(Math.log10(a));
+      const m = v / Math.pow(10, e);
+      return (Math.abs(m) >= 10 ? m.toFixed(0) : m.toFixed(2)) + "e" + e;
+    }
+    if (a >= 1000) return v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    if (a >= 100) return v.toFixed(d === undefined ? 0 : d);
+    if (a >= 1) return v.toFixed(d === undefined ? 2 : d);
+    return v.toFixed(d === undefined ? 3 : d);
+  }
+
+  function fmtInt(v) {
+    if (!isFinite(v)) return "∞";
+    if (v >= 1e7) return fmtNum(v);
+    return Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  function fmtPct(v, d) {
+    return (v * 100).toFixed(d === undefined ? 1 : d) + "%";
+  }
+
+  return {
+    clamp, lerp,
+    kernel, matmul, kernelWord, verifyTheorem2,
+    alphaBeta, BK, CK, CKsmall, nStar, estarBounds, estarExact,
+    cOf, budgetM, budgetError,
+    zOfT, stateOfT, AL, FL, zFromRho, zFromP, tOfZ, tAcc, tTr, tDet, accSlope, trSlope,
+    qStar, etaForEps, qSufficient,
+    floorBound, floorCrossL,
+    fmtNum, fmtInt, fmtPct
+  };
+})();
+</script>
+<script>
+/* ============================================================================
+   认证地平线 · 可视化原语
+   ========================================================================== */
+const V = (function () {
+  "use strict";
+
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+
+  const C = {
+    cyan: "#5ee7ff", violet: "#a78bfa", amber: "#ffc76b",
+    rose: "#ff6b8b", emerald: "#4ade80", gold: "#f5d67b",
+    ink: "#e9edf7", dim: "#8b95ad", dim2: "#69738c", faint: "#434c62",
+    line: "rgba(150,168,205,.10)", line2: "rgba(150,168,205,.20)"
+  };
+
+  const staticMode = /[?&]static=1/.test(location.search);
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function el(name, attrs) {
+    const n = document.createElementNS(NS, name);
+    if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+
+  /* ---------------------------------------------------------------- scales */
+  function makeScale(dom, rng, isLog) {
+    const [d0, d1] = dom;
+    const [r0, r1] = rng;
+    if (!isLog) {
+      const span = d1 - d0 || 1;
+      return v => r0 + ((v - d0) / span) * (r1 - r0);
+    }
+    const a = Math.log(Math.max(d0, 1e-300)), b = Math.log(Math.max(d1, 1e-300));
+    const span = b - a || 1;
+    return v => r0 + ((Math.log(Math.max(v, 1e-300)) - a) / span) * (r1 - r0);
+  }
+
+  function logTicks(lo, hi, maxN) {
+    lo = Math.max(lo, 1e-300);
+    const e0 = Math.floor(Math.log10(lo)), e1 = Math.ceil(Math.log10(hi));
+    const out = [];
+    const step = Math.max(1, Math.ceil((e1 - e0) / (maxN || 6)));
+    for (let e = e0; e <= e1; e += step) {
+      const v = Math.pow(10, e);
+      if (v >= lo * 0.999 && v <= hi * 1.001) out.push(v);
+    }
+    return out;
+  }
+
+  function linTicks(lo, hi, maxN) {
+    const n = maxN || 5;
+    const span = hi - lo;
+    if (span === 0) return [lo];
+    const raw = span / n;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const norm = raw / mag;
+    const step = (norm >= 7.5 ? 10 : norm >= 3.5 ? 5 : norm >= 1.5 ? 2 : 1) * mag;
+    const out = [];
+    for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(Math.abs(v) < 1e-12 ? 0 : v);
+    return out;
+  }
+
+  /* ------------------------------------------------------------------ chart */
+  let uid = 0;
+  function chart(svg, cfg) {
+    const vb = (svg.getAttribute("viewBox") || "0 0 600 400").split(/\s+/).map(Number);
+    const baseW = cfg.w || vb[2], baseH = cfg.h || vb[3];
+    let W = baseW, H = baseH;
+    if (cfg.responsive !== false) {
+      const host = svg.parentElement;
+      const cw = Math.round(host ? host.clientWidth : baseW) || baseW;
+      if (cw < baseW) {
+        W = Math.max(280, cw);
+        H = Math.max(Math.round(baseH * 0.6), Math.round((baseH * W) / baseW));
+      } else if (cw > baseW * 1.06) {
+        W = Math.min(cw, 1340);
+        H = Math.round((baseH * W) / baseW);
+      }
+    }
+    const pad = Object.assign({ l: 62, r: 20, t: 24, b: 40 }, cfg.pad || {});
+    if (W < 560) { pad.l = Math.min(pad.l, 50); pad.r = Math.min(pad.r, 12); pad.t = Math.min(pad.t, 20); pad.b = Math.min(pad.b, 34); }
+    svg.innerHTML = "";
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+    const id = "g" + (++uid);
+
+    const xDom = cfg.xDomain, yDom = cfg.yDomain;
+    const X = makeScale(xDom, [pad.l, pad.l + iw], cfg.xLog);
+    const Y = makeScale(yDom, [pad.t + ih, pad.t], cfg.yLog);
+
+    const gGrid = el("g"), gAxis = el("g", { class: "axis" }), gData = el("g");
+    svg.appendChild(gGrid); svg.appendChild(gAxis); svg.appendChild(gData);
+
+    const TICK = "font-family:'JetBrains Mono',ui-monospace,Consolas,monospace;font-size:9.5px;fill:#7c869e;letter-spacing:.02em";
+
+    /* ---- horizontal grid + y ticks ---- */
+    const yT = cfg.yTicks || (cfg.yLog ? logTicks(yDom[0], yDom[1], 5) : linTicks(yDom[0], yDom[1], 5));
+    yT.forEach(v => {
+      const y = Y(v);
+      if (y < pad.t - 1 || y > pad.t + ih + 1) return;
+      gGrid.appendChild(el("line", { x1: pad.l, x2: pad.l + iw, y1: y, y2: y, class: "gridline" }));
+      const t = el("text", { x: pad.l - 9, y: y + 3.2, "text-anchor": "end", style: TICK });
+      t.textContent = cfg.yFmt ? cfg.yFmt(v) : E.fmtNum(v);
+      gAxis.appendChild(t);
+    });
+
+    /* ---- vertical grid + x ticks ---- */
+    const xT = cfg.xTicks || (cfg.xLog ? logTicks(xDom[0], xDom[1], 6) : linTicks(xDom[0], xDom[1], 6));
+    xT.forEach(v => {
+      const x = X(v);
+      if (x < pad.l - 1 || x > pad.l + iw + 1) return;
+      gGrid.appendChild(el("line", { x1: x, x2: x, y1: pad.t, y2: pad.t + ih, class: "gridline" }));
+      const t = el("text", { x: x, y: pad.t + ih + 17, "text-anchor": "middle", style: TICK });
+      t.textContent = cfg.xFmt ? cfg.xFmt(v) : E.fmtNum(v);
+      gAxis.appendChild(t);
+    });
+
+    /* ---- baseline ---- */
+    gAxis.appendChild(el("line", {
+      x1: pad.l, x2: pad.l + iw, y1: pad.t + ih, y2: pad.t + ih,
+      stroke: "rgba(150,168,205,.26)", "stroke-width": 1
+    }));
+
+    /* ---- axis labels ---- */
+    if (cfg.xLabel) {
+      const t = el("text", { x: pad.l + iw, y: pad.t + ih + 33, "text-anchor": "end", style: "fill:#69738c;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em" });
+      t.textContent = cfg.xLabel;
+      gAxis.appendChild(t);
+    }
+    if (cfg.yLabel) {
+      const t = el("text", { x: pad.l, y: pad.t - 9, "text-anchor": "start", style: "fill:#69738c;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em" });
+      t.textContent = cfg.yLabel;
+      gAxis.appendChild(t);
+    }
+
+    /* ---- bands ---- */
+    (cfg.bands || []).forEach(b => {
+      const y0 = Y(b.from), y1 = Y(b.to);
+      gGrid.appendChild(el("rect", {
+        x: pad.l, y: Math.min(y0, y1), width: iw, height: Math.abs(y1 - y0),
+        fill: b.color || "rgba(255,107,139,.06)"
+      }));
+      if (b.label) {
+        const t = el("text", { x: pad.l + 8, y: Math.min(y0, y1) + 13, style: `fill:${b.labelColor || C.rose};font-family:var(--f-mono);font-size:9px;letter-spacing:.08em` });
+        t.textContent = b.label;
+        gGrid.appendChild(t);
+      }
+    });
+
+    /* ---- clip ---- */
+    const clip = el("clipPath", { id: "cp" + uid });
+    clip.appendChild(el("rect", { x: pad.l, y: pad.t, width: iw, height: ih }));
+    svg.appendChild(clip);
+    const gClip = el("g", { "clip-path": `url(#cp${uid})` });
+    gData.appendChild(gClip);
+
+    /* ---- hlines ---- */
+    (cfg.hlines || []).forEach(h => {
+      const y = Y(h.y);
+      gClip.appendChild(el("line", {
+        x1: pad.l, x2: pad.l + iw, y1: y, y2: y,
+        stroke: h.color || "rgba(150,168,205,.3)", "stroke-width": h.width || 1,
+        "stroke-dasharray": h.dash || "3 4", opacity: h.opacity === undefined ? .9 : h.opacity
+      }));
+      if (h.label) {
+        const t = el("text", { x: pad.l + iw - 4, y: y - 5, "text-anchor": "end", style: `fill:${h.color || C.dim};font-family:var(--f-mono);font-size:9px;letter-spacing:.06em` });
+        t.textContent = h.label;
+        gData.appendChild(t);
+      }
+    });
+
+    /* ---- vlines ---- */
+    (cfg.vlines || []).forEach(v => {
+      const x = X(v.x);
+      gClip.appendChild(el("line", {
+        x1: x, x2: x, y1: pad.t, y2: pad.t + ih,
+        stroke: v.color || "rgba(94,231,255,.5)", "stroke-width": v.width || 1,
+        "stroke-dasharray": v.dash || "4 4", opacity: v.opacity === undefined ? .85 : v.opacity
+      }));
+      if (v.label) {
+        const t = el("text", {
+          x: x + 5, y: pad.t + (v.labelY || 12),
+          style: `fill:${v.color || C.cyan};font-family:var(--f-mono);font-size:9px;letter-spacing:.06em`
+        });
+        t.textContent = v.label;
+        gData.appendChild(t);
+      }
+    });
+
+    /* ---- series ---- */
+    const paths = [];
+    (cfg.series || []).forEach((s, si) => {
+      const pts = s.pts.filter(p => isFinite(p[1]) && (!cfg.yLog || p[1] > 0));
+      if (!pts.length) return;
+
+      if (s.area) {
+        const d = "M" + X(pts[0][0]) + "," + (pad.t + ih) +
+          pts.map(p => `L${X(p[0])},${Y(p[1])}`).join("") +
+          `L${X(pts[pts.length - 1][0])},${pad.t + ih}Z`;
+        const gid = id + "a" + si;
+        const grad = el("linearGradient", { id: gid, x1: 0, y1: 0, x2: 0, y2: 1 });
+        grad.appendChild(el("stop", { offset: "0%", "stop-color": s.color, "stop-opacity": s.areaOpacity || .18 }));
+        grad.appendChild(el("stop", { offset: "100%", "stop-color": s.color, "stop-opacity": 0 }));
+        const defs = el("defs"); defs.appendChild(grad); svg.appendChild(defs);
+        gClip.appendChild(el("path", { d, fill: `url(#${gid})` }));
+      }
+
+      if (s.step) {
+        let d = `M${X(pts[0][0])},${Y(pts[0][1])}`;
+        for (let i = 1; i < pts.length; i++) d += `L${X(pts[i][0])},${Y(pts[i - 1][1])}L${X(pts[i][0])},${Y(pts[i][1])}`;
+        const p = el("path", { d, fill: "none", stroke: s.color, "stroke-width": s.width || 1.8, "stroke-linejoin": "round" });
+        gClip.appendChild(p); paths.push(p);
+      } else {
+        const d = "M" + pts.map(p => `${X(p[0])},${Y(p[1])}`).join("L");
+        const p = el("path", {
+          d, fill: "none", stroke: s.color, "stroke-width": s.width || 1.8,
+          "stroke-linecap": "round", "stroke-linejoin": "round",
+          "stroke-dasharray": s.dash || "none", opacity: s.opacity === undefined ? 1 : s.opacity
+        });
+        gClip.appendChild(p); paths.push(p);
+        if (s.animate && !reduce && !staticMode) {
+          const len = p.getTotalLength ? p.getTotalLength() : 1200;
+          p.style.strokeDasharray = s.dash ? s.dash : `${len}`;
+          p.style.strokeDashoffset = s.dash ? 0 : `${len}`;
+          p.style.transition = "stroke-dashoffset 1.5s cubic-bezier(.16,1,.3,1)";
+          requestAnimationFrame(() => requestAnimationFrame(() => { p.style.strokeDashoffset = 0; }));
+        }
+      }
+
+      if (s.dots) {
+        pts.forEach(p => {
+          if (s.dotSkip && s.dotSkip(p)) return;
+          gClip.appendChild(el("circle", {
+            cx: X(p[0]), cy: Y(p[1]), r: s.dotR || 2.6,
+            fill: s.color, opacity: s.dotOpacity === undefined ? 1 : s.dotOpacity
+          }));
+        });
+      }
+    });
+
+    /* ---- marks (points with ring) ---- */
+    (cfg.marks || []).forEach(m => {
+      const x = X(m.x), y = Y(m.y);
+      gClip.appendChild(el("circle", { cx: x, cy: y, r: 7, fill: m.color, opacity: .16 }));
+      gClip.appendChild(el("circle", { cx: x, cy: y, r: 3.2, fill: m.color }));
+      gClip.appendChild(el("circle", { cx: x, cy: y, r: 6, fill: "none", stroke: m.color, "stroke-width": 1, opacity: .7 }));
+      if (m.label) {
+        const t = el("text", {
+          x: x + (m.dx === undefined ? 10 : m.dx), y: y + (m.dy === undefined ? -8 : m.dy),
+          style: `fill:${m.color};font-family:var(--f-mono);font-size:9.5px;letter-spacing:.05em`
+        });
+        t.textContent = m.label;
+        gData.appendChild(t);
+      }
+    });
+
+    return { X, Y, pad, iw, ih, W, H, xDom, yDom, svg, gData, gClip, id };
+  }
+
+  /* ------------------------------------------------------------------ hover */
+  let tipEl = null;
+  function tip() {
+    if (!tipEl) {
+      tipEl = document.createElement("div");
+      tipEl.className = "tip";
+      document.body.appendChild(tipEl);
+    }
+    return tipEl;
+  }
+
+  /**
+   * 通用悬停：series 为 [{pts:[[x,y]...], label, color, fmt}]
+   */
+  function bindHover(svg, geom, series, xLabelFn) {
+    if (!series || !series.length) return;
+    svg._hover = { geom, series, xLabelFn };
+    if (svg._hoverBound) return;
+    svg._hoverBound = true;
+    const t = tip();
+    let raf = 0, lastEvt = null;
+
+    function move(e) {
+      lastEvt = e;
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const st = svg._hover;
+        if (!st) return;
+        const g2 = st.geom, ser = st.series;
+        const rect = svg.getBoundingClientRect();
+        const vb = svg.viewBox.baseVal;
+        const sx = (lastEvt.clientX - rect.left) / rect.width * vb.width;
+        if (sx < g2.pad.l - 6 || sx > g2.pad.l + g2.iw + 6) { t.classList.remove("on"); return; }
+
+        let best = null;
+        ser.forEach(s => {
+          let bp = null, bd = Infinity;
+          s.pts.forEach(p => {
+            if (!isFinite(p[1])) return;
+            const d = Math.abs(g2.X(p[0]) - sx);
+            if (d < bd) { bd = d; bp = p; }
+          });
+          if (bp) best = best || bp;
+        });
+        if (!best) { t.classList.remove("on"); return; }
+
+        let html = `<div class="k">${st.xLabelFn ? st.xLabelFn(best[0]) : "x = " + E.fmtNum(best[0])}</div>`;
+        ser.forEach(s => {
+          let bp = null, bd = Infinity;
+          s.pts.forEach(p => { if (!isFinite(p[1])) return; const d = Math.abs(p[0] - best[0]); if (d < bd) { bd = d; bp = p; } });
+          if (!bp) return;
+          html += `<div><span style="color:${s.color}">■</span> ${s.label} <b>${s.fmt ? s.fmt(bp[1]) : E.fmtNum(bp[1])}</b></div>`;
+        });
+        t.innerHTML = html;
+        t.classList.add("on");
+        const px = rect.left + window.scrollX + (g2.X(best[0]) / vb.width) * rect.width;
+        const py = rect.top + window.scrollY + (g2.pad.t + 30);
+        t.style.left = px + "px";
+        t.style.top = py + "px";
+      });
+    }
+    svg.addEventListener("mousemove", move);
+    svg.addEventListener("mouseleave", () => t.classList.remove("on"));
+  }
+
+  /* --------------------------------------------------------------- matrix */
+  /**
+   * 画 K×K 热力矩阵。值越大越亮（青），越小越暗。
+   */
+  function matrix(svg, opt) {
+    const K = opt.K, M = opt.matrix;
+    const vb = (svg.getAttribute("viewBox") || "0 0 520 400").split(/\s+/).map(Number);
+    const W = vb[2], H = vb[3];
+    svg.innerHTML = "";
+
+    const padL = 34, padT = 26, padR = 8, padB = 26;
+    const size = Math.min((W - padL - padR) / K, (H - padT - padB) / K);
+    const gap = Math.max(1.5, size * 0.035);
+    const ox = padL + ((W - padL - padR) - size * K) / 2;
+    const oy = padT + ((H - padT - padB) - size * K) / 2;
+
+    let mx = 0;
+    for (let i = 0; i < K; i++) for (let j = 0; j < K; j++) mx = Math.max(mx, M[i][j]);
+    const hiV = Math.max(mx, 1 / K);
+
+    /* 列标签 */
+    for (let j = 0; j < K; j++) {
+      const t = el("text", {
+        x: ox + j * size + size / 2, y: oy - 8, "text-anchor": "middle",
+        class: "mat-lab"
+      });
+      t.textContent = "σ(" + j + ")";
+      svg.appendChild(t);
+    }
+    /* 行标签 */
+    for (let i = 0; i < K; i++) {
+      const t = el("text", {
+        x: ox - 9, y: oy + i * size + size / 2 + 3.4, "text-anchor": "end",
+        class: "mat-lab"
+      });
+      t.textContent = i;
+      svg.appendChild(t);
+    }
+
+    for (let i = 0; i < K; i++) {
+      for (let j = 0; j < K; j++) {
+        const v = M[i][j];
+        const w = hiV > 0 ? v / hiV : 0;
+        const isCore = v > 1.5 / K;
+        const cell = el("rect", {
+          x: ox + j * size + gap / 2, y: oy + i * size + gap / 2,
+          width: size - gap, height: size - gap, rx: Math.max(2, size * 0.05),
+          fill: mix(C.cyan, "#0b1220", 1 - w * 0.92),
+          class: "mat-cell"
+        });
+        if (isCore) {
+          cell.setAttribute("stroke", "rgba(94,231,255,.55)");
+          cell.setAttribute("stroke-width", "1");
+        }
+        if (opt.onCell) opt.onCell(cell, i, j, v);
+        svg.appendChild(cell);
+
+        if (K <= 6 && size > 34) {
+          const t = el("text", {
+            x: ox + j * size + size / 2, y: oy + i * size + size / 2 + 3.4,
+            "text-anchor": "middle",
+            style: `font-family:var(--f-mono);font-size:${Math.min(11, size * 0.22)}px;fill:${w > .55 ? "#04121a" : "rgba(210,222,242,.72)"};font-weight:500;pointer-events:none`
+          });
+          t.textContent = v >= 0.1 ? v.toFixed(2) : v.toFixed(3);
+          svg.appendChild(t);
+        }
+      }
+    }
+    return { ox, oy, size, W, H };
+  }
+
+  function hex2rgb(h) {
+    const s = h.replace("#", "");
+    return [parseInt(s.slice(0, 2), 16), parseInt(s.slice(2, 4), 16), parseInt(s.slice(4, 6), 16)];
+  }
+  function mix(a, b, t) {
+    const A = hex2rgb(a), B = hex2rgb(b);
+    const r = Math.round(A[0] * (1 - t) + B[0] * t);
+    const g = Math.round(A[1] * (1 - t) + B[1] * t);
+    const bl = Math.round(A[2] * (1 - t) + B[2] * t);
+    return `rgb(${r},${g},${bl})`;
+  }
+
+  /* -------------------------------------------------- matrix (live update) */
+  /**
+   * 只构建一次 DOM，之后用 update(M) 平滑更新颜色与数值。
+   */
+  function matrixLive(svg, K, opt) {
+    opt = opt || {};
+    const vb = (svg.getAttribute("viewBox") || "0 0 420 300").split(/\s+/).map(Number);
+    const W = vb[2], H = vb[3];
+    svg.innerHTML = "";
+
+    const padL = 36, padT = 24, padR = 8, padB = 24;
+    const maxS = opt.maxSize || 112;
+    const size = Math.min((W - padL - padR) / K, (H - padT - padB) / K, maxS);
+    const gap = Math.max(1.5, size * 0.04);
+    const ox = padL + ((W - padL - padR) - size * K) / 2;
+    const oy = padT + ((H - padT - padB) - size * K) / 2;
+
+    const cells = [], labels = [];
+    for (let j = 0; j < K; j++) {
+      const t = el("text", { x: ox + j * size + size / 2, y: oy - 7, "text-anchor": "middle", class: "mat-lab" });
+      t.textContent = "σ(" + j + ")";
+      svg.appendChild(t);
+    }
+    for (let i = 0; i < K; i++) {
+      const t = el("text", { x: ox - 8, y: oy + i * size + size / 2 + 3.2, "text-anchor": "end", class: "mat-lab" });
+      t.textContent = i;
+      svg.appendChild(t);
+    }
+    for (let i = 0; i < K; i++) {
+      for (let j = 0; j < K; j++) {
+        const r = el("rect", {
+          x: ox + j * size + gap / 2, y: oy + i * size + gap / 2,
+          width: size - gap, height: size - gap, rx: Math.max(2, size * 0.06),
+          fill: "#0e1424", class: "mat-cell",
+          style: "transition:fill .55s cubic-bezier(.22,.9,.24,1),stroke .55s"
+        });
+        svg.appendChild(r);
+        let tx = null;
+        if (K <= 6 && size > 26) {
+          tx = el("text", {
+            x: ox + j * size + size / 2, y: oy + i * size + size / 2 + 3.4,
+            "text-anchor": "middle",
+            style: `font-family:var(--f-mono);font-size:${Math.min(10.5, size * 0.2)}px;fill:rgba(210,222,242,.8);font-weight:500;pointer-events:none`
+          });
+          svg.appendChild(tx);
+        }
+        cells.push({ rect: r, text: tx, i, j });
+      }
+    }
+
+    function update(M) {
+      const u = 1 / K;
+      cells.forEach(c => {
+        const v = M[c.i][c.j];
+        /* 语义着色：偏离均匀分布多少，就亮多少。均匀 ⇒ 全暗 = 无信息 */
+        const t = Math.max(0, Math.min(1, (v - u) / (1 - u)));
+        const g = 0.10 + Math.pow(t, 0.55) * 0.90;
+        c.rect.setAttribute("fill", mix("#0e1729", C.cyan, g));
+        const core = v > 1.45 / K;
+        c.rect.setAttribute("stroke", core ? "rgba(94,231,255,.7)" : "rgba(150,168,205,.13)");
+        c.rect.setAttribute("stroke-width", core ? "1.2" : ".6");
+        if (c.text) {
+          c.text.textContent = v >= 0.1 ? v.toFixed(2) : v.toFixed(3);
+          c.text.style.fill = g > .62 ? "#04121a" : "rgba(198,212,238,.78)";
+        }
+      });
+    }
+    return { update };
+  }
+
+  /* ------------------------------------------------------------ sparkline */
+  function sparkline(svg, pts, color, opt) {
+    opt = opt || {};
+    const vb = (svg.getAttribute("viewBox") || "0 0 118 54").split(/\s+/).map(Number);
+    const W = vb[2], H = vb[3];
+    svg.innerHTML = "";
+    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+    const x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs);
+    const y1 = Math.max.apply(null, ys) * 1.05 || 1;
+    const X = v => 4 + ((v - x0) / (x1 - x0 || 1)) * (W - 8);
+    const Y = v => H - 4 - (v / y1) * (H - 10);
+
+    const gid = "sp" + (++uid);
+    const defs = el("defs");
+    const grad = el("linearGradient", { id: gid, x1: 0, y1: 0, x2: 0, y2: 1 });
+    grad.appendChild(el("stop", { offset: "0%", "stop-color": color, "stop-opacity": .3 }));
+    grad.appendChild(el("stop", { offset: "100%", "stop-color": color, "stop-opacity": 0 }));
+    defs.appendChild(grad); svg.appendChild(defs);
+
+    const d = "M" + pts.map(p => `${X(p[0])},${Y(p[1])}`).join("L");
+    svg.appendChild(el("path", { d: d + `L${X(x1)},${H - 4}L${X(x0)},${H - 4}Z`, fill: `url(#${gid})` }));
+    svg.appendChild(el("path", { d, fill: "none", stroke: color, "stroke-width": 1.4, "stroke-linejoin": "round" }));
+
+    if (opt.cursor !== undefined) {
+      const cx = X(opt.cursor);
+      const cy = Y(opt.cursorY || 0);
+      svg.appendChild(el("line", { x1: cx, x2: cx, y1: 2, y2: H - 4, stroke: "rgba(94,231,255,.4)", "stroke-width": 1, "stroke-dasharray": "2 2" }));
+      svg.appendChild(el("circle", { cx, cy, r: 2.6, fill: color }));
+    }
+  }
+
+  /* -------------------------------------------------------------- field bg */
+  function field() {
+    const cv = $("#field");
+    if (!cv) return;
+    const ctx = cv.getContext("2d");
+    let dpr = Math.min(devicePixelRatio || 1, 2);
+    let W = 0, H = 0, parts = [];
+    let mouse = { x: -9999, y: -9999 };
+
+    function resize() {
+      W = innerWidth; H = innerHeight;
+      cv.width = W * dpr; cv.height = H * dpr;
+      cv.style.width = W + "px"; cv.style.height = H + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const N = Math.round(Math.min(78, Math.max(30, W / 24)));
+      parts = [];
+      for (let i = 0; i < N; i++) {
+        parts.push({
+          x: Math.random() * W, y: Math.random() * H,
+          vx: 0, vy: 0,
+          r: 0.6 + Math.random() * 1.5,
+          a: 0.12 + Math.random() * 0.4
+        });
+      }
+    }
+    resize();
+    addEventListener("resize", resize, { passive: true });
+    addEventListener("mousemove", e => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
+
+    let t0 = performance.now(), last = 0;
+    function frame(now) {
+      requestAnimationFrame(frame);
+      if (now - last < 26) return;
+      last = now;
+      if (reduce) return;
+      const t = now - t0;
+      ctx.clearRect(0, 0, W, H);
+
+      for (let i = 0; i < parts.length; i++) {
+        const p = parts[i];
+        const ang = Math.sin(p.x * 0.0016 + t * 0.00012) * Math.PI * 1.25
+          + Math.cos(p.y * 0.0019 - t * 0.00010) * Math.PI;
+        p.vx = Math.cos(ang) * 0.16;
+        p.vy = Math.sin(ang) * 0.16;
+        const dx = p.x - mouse.x, dy = p.y - mouse.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < 42000 && d2 > 1) {
+          const f = (1 - d2 / 42000) * 0.9;
+          const d = Math.sqrt(d2);
+          p.vx += (dx / d) * f;
+          p.vy += (dy / d) * f;
+        }
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < -20) p.x = W + 20; if (p.x > W + 20) p.x = -20;
+        if (p.y < -20) p.y = H + 20; if (p.y > H + 20) p.y = -20;
+      }
+
+      /* links */
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < parts.length; i++) {
+        for (let j = i + 1; j < parts.length; j++) {
+          const a = parts[i], b = parts[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < 15000) {
+            const o = (1 - d2 / 15000) * 0.10;
+            ctx.strokeStyle = `rgba(94,231,255,${o})`;
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          }
+        }
+      }
+      /* dots */
+      for (let i = 0; i < parts.length; i++) {
+        const p = parts[i];
+        ctx.fillStyle = `rgba(150,180,220,${p.a})`;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill();
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  /* ----------------------------------------------------------- cursor glow */
+  function glow() {
+    const g = $("#glow");
+    if (!g) return;
+    let tx = 0, ty = 0, cx = 0, cy = 0;
+    addEventListener("mousemove", e => {
+      document.body.classList.add("has-pointer");
+      tx = e.clientX; ty = e.clientY;
+    }, { passive: true });
+    (function loop() {
+      cx += (tx - cx) * 0.11;
+      cy += (ty - cy) * 0.11;
+      g.style.transform = `translate(${cx}px,${cy}px) translate(-50%,-50%)`;
+      requestAnimationFrame(loop);
+    })();
+  }
+
+  /* --------------------------------------------------------------- reveal */
+  function reveal() {
+    const items = $$(".rv");
+    if (staticMode || reduce) { items.forEach(i => i.classList.add("in")); return; }
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    items.forEach(i => io.observe(i));
+  }
+
+  function markIn(elm) { if (elm) elm.classList.add("in"); }
+
+  return {
+    NS, $, $$, C, el, chart, matrix, matrixLive, sparkline, bindHover, tip,
+    field, glow, reveal, markIn, logTicks, linTicks, mix,
+    staticMode, reduce
+  };
+})();
+</script>
+<script>
+/* ============================================================================
+   认证地平线 · 装配
+   ========================================================================== */
+(function () {
+  "use strict";
+  const $ = V.$, $$ = V.$$, C = V.C, clamp = E.clamp;
+
+  /* ---------------------------------------------------------------- helpers */
+  function setFill(inp) {
+    const min = +inp.min, max = +inp.max, v = +inp.value;
+    inp.style.setProperty("--p", ((v - min) / (max - min) * 100) + "%");
+  }
+  function onSlider(id, cb) {
+    const el = $("#" + id); if (!el) return;
+    setFill(el);
+    el.addEventListener("input", () => { setFill(el); cb(+el.value); });
+  }
+  function onSeg(id, cb) {
+    const root = $("#" + id); if (!root) return;
+    root.addEventListener("click", e => {
+      const b = e.target.closest("button");
+      if (!b || !root.contains(b)) return;
+      $$(".btn", root).forEach(x => x.classList.toggle("on", x === b));
+      cb(b.dataset.k ? +b.dataset.k : +b.dataset.m);
+    });
+  }
+  function setText(id, s) { const e = $("#" + id); if (e) e.textContent = s; }
+  function nStarSafe(delta, r, K) {
+    if (r >= 1 - 1e-12) return 1;
+    const n = E.nStar(delta, r, K);
+    return isFinite(n) ? n : Infinity;
+  }
+  const fmtN = v => isFinite(v) ? E.fmtInt(v) : "∞";
+  /* 1-2-5 阶梯的对数刻度，最多 maxN 个 */
+  function niceLog(lo, hi, maxN) {
+    const out = [];
+    const e0 = Math.floor(Math.log10(Math.max(lo, 1e-300)));
+    const e1 = Math.ceil(Math.log10(hi));
+    for (let e = e1; e >= e0; e--) {
+      [5, 2, 1].forEach(m => {
+        const v = m * Math.pow(10, e);
+        if (v >= lo * 0.97 && v <= hi * 1.03) out.push(v);
+      });
+    }
+    out.sort((a, b) => b - a);
+    const cap = maxN || 6;
+    if (out.length <= cap) return out;
+    const step = Math.ceil(out.length / cap);
+    const res = out.filter((_, i) => i % step === 0);
+    if (res[res.length - 1] !== out[out.length - 1]) res.push(out[out.length - 1]);
+    return res;
+  }
+  const sci = v => {
+    if (!isFinite(v)) return "∞";
+    if (v === 0) return "0";
+    const a = Math.abs(v);
+    if (a >= 1e-3 && a < 1e4) return v.toFixed(a >= 1 ? 3 : 4);
+    const e = Math.floor(Math.log10(a));
+    return (v / Math.pow(10, e)).toFixed(2) + "e" + e;
+  };
+
+  /* ================================================================ TICKER */
+  (function ticker() {
+    const track = $("#tickTrack"); if (!track) return;
+    const items = [
+      "受保护切口 · 端点对比恰为 <b>ρ^ℓ</b>",
+      "固定误差证据代价 · <b>Θ(ρ^−2ℓ)</b>",
+      "检测时钟 · <b>t_det ~ 2L / log N</b>",
+      "能力时钟 · <b>t_acc ~ L</b>",
+      "写入前沿 · <b>M = min(N, ⌊W/c⌋)</b>",
+      "局部重置 · <b>Q* = D log(1/δ) / (−log(1−η))</b>",
+      "扰动地板 · <b>|r̃ − ρ^ℓ| ≤ 2ℓξ</b>",
+      "5 定理 · 4 命题 · <b>0 个数据集</b>"
+    ];
+    const html = items.map(t => `<span class="ticker-item">${t}</span>`).join("");
+    track.innerHTML = html + html;
+  })();
+
+  /* ================================================================== HERO */
+  (function hero() {
+    const svg = $("#heroMat"); if (!svg) return;
+    const HK = 4, HRHO = 0.72;
+    setText("hmK", HK);
+    setText("hmRho", HRHO.toFixed(2));
+
+    const live = V.matrixLive(svg, HK, { maxSize: 76 });
+
+    /* sparkline */
+    const spark = $("#hmSpark");
+    const sp = [];
+    for (let l = 0; l <= 18; l++) sp.push([l, Math.pow(HRHO, l)]);
+
+    let l = V.staticMode ? 5 : 1, dir = 1;
+    function draw() {
+      const r = Math.pow(HRHO, l);
+      live.update(E.kernelWord(HRHO, HK, 1, l));
+      setText("hmL", String(l));
+      setText("hmR", r >= 0.01 ? r.toFixed(4) : r.toExponential(1).replace("e-", "e−"));
+      V.sparkline(spark, sp, C.cyan, { cursor: l, cursorY: r });
+    }
+    draw();
+
+    if (!V.reduce && !V.staticMode) {
+      setInterval(() => {
+        l += dir;
+        if (l >= 16) { l = 16; dir = -1; }
+        if (l <= 1) { l = 1; dir = 1; }
+        draw();
+      }, 620);
+    }
+  })();
+
+  /* ============================================================ 01 XOR 图 */
+  (function xorFig() {
+    const svg = $("#xorSvg"); if (!svg) return;
+    const n = 4;
+    const h0 = [[0, .5], [n, .5], [n, 0], [n + 1, 0]];
+    const h1 = [[0, .5], [1, 0], [n + 1, 0]];
+    const g = V.chart(svg, {
+      xDomain: [0, 5.4], yDomain: [0, 0.6],
+      xTicks: [0, 1, 2, 3, 4, 5], yTicks: [0, 0.25, 0.5],
+      xFmt: v => "q=" + v, yFmt: v => v.toFixed(2),
+      xLabel: "坐标查询次数 q", yLabel: "预测错误率",
+      pad: { l: 52, r: 24, t: 30, b: 44 },
+      hlines: [{ y: 0.5, color: "rgba(255,107,139,.35)", dash: "3 5", label: "随机猜测 1/2" }],
+      vlines: [{ x: n - 1, color: C.rose, dash: "4 4", label: "n−1", labelY: 18 }],
+      series: [
+        { pts: h0, color: C.rose, width: 2.2, step: true, dots: true, dotR: 3.4, animate: true },
+        { pts: h1, color: C.emerald, width: 2.2, step: true, dots: true, dotR: 3.4, animate: true }
+      ]
+    });
+    V.bindHover(svg, g, [
+      { pts: h0, color: C.rose, label: "H₀ 错误率", fmt: v => v.toFixed(2) },
+      { pts: h1, color: C.emerald, label: "H₁ 错误率", fmt: v => v.toFixed(2) }
+    ], q => "查询 q = " + q);
+  })();
+
+  /* ==================================================== Prop 13 坍缩示意 */
+  (function p13() {
+    const svg = $("#p13Svg"); if (!svg) return;
+    const el = V.el;
+    svg.innerHTML = "";
+    const mk = (tag, a) => { const n = el(tag, a); svg.appendChild(n); return n; };
+
+    function node(x, y, label, color, r) {
+      mk("circle", { cx: x, cy: y, r: r || 15, fill: "none", stroke: color, "stroke-width": 1.4, opacity: .9 });
+      mk("circle", { cx: x, cy: y, r: (r || 15) * .35, fill: color, opacity: .85 });
+      const t = mk("text", {
+        x: x, y: y + (r || 15) + 15, "text-anchor": "middle",
+        style: `font-family:var(--f-mono);font-size:10px;fill:${color};letter-spacing:.04em`
+      });
+      t.textContent = label;
+    }
+
+    const defs = mk("defs");
+    const m = el("marker", { id: "arw13", viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: 5, markerHeight: 5, orient: "auto-start-reverse" });
+    m.appendChild(el("path", { d: "M0,0 L10,5 L0,10 z", fill: "rgba(255,199,107,.75)" }));
+    defs.appendChild(m);
+
+    function arrow(x1, y1, x2, y2, dash, color) {
+      const dx = x2 - x1, dy = y2 - y1;
+      const L = Math.hypot(dx, dy);
+      const ux = dx / L, uy = dy / L;
+      mk("path", {
+        d: `M${x1 + ux * 17},${y1 + uy * 17} Q${(x1 + x2) / 2},${(y1 + y2) / 2 - 6} ${x2 - ux * 19},${y2 - uy * 19}`,
+        fill: "none", stroke: color || "rgba(255,199,107,.55)", "stroke-width": 1.4,
+        "stroke-dasharray": dash || "none", "marker-end": "url(#arw13)"
+      });
+    }
+
+    arrow(88, 36, 300, 66);
+    arrow(88, 96, 300, 66);
+    node(70, 36, "a₀", C.rose, 14);
+    node(70, 96, "s", C.cyan, 14);
+    node(322, 66, "s*", C.amber, 16);
+
+    const cap = mk("text", {
+      x: 230, y: 124, "text-anchor": "middle",
+      style: "font-family:var(--f-mono);font-size:9.5px;fill:#8b95ad;letter-spacing:.06em"
+    });
+    cap.textContent = "f(s) = s* 对一切 s  ⇒  端点律相同，d_TV = 0";
+  })();
+
+  /* ======================================================== 02 受保护切口 */
+  const S2 = { K: 2, rho: 0.85, l: 6 };
+  let cutLive = null;
+
+  function renderCut() {
+    const { K, rho, l } = S2;
+    const r = Math.pow(rho, l);
+
+    const svg = $("#cutMat");
+    if (svg) {
+      if (!cutLive || cutLive._k !== K) { cutLive = V.matrixLive(svg, K, { maxSize: 104 }); cutLive._k = K; }
+      cutLive.update(E.kernelWord(rho, K, 1, l));
+    }
+
+    const dsvg = $("#cutDecay");
+    if (dsvg) {
+      const pts = [];
+      for (let i = 0; i <= 60; i++) pts.push([i, Math.pow(rho, i)]);
+      const g = V.chart(dsvg, {
+        w: 210, h: 150, responsive: false,
+        xDomain: [0, 60], yDomain: [0, 1.02],
+        xTicks: [0, 30, 60], yTicks: [0, 0.5, 1],
+        xFmt: v => v, yFmt: v => v.toFixed(1),
+        pad: { l: 30, r: 8, t: 14, b: 26 },
+        series: [
+          { pts, color: C.cyan, width: 1.6, area: true, areaOpacity: .16 },
+          { pts: [[l, r], [l, 0]], color: C.amber, width: 1.2, dash: "3 3" }
+        ],
+        marks: [{ x: l, y: r, color: C.amber, label: "" }]
+      });
+      V.bindHover(dsvg, g, [{ pts, color: C.cyan, label: "ρ^ℓ", fmt: v => v.toFixed(4) }], v => "ℓ = " + v);
+    }
+
+    setText("cutR", r >= 0.001 ? r.toFixed(4) : r.toExponential(2).replace("e-", "e−"));
+    const ns = nStarSafe(0.05, r, K);
+    setText("cutN", fmtN(ns));
+    setText("cutMul", (1 / (rho * rho)).toFixed(2) + "×");
+    setText("cutBarR", "ℓ = " + l);
+  }
+
+  onSeg("cutK", k => { S2.K = k; renderCut(); });
+  onSlider("cutRho", v => { S2.rho = v; setText("cutRhoV", v.toFixed(2)); renderCut(); });
+  onSlider("cutL", v => { S2.l = v; setText("cutLV", String(v)); renderCut(); });
+
+  /* ========================================================== 03 证据代价 */
+  const S3 = { K: 2, rho: 0.90, delta: 0.05, l: 18 };
+
+  function renderEvidence() {
+    const { K, rho, delta, l } = S3;
+    const r = Math.pow(rho, l);
+    const ck = E.CK(r, K);
+    const ns = nStarSafe(delta, r, K);
+
+    setText("evR", r >= 0.001 ? r.toFixed(4) : r.toExponential(2).replace("e-", "e−"));
+    setText("evC", ck > 0 ? sci(ck) : "∞");
+    setText("evN", fmtN(ns));
+    setText("evBarR", "δ = " + delta.toFixed(2) + " · K = " + K);
+
+    /* ---- 主图：N* vs ℓ ---- */
+    const svg = $("#evChart");
+    if (svg) {
+      const CAP = 1e9;
+      const series = [];
+      const fixed = [
+        { rho: 0.50, color: "rgba(167,139,250,.5)", label: "ρ = 0.50" },
+        { rho: 0.75, color: "rgba(255,199,107,.5)", label: "ρ = 0.75" },
+        { rho: 0.90, color: "rgba(255,107,139,.5)", label: "ρ = 0.90" }
+      ].filter(f => Math.abs(f.rho - rho) > 0.03);
+      fixed.forEach(f => {
+        const pts = [];
+        for (let i = 1; i <= 120; i++) {
+          const rr = Math.pow(f.rho, i);
+          const v = nStarSafe(delta, rr, K);
+          if (v > CAP) break;
+          pts.push([i, v]);
+        }
+        series.push({ pts, color: f.color, width: 1.5, dash: "5 4" });
+      });
+
+      const cur = [];
+      for (let i = 1; i <= 120; i++) {
+        const rr = Math.pow(rho, i);
+        const v = nStarSafe(delta, rr, K);
+        if (v > CAP) break;
+        cur.push([i, v]);
+      }
+      series.push({ pts: cur, color: C.cyan, width: 2.4, animate: true });
+
+      const g = V.chart(svg, {
+        xDomain: [1, 120], yDomain: [1, CAP], yLog: true,
+        xTicks: [1, 20, 40, 60, 80, 100, 120],
+        yTicks: [1, 1e2, 1e4, 1e6, 1e8],
+        xFmt: v => v, yFmt: v => v >= 1e6 ? (v / 1e6).toFixed(0) + "M" : v >= 1000 ? (v / 1000).toFixed(0) + "k" : v.toFixed(0),
+        xLabel: "未观测续算长度 ℓ", yLabel: "所需重置试验 N*（对数）",
+        series,
+        marks: isFinite(ns) && ns <= CAP && l <= 120 ? [{ x: l, y: ns, color: C.cyan, label: "N* = " + fmtN(ns), dx: -8, dy: -12 }] : []
+      });
+      V.bindHover(svg, g, series.map((s, i) => ({
+        pts: s.pts,
+        color: s.color,
+        label: i >= fixed.length ? "你的 ρ" : fixed[i].label,
+        fmt: v => fmtN(v)
+      })), v => "ℓ = " + v);
+    }
+
+    /* ---- 精确递归 vs 界 ---- */
+    const ex = $("#evExact");
+    if (ex) {
+      const rr = clamp(r, 0.02, 0.95);
+      setText("evExBar", "K=" + K + " · r=" + rr.toFixed(3));
+      const pe = [], pl = [], ph = [];
+      let mn = 1;
+      for (let N = 1; N <= 80; N++) {
+        const e = E.estarExact(N, rr, K);
+        const b = E.estarBounds(N, rr, K);
+        pe.push([N, e]);
+        pl.push([N, b.lo]);
+        ph.push([N, b.hi]);
+        if (e > 0 && e < mn) mn = e;
+      }
+      const y0 = Math.max(1e-16, mn * 0.35);
+      const g = V.chart(ex, {
+        xDomain: [1, 80], yDomain: [y0, 1], yLog: true,
+        xTicks: [1, 20, 40, 60, 80],
+        yTicks: niceLog(y0, 1, 6),
+        xFmt: v => v, yFmt: v => v >= 0.1 ? v.toFixed(1) : v >= 1e-3 ? v.toExponential(0).replace("e-", "e−") : v.toExponential(0).replace("e-", "e−"),
+        xLabel: "重置试验 N", yLabel: "等先验错误 e*_N",
+        pad: { l: 56, r: 16, t: 24, b: 38 },
+        series: [
+          { pts: ph, color: "rgba(255,199,107,.7)", width: 1.4, dash: "5 4" },
+          { pts: pl, color: "rgba(255,199,107,.7)", width: 1.4, dash: "5 4" },
+          { pts: pe, color: C.cyan, width: 2.2, animate: true }
+        ]
+      });
+      V.bindHover(ex, g, [
+        { pts: pe, color: C.cyan, label: "精确递归", fmt: v => sci(v) },
+        { pts: ph, color: C.amber, label: "上界 ½e^{−NC}", fmt: v => sci(v) },
+        { pts: pl, color: C.amber, label: "下界 ¼e^{−2NC}", fmt: v => sci(v) }
+      ], v => "N = " + v);
+    }
+  }
+
+  onSeg("evK", k => { S3.K = k; renderEvidence(); });
+  onSlider("evRho", v => { S3.rho = v; setText("evRhoV", v.toFixed(3)); renderEvidence(); });
+  onSlider("evDelta", v => { S3.delta = v / 100; setText("evDeltaV", (v / 100).toFixed(2)); renderEvidence(); });
+  onSlider("evL", v => { S3.l = v; setText("evLV", String(v)); renderEvidence(); });
+
+  /* ========================================================== 04 写入预算 */
+  const S4 = { m: 3, W: 8, N: 12, r: 0.35, flipped: 0 };
+
+  function renderBits() {
+    const box = $("#bdBits"); if (!box) return;
+    const m = S4.m, c = E.cOf(m);
+    if (box.dataset.m !== String(m)) {
+      box.dataset.m = String(m);
+      S4.flipped = 0;
+      box.innerHTML = "";
+      for (let i = 0; i < m; i++) {
+        const b = document.createElement("div");
+        b.className = "bit";
+        b.innerHTML = `<span class="b">1</span><span class="i">b${i}</span>`;
+        b.addEventListener("click", () => {
+          b.classList.toggle("flip");
+          S4.flipped = $$(".bit.flip", box).length;
+          updateBitUI();
+        });
+        box.appendChild(b);
+      }
+    }
+    updateBitUI();
+  }
+
+  function updateBitUI() {
+    const box = $("#bdBits"); if (!box) return;
+    const m = S4.m, c = E.cOf(m);
+    const x = S4.flipped;
+    const need = Math.max(0, c - x);
+    const hint = $("#bdHint");
+    if (hint) {
+      hint.className = "bits-hint" + (need === 0 ? " ok" : "");
+      hint.innerHTML = need === 0
+        ? `已翻转 <b>${x}</b> 位 · 多数已改变 ⇒ <b>1 次信息性重置</b>`
+        : `已翻转 <b>${x}</b> 位 · 还需 <b>${need}</b> 位才能改变多数`;
+    }
+    const mo = $("#bdMajorBox");
+    if (mo) {
+      const flipped = need === 0;
+      mo.classList.toggle("on", flipped);
+      setText("bdMajor", flipped ? "1" : "0");
+      setText("bdMajorS", flipped ? "≠ s，一次信息性重置" : "= s，与旁路不可区分");
+    }
+    const pct = Math.min(100, (x / c) * 100);
+    const f = $("#bdBarFlip"), rs = $("#bdBarRest");
+    if (f) f.style.width = pct + "%";
+    if (rs) rs.style.width = (100 - pct) + "%";
+    setText("bdBarL", `${x} 次写已用 · 阈值 c = ${c}`);
+    setText("bdBarR2", "W = " + S4.W);
+    setText("bdBitR", "m = " + m + " · c = " + c);
+  }
+
+  function renderBudget() {
+    const { m, W, N, r } = S4;
+    const c = E.cOf(m);
+    const M = E.budgetM(N, W, m);
+    const e = M > 0 ? E.estarExact(Math.min(M, 380), r, 2) : 0.5;
+
+    setText("bdMv", String(M));
+    setText("bdEstar", e >= 0.001 ? e.toFixed(4) : sci(e));
+    const box = $("#bdEstarBox");
+    if (box) {
+      const s = box.querySelector(".s");
+      if (M === 0) { s.textContent = "W < c：写不动，与 N 无关"; s.style.color = "var(--rose)"; }
+      else if (M < N) { s.textContent = "被写入预算卡住"; s.style.color = "var(--amber)"; }
+      else { s.textContent = "已被重置次数 N 卡住"; s.style.color = "var(--dim-2)"; }
+    }
+    setText("bdCliffR", "m = " + m + " · N = " + N + " · r = " + r.toFixed(2));
+
+    const svg = $("#bdCliff");
+    if (svg) {
+      const pts = [];
+      let mn = 1;
+      for (let w = 0; w <= 24; w++) {
+        const MM = E.budgetM(N, w, m);
+        const v = MM > 0 ? E.estarExact(Math.min(MM, 380), r, 2) : 0.5;
+        pts.push([w, v]);
+        if (v > 0 && v < mn) mn = v;
+      }
+      const y0 = Math.max(1e-9, mn * 0.4);
+      const g = V.chart(svg, {
+        xDomain: [0, 24], yDomain: [y0, 1], yLog: true,
+        xTicks: [0, 4, 8, 12, 16, 20, 24],
+        yTicks: niceLog(y0, 1, 6),
+        xFmt: v => v, yFmt: v => v >= 0.1 ? v.toFixed(1) : v.toExponential(0).replace("e-", "e−"),
+        xLabel: "写入预算 W", yLabel: "最优审计错误 e*",
+        vlines: [{ x: c, color: C.rose, dash: "4 4", label: "c = " + c, labelY: 16 }],
+        hlines: [{ y: 0.5, color: "rgba(255,107,139,.3)", dash: "3 5", label: "1/2 · 完全不可分" }],
+        series: [{ pts, color: C.cyan, width: 2.2, step: true, dots: true, dotR: 2.6, animate: true }]
+      });
+      V.bindHover(svg, g, [{ pts, color: C.cyan, label: "e*", fmt: v => sci(v) }], v => "W = " + v);
+    }
+    renderBits();
+  }
+
+  onSeg("bdM", v => { S4.m = v; renderBudget(); });
+  onSlider("bdW", v => { S4.W = v; setText("bdWV", String(v)); renderBudget(); });
+  onSlider("bdN", v => { S4.N = v; setText("bdNV", String(v)); renderBudget(); });
+  onSlider("bdR", v => { S4.r = v; setText("bdRV", v.toFixed(2)); renderBudget(); });
+
+  /* ========================================================== 05 三条时钟 */
+  const S5 = { K: 3, L: 64, nExp: 10 };
+
+  function renderDynamics() {
+    const { K, L } = S5;
+    const N = Math.pow(2, S5.nExp);
+    const tdet = E.tDet(L, N);
+    const tacc = E.tAcc(K, L, 0.1);
+    const ttr = E.tTr(K, L, 0.1);
+
+    setText("dyLV", String(L));
+    setText("dyNV", fmtN(N));
+    setText("dyDet", tdet < 1e5 ? E.fmtNum(tdet, 1) : sci(tdet));
+    setText("dyAcc", isFinite(tacc) ? (tacc < 1e5 ? E.fmtNum(tacc, 0) : sci(tacc)) : "∞");
+    setText("dyTr", isFinite(ttr) ? (ttr < 1e5 ? E.fmtNum(ttr, 0) : sci(ttr)) : "∞");
+    setText("dyBarR", "K = " + K + " · L = " + L);
+
+    const aD = E.AL(tdet, K, L), fD = E.FL(tdet, K, L);
+    setText("dyADet", aD.toFixed(3));
+    setText("dyFDet", fD >= 0.001 ? fD.toFixed(3) : sci(fD));
+    const fBox = $("#dyFDet");
+    if (fBox) fBox.style.color = fD < 0.2 ? "var(--rose)" : fD < 0.6 ? "var(--amber)" : "var(--emerald)";
+
+    const svg = $("#dyChart");
+    if (!svg) return;
+
+    const tmax = Math.max(2e4, isFinite(tacc) ? tacc * 2.2 : 2e4, isFinite(ttr) ? ttr * 2.2 : 2e4);
+    const pts = [], NPT = 170;
+    for (let i = 0; i <= NPT; i++) {
+      const t = 0.4 * Math.pow(tmax / 0.4, i / NPT);
+      pts.push([t, E.AL(t, K, L), E.FL(t, K, L)]);
+    }
+    const sA = pts.map(p => [p[0], p[1]]);
+    const sF = pts.map(p => [p[0], p[2]]);
+
+    const vl = [];
+    if (isFinite(tdet) && tdet > 0) vl.push({ x: tdet, color: C.cyan, dash: "5 4", label: "t_det", labelY: 14 });
+    if (isFinite(tacc) && tacc < tmax) vl.push({ x: tacc, color: C.violet, dash: "3 5", label: "t_acc", labelY: 28 });
+    if (isFinite(ttr) && ttr < tmax) vl.push({ x: ttr, color: C.amber, dash: "3 5", label: "t_tr", labelY: 42 });
+
+    const marks = [];
+    if (isFinite(tdet) && tdet > 0) {
+      marks.push({ x: tdet, y: aD, color: C.violet, label: "A_L = " + aD.toFixed(2), dx: 9, dy: 4 });
+      marks.push({ x: tdet, y: Math.max(fD, 1e-4), color: C.rose, label: "F_L = " + (fD >= 0.001 ? fD.toFixed(3) : sci(fD)), dx: 9, dy: -6 });
+    }
+
+    const g = V.chart(svg, {
+      xDomain: [0.4, tmax], xLog: true, yDomain: [0, 1.02],
+      xFmt: v => v >= 1000 ? (v / 1000).toFixed(0) + "k" : v.toFixed(v < 1 ? 1 : 0),
+      yTicks: [0, 0.25, 0.5, 0.75, 1],
+      yFmt: v => v.toFixed(2),
+      xLabel: "归一化梯度流时间 t（对数）", yLabel: "概率",
+      hlines: [{ y: 1 / K, color: "rgba(150,168,205,.3)", dash: "4 5", label: "随机 1/K" }],
+      vlines: vl, marks,
+      series: [
+        { pts: sA, color: C.violet, width: 2.3, animate: true, area: true, areaOpacity: .07 },
+        { pts: sF, color: C.amber, width: 2.3, animate: true }
+      ]
+    });
+    V.bindHover(svg, g, [
+      { pts: sA, color: C.violet, label: "A_L 端点正确率", fmt: v => v.toFixed(4) },
+      { pts: sF, color: C.amber, label: "F_L 轨迹保真", fmt: v => v.toFixed(4) }
+    ], v => "t = " + E.fmtNum(v, 2));
+
+    const note = $("#dyFootNote");
+    if (note) note.textContent = `t_det 处 F_L = ${fD >= 0.001 ? fD.toFixed(3) : sci(fD)} · 理论上 N^−(K−1)/(2K) = ${sci(Math.pow(N, -(K - 1) / (2 * K)))}`;
+  }
+
+  onSeg("dyK", k => { S5.K = k; renderDynamics(); });
+  onSlider("dyL", v => { S5.L = v; renderDynamics(); });
+  onSlider("dyN", v => { S5.nExp = v; renderDynamics(); });
+
+  /* ============================================================ 06 认证台 */
+  const S6 = { K: 2, rho: 0.90, l: 8, nExp: 8, delta: 0.05, W: 48, m: 3 };
+
+  function setVerdict(id, state) {
+    const el = $("#" + id); if (el) el.dataset.state = state;
+  }
+
+  function renderConsole() {
+    const { K, rho, l, delta, W, m } = S6;
+    const N = Math.pow(2, S6.nExp);
+    const r = Math.pow(rho, l);
+    const ck = E.CK(r, K);
+    const ns = nStarSafe(delta, r, K);
+
+    /* ---- ① 延迟认证 ---- */
+    setText("vEvR", r >= 0.001 ? r.toFixed(4) : sci(r));
+    setText("vEvC", ck > 0 ? sci(ck) : "∞");
+    setText("vEvN", fmtN(ns));
+    setText("vEvHave", fmtN(N));
+    let s1;
+    if (!isFinite(ns)) { s1 = "no"; }
+    else if (N >= ns) s1 = "ok";
+    else if (N * 2 >= ns) s1 = "thin";
+    else s1 = "no";
+    setVerdict("vEvidence", s1);
+    setText("vEvidenceS", s1 === "ok"
+      ? `信号 ρ^ℓ = ${sci(r)} 可被分辨。你的 ${fmtN(N)} 次重置足够达到 δ = ${delta.toFixed(2)}。`
+      : s1 === "thin"
+        ? `差一点：需要 ${fmtN(ns)} 次，你有 ${fmtN(N)} 次。再退一步未观测长度就能过线。`
+        : `信号 ρ^ℓ = ${sci(r)} 太弱。需要 ${fmtN(ns)} 次重置，你只有 ${fmtN(N)} 次 —— 相差 ${isFinite(ns) ? fmtN(ns / N) : "∞"} 倍。`);
+
+    /* ---- ② 写入受限 ---- */
+    const c = E.cOf(m);
+    const M = E.budgetM(N, W, m);
+    const eB = M > 0 ? E.estarExact(Math.min(M, 380), r, 2) : 0.5;
+    setText("vBdC", String(c));
+    setText("vBdM", String(M));
+    setText("vBdE", eB >= 0.001 ? eB.toFixed(4) : sci(eB));
+    setText("vBdOk", W >= c ? "是（W ≥ c）" : "否（W < c）");
+    let s2;
+    if (M === 0) s2 = "no";
+    else if (eB <= delta) s2 = "ok";
+    else if (eB <= delta * 2) s2 = "thin";
+    else s2 = "no";
+    setVerdict("vBudget", s2);
+    setText("vBudgetS", M === 0
+      ? `W = ${W} < c = ${c}：多数编码块写不动，两个假设在任何训练时刻都不可分，包括确定性极限。`
+      : `有效试验 M = min(${fmtN(N)}, ⌊${W}/${c}⌋) = ${M}，最优错误 e* = ${eB >= 0.001 ? eB.toFixed(4) : sci(eB)}。${M < N ? "瓶颈在写入，不在观测次数。" : "瓶颈在重置次数 N。"}`);
+
+    /* ---- ③ 局部重置 ---- */
+    const D = K * K, eps = 0.05, Lc = l;
+    const eta = E.etaForEps(eps, Lc);
+    const Q = E.qStar(D, delta, eta);
+    const avail = N * Lc;
+    setText("vLcD", String(D));
+    setText("vLcEta", eta >= 1e-3 ? eta.toFixed(4) : sci(eta));
+    setText("vLcQ", fmtN(Q));
+    setText("vLcComp", (1 - Math.pow(1 - eta, Lc)).toFixed(4));
+    let s3 = avail >= Q ? "ok" : (avail * 10 >= Q ? "thin" : "no");
+    setVerdict("vLocal", s3);
+    setText("vLocalS", `要让长度 ${Lc} 的轨迹达到 ε = ${eps} 保真，行误差须 ≤ η = ${eta >= 1e-3 ? eta.toFixed(4) : sci(eta)}。需 ${fmtN(Q)} 次查询，你可用 ${fmtN(avail)} 次。`);
+
+    /* ---- 判词 ---- */
+    const arr = [["延迟认证", s1], ["写入受限审计", s2], ["局部重置证书", s3]];
+    const dead = arr.filter(a => a[1] === "no").map(a => a[0]);
+    const thin = arr.filter(a => a[1] === "thin").map(a => a[0]);
+    let msg;
+    if (!dead.length && !thin.length) {
+      msg = "三条路都通。在这组条件下，你可以同时主张：该寄存器被因果使用、写入受限审计仍可达到目标误差、以及长度 " + Lc + " 的轨迹保真。注意第三条是更强的结论，代价也高一个量级。";
+    } else if (dead.length === 3) {
+      msg = "三条路全断。这组参数下唯一诚实的结论是：你无法区分该寄存器被使用还是未被使用——与学习进行到多晚无关。";
+    } else {
+      const parts = [];
+      if (dead.length) parts.push("已经断掉的是 " + dead.join("、"));
+      if (thin.length) parts.push("勉强过线的是 " + thin.join("、"));
+      msg = parts.join("；") + "。其余仍可主张。这正是论文的核心：可认证性由接口与预算决定，而不是由「模型有多好」决定。";
+    }
+    setText("coVerdict", msg);
+  }
+
+  onSeg("coK", k => { S6.K = k; renderConsole(); });
+  onSlider("coRho", v => { S6.rho = v; setText("coRhoV", v.toFixed(3)); renderConsole(); });
+  onSlider("coL", v => { S6.l = v; setText("coLV", String(v)); renderConsole(); });
+  onSlider("coN", v => { S6.nExp = v; setText("coNV", fmtN(Math.pow(2, v))); renderConsole(); });
+  onSlider("coDelta", v => { S6.delta = v / 100; setText("coDeltaV", (v / 100).toFixed(2)); renderConsole(); });
+  onSlider("coW", v => { S6.W = v; setText("coWV", String(v)); renderConsole(); });
+  onSlider("coM", v => { S6.m = v; setText("coMV", String(v)); renderConsole(); });
+
+  /* ============================================================== 07 地板 */
+  const S7 = { rho: 0.85, xi: 0.004 };
+
+  function renderFloor() {
+    const { rho, xi } = S7;
+    setText("flRhoV", rho.toFixed(2));
+    setText("flXiV", xi.toFixed(4));
+
+    const svg = $("#floorChart"); if (!svg) return;
+    const sig = [], flr = [];
+    for (let l = 1; l <= 60; l++) {
+      sig.push([l, Math.pow(rho, l)]);
+      flr.push([l, Math.min(1, 2 * l * xi)]);
+    }
+    const cross = E.floorCrossL(rho, xi, 60);
+    const y0 = 1e-5;
+    const g = V.chart(svg, {
+      w: 460, h: 190,
+      xDomain: [1, 60], yDomain: [y0, 1], yLog: true,
+      xTicks: [1, 20, 40, 60], yTicks: niceLog(1e-5, 1, 5),
+      xFmt: v => v, yFmt: v => v >= 0.1 ? v.toFixed(1) : v.toExponential(0).replace("e-", "e−"),
+      pad: { l: 50, r: 14, t: 18, b: 34 },
+      xLabel: "未观测长度 ℓ", yLabel: "TV 距离",
+      vlines: cross ? [{ x: cross, color: C.rose, dash: "4 4", label: "ℓ* ≈ " + cross.toFixed(0), labelY: 14 }] : [],
+      series: [
+        { pts: flr, color: "rgba(255,107,139,.85)", width: 1.7, animate: true },
+        { pts: sig, color: C.cyan, width: 1.9, animate: true }
+      ]
+    });
+    V.bindHover(svg, g, [
+      { pts: sig, color: C.cyan, label: "信号 ρ^ℓ", fmt: v => sci(v) },
+      { pts: flr, color: C.rose, label: "地板 2ℓξ", fmt: v => sci(v) }
+    ], v => "ℓ = " + v);
+  }
+
+  onSlider("flRho", v => { S7.rho = v; renderFloor(); });
+  onSlider("flXi", v => { S7.xi = v; renderFloor(); });
+
+  /* ============================================================== 08 复现 */
+  (function repro() {
+    const body = $("#reproBody"); if (!body) return;
+    const rows = [
+      ["转移矩阵乘积", 95480, "1.11 × 10⁻¹⁶"],
+      ["有序状态 TV 对比", 1106080, "5.55 × 10⁻¹⁷"],
+      ["Logit 流检查点", 604, "1.26 × 10⁻¹¹"],
+      ["有限似然递归", 1440, "无越界"],
+      ["完整路径分布", 60, "9.99 × 10⁻¹⁶"],
+      ["有理预算决策", 1092, "精确一致"]
+    ];
+    const mx = Math.log10(1106080);
+    body.innerHTML = rows.map(r => {
+      const w = Math.max(0.03, Math.log10(Math.max(r[1], 10)) / mx);
+      const col = r[2].indexOf("无") === 0 || r[2].indexOf("精确") === 0 ? C.emerald : C.cyan;
+      return `<tr>
+        <td>${r[0]}</td>
+        <td class="num">${r[1].toLocaleString("en-US")}</td>
+        <td class="num" style="color:${col}">${r[2]}</td>
+        <td><div class="bar-mini"><span class="track"><span class="fill" style="width:${(w * 100).toFixed(1)}%;background:${col}"></span></span></div></td>
+      </tr>`;
+    }).join("");
+    setTimeout(() => $$(".bar-mini").forEach(b => b.classList.add("in")), 400);
+  })();
+
+  /* ============================================================== 初始化 */
+  function init() {
+    if (V.staticMode) document.documentElement.classList.add("no-anim");
+    V.field();
+    V.glow();
+    V.reveal();
+
+    renderCut();
+    renderEvidence();
+    renderBudget();
+    renderDynamics();
+    renderConsole();
+    renderFloor();
+
+    /* nav 背景 */
+    const nav = $("#nav");
+    const onScroll = () => { if (nav) nav.classList.toggle("stuck", window.scrollY > 30); };
+    onScroll();
+    addEventListener("scroll", onScroll, { passive: true });
+
+    /* nav 高亮 */
+    const secs = ["three", "cut", "evidence", "budget", "dynamics", "console", "limits", "repro"]
+      .map(id => $("#" + id)).filter(Boolean);
+    const links = $$(".nav-links a");
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => {
+        if (!e.isIntersecting) return;
+        const id = e.target.id;
+        links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + id));
+      });
+    }, { rootMargin: "-40% 0px -50% 0px" });
+    secs.forEach(s => io.observe(s));
+
+    /* 卡片 spotlight */
+    $$(".panel").forEach(p => {
+      p.addEventListener("mousemove", e => {
+        const r = p.getBoundingClientRect();
+        p.style.setProperty("--mx", ((e.clientX - r.left) / r.width * 100) + "%");
+        p.style.setProperty("--my", ((e.clientY - r.top) / r.height * 100) + "%");
+      });
+    });
+
+    /* 尺寸变化重绘 */
+    let rt = 0;
+    addEventListener("resize", () => {
+      clearTimeout(rt);
+      rt = setTimeout(() => {
+        renderCut(); renderEvidence(); renderBudget();
+        renderDynamics(); renderConsole(); renderFloor();
+      }, 220);
+    }, { passive: true });
+
+    /* 深链接参数 */
+    const q = new URLSearchParams(location.search);
+    if (q.has("k")) {
+      const k = +q.get("k");
+      if ([2, 3, 4, 5, 6, 8].indexOf(k) >= 0) {
+        S3.K = k; S2.K = Math.min(k, 5);
+        $$("#cutK .btn").forEach(b => b.classList.toggle("on", +b.dataset.k === S2.K));
+        $$("#evK .btn").forEach(b => b.classList.toggle("on", +b.dataset.k === k));
+        renderCut(); renderEvidence();
+      }
+    }
+    if (q.has("l")) {
+      const l = +q.get("l");
+      if (l > 0) { S3.l = Math.min(120, l); $("#evL").value = S3.l; setFill($("#evL")); setText("evLV", String(S3.l)); renderEvidence(); }
+    }
+
+    document.body.classList.add("ready");
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+</script>
+
+</body>
+</html>
