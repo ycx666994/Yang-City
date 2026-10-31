@@ -106,10 +106,12 @@
 
 ## 上线发布
 
-- 线上地址：`https://1822014d256f485bbe2d8bdd52733b73.sg2.agentos-app.run`
-  （静态托管，入口 index.html，domainPrefix `ai-failure-museum`，2026-10-19 首发含 hub v2.1 + Phase B 舱室外壳）
-- 管理入口：设置—数据管理—应用。
-- 注意：重发布同目录会**覆盖同一线上链接**；本地改完跑 `bash build.sh` 后再发布。
+- **现行地址**：<https://ycx666994.github.io/Yang-City/h1-lab.html>
+  （老馆已并入 Yang-City，托管在 GitHub Pages，地址稳定、不再变）
+- 历史地址（已失效，仅作记录）：`https://1822014d256f485bbe2d8bdd52733b73.sg2.agentos-app.run`
+  —— 当时的云端沙箱每次重新发布都会换域名，旧域名立刻 404，所以这类链接不适合写进文档。
+- 注意：本地改完跑 `bash build.sh`（只写 `h1-lab.html`）→ `git push` 即触发 Pages 重建，
+  约 20–30 秒后生效。
 
 ## hub v2（博物馆大厅 · 固定视口应用式，取代 v1 长滚动页）
 
