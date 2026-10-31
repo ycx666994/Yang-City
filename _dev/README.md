@@ -24,6 +24,15 @@ node _dev/_probe17.mjs      # 单个探针
 | `_tau*` `_hash` `_crng` `_net` `_pix` `_ctx` | 单点问题的复现脚本（温度采样、哈希、随机数、网络、像素、画布上下文） |
 | `_contrast*` `_dark` `_pale` `_vendorlight*` | 配色与对比度 |
 
+## 换机器跑之前先改 `BASE`
+
+这些脚本里的 `BASE` 是当初开发时的绝对路径（`file:///D:/...`）。换一台机器跑之前，
+把脚本顶部那一行 `const BASE = ...` 改成你自己的仓库根目录，或者直接改成相对路径：
+
+```js
+const BASE = new URL("..", import.meta.url).href;   // 指向仓库根
+```
+
 ## 一条重要的教训
 
 **没有 playwright 也能截图，但必须显式给 clip。**
