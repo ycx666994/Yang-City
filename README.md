@@ -190,10 +190,18 @@ cd yangcheng/_dev
 node allpages.mjs     # 13 页：无脚本错误、无横向溢出、驻馆人在线
 node entrycheck.mjs   # 入口链路：裸域名 → 杨城 / 老馆固定地址 / 回馆链接不指错
 node castcheck.mjs    # 十位驻馆人、选边体系、值守轮值、窄屏
+node scrollguard.mjs  # 13 页 × 3 视口：滚轮真的能滚到底（见下）
 node h2casecheck.mjs  # 案卷 0117 四幕完整通关 → 100 分 + 证书
 node h3mazecheck.mjs  # 迷宫：世界生成、光线投射、知识门、通关发证
 node mazecaught.mjs   # 追捕：入塔时机、答题冻结、被抓无证书
+node h5fcplay.mjs     # 坍塌预报台：三轮真实点击插旗 → 100 分
 ```
+
+`scrollguard.mjs` 是专门为一次真实的线上事故加的。共享样式 `yc-core.css` 里有一条
+`body{overflow:hidden}`，那是给「一屏装得下的仪表盘」用的；它**会传播到视口**，
+于是滚轮、PageDown、触控板全部失效——但 `window.scrollTo()` 照样能滚。
+所以任何用 scrollTo 量位置的探针都会一路绿灯，真人一上手才发现下半页永远够不着。
+这个守卫只认**真实滚轮事件**，13 页 × 3 种视口全过才算通过。
 
 最近一次线上实测：`livecheck.mjs` 28/28 全过，`mazecaught` 15/15，`h2casecheck` 7/7。
 

@@ -23,6 +23,11 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
+/* 覆盖 yc-core.css 的固定视口：body{overflow:hidden} 会传播到视口，滚轮全废。
+   本页在 1280×720 下内容 750px > 视口，底部会被切掉且够不着。
+   1440×900 下不出现滚动条（刚好装得下），只有视口更矮时才靠它兜底。 */
+html{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
+body{height:auto;overflow:visible}
 body{
   background:
     radial-gradient(ellipse 70% 46% at 16% -8%,rgba(53,207,168,.12),transparent 66%),

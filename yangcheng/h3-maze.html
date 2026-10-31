@@ -28,14 +28,21 @@
   --mz-mono:ui-monospace,"SF Mono",Consolas,monospace;
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;height:100%}
+/* 覆盖 yc-core.css 的固定视口（body{overflow:hidden} 会传播到视口，滚轮全废）。
+   本页内容 931px > 视口 900px，底部「回馆」一行会被切掉且够不着。
+   改完在 1440×900 下不出现滚动条（871 < 900），视口更矮时才靠滚动兜底。
+   判据同 h2-case：必须用真实 mouseWheel 事件验证，scrollTo 测不出这个 bug。 */
+html{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
 body{
+  height:auto;
+  min-height:100vh;
+  overflow:visible;
   background:radial-gradient(900px 500px at 50% -10%,#0e1930,transparent 65%),var(--mz-bg);
   color:var(--mz-tx);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
-  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
 }
 
-.mzwrap{max-width:1180px;margin:0 auto;padding:0 16px 40px;position:relative;z-index:1}
+.mzwrap{max-width:1180px;margin:0 auto;padding:0 16px 8px;position:relative;z-index:1}
 
 /* ---------------- 顶栏 ---------------- */
 .mzbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0 11px;

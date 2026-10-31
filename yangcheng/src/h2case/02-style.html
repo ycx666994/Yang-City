@@ -20,7 +20,25 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
+/* ==========================================================================
+   必须覆盖 yc-core.css 的「固定视口」设定。
+   那一套 `html,body{height:100%} body{overflow:hidden}` 是给一屏装得下的
+   仪表盘壳用的（城市首页、各馆主厅，内部另有滚动容器）。
+   本页不是壳，是长文档：卷宗 + 六个疑点 + 四幕，实测内容 1255px、视口 900px。
+
+   坑（2026-10-31 用户报「卡死在第一页，点什么也点不动」）：
+   body 的 overflow:hidden 会**传播到视口**（html 是 visible 时由 body 接管），
+   于是滚轮、PageDown、触控板全部失效；但 `window.scrollTo()` 仍能滚。
+   → 探针用 scrollTo 量位置，一路绿灯；真人用滚轮，一步也下不去。
+   下面 355px 的「提交勘察结论」按钮永远在视口外，整页看起来就是死的。
+
+   判据：改完必须用真实滚轮事件（Input.dispatchMouseEvent type=mouseWheel）验证，
+   不能用 scrollTo —— 那个绕过了 overflow 限制，测不出这个 bug。
+   ========================================================================== */
+html{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
 body{
+  height:auto;
+  overflow:visible;
   background:
     radial-gradient(1200px 600px at 20% -10%,rgba(255,255,255,.7),transparent 60%),
     radial-gradient(900px 500px at 90% 110%,rgba(200,180,140,.28),transparent 60%),
