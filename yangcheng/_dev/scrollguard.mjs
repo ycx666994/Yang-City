@@ -23,7 +23,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const PORT = +(process.env.YC_PORT || 9955);
-const BASE = "file:///D:/wobdy%E6%B5%B7%E5%A4%96/2026-10-18-18-15-27/trust-lab/yangcheng";
+/* 默认测本地文件；线上复验时传 YC_BASE=https://.../yangcheng */
+const BASE = process.env.YC_BASE || "file:///D:/wobdy%E6%B5%B7%E5%A4%96/2026-10-18-18-15-27/trust-lab/yangcheng";
 const PAGES = ["index.html", "map.html", "evidence.html", "h2-forensic.html", "h2-case.html",
   "h3-metrics.html", "h3-maze.html", "h4-contam.html", "h4-purge.html", "h5-collapse.html",
   "h5-forecast.html", "h6-budget.html", "h6-tower.html"];
