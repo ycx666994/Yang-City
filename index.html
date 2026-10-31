@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>杨城 · AI 认知失效证据城市</title>
+<!-- 裸域名必须直接进杨城。静态服务把 / 映射到本目录的 index.html，
+     所以这里只做一件事：把用户送到 yangcheng/index.html。
+     老馆大厅固定在 h1-lab.html，任何时候都不要把两者对调。 -->
+<meta http-equiv="refresh" content="0;url=yangcheng/index.html">
+<style>
+  :root{
+    --bg:#070a10; --panel:#0d131c; --line:#1b2534;
+    --tx:#dfe9f5; --tx2:#8fa3ba; --tx3:#5d7089;
+    --ac:#5fd0e8; --gold:#e2b96a;
+    --mono:"Consolas","ui-monospace","SF Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%}
+  body{
+    background:var(--bg); color:var(--tx); min-height:100dvh;
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    display:grid;place-items:center;padding:32px 20px;
+    background-image:
+      radial-gradient(ellipse 900px 520px at 50% -10%,rgba(95,208,232,.10),transparent 68%),
+      radial-gradient(ellipse 760px 460px at 50% 112%,rgba(226,185,106,.07),transparent 70%);
+  }
+  .wrap{width:100%;max-width:760px}
+  .kicker{
+    font:600 9.5px/1 var(--mono);letter-spacing:3px;color:var(--tx3);
+    display:flex;align-items:center;gap:9px;
+  }
+  .kicker i{
+    width:5px;height:5px;border-radius:50%;background:var(--ac);
+    box-shadow:0 0 0 3px rgba(95,208,232,.16);animation:blink 1.6s ease-in-out infinite;
+  }
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+  h1{font-size:clamp(26px,4vw,38px);font-weight:800;letter-spacing:.5px;margin:16px 0 10px}
+  h1 em{font-style:normal;color:var(--gold)}
+  .lede{font-size:13px;line-height:2;color:var(--tx2);max-width:62ch;margin-bottom:26px}
+  .lede b{color:var(--tx)}
+  .go{
+    display:inline-flex;align-items:center;gap:9px;padding:11px 22px;border-radius:8px;
+    background:rgba(95,208,232,.12);border:1px solid rgba(95,208,232,.45);
+    color:var(--ac);text-decoration:none;font-size:13px;font-weight:800;letter-spacing:.4px;
+    transition:background .16s,transform .16s;
+  }
+  .go:hover{background:rgba(95,208,232,.22);transform:translateY(-1px)}
+  .go .ar{transition:transform .16s}
+  .go:hover .ar{transform:translateX(3px)}
+  .spin{
+    display:inline-block;width:11px;height:11px;border-radius:50%;
+    border:1.5px solid rgba(95,208,232,.28);border-top-color:var(--ac);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .note{
+    margin-top:26px;padding-top:16px;border-top:1px solid var(--line);
+    font:400 11.5px/1.9 var(--mono);color:var(--tx3);
+  }
+  .note a{color:var(--tx2)}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+  .card{
+    display:block;padding:15px 16px;border-radius:10px;text-decoration:none;color:inherit;
+    border:1px solid var(--line);background:linear-gradient(150deg,rgba(255,255,255,.045),transparent 70%);
+    transition:border-color .16s,transform .16s,background .16s;
+  }
+  .card:hover{border-color:rgba(95,208,232,.42);transform:translateY(-2px);background:rgba(95,208,232,.06)}
+  .card .t{font-size:14.5px;font-weight:800;margin:7px 0 5px}
+  .card .d{font-size:11.5px;line-height:1.8;color:var(--tx2)}
+  .card .tag{font:600 9px/1 var(--mono);letter-spacing:2px;color:var(--tx3)}
+  @media (max-width:560px){
+    .cards{grid-template-columns:1fr}
+    .lede{font-size:12.5px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker"><i></i>YANGCHENG · ENTRY</div>
+  <h1>正在进入<em>杨城</em></h1>
+  <p class="lede">
+    六座 AI 认知失效博物馆，一条公共证据厅。这里不测「模型答得对不对」，
+    只测<b>你能不能证明它答对了</b>——每一馆一台仪器，每一台都有明确的失效路径。
+  </p>
+
+  <a class="go" href="yangcheng/index.html">
+    <span class="spin"></span>进入杨城<span class="ar">→</span>
+  </a>
+
+  <div class="cards">
+    <a class="card" href="yangcheng/index.html">
+      <div class="tag">NEW · 六馆</div>
+      <div class="t">杨城 · 认知失效证据城市</div>
+      <div class="d">H2 泄题法医室 / H3 指标塔 / H4 泄题法医室续 / H5 递归坍塌 / H6 潜能与预算，加公共证据厅。</div>
+    </a>
+    <a class="card" href="h1-lab.html">
+      <div class="tag">ARCHIVE · 老馆</div>
+      <div class="t">Trust Lab · AI 失效博物馆</div>
+      <div class="d">最早的八件展品：海市蜃楼、地平线、温度、越狱、水印、校准、对抗、古德哈特。</div>
+    </a>
+  </div>
+
+  <p class="note">
+    没有自动跳转？点上面任意一个入口。<br>
+    老馆的固定地址是 <a href="h1-lab.html">h1-lab.html</a>，本页只是中转。
+  </p>
+</div>
+
+<script>
+  /* meta refresh 已经跳了；这里再兜一层 —— 有些内核会拦 meta refresh，
+     location.replace 还能走。两者都失败时，页面上的卡片就是人工入口。 */
+  (function () {
+    try {
+      if (!/\/yangcheng\//.test(location.pathname)) {
+        location.replace("yangcheng/index.html");
+      }
+    } catch (e) { /* 被拦就留在本页，卡片可用 */ }
+  })();
+</script>
+</body>
+</html>
