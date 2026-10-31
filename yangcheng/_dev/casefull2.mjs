@@ -1,0 +1,44 @@
+import { spawn } from "node:child_process";
+import { mkdtempSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+const PORT = 9955;
+const BASE = process.env.YC_BASE || "file:///D:/wobdy%E6%B5%B7%E5%A4%96/2026-10-18-18-15-27/trust-lab";
+const OUT = "D:/wobdy海外/2026-10-18-18-15-27/_devshots/yangcheng-shots";
+mkdirSync(OUT, { recursive: true });
+const EDGE = ["C://Program Files (x86)//Microsoft//Edge//Application//msedge.exe", "C://Program Files//Microsoft//Edge//Application//msedge.exe"].find(p => { try { readFileSync(p); return true } catch { return false } });
+const prof = mkdtempSync(join(tmpdir(), "shot-"));
+const child = spawn(EDGE, [`--remote-debugging-port=${PORT}`, `--user-data-dir=${prof}`, "--headless=new", "--no-first-run", "--enable-unsafe-swiftshader", "--window-size=1440,980", "about:blank"], { stdio: "ignore" });
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let url; for (let i = 0; i < 60; i++) { try { const r = await fetch(`http://127.0.0.1:${PORT}/json/list`); const p = (await r.json()).find(t => t.type === "page"); if (p) { url = p.webSocketDebuggerUrl; break } } catch { } await sleep(300) }
+const ws = new WebSocket(url); let id = 0; const pend = new Map(); const errs = [];
+ws.onmessage = e => { const m = JSON.parse(e.data); if (m.id && pend.has(m.id)) { pend.get(m.id)(m); pend.delete(m.id) } if (m.method === "Runtime.exceptionThrown") errs.push(((m.params.exceptionDetails.exception && m.params.exceptionDetails.exception.description) || m.params.exceptionDetails.text || "").split("\n")[0].slice(0, 180)) };
+const send = (me, pa = {}) => new Promise(r => { const i = ++id; pend.set(i, r); ws.send(JSON.stringify({ id: i, method: me, params: pa })) });
+const ev = async x => (await send("Runtime.evaluate", { expression: x, returnByValue: true, awaitPromise: true })).result?.result?.value;
+const shot = async (n) => { const r = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false }); if (r.result?.data) writeFileSync(join(OUT, n), Buffer.from(r.result.data, "base64")); };
+await new Promise(r => { ws.onopen = r });
+await send("Runtime.enable"); await send("Page.enable");
+await send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 980, deviceScaleFactor: 1, mobile: false });
+await send("Page.navigate", { url: BASE + "/yangcheng/h2-case.html" });
+await sleep(3200);
+console.log("CAMP", await ev("!!document.querySelector('.castcamp.open')"));
+console.log("S0", await ev("JSON.stringify(window.YCCase.status())"));
+await shot("case-act1.png");
+// 幕一
+await ev("['a','b','c'].forEach(function(k){var b=document.querySelector('#pick1 [data-p=\"'+k+'\"]'); if(b) b.click();}); document.querySelector('#btnAct1').click();");
+await sleep(500);
+await ev("document.querySelector('[data-a=\"2\"]').click()");
+await sleep(600);
+// 干预：看演算动画
+await ev("document.querySelector('#wlist [data-w=\"1\"]').click()");
+await sleep(300);
+await ev("document.querySelector('#btnTest').click()");
+await sleep(420);
+console.log("COMP", await ev("(function(){var g=document.querySelector('#compGrid'); return g? g.children.length+' cells, filled='+document.querySelectorAll('#compGrid i.f,#compGrid i.s').length : 'none'})()"));
+await shot("case-comp.png");
+await sleep(1400);
+console.log("S1", await ev("JSON.stringify(window.YCCase.status())"));
+console.log("RES", await ev("(document.querySelector('#resBox').textContent||'').slice(0,40)"));
+await shot("case-res.png");
+console.log("ERRS", JSON.stringify(errs.slice(0,5)));
+child.kill(); process.exit(0);

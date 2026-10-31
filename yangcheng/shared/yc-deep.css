@@ -1,0 +1,172 @@
+/* ==========================================================================
+   YC-Deep 1.0 · 样式（展品长廊 / 证书面板）
+   前缀统一 dp-，不与 yc-hall.css 的 .cd/.vd/.rail/.knob 等通用类冲突。
+   默认深色皮；浅色馆加 .dpx-light 覆写。
+   ========================================================================== */
+
+.dpg-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.dpg-t{font-family:var(--mono,ui-monospace,monospace);font-size:11px;letter-spacing:1.4px;color:var(--tx2,#c7d2e2)}
+.dpg-t em{font-style:normal;color:var(--ac,#8fb7ff);font-weight:700}
+.dpg-bar{flex:1 1 160px;height:4px;border-radius:3px;background:rgba(255,255,255,.09);overflow:hidden;min-width:100px}
+.dpg-bar i{display:block;height:100%;border-radius:3px;transition:width .35s cubic-bezier(.4,0,.2,1)}
+.dpg-note{font-size:10.5px;color:var(--tx4,#7b8798);font-family:var(--mono,monospace)}
+
+.dpg-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:14px}
+.dpg-c{
+  position:relative;text-align:left;cursor:pointer;padding:11px 11px 10px;
+  border:1px solid rgba(255,255,255,.10);border-radius:9px;
+  background:linear-gradient(160deg,rgba(255,255,255,.045),rgba(255,255,255,.012));
+  color:inherit;font:inherit;transition:.16s;display:flex;flex-direction:column;gap:5px;min-height:112px;
+}
+.dpg-c:hover{transform:translateY(-2px);border-color:var(--ac);box-shadow:0 6px 18px -8px rgba(0,0,0,.6)}
+.dpg-c.on{border-color:var(--ac);background:linear-gradient(160deg,rgba(143,183,255,.16),rgba(143,183,255,.03))}
+.dpg-c.done{border-color:color-mix(in srgb,var(--ac) 55%,transparent)}
+.dpg-no{font-family:var(--mono,monospace);font-size:9px;letter-spacing:1.2px;color:var(--tx4,#7b8798)}
+.dpg-ic{font-size:19px;line-height:1}
+.dpg-nm{font-size:12.5px;font-weight:700;color:var(--tx,#eaf0f8);letter-spacing:.2px}
+.dpg-sy{font-size:10.5px;line-height:1.55;color:var(--tx3,#93a0b2);flex:1}
+.dpg-st{font-family:var(--mono,monospace);font-size:8.5px;letter-spacing:.8px;color:var(--tx4,#7b8798)}
+.dpg-c.done .dpg-st{color:var(--ac)}
+
+.dpg-detail{border:1px solid rgba(255,255,255,.10);border-radius:11px;padding:14px 15px;background:rgba(255,255,255,.022)}
+.dpg-empty{font-size:11.5px;line-height:1.85;color:var(--tx3,#93a0b2)}
+.dpg-empty b{color:var(--tx,#eaf0f8)}
+.dpg-dh{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:11px}
+.dpg-dno{font-family:var(--mono,monospace);font-size:10px;letter-spacing:1.2px;color:var(--ac,#8fb7ff)}
+.dpg-dnm{font-size:16px;font-weight:700;color:var(--tx,#eaf0f8)}
+.dpg-dsy{font-size:11px;color:var(--tx3,#93a0b2)}
+.dpg-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-bottom:12px}
+.dpg-col h4{margin:0 0 4px;font-family:var(--mono,monospace);font-size:9px;letter-spacing:1.4px;
+  color:var(--tx4,#7b8798);font-weight:400}
+.dpg-col p{margin:0;font-size:11.5px;line-height:1.82;color:var(--tx2,#c7d2e2)}
+
+.dpg-verify{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:11px;
+  padding:9px 11px;border-radius:8px;background:rgba(255,255,255,.035);border:1px dashed rgba(255,255,255,.13)}
+.dpg-vb{cursor:pointer;border:1px solid var(--ac,#8fb7ff);background:rgba(143,183,255,.12);color:var(--ac,#8fb7ff);
+  border-radius:6px;padding:6px 12px;font:inherit;font-size:11px;font-weight:600;letter-spacing:.3px;transition:.15s}
+.dpg-vb:hover{background:rgba(143,183,255,.24)}
+.dpg-vr{font-size:11px;color:var(--tx3,#93a0b2);line-height:1.6}
+.dpg-vv{font-family:var(--mono,monospace);font-size:14px;font-weight:700;color:var(--tx,#eaf0f8)}
+.dpg-vn{color:var(--tx4,#7b8798);font-size:10.5px}
+
+.dpg-quiz{border-top:1px solid rgba(255,255,255,.08);padding-top:11px}
+.dpg-qt{font-size:12px;color:var(--tx,#eaf0f8);line-height:1.7;margin-bottom:8px}
+.dpg-opts{display:flex;flex-direction:column;gap:6px}
+.dpg-opt{cursor:pointer;text-align:left;border:1px solid rgba(255,255,255,.11);border-radius:7px;
+  background:rgba(255,255,255,.025);color:var(--tx2,#c7d2e2);font:inherit;font-size:11.5px;
+  padding:8px 11px;transition:.14s;line-height:1.6}
+.dpg-opt:hover{border-color:var(--ac,#8fb7ff);background:rgba(143,183,255,.09)}
+.dpg-opt.ok{border-color:#3ecf8e;background:rgba(62,207,142,.14);color:#8ff0c2}
+.dpg-opt.no{border-color:#f0554d;background:rgba(240,85,77,.12);color:#ffa39c}
+.dpg-qr{margin-top:7px;font-size:11px;line-height:1.7;color:var(--tx3,#93a0b2);min-height:14px}
+
+/* ---------- 证书面板 ---------- */
+.dpc-wrap{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.dpc-card{border:1px solid rgba(255,255,255,.11);border-radius:11px;padding:13px 14px;
+  background:linear-gradient(165deg,rgba(255,255,255,.04),rgba(255,255,255,.01));display:flex;flex-direction:column;gap:7px}
+.dpc-card.elite{border-color:rgba(201,162,39,.34)}
+.dpc-card.has{border-color:rgba(201,162,39,.62);box-shadow:inset 0 0 40px -22px rgba(201,162,39,.7)}
+.dpc-h{display:flex;align-items:baseline;gap:8px}
+.dpc-k{font-family:var(--mono,monospace);font-size:8.5px;letter-spacing:1.4px;color:#c9a227;
+  border:1px solid rgba(201,162,39,.4);border-radius:4px;padding:1px 5px}
+.dpc-n{font-size:13.5px;font-weight:700;color:var(--tx,#eaf0f8)}
+.dpc-d{font-size:11px;line-height:1.75;color:var(--tx3,#93a0b2);flex:1}
+.dpc-act{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.dpc-no{font-family:var(--mono,monospace);font-size:9.5px;color:var(--tx4,#7b8798);letter-spacing:.5px}
+.dpc-b{cursor:pointer;border:1px solid rgba(201,162,39,.5);background:rgba(201,162,39,.12);
+  color:#e2c46a;border-radius:6px;padding:6px 13px;font:inherit;font-size:11px;font-weight:600;transition:.15s}
+.dpc-b:hover:not(:disabled){background:rgba(201,162,39,.24)}
+.dpc-b:disabled{opacity:.45;cursor:not-allowed;border-color:rgba(255,255,255,.12);color:var(--tx4,#7b8798);background:transparent}
+
+/* ---------- 浅色馆（H2 案卷纸） ---------- */
+.dpx-light .dpg-c{border-color:rgba(60,50,35,.16);background:linear-gradient(160deg,rgba(255,255,255,.72),rgba(255,255,255,.34))}
+.dpg-c:hover{box-shadow:0 8px 20px -12px rgba(40,30,15,.45)}
+.dpx-light .dpg-c.on{background:linear-gradient(160deg,rgba(168,135,255,.20),rgba(168,135,255,.05))}
+.dpx-light .dpg-detail{border-color:rgba(60,50,35,.16);background:rgba(255,255,255,.55)}
+.dpx-light .dpg-verify{background:rgba(255,255,255,.5);border-color:rgba(60,50,35,.2)}
+.dpx-light .dpg-opt{border-color:rgba(60,50,35,.18);background:rgba(255,255,255,.6)}
+.dpx-light .dpg-quiz{border-color:rgba(60,50,35,.14)}
+.dpx-light .dpg-bar{background:rgba(60,50,35,.14)}
+.dpx-light .dpc-card{border-color:rgba(60,50,35,.18);background:linear-gradient(165deg,rgba(255,255,255,.75),rgba(255,255,255,.4))}
+
+/* ---------- 窄屏 ---------- */
+@media (max-width:900px){
+  .dpg-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dpg-cols{grid-template-columns:1fr}
+  .dpc-wrap{grid-template-columns:1fr}
+}
+@media (max-width:520px){
+  .dpg-grid{grid-template-columns:1fr 1fr;gap:7px}
+  .dpg-c{min-height:104px;padding:9px}
+  .dpg-nm{font-size:11.5px}
+  .dpg-sy{font-size:10px}
+}
+
+/* ============================================================
+   精英挑战入口卡 · 三馆共用（H4 / H5 / H6）
+   之前只在长廊最底部放一块小牌子，用户根本找不到玩法页。
+   现在改成：首屏一块 + 底部踏石一枚，两处都指向同一个玩法页。
+   ============================================================ */
+.elitecard{
+  position:relative;margin:22px 0 6px;padding:17px 19px 16px;border-radius:11px;
+  border:1px solid rgba(255,255,255,.17);
+  background:linear-gradient(118deg,rgba(255,255,255,.075),rgba(255,255,255,.02) 62%,transparent);
+  overflow:hidden;
+}
+.elitecard::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,currentColor,transparent);
+  opacity:.85;
+}
+.elitecard::after{
+  content:"";position:absolute;right:-56px;top:-56px;width:150px;height:150px;border-radius:50%;
+  background:radial-gradient(circle,currentColor,transparent 68%);opacity:.10;pointer-events:none;
+}
+.elitecard .ec-k{
+  font:600 9px/1 ui-monospace,Consolas,monospace;letter-spacing:2.4px;opacity:.62;
+  display:flex;align-items:center;gap:8px;
+}
+.elitecard .ec-k i{
+  display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;
+  box-shadow:0 0 0 3px color-mix(in srgb,currentColor 22%,transparent);
+  animation:ecBlink 1.7s ease-in-out infinite;
+}
+@keyframes ecBlink{0%,100%{opacity:1}50%{opacity:.25}}
+.elitecard .ec-t{font-size:16.5px;font-weight:800;margin:9px 0 7px;letter-spacing:.2px}
+.elitecard .ec-d{
+  font-size:12.5px;line-height:1.92;opacity:.80;margin:0 0 13px;max-width:74ch;
+}
+.elitecard .ec-d b{opacity:1;font-weight:700}
+.elitecard .ec-a{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 18px;border-radius:7px;text-decoration:none;
+  font-size:12.5px;font-weight:800;letter-spacing:.3px;
+  border:1px solid currentColor;color:inherit;
+  background:color-mix(in srgb,currentColor 13%,transparent);
+  transition:background .16s,transform .16s;
+}
+.elitecard .ec-a:hover{background:color-mix(in srgb,currentColor 24%,transparent);transform:translateY(-1px)}
+.elitecard .ec-n{
+  display:inline-block;margin-left:9px;font:600 10px/1 ui-monospace,Consolas,monospace;
+  opacity:.55;letter-spacing:.6px;vertical-align:middle;
+}
+/* 首屏版：比长廊版更醒目，边框用馆色描亮 */
+.elitecard.first{
+  margin:24px 0 8px;
+  border-color:color-mix(in srgb,currentColor 40%,transparent);
+  box-shadow:0 0 0 1px color-mix(in srgb,currentColor 12%,transparent),
+             inset 0 0 60px -30px currentColor;
+}
+
+/* 底部踏石里新增的「玩法」一枚 —— 用虚线区分，不占参观序号 */
+.path .stone.game .dot{background:transparent;border:1.5px dashed currentColor}
+.path .stone.game .sn{opacity:.55}
+.path a.stone{text-decoration:none}
+.path a.stone:hover .dot{border-color:currentColor;background:transparent}
+
+@media (max-width:640px){
+  .elitecard{padding:14px 15px 13px;border-radius:9px}
+  .elitecard .ec-t{font-size:14.5px}
+  .elitecard .ec-d{font-size:12px;line-height:1.82}
+  .elitecard .ec-a{padding:8px 14px;font-size:12px}
+}

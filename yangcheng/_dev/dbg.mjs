@@ -1,0 +1,25 @@
+import { spawn } from "node:child_process";
+import { mkdtempSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+const PORT = 9991;
+const BASE = process.env.YC_BASE;
+const EDGE = ["C://Program Files (x86)//Microsoft//Edge//Application//msedge.exe", "C://Program Files//Microsoft//Edge//Application//msedge.exe"].find(p => { try { readFileSync(p); return true } catch { return false } });
+const prof = mkdtempSync(join(tmpdir(), "shot-"));
+const child = spawn(EDGE, [`--remote-debugging-port=${PORT}`, `--user-data-dir=${prof}`, "--headless=new", "--no-first-run", "--enable-unsafe-swiftshader", "about:blank"], { stdio: "ignore" });
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let url; for (let i = 0; i < 60; i++) { try { const r = await fetch(`http://127.0.0.1:${PORT}/json/list`); const p = (await r.json()).find(t => t.type === "page"); if (p) { url = p.webSocketDebuggerUrl; break } } catch { } await sleep(300) }
+const ws = new WebSocket(url); let id = 0; const pend = new Map(); const errs = [];
+ws.onmessage = e => { const m = JSON.parse(e.data); if (m.id && pend.has(m.id)) { pend.get(m.id)(m); pend.delete(m.id) } if (m.method === "Runtime.exceptionThrown") errs.push((m.params.exceptionDetails.exception && m.params.exceptionDetails.exception.description || m.params.exceptionDetails.text || "").slice(0, 300)) };
+const send = (me, pa = {}) => new Promise(r => { const i = ++id; pend.set(i, r); ws.send(JSON.stringify({ id: i, method: me, params: pa })) });
+const ev = async x => (await send("Runtime.evaluate", { expression: x, returnByValue: true, awaitPromise: true })).result?.result?.value;
+await new Promise(r => { ws.onopen = r });
+await send("Runtime.enable"); await send("Page.enable");
+await send("Page.navigate", { url: BASE + "/yangcheng/h2-forensic.html" });
+await sleep(4500);
+console.log("TITLE", await ev("document.title"));
+console.log("CAST", await ev("typeof window.YCCast"));
+console.log("PORT", await ev("typeof window.YCPort"));
+console.log("TRY", await ev("(function(){try{var m=document.querySelectorAll('.castcamp');for(var i=0;i<m.length;i++)m[i].classList.remove('open');YCCast.openCard('H2','shen');var c=document.querySelector('.castcard');return c? 'card-ok '+c.className : 'no-card'}catch(e){return 'ERR '+e.message}})()"));
+console.log("ERRS", JSON.stringify(errs.slice(0, 4)));
+child.kill(); process.exit(0);

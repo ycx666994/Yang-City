@@ -1,0 +1,332 @@
+<div class="hall" style="--hall-ac:#f2a63c">
+
+  <header class="ycbar">
+    <div class="brand">
+      <a href="index.html" style="text-decoration:none;color:inherit;display:flex;align-items:baseline;gap:9px">
+        <span class="nm">杨城</span>
+      </a>
+      <span class="sub">H3 · 指标失效博物馆</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="rd"><span class="dot"></span>仪器在线 <b>proxy-autopsy</b> v0.1.0</div>
+    <nav class="nav">
+      <a href="map.html">地图</a>
+      <a href="index.html">城市</a>
+      <a href="evidence.html">证据厅</a>
+      <a href="h3-maze.html" style="color:var(--h3,#4ea3ff);font-weight:700">精英挑战</a>
+      <a href="../h1-lab.html">老馆</a>
+    </nav>
+  </header>
+
+  <div class="body">
+
+    <nav class="rail" aria-label="四层体验">
+      <div class="rh">LAYERS / 四层</div>
+      <button class="lay on" data-l="story"><span class="ln">01</span><span class="lt">故事</span><span class="ld">这条 KPI 是怎么把人带偏的</span></button>
+      <button class="lay" data-l="device"><span class="ln">02</span><span class="lt">装置</span><span class="ld">拖两个旋钮，看 10 个房间</span></button>
+      <button class="lay" data-l="instrument"><span class="ln">03</span><span class="lt">仪器</span><span class="ld">完整尸检：双曲线 + 变点</span></button>
+      <button class="lay" data-l="evidence"><span class="ln">04</span><span class="lt">证据</span><span class="ld">方法边界、自检、原始记录</span></button>
+      <div class="spacer"></div>
+      <div class="rfoot">
+        状态 · 仪器可用<br>
+        负例 · 已具备<br>
+        <span style="color:var(--tx3)">键 1–4 切层</span>
+      </div>
+    </nav>
+
+    <main class="main">
+
+      <!-- ================= 故事 ================= -->
+      <section class="layer on" data-l="story">
+        <div class="lhead">
+          <span class="kick">H3 · 古德哈特墓园</span>
+          <h2>分数提高，是否真的让任务变好？</h2>
+          <p>这是全城最古老的一条失效，也是最容易被忽略的一条：不是因为指标错了，而是因为指标一旦变成目标，它就不再是指标。</p>
+        </div>
+
+        <div class="cd">
+          <div class="ct">1975 年的一句话<span class="k">GOODHART'S LAW</span></div>
+          <p>英格兰银行的经济学家 Charles Goodhart 在研究货币政策时注意到一件事：<b>任何统计规律，一旦被用作政策目标，就会失效。</b>他当时说的是货币供应量。五十年后，这句话在机器学习里被重新发现，换了个名字叫 <b>reward hacking</b>。</p>
+          <p>它没有消失，只是换了行业。它出现在推荐系统里（停留时长涨了，用户满意度跌了），出现在代码评测里（测试通过率涨了，线上故障涨了），也出现在最不起眼的地方——保洁班的考核表上。</p>
+        </div>
+
+        <div class="cd">
+          <div class="ct">一个没有曲线的案例<span class="k">仅叙事 · 不入证据</span></div>
+          <div class="story">
+            一家保洁公司把「<b>作业次数</b>」写进班组考核，因为好统计、好比较、每天都在涨。<br>
+            三个月后，作业次数涨了 40%。客户投诉涨得更多。<br>
+            原因不复杂：班组学会了在已经干净的大厅里反复推机器——每推一次都算一次作业；而走廊尽头那几间又暗又脏的尾房，没人愿意去，因为进去要走路、要费劲、还不一定刷得出数字。
+          </div>
+          <p style="margin-top:10px;color:var(--tx3);font-size:11.5px">
+            这条故事本馆<b>没有</b>对应的原始运行数据，所以它只作为叙事存在，不进入证据厅。
+            接下来你要做的，是把这条故事<b class="hl">跑出来</b>——用一台真的会执行策略的机器，而不是一条画好的曲线。
+          </p>
+        </div>
+
+        <div class="g2">
+          <div class="cd" style="margin-bottom:0">
+            <div class="ct">这台仪器要分开的三个词</div>
+            <p><b class="hl">代理指标 P</b>　能被优化器直接看到、直接最大化的那个数。本馆取「处理量」——Σ 清洁功率，也就是「做了多少」。</p>
+            <p><b class="hl">独立目标 T</b>　回合结束后由独立巡检测量的那个数——加权洁净度减去表面磨损。优化器<b>看不到</b>它。</p>
+            <p><b class="hl">失效点</b>　P 还在涨、T 已经掉头的那一段。注意：它不等于「结构变点」，也不等于某一天。</p>
+          </div>
+          <div class="cannot" style="align-self:start">
+            <b>本馆不能回答什么</b><br>
+            · 不能证明某个真实商用系统一定发生了指标失效——这里跑的是玩具有限状态环境。<br>
+            · 不能把「曲线掉头」直接归因于某个具体机制——原因必须来自轨迹或干预。<br>
+            · 没有独立目标测量时，本仪器<b>拒绝</b>出具死亡判断，只报数据缺口。<br>
+            · 不能把变点当成死亡日期：结构变点、收益峰值、持续下降区间是三个不同的量。
+          </div>
+        </div>
+
+        <div style="margin-top:16px;display:flex;gap:9px;flex-wrap:wrap">
+          <button class="btn accent" data-go="device">进入装置 →</button>
+          <button class="btn ghost" data-go="instrument">直接看完整仪器</button>
+        </div>
+      </section>
+
+      <!-- ================= 装置 ================= -->
+      <section class="layer" data-l="device">
+        <div class="lhead">
+          <span class="kick">LAYER 02 · 装置</span>
+          <h2>十个房间，一台只会走环线的机器</h2>
+          <p>下面这十个格子是真的在跑：每一步只能「作业」或「移动」，总步数预算 120。你只调两个旋钮，然后看两个数字往哪走。</p>
+        </div>
+
+        <div class="g2" style="align-items:start">
+          <div class="cd" style="margin-bottom:0">
+            <div class="ct">房间平面<span class="k">10 ROOMS · 环序</span><span class="spacer"></span>
+              <span class="tag idle" id="devStep">STEP 0 / 120</span>
+            </div>
+            <div class="rooms" id="rooms"></div>
+            <div style="display:flex;gap:14px;margin-top:10px;font-size:10px;color:var(--tx4);flex-wrap:wrap">
+              <span><span style="display:inline-block;width:9px;height:9px;border-radius:2px;border:1px solid rgba(239,106,114,.5);vertical-align:-1px"></span> 尾房（更脏、更脆弱、权重 2.2）</span>
+              <span>格内数值 = 剩余污垢</span>
+              <span style="color:#ef8a90">斜纹 = 表面磨损</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="cd">
+              <div class="ct">两个旋钮<span class="k">θ</span></div>
+              <div class="knob">
+                <div class="kh"><span class="kn">清洁功率</span><span class="kv" id="kvPower">1.00</span></div>
+                <input type="range" id="knPower" min="40" max="220" value="100">
+                <div class="kt">功率越高，每次作业磨掉更多污垢——也更容易超过表面脆弱度，开始留痕。</div>
+              </div>
+              <div class="knob">
+                <div class="kh"><span class="kn">尾房加力</span><span class="kv" id="kvBoost">0%</span></div>
+                <input type="range" id="knBoost" min="0" max="90" value="0">
+                <div class="kt">对最脏最脆弱的三间尾房额外加功率。处理量会涨，磨损也集中在那里。</div>
+              </div>
+              <button class="btn accent" id="btnRunDevice" style="width:100%;justify-content:center">跑一个回合</button>
+            </div>
+
+            <div class="duo">
+              <div class="p">
+                <div class="dl">代理 · 处理量 P</div>
+                <div class="dv" id="stP">—</div>
+                <div class="dd">优化器只看这个</div>
+              </div>
+              <div class="t">
+                <div class="dl">独立巡检 · T</div>
+                <div class="dv" id="stT">—</div>
+                <div class="dd">优化器看不到这个</div>
+              </div>
+            </div>
+
+            <div class="g3" style="margin-top:10px">
+              <div class="stat"><span class="sl">磨损均值</span><span class="sv" id="stWear">—</span></div>
+              <div class="stat"><span class="sl">无效作业</span><span class="sv" id="stWaste">—</span></div>
+              <div class="stat"><span class="sl">作业次数</span><span class="sv" id="stVacs">—</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cd" style="margin-top:14px">
+          <div class="ct">这一步发生了什么<span class="k">LIVE READING</span></div>
+          <p id="devNote" style="color:var(--tx3)">调好旋钮，点「跑一个回合」。跑完你会看到：处理量涨了，巡检分不一定涨——甚至可能掉。</p>
+        </div>
+
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+          <button class="btn accent" data-go="instrument">带着这两个旋钮进仪器 →</button>
+        </div>
+      </section>
+
+      <!-- ================= 仪器 ================= -->
+      <section class="layer" data-l="instrument">
+        <div class="lhead">
+          <span class="kick">LAYER 03 · 仪器</span>
+          <h2>代理指标尸检台</h2>
+          <p>装置层是你手动调参。仪器层不一样：<b>优化器自己在搜</b>，它只看处理量，一路把 θ 推到处理量最大。然后我们才去看独立目标变成了什么样。</p>
+        </div>
+
+        <div class="cd">
+          <div class="ct">实验设置<span class="k">PRE-REGISTERED</span><span class="spacer"></span>
+            <span class="tag idle" id="instState">未运行</span>
+          </div>
+          <div class="g3">
+            <div>
+              <div class="sub">环境随机种子</div>
+              <input class="inp" id="selSeed" value="1001" inputmode="numeric">
+              <div class="kt" style="margin-top:5px">换种子 = 换一套房间的脏污与脆弱度分布。</div>
+            </div>
+            <div>
+              <div class="sub">最小实际效应</div>
+              <input class="inp" id="numMinEffect" value="0.05" inputmode="decimal">
+              <div class="kt" style="margin-top:5px">低于这个跌幅不算下降。默认值来自本馆自检（误报 ≤5%）。</div>
+            </div>
+            <div>
+              <div class="sub">合规干预</div>
+              <label class="sw"><input type="checkbox" id="chkAudit"><span class="track"></span>
+                <span class="st">加装审计<small>功率上限 0.55 + 禁止尾房加力</small></span></label>
+            </div>
+          </div>
+          <div style="display:flex;gap:9px;margin-top:12px;flex-wrap:wrap">
+            <button class="btn accent" id="btnAutopsy">运行尸检</button>
+            <button class="btn ghost" id="btnExport" disabled>导出档案</button>
+            <span style="font-size:10.5px;color:var(--tx4);align-self:center">优化预算档位固定 6 档：8 / 16 / 32 / 64 / 128 / 256 回合</span>
+          </div>
+        </div>
+
+        <div class="vd idle" id="verdict">
+          <div class="vic">○</div>
+          <div>
+            <div class="vt">尚未运行</div>
+            <div class="vx">运行后这里给出结论状态。它可以是「结论被支持」，也可以是「未检出下降」「证据不足」——仪器不保证每份档案都有漂亮结论。</div>
+          </div>
+        </div>
+
+        <div class="cd">
+          <div class="ct">代理 vs 独立目标<span class="k">P / T</span><span class="spacer"></span>
+            <span class="tag" id="tagDetect">—</span>
+          </div>
+          <div class="chart">
+            <canvas id="chartCv"></canvas>
+            <div class="tip"></div>
+          </div>
+          <div class="chart-lg">
+            <span><i style="background:#f2a63c"></i>处理量 P（左轴）</span>
+            <span><i style="background:#7fe3c0"></i>独立目标 T（右轴）</span>
+            <span><i style="background:rgba(63,208,138,.8)"></i>收益峰值</span>
+            <span><i style="background:rgba(240,85,77,.7)"></i>持续下降区间</span>
+            <span><i style="background:rgba(168,135,255,.7)"></i>结构变点</span>
+          </div>
+        </div>
+
+        <div class="g2">
+          <div class="cd">
+            <div class="ct">四类结论分开报<span class="k">不许合并成「死亡日」</span></div>
+            <div class="outs">
+              <div class="out none" id="outStructural"><span class="ol">结构变点 · PELT</span><div class="ov">—</div><div class="od">均值结构改变的位置</div></div>
+              <div class="out none" id="outPeak"><span class="ol">收益峰值区间</span><div class="ov">—</div><div class="od">多种子重复下的峰值位置</div></div>
+              <div class="out none" id="outDecline"><span class="ol">持续下降区间</span><div class="ov">—</div><div class="od">以峰值为参考的 CUSUM</div></div>
+              <div class="out none" id="outAnomaly"><span class="ol">异常事件</span><div class="ov">—</div><div class="od">单档跌幅超过 2.5σ</div></div>
+            </div>
+          </div>
+
+          <div class="cd">
+            <div class="ct">优化器走过的路<span class="k">θ TRACE</span></div>
+            <table class="tbl">
+              <thead><tr><th>预算</th><th>处理量 P</th><th>独立目标 T</th><th>θ</th></tr></thead>
+              <tbody id="thetaBody">
+                <tr><td colspan="4" style="color:var(--tx4);padding:14px 8px">运行后显示</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="cd" id="confirmBox" style="display:none">
+          <div class="ct">封存确认集<span class="k">T_CONFIRM</span></div>
+          <p style="margin-bottom:10px">开发集（T_dev）上的结论已经出来了。为了避免「审计本身被刷分」，确认集默认封存——<b>策略与阈值锁定之后</b>才揭示。确认集一旦看过，就成为已见数据，下一轮研究需要换新的封存题。</p>
+          <div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">
+            <button class="btn" id="btnConfirm">锁定并揭示确认集</button>
+            <span id="confirmOut" style="font-size:11.5px;color:var(--tx3)"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 证据 ================= -->
+      <section class="layer" data-l="evidence">
+        <div class="lhead">
+          <span class="kick">LAYER 04 · 证据</span>
+          <h2>这台仪器凭什么值得信，以及它在哪里会错</h2>
+          <p>证据层不是「更多说明」，而是把仪器的误报、漏报、无效条件全部摊开。一张研究仪表盘本身也可能骗人。</p>
+        </div>
+
+        <div class="cd">
+          <div class="ct">仪器自检 · 阈值扫描<span class="k">SELF-TEST</span><span class="spacer"></span>
+            <span class="tag warn" id="stRec">—</span>
+          </div>
+          <p style="margin-bottom:10px">用已知真值的合成序列检验检测器：平稳序列<b>不该</b>被判为下降，已知下降序列<b>应该</b>被抓到。重复 80 次。</p>
+          <table class="tbl st-table">
+            <thead><tr><th>最小实际效应</th><th>误报率</th><th>检出率</th><th class="bar-cell">误报可视化</th></tr></thead>
+            <tbody id="selfTestBody"><tr><td colspan="4" style="color:var(--tx4)">载入中…</td></tr></tbody>
+          </table>
+          <p style="margin-top:10px;font-size:11px;color:var(--tx3)" id="selfTestNote"></p>
+        </div>
+
+        <div class="cd">
+          <div class="ct">方法边界<span class="k">不许省略</span></div>
+          <div class="g2">
+            <div>
+              <p><b>① 这是玩具环境。</b>有限状态机、10 个房间、120 步预算。它真实执行策略，但不等于商用大模型的训练过程。档案里对象轴永远标「规则装置」。</p>
+              <p><b>② T 也不是真理。</b>独立巡检是另一个测量，带自己的噪声（σ≈0.012）和自己的权重选择。它比 P 更接近任务目标，但不是任务的终极定义。</p>
+              <p><b>③ 变点 ≠ 死亡点。</b>均值、方差、分布的变化都可能产生变点。平滑下降不一定有尖锐断点，所以四个量分开报。</p>
+            </div>
+            <div>
+              <p><b>④ 检出率与区间不能互换。</b>「5 个种子里 5 个都出现下降」和「峰值的 80% 区间」是两件事，分别标示。</p>
+              <p><b>⑤ 未检出不等于不存在。</b>没有超过最小实际效应，只能说「在这组样本与这个阈值下没看出来」。</p>
+              <p><b>⑥ 原因不从曲线形状推断。</b>本馆给出的机制解释来自 θ 轨迹与实际作业记录，不来自「曲线看起来像」。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="cd">
+          <div class="ct">原始记录<span class="k">REPLAYABLE</span><span class="spacer"></span>
+            <button class="btn sm ghost" id="btnCopyJson">复制 JSON</button>
+          </div>
+          <p style="margin-bottom:9px;font-size:11.5px;color:var(--tx3)">下面这段是最近一次运行的可回放记录。固定环境种子与优化器种子，应得到一致结果。</p>
+          <div class="code" id="evidenceJson">尚未运行。到「仪器」层跑一次尸检，这里会出现完整记录。</div>
+        </div>
+
+        <div class="cd">
+          <div class="ct">复现方法</div>
+          <div class="code">// 在浏览器控制台，或 Node 里加载 instruments/yc-metrics.js
+const dev = YCMetrics.makeWorld(1001, { budget: 120 });
+const r = YCMetrics.optimize(dev, [8,16,32,64,128,256], {
+  seeds: [11, 29],          // 优化器评估用种子
+  snapSeeds: [11,29,47,71,97],  // 快照用种子（T 的重复测量）
+  optSeed: 20261029         // 优化器自身随机性
+});
+const a = YCMetrics.analyze(r.trace, { minEffect: 0.05 });
+console.log(a.verdict, a.structural, a.peak, a.cusum, a.decline);</div>
+        </div>
+        <div class="cd" style="border-color:rgba(78,163,255,.42);background:linear-gradient(165deg,rgba(78,163,255,.10),transparent)">
+          <div class="ct">精英挑战 · 指标塔 3D 迷宫<span class="k">ELITE CHALLENGE</span></div>
+          <p>前面四层都在教你怎么看一个指标。真正的考试是走进去：一座 23 × 23 的第一人称迷宫，
+            八道门各锁着一个判据——代理指标、古德哈特定律、刷分、分布偏移、相关性、聚合掩盖、阈值操纵、可优化性。</p>
+          <p>答对一道门得一枚指标碎片，集满 6 枚并走到出口才算走出这座塔。地上有红色的
+            <b style="color:#ff5e6c">刷分陷阱</b>，踩满三次你会被弹出去——因为刷分之所以有效，
+            正是因为它长得像一条近路。</p>
+          <div class="irow" style="margin-top:4px">
+            <a class="ibtn" href="h3-maze.html" style="text-decoration:none;display:inline-block">进入指标塔 →</a>
+            <span style="align-self:center;font-size:11px;color:var(--tx3)">第一人称 · 键盘/触控 · 走出可得精英证书</span>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="ycfoot">
+    <span>H3 · 代理指标尸检台</span>
+    <span>YC-Evidence 1.0</span>
+    <span class="spacer"></span>
+    <span class="khint"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> 切层</span>
+    <span class="khint"><kbd>Esc</kbd> 回城</span>
+    <span>零外部 API · 全部浏览器内实时计算</span>
+  </footer>
+</div>
+
+<div class="busy" id="busy"><div class="bx">正在执行优化与巡检…<div class="bl"></div></div></div>

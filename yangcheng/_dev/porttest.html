@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>port test</title>
+<style>
+  html,body{margin:0;background:#0d1016}
+  .row{display:flex;flex-wrap:wrap;gap:10px;padding:10px}
+  .cell{background:#141a23;border-radius:6px;overflow:hidden;flex:none}
+  .cell svg{display:block;width:100%;height:auto}
+</style></head>
+<body>
+<div class="row" id="row"></div>
+<script src="../shared/yc-port.js"></script>
+<script src="../shared/yc-faces.js"></script>
+<script>
+  var ids = ["shen","qi","bai","tao","cen","luo","wen","sang","lu","man"];
+  var w = 330;
+  document.getElementById("row").innerHTML = ids.map(function(id){
+    var c = window.YCFACES[id];
+    c.accent = "#46d3e8";
+    return '<div class="cell" style="width:'+w+'px"><svg viewBox="0 0 200 240" preserveAspectRatio="xMidYMid meet">' +
+      window.YCPort.raw(c, "calm", 2) + '</svg></div>';
+  }).join("");
+</script>
+</body></html>

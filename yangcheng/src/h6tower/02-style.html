@@ -1,0 +1,250 @@
+<style>
+/* ==========================================================================
+   H6 精英挑战 · 预算塔 · 十层
+   与 H2 案卷、H3 迷宫、H4 净化车间、H5 预报台都不同：
+   这是**竖向塔层**的构筑式解谜 —— 左边一座塔，右边一台读数仪。
+   所有类名 tw- 前缀。
+   ========================================================================== */
+:root{
+  --tw-bg:#060a14;
+  --tw-bg2:#0a1120;
+  --tw-panel:rgba(14,22,40,.9);
+  --tw-line:rgba(109,155,255,.16);
+  --tw-line2:rgba(109,155,255,.34);
+  --tw-tx:#e2ecff;
+  --tw-tx2:#93a6c8;
+  --tw-tx3:#5d6d8c;
+  --tw-ac:#6d9bff;
+  --tw-gold:#c9a227;
+  --tw-green:#a3e34a;
+  --tw-red:#ff6b8a;
+  --tw-mono:ui-monospace,"SF Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(ellipse 64% 44% at 20% -8%,rgba(109,155,255,.14),transparent 66%),
+    radial-gradient(ellipse 50% 40% at 88% 104%,rgba(163,227,74,.07),transparent 70%),
+    linear-gradient(180deg,#060a14 0%,#0a1120 56%,#04070e 100%);
+  color:var(--tw-tx);
+  font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    repeating-linear-gradient(0deg,rgba(109,155,255,.022) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(90deg,rgba(109,155,255,.016) 0 1px,transparent 1px 4px);
+}
+.twwrap{position:relative;z-index:1;max-width:1340px;margin:0 auto;padding:0 20px 56px}
+
+/* ---------------- 顶栏 ---------------- */
+.twbar{
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:13px 0 12px;border-bottom:1px solid var(--tw-line2);
+}
+.twbar .bk{
+  color:var(--tw-ac);text-decoration:none;font-size:13px;
+  border:1px solid var(--tw-line2);border-radius:7px;padding:6px 11px;
+  transition:background .16s;
+}
+.twbar .bk:hover{background:rgba(109,155,255,.1)}
+.twttl b{display:block;font-size:16px;letter-spacing:.5px}
+.twttl span{
+  display:block;font-family:var(--tw-mono);font-size:10.5px;letter-spacing:2.4px;
+  color:var(--tw-tx3);margin-top:3px;
+}
+.twbar .sp{flex:1}
+.twrep{display:flex;align-items:center;gap:8px}
+.twrep .lb{font-size:11.5px;color:var(--tw-tx3)}
+.twrep .pips{display:flex;gap:4px}
+.twrep .pips i{
+  width:11px;height:11px;border-radius:50%;
+  background:rgba(163,227,74,.14);border:1px solid rgba(163,227,74,.28);
+  transition:all .2s;
+}
+.twrep .pips i.on{background:var(--tw-green);border-color:var(--tw-green);box-shadow:0 0 9px rgba(163,227,74,.6)}
+.twrep .pips i.off{background:rgba(255,107,138,.14);border-color:rgba(255,107,138,.3)}
+.twfloornow{
+  font-family:var(--tw-mono);font-size:12px;color:var(--tw-tx3);
+}
+.twfloornow b{color:var(--tw-ac);font-size:17px}
+
+/* ---------------- 主栅格 ---------------- */
+.twmain{
+  display:grid;grid-template-columns:230px minmax(0,1fr);gap:18px;
+  margin-top:18px;align-items:start;
+}
+
+/* ---------------- 左：塔 ---------------- */
+.twtower{display:flex;flex-direction:column-reverse;gap:5px}
+.twlv{
+  position:relative;display:flex;align-items:center;gap:9px;
+  padding:9px 11px;border-radius:8px;
+  background:rgba(109,155,255,.035);border:1px solid var(--tw-line);
+  transition:all .22s;
+}
+.twlv .no{
+  font-family:var(--tw-mono);font-size:10px;color:var(--tw-tx3);width:18px;flex:none;
+}
+.twlv .nm{font-size:11.5px;color:var(--tw-tx3);flex:1;min-width:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.twlv .st{font-family:var(--tw-mono);font-size:10px;color:var(--tw-tx3);flex:none}
+.twlv.past{background:rgba(163,227,74,.06);border-color:rgba(163,227,74,.24)}
+.twlv.past .nm{color:var(--tw-tx2)}
+.twlv.past .st{color:var(--tw-green)}
+.twlv.fail{background:rgba(255,107,138,.07);border-color:rgba(255,107,138,.28)}
+.twlv.fail .st{color:var(--tw-red)}
+.twlv.now{
+  background:rgba(109,155,255,.16);border-color:var(--tw-ac);
+  box-shadow:0 0 0 1px rgba(109,155,255,.3) inset,0 0 22px rgba(109,155,255,.18);
+  transform:translateX(4px);
+}
+.twlv.now .no{color:var(--tw-ac)}
+.twlv.now .nm{color:var(--tw-tx);font-weight:600}
+.twlv.now .st{color:var(--tw-ac)}
+.twlv.lock{opacity:.42}
+
+/* ---------------- 右：读数与行动 ---------------- */
+.twright{display:flex;flex-direction:column;gap:13px;min-width:0}
+
+.twgoal{
+  padding:15px 18px;border-radius:12px;
+  background:linear-gradient(180deg,rgba(14,24,44,.95),rgba(7,13,26,.95));
+  border:1px solid var(--tw-line2);position:relative;overflow:hidden;
+}
+.twgoal::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 60% 60% at 20% 0%,rgba(109,155,255,.1),transparent 70%);
+}
+.twgoal .gk{
+  font-family:var(--tw-mono);font-size:10px;letter-spacing:2.2px;
+  color:var(--tw-ac);margin-bottom:7px;
+}
+.twgoal .gt{font-size:19px;font-weight:700;letter-spacing:.4px;margin-bottom:6px;position:relative}
+.twgoal .gd{font-size:12.5px;color:var(--tw-tx2);line-height:1.8;position:relative}
+.twgoal .gd b{color:var(--tw-tx)}
+
+/* HUD */
+.twhud{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.twhud .c{
+  background:rgba(109,155,255,.05);border:1px solid var(--tw-line);
+  border-radius:9px;padding:10px 11px;
+}
+.twhud .c .l{font-size:10.5px;color:var(--tw-tx3);margin-bottom:5px}
+.twhud .c .v{font-family:var(--tw-mono);font-size:18px;line-height:1.1}
+.twhud .c .n{font-size:9.5px;color:var(--tw-tx3);margin-top:4px;font-family:var(--tw-mono)}
+.twhud .c.hi .v{color:var(--tw-ac)}
+.twhud .c.warn .v{color:var(--tw-gold)}
+.twhud .c.bad .v{color:var(--tw-red)}
+
+/* 行动 */
+.twacts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.twact{
+  text-align:left;cursor:pointer;padding:12px 13px;border-radius:10px;
+  background:rgba(109,155,255,.055);border:1px solid rgba(109,155,255,.22);
+  color:var(--tw-tx);transition:all .16s;position:relative;
+}
+.twact:hover:not(:disabled){background:rgba(109,155,255,.14);border-color:var(--tw-ac);transform:translateY(-1px)}
+.twact:disabled{opacity:.32;cursor:not-allowed;transform:none}
+.twact .ah{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.twact .ah .ic{font-size:14px}
+.twact .ah .nm{font-size:13px;font-weight:600}
+.twact .ah .df{
+  margin-left:auto;font-family:var(--tw-mono);font-size:10.5px;color:var(--tw-gold);
+  border:1px solid rgba(201,162,39,.3);border-radius:5px;padding:1px 6px;
+}
+.twact .ap{
+  font-family:var(--tw-mono);font-size:10.5px;color:var(--tw-tx3);line-height:1.9;
+}
+.twact .ap b{color:var(--tw-tx2)}
+.twact .ap .up{color:var(--tw-green)}
+.twact .ap .dn{color:var(--tw-red)}
+.twact.fix{grid-column:span 2}
+
+/* 行动记录 */
+.twlog{display:flex;flex-direction:column;gap:5px;max-height:190px;overflow-y:auto}
+.twlog .r{
+  display:grid;grid-template-columns:26px 1fr auto;gap:9px;align-items:center;
+  padding:7px 10px;border-radius:7px;font-size:11.5px;
+  background:rgba(109,155,255,.035);border:1px solid var(--tw-line);
+}
+.twlog .r .n{font-family:var(--tw-mono);font-size:10px;color:var(--tw-tx3)}
+.twlog .r .d{color:var(--tw-tx2)}
+.twlog .r .d b{color:var(--tw-tx)}
+.twlog .r .v{font-family:var(--tw-mono);font-size:10.5px}
+.twlog .r .v.ok{color:var(--tw-green)}
+.twlog .r .v.no{color:var(--tw-red)}
+.twlog .none{font-size:12px;color:var(--tw-tx3);text-align:center;padding:12px 0}
+
+/* 卡面 */
+.twcard{
+  padding:13px 16px;border-radius:11px;
+  background:var(--tw-panel);border:1px solid var(--tw-line);
+}
+.twcard>.hd{display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
+.twcard>.hd h3{margin:0;font-size:13px;letter-spacing:.6px}
+.twcard>.hd .k{
+  margin-left:auto;font-family:var(--tw-mono);font-size:9.5px;
+  letter-spacing:1.6px;color:var(--tw-tx3);
+}
+
+/* 结算 */
+.twend{
+  margin-top:14px;padding:24px;border-radius:14px;
+  background:linear-gradient(180deg,rgba(201,162,39,.09),rgba(7,13,26,.95));
+  border:1px solid rgba(201,162,39,.34);
+}
+.twend .eh{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.twend .eh h2{margin:0;font-size:22px;letter-spacing:.6px}
+.twend .eh .sc{font-family:var(--tw-mono);font-size:30px;color:var(--tw-gold);margin-left:auto}
+.twend .eh .sc small{font-size:13px;color:var(--tw-tx3)}
+.twend .es{font-size:13px;color:var(--tw-tx2);line-height:1.9;margin-bottom:16px}
+.twend .parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.twend .parts .p{
+  background:rgba(109,155,255,.05);border:1px solid var(--tw-line);
+  border-radius:9px;padding:11px 12px;
+}
+.twend .parts .p .pl{font-size:10.5px;color:var(--tw-tx3);margin-bottom:5px}
+.twend .parts .p .pv{font-family:var(--tw-mono);font-size:18px}
+.twend .parts .p .pn{font-size:10px;color:var(--tw-tx3);margin-top:4px}
+.twend .certbox{
+  border-radius:11px;padding:16px;border:1px dashed rgba(201,162,39,.4);
+  background:rgba(201,162,39,.05);
+}
+.twend .certbox .ct{font-size:14px;font-weight:700;color:var(--tw-gold);margin-bottom:6px}
+.twend .certbox .cd{font-size:12.5px;color:var(--tw-tx2);line-height:1.8}
+.twend .certbox .cn{
+  font-family:var(--tw-mono);font-size:12px;color:var(--tw-gold);
+  margin-top:9px;letter-spacing:.5px;
+}
+.twend .btnrow{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.twend .btnrow button{
+  padding:10px 18px;border-radius:8px;cursor:pointer;font-size:13px;
+  background:var(--tw-gold);border:none;color:#1a1405;font-weight:700;
+}
+.twend .btnrow button.ghost{background:transparent;border:1px solid var(--tw-line2);color:var(--tw-tx2);font-weight:500}
+
+/* ---------------- 窄屏 ---------------- */
+@media (max-width:1040px){
+  .twmain{grid-template-columns:1fr}
+  .twtower{
+    flex-direction:row;overflow-x:auto;padding-bottom:6px;
+  }
+  .twlv{flex-direction:column;min-width:76px;text-align:center;gap:3px;padding:8px 6px}
+  .twlv.now{transform:none;box-shadow:0 0 0 1px rgba(109,155,255,.4) inset}
+  .twlv .nm{white-space:normal;font-size:10px}
+  .twhud{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .twend .parts{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .twwrap{padding:0 12px 40px}
+  .twacts{grid-template-columns:1fr}
+  .twact.fix{grid-column:span 1}
+  .twhud{grid-template-columns:1fr 1fr}
+  .twend{padding:16px}
+  .twend .eh .sc{font-size:24px}
+}
+</style>

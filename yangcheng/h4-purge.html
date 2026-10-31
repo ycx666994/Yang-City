@@ -1,0 +1,4516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>净化车间 · 十二道工序 — 杨城 H4 数据污染博物馆</title>
+<meta name="description" content="十二次工序额度，把一批脏题洗成一份站得住的审计报告。改写到最大也能让 κ̂ 归零——但那叫假净化。">
+<link rel="stylesheet" href="shared/yc-core.css">
+<link rel="stylesheet" href="shared/yc-deep.css">
+<link rel="stylesheet" href="shared/yc-cast.css">
+<style>
+/* ==========================================================================
+   H4 精英挑战 · 净化车间 · 十二道工序
+   与 H2 案卷（浅色纸本四幕）、H3 指标塔（3D 迷宫）刻意错开：
+   这里是**深色车间流水线** —— 左侧工序台 + 右侧读数仪表 + 底部账本。
+   所有类名 pg- 前缀，避免撞共享样式。
+   ========================================================================== */
+:root{
+  --pg-bg:#050d0b;
+  --pg-bg2:#081613;
+  --pg-panel:rgba(12,28,24,.9);
+  --pg-line:rgba(112,190,164,.16);
+  --pg-line2:rgba(112,190,164,.34);
+  --pg-tx:#e4f1ea;
+  --pg-tx2:#93b4a8;
+  --pg-tx3:#5c7a70;
+  --pg-ac:#35cfa8;
+  --pg-brass:#c9a227;
+  --pg-red:#ff6b6b;
+  --pg-amber:#ffb03a;
+  --pg-mono:ui-monospace,"SF Mono",Consolas,monospace;
+  --pg-serif:"Songti SC","STSong",SimSun,Georgia,serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(ellipse 70% 46% at 16% -8%,rgba(53,207,168,.12),transparent 66%),
+    radial-gradient(ellipse 52% 42% at 92% 106%,rgba(201,162,39,.08),transparent 70%),
+    linear-gradient(180deg,#050d0b 0%,#081613 54%,#040b09 100%);
+  color:var(--pg-tx);
+  font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:repeating-linear-gradient(0deg,rgba(53,207,168,.028) 0 1px,transparent 1px 3px);
+}
+
+.pgwrap{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:0 20px 56px}
+
+/* ---------------- 顶栏 ---------------- */
+.pgbar{
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:13px 0 12px;border-bottom:1px solid var(--pg-line2);
+}
+.pgbar .bk{
+  color:var(--pg-ac);text-decoration:none;font-size:13px;
+  border:1px solid var(--pg-line2);border-radius:7px;padding:6px 11px;
+  transition:background .16s,border-color .16s;
+}
+.pgbar .bk:hover{background:rgba(53,207,168,.1);border-color:var(--pg-ac)}
+.pgttl b{display:block;font-size:16px;letter-spacing:.5px}
+.pgttl span{
+  display:block;font-family:var(--pg-mono);font-size:10.5px;letter-spacing:2.4px;
+  color:var(--pg-tx3);margin-top:3px;
+}
+.pgbar .sp{flex:1}
+.pgbudget{display:flex;align-items:center;gap:10px}
+.pgbudget .lb{font-size:11.5px;color:var(--pg-tx3);letter-spacing:1px}
+.pgpips{display:flex;gap:3px}
+.pgpips i{
+  width:9px;height:18px;border-radius:2px;
+  background:rgba(53,207,168,.14);border:1px solid rgba(53,207,168,.22);
+  transition:background .2s,border-color .2s;
+}
+.pgpips i.on{background:var(--pg-ac);border-color:var(--pg-ac);box-shadow:0 0 8px rgba(53,207,168,.5)}
+.pgpips i.spent{background:rgba(255,107,107,.16);border-color:rgba(255,107,107,.3)}
+.pgbudget b{font-family:var(--pg-mono);font-size:17px;color:var(--pg-ac);min-width:2ch;text-align:right}
+
+/* ---------------- 主栅格 ---------------- */
+.pgmain{
+  display:grid;grid-template-columns:352px minmax(0,1fr);gap:16px;
+  margin-top:16px;align-items:start;
+}
+
+/* ---------------- 左：工序台 ---------------- */
+.pgctl{display:flex;flex-direction:column;gap:11px}
+.pgcard{
+  background:var(--pg-panel);border:1px solid var(--pg-line);border-radius:11px;
+  padding:13px 14px;
+}
+.pgcard>.hd{
+  display:flex;align-items:baseline;gap:8px;margin-bottom:10px;
+}
+.pgcard>.hd h3{margin:0;font-size:13px;letter-spacing:.6px;font-weight:700}
+.pgcard>.hd .k{
+  margin-left:auto;font-family:var(--pg-mono);font-size:9.5px;
+  letter-spacing:1.6px;color:var(--pg-tx3);
+}
+
+/* 档位条 */
+.pgstep{display:flex;gap:5px;margin-bottom:9px}
+.pgstep button{
+  flex:1;padding:9px 2px;border-radius:7px;cursor:pointer;
+  background:rgba(53,207,168,.05);border:1px solid rgba(53,207,168,.18);
+  color:var(--pg-tx3);font-family:var(--pg-mono);font-size:11.5px;
+  transition:all .16s;
+}
+.pgstep button:hover:not(:disabled){background:rgba(53,207,168,.13);color:var(--pg-tx)}
+.pgstep button.on{
+  background:rgba(53,207,168,.2);border-color:var(--pg-ac);color:var(--pg-ac);
+  font-weight:700;box-shadow:0 0 0 1px rgba(53,207,168,.28) inset;
+}
+.pgstep button:disabled{opacity:.32;cursor:not-allowed}
+.pghint{font-size:11.5px;line-height:1.75;color:var(--pg-tx3)}
+.pghint b{color:var(--pg-tx2)}
+
+/* 工序按钮 */
+.pgops{display:flex;flex-direction:column;gap:7px}
+.pgop{
+  display:flex;align-items:center;gap:10px;width:100%;cursor:pointer;
+  padding:11px 12px;border-radius:9px;text-align:left;
+  background:rgba(53,207,168,.055);border:1px solid rgba(53,207,168,.2);
+  color:var(--pg-tx);font-size:13px;transition:all .16s;
+}
+.pgop:hover:not(:disabled){background:rgba(53,207,168,.14);border-color:var(--pg-ac);transform:translateX(2px)}
+.pgop:disabled{opacity:.3;cursor:not-allowed;transform:none}
+.pgop .ic{font-size:15px;width:20px;text-align:center}
+.pgop .tx{flex:1}
+.pgop .tx small{display:block;font-size:10.5px;color:var(--pg-tx3);margin-top:2px}
+.pgop .cost{
+  font-family:var(--pg-mono);font-size:11px;color:var(--pg-brass);
+  border:1px solid rgba(201,162,39,.32);border-radius:5px;padding:2px 6px;
+}
+.pgop.primary{background:rgba(53,207,168,.16);border-color:var(--pg-ac)}
+.pgop.primary .cost{color:var(--pg-ac);border-color:rgba(53,207,168,.4)}
+
+/* ---------------- 右：读数台 ---------------- */
+.pgright{display:flex;flex-direction:column;gap:13px;min-width:0}
+
+.pgread{
+  background:linear-gradient(180deg,rgba(10,26,22,.95),rgba(6,17,14,.95));
+  border:1px solid var(--pg-line2);border-radius:13px;padding:16px 18px;
+  position:relative;overflow:hidden;
+}
+.pgread::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(53,207,168,.09),transparent 70%);
+}
+.pgrhd{display:flex;align-items:center;gap:12px;margin-bottom:14px;position:relative}
+.pgrhd .t{font-size:13.5px;font-weight:700;letter-spacing:.5px}
+.pgrhd .st{
+  font-family:var(--pg-mono);font-size:10px;letter-spacing:1.6px;
+  padding:3px 8px;border-radius:5px;
+  background:rgba(255,176,58,.12);border:1px solid rgba(255,176,58,.3);color:var(--pg-amber);
+}
+.pgrhd .st.ok{background:rgba(53,207,168,.14);border-color:rgba(53,207,168,.4);color:var(--pg-ac)}
+.pgrhd .st.bad{background:rgba(255,107,107,.14);border-color:rgba(255,107,107,.4);color:var(--pg-red)}
+
+.pgkv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;position:relative}
+.pgkv .cell{
+  background:rgba(53,207,168,.045);border:1px solid var(--pg-line);
+  border-radius:9px;padding:10px 11px;
+}
+.pgkv .cell .lb{font-size:10.5px;color:var(--pg-tx3);letter-spacing:.6px;margin-bottom:5px}
+.pgkv .cell .vv{font-family:var(--pg-mono);font-size:19px;color:var(--pg-tx);line-height:1.1}
+.pgkv .cell .nn{font-size:10px;color:var(--pg-tx3);margin-top:4px;font-family:var(--pg-mono)}
+.pgkv .cell.hi .vv{color:var(--pg-ac)}
+.pgkv .cell.warn .vv{color:var(--pg-amber)}
+
+/* 守卫 */
+.pgguard{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:13px;position:relative}
+.pgg{
+  border-radius:8px;padding:9px 10px;border:1px solid;
+  background:rgba(53,207,168,.05);border-color:rgba(53,207,168,.22);
+  transition:all .18s;
+}
+.pgg.no{background:rgba(255,107,107,.08);border-color:rgba(255,107,107,.4)}
+.pgg .gn{font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px}
+.pgg .gn i{
+  width:7px;height:7px;border-radius:50%;background:var(--pg-ac);flex:none;
+  box-shadow:0 0 6px rgba(53,207,168,.7);
+}
+.pgg.no .gn i{background:var(--pg-red);box-shadow:0 0 6px rgba(255,107,107,.7)}
+.pgg .gd{font-family:var(--pg-mono);font-size:10px;color:var(--pg-tx3);margin-top:5px;line-height:1.5}
+
+.pgverdict{
+  margin-top:13px;padding:12px 14px;border-radius:10px;position:relative;
+  border:1px solid var(--pg-line2);background:rgba(53,207,168,.05);
+}
+.pgverdict .vt{font-size:14px;font-weight:700;letter-spacing:.4px;margin-bottom:6px}
+.pgverdict .vw{font-size:12.5px;line-height:1.85;color:var(--pg-tx2)}
+.pgverdict.undet{background:rgba(255,176,58,.07);border-color:rgba(255,176,58,.34)}
+.pgverdict.undet .vt{color:var(--pg-amber)}
+.pgverdict.conflict{background:rgba(255,107,107,.07);border-color:rgba(255,107,107,.32)}
+.pgverdict.conflict .vt{color:var(--pg-red)}
+
+
+/* κ̂ 标尺 */
+.pgscale{margin-top:13px;position:relative}
+.pgscale .track{
+  position:relative;height:26px;border-radius:6px;overflow:hidden;
+  background:linear-gradient(90deg,
+    rgba(53,207,168,.30) 0%,rgba(53,207,168,.30) 25%,
+    rgba(140,150,145,.18) 25%,rgba(140,150,145,.18) 60%,
+    rgba(255,107,107,.26) 60%,rgba(255,107,107,.26) 100%);
+  border:1px solid var(--pg-line2);
+}
+.pgscale .ci{
+  position:absolute;top:0;bottom:0;
+  background:rgba(228,241,234,.20);border-left:1px solid rgba(228,241,234,.5);
+  border-right:1px solid rgba(228,241,234,.5);
+}
+.pgscale .pin{
+  position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--pg-tx);
+  box-shadow:0 0 10px rgba(228,241,234,.9);
+}
+.pgscale .pin::after{
+  content:"";position:absolute;left:-4px;top:-4px;width:10px;height:10px;
+  border-radius:50%;background:var(--pg-tx);box-shadow:0 0 12px rgba(228,241,234,.8);
+}
+.pgscale .ticks{display:flex;justify-content:space-between;margin-top:5px;font-family:var(--pg-mono);font-size:9.5px;color:var(--pg-tx3)}
+.pgscale .ticks span.on{color:var(--pg-tx2)}
+.pgscale .cap{font-size:11px;color:var(--pg-tx3);margin-top:5px;line-height:1.7}
+.pgscale .cap b{color:var(--pg-tx2)}
+
+/* 空态 */
+.pgempty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:280px;color:var(--pg-tx3);font-size:13px;line-height:2;text-align:center;
+}
+.pgempty b{color:var(--pg-tx2)}
+
+/* ---------------- 账本 ---------------- */
+.pglog{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto}
+.pglrow{
+  display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;
+  padding:8px 10px;border-radius:7px;
+  background:rgba(53,207,168,.035);border:1px solid var(--pg-line);
+  font-size:11.5px;
+}
+.pglrow .n{font-family:var(--pg-mono);color:var(--pg-tx3);font-size:10.5px}
+.pglrow .d{color:var(--pg-tx2)}
+.pglrow .d b{color:var(--pg-tx);font-weight:600}
+.pglrow .v{font-family:var(--pg-mono);font-size:10.5px;letter-spacing:.4px}
+.pglrow .v.ok{color:var(--pg-ac)}
+.pglrow .v.undet{color:var(--pg-amber)}
+.pglrow .v.bad{color:var(--pg-red)}
+.pglrow.final{background:rgba(201,162,39,.08);border-color:rgba(201,162,39,.32)}
+.pglrow.final .v{color:var(--pg-brass)}
+.pglog .none{font-size:12px;color:var(--pg-tx3);padding:14px 0;text-align:center}
+
+/* ---------------- 诊断题弹层 ---------------- */
+.pgmask{
+  position:fixed;inset:0;z-index:60;display:none;
+  background:rgba(3,9,7,.82);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.pgmask.on{display:flex}
+.pgquiz{
+  width:min(720px,100%);border-radius:14px;padding:22px 24px;
+  background:linear-gradient(180deg,#0c1d19,#071310);
+  border:1px solid var(--pg-line2);
+  box-shadow:0 24px 70px rgba(0,0,0,.6);
+  animation:pgpop .22s ease-out;
+}
+@keyframes pgpop{from{transform:translateY(12px) scale(.985);opacity:0}to{transform:none;opacity:1}}
+.pgquiz .qh{
+  font-family:var(--pg-mono);font-size:10.5px;letter-spacing:2.4px;
+  color:var(--pg-brass);margin-bottom:9px;
+}
+.pgquiz .qt{font-size:16px;font-weight:700;line-height:1.5;margin-bottom:5px}
+.pgquiz .qs{font-size:12.5px;color:var(--pg-tx2);line-height:1.8;margin-bottom:16px}
+.pgquiz .qo{display:flex;flex-direction:column;gap:8px}
+.pgquiz .qo button{
+  text-align:left;padding:12px 14px;border-radius:9px;cursor:pointer;
+  background:rgba(53,207,168,.05);border:1px solid rgba(53,207,168,.2);
+  color:var(--pg-tx);font-size:13px;line-height:1.6;transition:all .15s;
+}
+.pgquiz .qo button:hover:not(:disabled){background:rgba(53,207,168,.13);border-color:var(--pg-ac)}
+.pgquiz .qo button.ok{background:rgba(53,207,168,.2);border-color:var(--pg-ac);color:var(--pg-ac)}
+.pgquiz .qo button.no{background:rgba(255,107,107,.13);border-color:rgba(255,107,107,.5);color:#ffb3b3}
+.pgquiz .qr{margin-top:13px;font-size:12.5px;line-height:1.8;color:var(--pg-tx2);min-height:1px}
+.pgquiz .qb{margin-top:14px;display:flex;justify-content:flex-end}
+.pgquiz .qb button{
+  padding:9px 20px;border-radius:8px;cursor:pointer;font-size:13px;
+  background:var(--pg-ac);border:none;color:#04120e;font-weight:700;
+}
+.pgquiz .qb button:disabled{opacity:.35;cursor:not-allowed}
+
+/* ---------------- 结算 ---------------- */
+.pgend{
+  border-radius:14px;padding:24px;margin-top:14px;
+  background:linear-gradient(180deg,rgba(201,162,39,.09),rgba(6,17,14,.95));
+  border:1px solid rgba(201,162,39,.34);
+}
+.pgend .eh{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.pgend .eh h2{margin:0;font-size:22px;letter-spacing:.6px}
+.pgend .eh .sc{font-family:var(--pg-mono);font-size:30px;color:var(--pg-brass);margin-left:auto}
+.pgend .eh .sc small{font-size:13px;color:var(--pg-tx3)}
+.pgend .es{font-size:13px;color:var(--pg-tx2);line-height:1.9;margin-bottom:16px}
+.pgend .parts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.pgend .parts .p{
+  background:rgba(53,207,168,.045);border:1px solid var(--pg-line);
+  border-radius:9px;padding:11px 12px;
+}
+.pgend .parts .p .pl{font-size:10.5px;color:var(--pg-tx3);margin-bottom:5px}
+.pgend .parts .p .pv{font-family:var(--pg-mono);font-size:18px;color:var(--pg-tx)}
+.pgend .parts .p .pn{font-size:10px;color:var(--pg-tx3);margin-top:4px}
+.pgend .certbox{
+  border-radius:11px;padding:16px;border:1px dashed rgba(201,162,39,.4);
+  background:rgba(201,162,39,.05);
+}
+.pgend .certbox .ct{font-size:14px;font-weight:700;color:var(--pg-brass);margin-bottom:6px}
+.pgend .certbox .cd{font-size:12.5px;color:var(--pg-tx2);line-height:1.8}
+.pgend .certbox .cn{
+  font-family:var(--pg-mono);font-size:12px;color:var(--pg-brass);
+  margin-top:9px;letter-spacing:.5px;
+}
+.pgend .btnrow{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.pgend .btnrow button{
+  padding:10px 18px;border-radius:8px;cursor:pointer;font-size:13px;
+  background:var(--pg-brass);border:none;color:#1a1405;font-weight:700;
+}
+.pgend .btnrow button.ghost{background:transparent;border:1px solid var(--pg-line2);color:var(--pg-tx2);font-weight:500}
+
+/* ---------------- 窄屏 ---------------- */
+@media (max-width:1040px){
+  .pgmain{grid-template-columns:1fr}
+  .pgkv{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pgguard{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pgend .parts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:620px){
+  .pgwrap{padding:0 12px 40px}
+  .pgbar{gap:10px}
+  .pgttl b{font-size:14px}
+  .pgread{padding:13px}
+  .pgkv{grid-template-columns:1fr 1fr;gap:7px}
+  .pgguard{grid-template-columns:1fr}
+  .pgend{padding:16px}
+  .pgend .parts{grid-template-columns:1fr}
+  .pgend .eh .sc{font-size:24px}
+}
+</style>
+</head>
+<div class="pgwrap">
+
+  <header class="pgbar">
+    <a class="bk" href="h4-contam.html">← 回污染馆</a>
+    <div class="pgttl">
+      <b>净化车间 · 十二道工序</b>
+      <span>PURGE FLOOR · H4 ANNEX · 精英挑战</span>
+    </div>
+    <div class="sp"></div>
+    <div class="pgbudget">
+      <span class="lb">工序额度</span>
+      <span class="pgpips" id="pips"></span>
+      <b id="budN">12</b>
+    </div>
+  </header>
+
+  <div class="pgmain">
+
+    <!-- ==================== 左：工序台 ==================== -->
+    <div class="pgctl">
+
+      <div class="pgcard">
+        <div class="hd"><h3>改写力度</h3><span class="k">REWRITE</span></div>
+        <div class="pgstep" id="wSteps"></div>
+        <div class="pghint" id="wHint">改得太轻，题目根本没变；改得太重，记忆认不出这道题。</div>
+      </div>
+
+      <div class="pgcard">
+        <div class="hd"><h3>题组规模</h3><span class="k">SAMPLE</span></div>
+        <div class="pgstep" id="nSteps"></div>
+        <div class="pghint" id="nHint">题组太少，自助法区间压不下来，任何点估计都跨线。</div>
+      </div>
+
+      <div class="pgcard">
+        <div class="hd"><h3>工序台</h3><span class="k">OPERATIONS</span></div>
+        <div class="pgops">
+          <button class="pgop" id="opLabel">
+            <span class="ic">🏷</span>
+            <span class="tx">标签复核<small>把泄漏答案里的错标清掉，噪声 × 0.4</small></span>
+            <span class="cost">−2</span>
+          </button>
+          <button class="pgop primary" id="opRun">
+            <span class="ic">▶</span>
+            <span class="tx">开庭<small>跑一次审计，读五道守卫</small></span>
+            <span class="cost">−1</span>
+          </button>
+          <button class="pgop" id="opRep">
+            <span class="ic">⟳</span>
+            <span class="tx">复核<small>换一个种子重跑，看判定会不会翻</small></span>
+            <span class="cost">−2</span>
+          </button>
+          <button class="pgop" id="opSeal">
+            <span class="ic">📄</span>
+            <span class="tx">封卷出报告<small>交出结论，结算</small></span>
+            <span class="cost">0</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== 右：读数台 ==================== -->
+    <div class="pgright">
+
+      <div class="pgread" id="readBox">
+        <div class="pgrhd">
+          <span class="t">读数台</span>
+          <span class="st" id="rdSt">待开庭</span>
+        </div>
+        <div class="pgempty" id="rdEmpty">
+          还没有读数。<br>
+          <b>先调改写力度与题组规模，再按「开庭」。</b><br>
+          车间里最贵的不是算力，是「你不知道这个 0 是什么意思」。
+        </div>
+        <div id="rdBody" style="display:none"></div>
+      </div>
+
+      <div class="pgcard">
+        <div class="hd"><h3>工序账本</h3><span class="k">LEDGER</span></div>
+        <div class="pglog" id="log"><div class="none">还没有工序记录。</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="endBox"></div>
+</div>
+
+<!-- ==================== 诊断题 ==================== -->
+<div class="pgmask" id="mask">
+  <div class="pgquiz">
+    <div class="qh" id="qH">读数诊断 · 第 1 次开庭</div>
+    <div class="qt" id="qT">这一次读数，该怎么读？</div>
+    <div class="qs" id="qS"></div>
+    <div class="qo" id="qO"></div>
+    <div class="qr" id="qR"></div>
+    <div class="qb"><button id="qNext" disabled>继续</button></div>
+  </div>
+</div>
+<script>
+/* ============================================================
+   yc-contamination.js — H4 数据污染博物馆 · 三档对照 + 回吐溯源
+   ------------------------------------------------------------
+   这台仪器只回答一个问题：
+     它在这道题上答对，是因为会做，还是因为见过，还是当前证据分不清？
+
+   三个档：
+     甲架 原题   训练语料里出现过的那道题（表面逐字相同）
+     乙架 改数   同一道题，改掉一到两个数（答案随之改变）
+     丙架 新题   同一技能族、从未出现过的题
+
+   为什么不能只比准确率：
+     乙架比丙架低，有两种完全不同的解释 ——
+       (a) 它靠表面记忆，改了数就不认得了；
+       (b) 你改的数让题变难了。
+     只看准确率，这两件事长得一模一样。这是本馆全部设计要解决的那个混淆。
+
+   两条独立通道：
+     通道一 准确率分解  accA / accB / accC，配一个冷参照做难度认证。
+                        它会被难度漂移污染，也会被天花板效应吃掉分辨力。
+     通道二 答案溯源    在改数题上，它给出的答案是不是"原题的答案"。
+                        这是记忆的直接指纹：算错的答案不会系统性地等于旧答案。
+
+   估计量：
+     R  = P(答案 = 原题答案 | 改数题)         被测者在乙架上的回吐率
+     R0 = 参照组在同一批改数题上的同一比例     偶然水平（实测，不是假设）
+     κ̂  = (R − R0) / (1 − R0)                 扣除偶然之后的回吐压力
+
+     κ̂ ≈ 0  说明它在这批改数题上确实在算；
+     κ̂ ≈ 1  说明它几乎不算是，直接把旧答案搬过来。
+
+   三条拒判线（仪器自己承认不行的时刻）：
+     ① 变体根本没改变答案（R0 → 1，分母塌了，信息量为零）
+     ② 变体与原题的表面匹配度低于记忆触发阈值（探针没接上，κ̂=0 不构成清白证明）
+     ③ 题量不足 / 区间跨过判定边界
+
+   一条"通道失效但结论仍成立"的线：
+     参照组显示乙架明显更难 → 准确率通道失效，但 κ̂ 不受难度影响，仍然有效。
+     这是两条通道分开设计的全部意义。
+   ============================================================ */
+(function (root, factory) {
+  var api = factory();
+  if (typeof module === "object" && module.exports) module.exports = api;
+  if (root) root.YCContam = api;
+})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+  "use strict";
+
+  var VERSION = "0.1.0";
+  var PROTOCOL = "YC-Contam 1.0";
+
+  /* ---------------- 基础 ---------------- */
+
+  function clamp(x, a, b) { return x < a ? a : (x > b ? b : x); }
+  function mean(a) {
+    if (!a.length) return 0;
+    var s = 0;
+    for (var i = 0; i < a.length; i++) s += a[i];
+    return s / a.length;
+  }
+
+  /* mulberry32：同一 seed 必须得到同一座档案库。
+     原来用 xorshift32，前一两百个输出对 32 位种子的低位分布有偏：
+     标称 25% 的保留率实测跑出 26—34%，κ̂ 因此系统性偏高约 0.04。
+     随机数质量不是实现细节 —— 它会直接变成结论里的偏差。 */
+  function rng(seed) {
+    var a = (seed >>> 0) || 0x9e3779b9;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* ---------------- 题库 ---------------- */
+
+  /* 四数三步：技能族 = 加减链的形状，与具体数字无关 */
+  var CHAINS = [
+    ["+", "+", "-"],
+    ["-", "+", "+"],
+    ["+", "-", "-"],
+    ["-", "-", "+"],
+    ["+", "+", "+"],
+    ["-", "+", "-"]
+  ];
+  var ENTS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+  var GOODS = [
+    ["货箱", "箱"], ["零件", "件"], ["油桶", "桶"],
+    ["包裹", "包"], ["托盘", "托"], ["原料", "袋"]
+  ];
+
+  function fold(chain, nums) {
+    var v = nums[0], carries = 0, i, op, b;
+    for (i = 0; i < 3; i++) {
+      op = chain[i]; b = nums[i + 1];
+      if (op === "+") {
+        if ((v % 10) + (b % 10) >= 10) carries++;
+        v += b;
+      } else {
+        if ((v % 10) < (b % 10)) carries++;
+        v -= b;
+      }
+    }
+    return { v: v, carries: carries };
+  }
+
+  function digitsOf(nums) {
+    var d = 1, i;
+    for (i = 0; i < nums.length; i++) {
+      var l = String(Math.abs(nums[i])).length;
+      if (l > d) d = l;
+    }
+    return d;
+  }
+
+  /* 生成一组数，保证中间值不为负、答案不为负 */
+  function genNums(chain, r, digits) {
+    var lo = digits >= 3 ? 108 : 14;
+    var hi = digits >= 3 ? 962 : 96;
+    for (var t = 0; t < 60; t++) {
+      var n = [], i, ok = true;
+      for (i = 0; i < 4; i++) n.push(lo + Math.floor(r() * (hi - lo)));
+      var v = n[0];
+      for (i = 0; i < 3; i++) {
+        v = chain[i] === "+" ? v + n[i + 1] : v - n[i + 1];
+        if (v < 0) { ok = false; break; }
+      }
+      if (ok && v >= 0) return n;
+    }
+    return [40, 15, 12, 9];
+  }
+
+  /* 题面分段：数字单独成段，方便在界面上标出"改的是哪一个" */
+  function segsOf(ent, goods, chain, nums, changed) {
+    var out = [], i;
+    var noun = goods[0], unit = goods[1];
+    changed = changed || [];
+    out.push({ t: "t", v: ent + "仓原有 " });
+    out.push({ t: "n", v: nums[0], chg: changed.indexOf(0) >= 0 });
+    out.push({ t: "t", v: " " + unit + "，" });
+    for (i = 0; i < 3; i++) {
+      out.push({ t: "t", v: (chain[i] === "+" ? "补进 " : "运走 ") });
+      out.push({ t: "n", v: nums[i + 1], chg: changed.indexOf(i + 1) >= 0 });
+      out.push({ t: "t", v: " " + unit + (i < 2 ? "，" : "，现存多少" + unit + "？") });
+    }
+    return { segs: out, noun: noun, unit: unit };
+  }
+
+  function buildItem(entIdx, goodsIdx, chain, nums, changed, tag) {
+    var f = fold(chain, nums);
+    var s = segsOf(ENTS[entIdx], GOODS[goodsIdx], chain, nums, changed);
+    return {
+      tag: tag,
+      entIdx: entIdx, goodsIdx: goodsIdx,
+      ent: ENTS[entIdx], noun: s.noun, unit: s.unit,
+      chain: chain.slice(), nums: nums.slice(),
+      ans: f.v, carries: f.carries, digits: digitsOf(nums),
+      changed: (changed || []).slice(),
+      segs: s.segs,
+      text: s.segs.map(function (x) { return x.v; }).join("")
+    };
+  }
+
+  /* ---------------- 表面匹配 ---------------- */
+
+  /* 槽位权重：仓名 0.10 + 物件 0.06 + 四个数各 0.21 = 1.00。
+     权重直接决定"改几个数"与"记忆还能不能触发"的对应关系：
+       换措辞不改数 → 0.84   改一个数 → 0.63   改两个数 → 0.42
+     阈值 0.55 卡在 0.63 与"偶然撞车 0.52（同仓名＋两个数）"之间。
+     这 0.03 的余量是必需的：新题档在 96×96 对里必然撞上几对，
+     阈值压到 0.45 时丙档会有 4% 的题被误判成"记得"，κ̂ 因此系统性偏高。
+     权重不是审美选择，它决定了这台仪器会不会骗自己。 */
+  var W_ENT = 0.10, W_NOUN = 0.06, W_NUM = 0.21;
+
+  function slotsOf(it) {
+    return {
+      ent: it.ent, noun: it.noun,
+      n0: it.nums[0], n1: it.nums[1], n2: it.nums[2], n3: it.nums[3]
+    };
+  }
+
+  function matchFrac(a, b) {
+    var m = 0;
+    if (a.ent === b.ent) m += W_ENT;
+    if (a.noun === b.noun) m += W_NOUN;
+    if (a.n0 === b.n0) m += W_NUM;
+    if (a.n1 === b.n1) m += W_NUM;
+    if (a.n2 === b.n2) m += W_NUM;
+    if (a.n3 === b.n3) m += W_NUM;
+    return m;
+  }
+
+  /* 记忆触发阈值：0.55 落在"改一个数（0.63）"与"改两个数（0.42）"之间，
+     且高于"同仓名＋两个数"的偶然撞车（0.52）。见 sweep 的窗口扫描。 */
+  var THETA = 0.55;
+  /* 回吐压力：即使表面匹配上了，也不是每次都直接搬旧答案 */
+  var KAPPA_RECALL = 0.90;
+
+  function bestMatch(table, it) {
+    var s = slotsOf(it), best = { rho: 0, rec: null };
+    for (var i = 0; i < table.length; i++) {
+      var f = matchFrac(s, table[i].slots);
+      if (f > best.rho) { best.rho = f; best.rec = table[i]; }
+    }
+    return best;
+  }
+
+  /* ---------------- 题组 ---------------- */
+
+  /* 一个题组 = 同源三件（甲/乙/丙）。重采样单位是题组，不是单题，
+     因为同一组的三个版本共享同一个技能点，彼此不独立。 */
+  function genTriple(fi, seed, w) {
+    var r = rng(seed);
+    var chain = CHAINS[fi % CHAINS.length];
+
+    var entA = Math.floor(r() * ENTS.length);
+    var gA = Math.floor(r() * GOODS.length);
+    var numsA = genNums(chain, r, 2);
+    var A = buildItem(entA, gA, chain, numsA, [], "A");
+
+    /* 乙：换仓名与物件（措辞变了），按改写力度改数 */
+    var entB = (entA + 1 + Math.floor(r() * (ENTS.length - 1))) % ENTS.length;
+    var gB = (gA + 1 + Math.floor(r() * (GOODS.length - 1))) % GOODS.length;
+
+    var k = w < 0.30 ? 0 : (w < 0.82 ? 1 : 2);
+    var bump = (w >= 0.62 && w < 0.82) ? 1 : 0;
+    var numsB = numsA.slice(), changed = [], i;
+    for (i = 0; i < k; i++) {
+      var idx = 3 - i;
+      var delta = 12 + Math.floor(r() * 48);
+      var sign = r() < 0.5 ? -1 : 1;
+      var nv = numsB[idx] + sign * delta;
+      if (nv < 12) nv = numsB[idx] + delta;
+      if (bump) nv += 100 * (1 + Math.floor(r() * 7));
+      numsB[idx] = nv;
+      changed.push(idx);
+    }
+    /* 只有本来就要改数时才补刀：k=0 的"空变体"必须保持答案不变，
+       那正是"变体形同虚设"这条负例要演示的东西。 */
+    var fB = fold(chain, numsB);
+    if (k > 0 && fB.v === A.ans) {
+      numsB[3] += 17;
+      if (changed.indexOf(3) < 0) changed.push(3);
+    }
+    var B = buildItem(entB, gB, chain, numsB, changed, "B");
+
+    /* 丙：同技能族、全新表面、同样的位数（难度不被改写污染） */
+    var rc = rng((seed ^ 0x5bf03635) >>> 0);
+    var entC = (entB + 1 + Math.floor(rc() * (ENTS.length - 1))) % ENTS.length;
+    var gC = (gB + 1 + Math.floor(rc() * (GOODS.length - 1))) % GOODS.length;
+    var numsC = genNums(chain, rc, 2);
+    var C = buildItem(entC, gC, chain, numsC, [], "C");
+
+    /* 设计层面的表面匹配：只取决于题面本身，不取决于模型记住了多少。
+       用它判断"探针有没有接上"，才不会把"模型没记忆"误判成"探针没接通"。 */
+    var rhoDesign = matchFrac(slotsOf(B), slotsOf(A));
+
+    return {
+      i: fi, chain: chain, A: A, B: B, C: C,
+      changed: changed.slice(), rhoDesign: rhoDesign
+    };
+  }
+
+  /* ---------------- 解算器 ---------------- */
+
+  function skillOf(it, base) {
+    var d = it.carries * 0.10 + (it.digits - 2) * 0.28;
+    return clamp(base - d, 0.04, 0.985);
+  }
+
+  function wrongOf(v, r) {
+    var ds = [-13, -7, -2, 3, 11, 24];
+    return v + ds[Math.floor(r() * ds.length)];
+  }
+
+  function computeAnswer(it, base, r) {
+    if (r() < skillOf(it, base)) return it.ans;
+    return wrongOf(it.ans, r);
+  }
+
+  /* 记忆表：只保留一部分原题（retention），可带标签噪声 */
+  function buildTable(triples, mem, labelNoise, r) {
+    var t = [];
+    for (var i = 0; i < triples.length; i++) {
+      var tr = triples[i];
+      if (r() >= mem) continue;
+      var stored = tr.A.ans;
+      if (labelNoise > 0 && r() < labelNoise) stored = wrongOf(stored, r);
+      t.push({ id: "M" + tr.i, slots: slotsOf(tr.A), stored: stored, truth: tr.A.ans });
+    }
+    return t;
+  }
+
+  /* ---------------- 主运行 ---------------- */
+
+  function runAudit(opt) {
+    opt = opt || {};
+    var seed = opt.seed == null ? 20261030 : (opt.seed >>> 0);
+    var n = opt.n == null ? 96 : Math.round(clamp(opt.n, 24, 400));
+    var w = clamp(opt.rewrite == null ? 0.45 : opt.rewrite, 0, 1);
+    var mem = clamp(opt.mem == null ? 0.95 : opt.mem, 0, 1);
+    var labelNoise = clamp(opt.labelNoise == null ? 0 : opt.labelNoise, 0, 0.9);
+    var boot = opt.boot == null ? 300 : Math.round(clamp(opt.boot, 60, 1200));
+    var subSkill = opt.subSkill == null ? 0.80 : opt.subSkill;
+    var refSkill = opt.refSkill == null ? 0.80 : opt.refSkill;
+    var refMem = clamp(opt.refMem == null ? 0 : opt.refMem, 0, 1);
+
+    var triples = [], i;
+    for (i = 0; i < n; i++) triples.push(genTriple(i, (seed + i * 7919) >>> 0, w));
+
+    /* 被测者的记忆表 */
+    var mr = rng((seed ^ 0x9e3779b9) >>> 0);
+    var table = buildTable(triples, mem, labelNoise, mr);
+
+    /* 参照组：同一解算器，记忆通道关闭（或残留 refMem） */
+    var rr = rng((seed ^ 0x27d4eb2f) >>> 0);
+    var refTable = buildTable(triples, refMem, 0, rr);
+
+    var sr = rng((seed ^ 0x85ebca6b) >>> 0);
+    var qr = rng((seed ^ 0xc2b2ae35) >>> 0);
+
+    var rows = [];
+    for (i = 0; i < n; i++) {
+      var tr = triples[i];
+      var row = {
+        i: i, aA: tr.A.ans, aB: tr.B.ans, aC: tr.C.ans,
+        chain: tr.chain, changed: tr.changed, rhoDesign: tr.rhoDesign
+      };
+      var tiers = ["A", "B", "C"];
+      for (var j = 0; j < 3; j++) {
+        var tier = tiers[j], it = tr[tier];
+        var bm = bestMatch(table, it);
+        var via = "compute", ans;
+        if (bm.rec && bm.rho >= THETA && sr() < KAPPA_RECALL) {
+          ans = bm.rec.stored; via = "recall";
+        } else {
+          ans = computeAnswer(it, subSkill, sr);
+        }
+        row[tier] = {
+          ans: ans, ok: ans === it.ans, via: via,
+          rho: +bm.rho.toFixed(4),
+          stale: tier === "B" ? ans === tr.A.ans : null,
+          /* 题面分段随行返回，界面上要标出"改的是哪一个数" */
+          segs: it.segs
+        };
+        var bmr = bestMatch(refTable, it);
+        var rans = (bmr.rec && bmr.rho >= THETA && qr() < KAPPA_RECALL)
+          ? bmr.rec.stored : computeAnswer(it, refSkill, qr);
+        row["r" + tier] = { ans: rans, ok: rans === it.ans, stale: tier === "B" ? rans === tr.A.ans : null };
+      }
+      rows.push(row);
+    }
+
+    /* ---- 聚合 ---- */
+    function agg(list) {
+      var accA = mean(list.map(function (x) { return x.A.ok ? 1 : 0; }));
+      var accB = mean(list.map(function (x) { return x.B.ok ? 1 : 0; }));
+      var accC = mean(list.map(function (x) { return x.C.ok ? 1 : 0; }));
+      var refA = mean(list.map(function (x) { return x.rA.ok ? 1 : 0; }));
+      var refB = mean(list.map(function (x) { return x.rB.ok ? 1 : 0; }));
+      var refC = mean(list.map(function (x) { return x.rC.ok ? 1 : 0; }));
+      var R = mean(list.map(function (x) { return x.B.stale ? 1 : 0; }));
+      var R0 = mean(list.map(function (x) { return x.rB.stale ? 1 : 0; }));
+      var rhoBar = mean(list.map(function (x) { return x.rhoDesign; }));
+      var rhoHit = mean(list.map(function (x) { return x.B.rho; }));
+      var eq = mean(list.map(function (x) { return x.aA === x.aB ? 1 : 0; }));
+      var kappa = R0 >= 0.999 ? null : (R - R0) / (1 - R0);
+      return {
+        accA: accA, accB: accB, accC: accC,
+        refA: refA, refB: refB, refC: refC,
+        R: R, R0: R0, rhoBar: rhoBar, rhoHit: rhoHit, eqRate: eq, kappa: kappa,
+        advAC: accA - accC, advBC: accB - accC
+      };
+    }
+
+    var e = agg(rows);
+
+    /* ---- 自助法：按题组重采样 ---- */
+    var samples = [];
+    var br = rng((seed ^ 0x165667b1) >>> 0);
+    for (var b = 0; b < boot; b++) {
+      var pick = [];
+      for (i = 0; i < n; i++) pick.push(rows[Math.floor(br() * n)]);
+      var eb = agg(pick);
+      if (eb.kappa != null && isFinite(eb.kappa)) samples.push(eb.kappa);
+    }
+    samples.sort(function (a, b2) { return a - b2; });
+    var lo = samples.length ? samples[Math.floor(samples.length * 0.025)] : null;
+    var hi = samples.length ? samples[Math.floor(samples.length * 0.975)] : null;
+    /* κ 的定义域是 [0,1]；区间按参数空间截断，点估计不截断 */
+    var ci = samples.length ? [clamp(lo, 0, 1), clamp(hi, 0, 1)] : null;
+
+    /* ---- 守卫 ---- */
+    var guards = [];
+
+    var eqGuard = e.eqRate <= 0.85;
+    guards.push({
+      id: "variant", ok: eqGuard,
+      label: "变体改变了答案",
+      detail: "甲与乙的正确答案相同的比例 " + (e.eqRate * 100).toFixed(0) + "%"
+    });
+
+    var probeGuard = e.rhoBar >= THETA;
+    guards.push({
+      id: "probe", ok: probeGuard,
+      label: "探针接通（表面足够接近）",
+      detail: "乙与甲的平均表面匹配 " + e.rhoBar.toFixed(2) + " / 阈值 " + THETA
+    });
+
+    var nGuard = n >= 60;
+    guards.push({
+      id: "n", ok: nGuard,
+      label: "题组数足够",
+      detail: n + " 组（下限 60）"
+    });
+
+    /* 参照组冷度：参照组在甲档上是否也占便宜 */
+    var seRefAC = Math.sqrt(
+      Math.max(1e-9, e.refA * (1 - e.refA) / n + e.refC * (1 - e.refC) / n)
+    );
+    var refCold = (e.refA - e.refC) < 1.96 * seRefAC;
+    guards.push({
+      id: "refcold", ok: refCold,
+      label: "参照组是冷的",
+      detail: "参照组 甲−丙 = " + ((e.refA - e.refC) * 100).toFixed(1) + "pp（噪声 " +
+        (1.96 * seRefAC * 100).toFixed(1) + "pp）"
+    });
+
+    /* 变体难度：参照组在乙档上是否明显更差 */
+    var seRefBC = Math.sqrt(
+      Math.max(1e-9, e.refB * (1 - e.refB) / n + e.refC * (1 - e.refC) / n)
+    );
+    var diffOK = (e.refC - e.refB) < 1.96 * seRefBC;
+    guards.push({
+      id: "difficulty", ok: diffOK,
+      label: "变体难度未漂移",
+      detail: "参照组 丙−乙 = " + ((e.refC - e.refB) * 100).toFixed(1) + "pp（噪声 " +
+        (1.96 * seRefBC * 100).toFixed(1) + "pp）"
+    });
+
+    /* ---- 判定 ---- */
+    /* 通道状态：准确率通道可能被难度漂移或天花板吃掉，溯源通道只受"探针是否接通"影响 */
+    var seAC = Math.sqrt(Math.max(1e-9, e.accA * (1 - e.accA) / n + e.accC * (1 - e.accC) / n));
+    var advSig = (e.accA - e.accC) > 1.96 * seAC;
+    var channels = {
+      acc: diffOK ? (advSig ? "ok" : "blind") : "drift",
+      trace: probeGuard ? "ok" : "off"
+    };
+
+    var verdict = "undetermined", subtype = "none", why = "";
+
+    if (!eqGuard) {
+      subtype = "vacuous";
+      why = "乙架的正确答案与甲架相同的比例是 " + (e.eqRate * 100).toFixed(0) +
+        "%，说明改数没有改变答案 —— 回吐率与准确率无法区分，这个设计提供不了任何信息。";
+    } else if (!probeGuard) {
+      subtype = "probe";
+      why = "乙与甲的平均表面匹配只有 " + e.rhoBar.toFixed(2) + "，低于记忆触发阈值 " +
+        THETA + "。记忆通道根本没被接上，所以 κ̂≈0 不是清白证明，只是探针没通电。";
+    } else if (!nGuard) {
+      subtype = "n";
+      why = "只有 " + n + " 组题，区间宽度压不下来。这个效应量需要更多题组才能与噪声分开。";
+    } else if (e.kappa == null) {
+      subtype = "vacuous";
+      why = "偶然率已达 1，分母塌陷，κ̂ 无定义。";
+    } else if (ci && ((ci[0] <= 0.25 && ci[1] >= 0.25) || (ci[0] <= 0.60 && ci[1] >= 0.60))) {
+      subtype = "straddle";
+      why = "点估计 " + e.kappa.toFixed(2) + "，但区间 [" + ci[0].toFixed(2) + ", " +
+        ci[1].toFixed(2) + "] 跨过了判定边界 —— 现在下结论等于拿噪声当效应。";
+    } else if ((e.accC - e.accA) > 1.96 * seAC) {
+      /* 记忆在扣分：唯一自洽的解释是泄漏数据里标错了。
+         这一条不依赖 κ̂ —— κ̂ 只能看见"回吐了正确答案"的那部分记忆。 */
+      verdict = "conflict"; subtype = "label";
+      why = "甲架准确率（" + e.accA.toFixed(2) + "）显著低于丙架（" + e.accC.toFixed(2) +
+        "，差 " + ((e.accC - e.accA) * 100).toFixed(1) + "pp），说明记忆在扣分；" +
+        "而溯源通道测到的回吐只有 " + (e.kappa * 100).toFixed(0) +
+        "%。两个通道只能同时成立于一种情形：泄漏的答案里有一部分本身是错的。" +
+        "回吐错误答案与算错在行为上不可区分，所以 κ̂ 在这里是下界，不是估计。";
+    } else if (e.kappa >= 0.60) {
+      verdict = "supported"; subtype = "stale";
+      why = "乙架上 " + (e.R * 100).toFixed(0) + "% 的答案就是原题答案，扣除偶然（" +
+        (e.R0 * 100).toFixed(0) + "%）后仍有 " + (e.kappa * 100).toFixed(0) +
+        "% 的题根本没算。这不是「记错了」，是没算。";
+    } else if (!advSig) {
+      verdict = "noeffect"; subtype = "noadv";
+      why = "甲丙两档准确率差 " + ((e.accA - e.accC) * 100).toFixed(1) +
+        "pp，与噪声（±" + (1.96 * seAC * 100).toFixed(1) +
+        "pp）分不开 —— 见过这道题没有带来任何可测的优势，也就没有需要解释的东西。";
+    } else if (e.kappa <= 0.25) {
+      verdict = "refuted"; subtype = "compute";
+      why = "乙架上的回吐率 " + (e.R * 100).toFixed(0) + "% 与参照组的偶然水平 " +
+        (e.R0 * 100).toFixed(0) + "% 分不开 —— 在这么强的改写下，它在算。";
+    } else {
+      subtype = "mixed";
+      why = "回吐压力 " + (e.kappa * 100).toFixed(0) +
+        "%：一部分题在算，一部分题在搬旧答案。比例不足以判定主导。";
+    }
+
+    if (verdict === "supported" && channels.acc === "blind") {
+      subtype = "ceiling";
+      why += " 注意：甲丙准确率几乎相同，准确率通道被天花板吃掉了 —— 污染在分数上完全看不出来，只在行为上留下指纹。";
+    }
+    if (verdict === "supported" && channels.acc === "drift") {
+      why += " 注意：参照组显示乙架更难，准确率通道因此失效；但 κ̂ 不依赖难度校准，结论仍然成立。";
+    }
+
+    return {
+      ok: true,
+      meta: {
+        version: VERSION, protocol: PROTOCOL, seed: seed, n: n,
+        rewrite: w, mem: mem, labelNoise: labelNoise, boot: boot,
+        theta: THETA, subSkill: subSkill, refSkill: refSkill, refMem: refMem,
+        retained: table.length
+      },
+      est: {
+        accA: e.accA, accB: e.accB, accC: e.accC,
+        refA: e.refA, refB: e.refB, refC: e.refC,
+        R: e.R, R0: e.R0, kappa: e.kappa, ci: ci,
+        rhoBar: e.rhoBar, rhoHit: e.rhoHit, eqRate: e.eqRate,
+        advAC: e.advAC, advBC: e.advBC,
+        tau: e.advAC > 0.01 ? e.advBC / e.advAC : null
+      },
+      guards: guards, channels: channels, advSig: advSig,
+      verdict: verdict, subtype: subtype, why: why,
+      rows: rows
+    };
+  }
+
+  /* ---------------- 自检：已知真值能不能收回来 ---------------- */
+
+  function selfCheck(opt) {
+    opt = opt || {};
+    var levels = opt.levels || [0, 0.25, 0.5, 0.75, 1.0];
+    var seeds = opt.seeds || [20261030, 771, 1931];
+    var n = opt.n == null ? 96 : opt.n;
+    var t0 = Date.now();
+    var rows = [], errs = [], cov = 0;
+
+    levels.forEach(function (mem) {
+      seeds.forEach(function (sd) {
+        var r = runAudit({
+          seed: sd, mem: mem, rewrite: opt.rewrite == null ? 0.45 : opt.rewrite,
+          labelNoise: 0, n: n, boot: 240
+        });
+        var truth = mem * KAPPA_RECALL;
+        var k = r.est.kappa;
+        var e = k == null ? 1 : Math.abs(k - truth);
+        errs.push(e);
+        var hit = r.est.ci && r.est.ci[0] <= truth && truth <= r.est.ci[1];
+        if (hit) cov++;
+        rows.push({
+          truth: +truth.toFixed(3), mem: mem, seed: sd,
+          kappa: k == null ? null : +k.toFixed(3),
+          ci: r.est.ci ? [+r.est.ci[0].toFixed(3), +r.est.ci[1].toFixed(3)] : null,
+          err: +e.toFixed(3), hit: hit,
+          verdict: r.verdict, subtype: r.subtype,
+          R: +r.est.R.toFixed(3), R0: +r.est.R0.toFixed(3)
+        });
+      });
+    });
+
+    return {
+      rows: rows,
+      mae: +mean(errs).toFixed(4),
+      coverage: cov + "/" + rows.length,
+      coverageRate: cov / rows.length,
+      ms: Date.now() - t0,
+      n: rows.length
+    };
+  }
+
+  /* ---------------- 负例：四种必须被拒绝的情形 ---------------- */
+
+  function negatives() {
+    var base = { seed: 20261030, n: 96, boot: 200 };
+    var cases = [
+      {
+        id: "vacuous", name: "变体形同虚设",
+        desc: "改写力度 0.10：只换了仓名与物件，数字一个没动。",
+        expect: "变体未改变答案 → 拒判",
+        opt: Object.assign({}, base, { rewrite: 0.10, mem: 0.85 })
+      },
+      {
+        id: "probe", name: "探针没接通",
+        desc: "改写力度 0.95：改了两个数，表面差异太大，记忆根本触发不了。",
+        expect: "表面匹配低于阈值 → 拒判",
+        opt: Object.assign({}, base, { rewrite: 0.95, mem: 0.85 })
+      },
+      {
+        id: "label", name: "泄漏数据标错了",
+        desc: "标签噪声 0.90：记忆里存的是错误答案，原题准确率被拉低。",
+        expect: "准确率与溯源互相矛盾 → 结果冲突",
+        opt: Object.assign({}, base, { rewrite: 0.45, mem: 0.90, labelNoise: 0.90 })
+      },
+      {
+        id: "n", name: "题组太少",
+        desc: "只有 30 组题，区间宽到盖住判定边界。",
+        expect: "样本量不足 → 拒判",
+        opt: Object.assign({}, base, { n: 30, rewrite: 0.45, mem: 0.55 })
+      }
+    ];
+    return cases.map(function (c) {
+      var r = runAudit(c.opt);
+      return {
+        id: c.id, name: c.name, desc: c.desc, expect: c.expect,
+        verdict: r.verdict, subtype: r.subtype, why: r.why,
+        kappa: r.est.kappa, ci: r.est.ci,
+        passed: (c.id === "label" ? r.verdict === "conflict" : r.verdict === "undetermined")
+      };
+    });
+  }
+
+  /* ---------------- 窗口扫描：改写力度与可估性的关系 ---------------- */
+
+  function sweep(opt) {
+    opt = opt || {};
+    var out = [];
+    for (var w = 0.05; w <= 0.96; w += 0.1) {
+      var r = runAudit({
+        seed: opt.seed == null ? 20261030 : opt.seed,
+        n: opt.n == null ? 96 : opt.n,
+        mem: opt.mem == null ? 0.95 : opt.mem,
+        rewrite: +w.toFixed(2), boot: 160
+      });
+      out.push({
+        rewrite: +w.toFixed(2),
+        kappa: r.est.kappa,
+        ci: r.est.ci,
+        rhoBar: +r.est.rhoBar.toFixed(3),
+        eqRate: +r.est.eqRate.toFixed(3),
+        accA: +r.est.accA.toFixed(3),
+        accB: +r.est.accB.toFixed(3),
+        accC: +r.est.accC.toFixed(3),
+        refB: +r.est.refB.toFixed(3),
+        refC: +r.est.refC.toFixed(3),
+        verdict: r.verdict, subtype: r.subtype,
+        usable: r.verdict !== "undetermined"
+      });
+    }
+    return out;
+  }
+
+  /* ---------------- 参照体检：控制组自己是不是控制组 ---------------- */
+
+  function refCheck(opt) {
+    opt = opt || {};
+    var cfgs = [
+      { id: "cold", name: "冷参照", mem: 0, desc: "记忆通道完全关闭" },
+      { id: "warm", name: "半冷参照", mem: 0.15, desc: "参照组自己也沾过一点语料" },
+      { id: "hot", name: "不冷参照", mem: 0.55, desc: "参照组与原题同源，控制组失效" }
+    ];
+    return cfgs.map(function (c) {
+      var r = runAudit({
+        seed: opt.seed == null ? 20261030 : opt.seed,
+        n: opt.n == null ? 96 : opt.n,
+        rewrite: 0.45, mem: 0.85, refMem: c.mem, boot: 160
+      });
+      var g = r.guards.filter(function (x) { return x.id === "refcold"; })[0];
+      return {
+        id: c.id, name: c.name, desc: c.desc,
+        refA: +r.est.refA.toFixed(3), refC: +r.est.refC.toFixed(3),
+        gap: +((r.est.refA - r.est.refC) * 100).toFixed(1),
+        certified: g.ok,
+        detail: g.detail,
+        kappa: r.est.kappa, verdict: r.verdict
+      };
+    });
+  }
+
+  return {
+    VERSION: VERSION, PROTOCOL: PROTOCOL, THETA: THETA, KAPPA_RECALL: KAPPA_RECALL,
+    runAudit: runAudit, selfCheck: selfCheck, negatives: negatives,
+    sweep: sweep, refCheck: refCheck,
+    _internals: {
+      genTriple: genTriple, slotsOf: slotsOf, matchFrac: matchFrac,
+      skillOf: skillOf, fold: fold, CHAINS: CHAINS
+    }
+  };
+});
+</script>
+<script>
+/* ==========================================================================
+   YC-Deep 1.0 · 杨城深度层
+   --------------------------------------------------------------------------
+   五馆共用：展品长廊（8 件）· 两级证书（参观 / 精英）· 进度
+   零依赖。Node 可直接 require（DOM 部分自动跳过）。
+   ========================================================================== */
+(function (root, factory) {
+  var api = factory();
+  if (typeof module === "object" && module.exports) module.exports = api;
+  if (root) root.YCDeep = api;
+})(typeof window !== "undefined" ? window : this, function () {
+  "use strict";
+
+  var VERSION = "1.0.0";
+  var KEY = "yc.deep.v1";
+  var HALLS = ["H2", "H3", "H4", "H5", "H6"];
+
+  /* ---------------- 存储 ---------------- */
+  function readAll() {
+    try {
+      var raw = (typeof localStorage !== "undefined") ? localStorage.getItem(KEY) : null;
+      var o = raw ? JSON.parse(raw) : null;
+      return (o && typeof o === "object") ? o : {};
+    } catch (e) { return {}; }
+  }
+  function writeAll(o) {
+    try {
+      if (typeof localStorage !== "undefined") localStorage.setItem(KEY, JSON.stringify(o));
+    } catch (e) { /* 配额满或隐私模式：静默失败，不影响参观 */ }
+    return o;
+  }
+  function st(hall) {
+    var all = readAll();
+    if (!all[hall]) all[hall] = { seen: {}, quiz: {}, elite: null, certs: {}, play: {} };
+    var s = all[hall];
+    s.seen = s.seen || {}; s.quiz = s.quiz || {}; s.certs = s.certs || {}; s.play = s.play || {};
+    return s;
+  }
+  function commit(hall, s) {
+    var all = readAll();
+    all[hall] = s;
+    return writeAll(all);
+  }
+
+  /* ---------------- 展品登记 ---------------- */
+  var SPECS = {};
+
+  function register(hall, spec) {
+    spec = spec || {};
+    var prev = SPECS[hall] || {};
+    /* 合并而不是覆盖：馆主页注册完整展品表，玩法页只补一个 name，
+       两边谁先加载都不该把对方的内容抹掉。 */
+    SPECS[hall] = {
+      hall: hall,
+      name: spec.name || prev.name || hall,
+      items: spec.items || prev.items || [],
+      game: spec.game || prev.game || null
+    };
+    return SPECS[hall];
+  }
+  function specOf(hall) { return SPECS[hall] || null; }
+  function itemsOf(hall) { var s = SPECS[hall]; return s ? s.items : []; }
+
+  /* ---------------- 进度 ---------------- */
+  function progress(hall) {
+    var s = st(hall), items = itemsOf(hall);
+    var seen = 0, passed = 0;
+    items.forEach(function (it) {
+      if (s.seen[it.id]) seen++;
+      if (s.quiz[it.id]) passed++;
+    });
+    var total = items.length || 8;
+    return {
+      hall: hall,
+      total: total,
+      seen: seen,
+      passed: passed,
+      pct: total ? Math.round((passed / total) * 100) : 0,
+      visitorReady: total > 0 && passed >= total,
+      elite: s.elite || null
+    };
+  }
+  /* 驻馆人需要知道「你干了什么」——不然他只能站着。
+     这里只广播事件，不关心谁在听：没人听时零成本，有人听时人就活了。 */
+  function ping(hall, ev, data) {
+    try {
+      window.dispatchEvent(new CustomEvent("yc:deep", { detail: { hall: hall, ev: ev, data: data || {} } }));
+    } catch (e) {}
+  }
+  function markSeen(hall, id) {
+    var s = st(hall);
+    var fresh = !s.seen[id];
+    if (fresh) { s.seen[id] = Date.now(); commit(hall, s); }
+    if (fresh) ping(hall, "seen", { id: id });
+    return progress(hall);
+  }
+  function markQuiz(hall, id, ok) {
+    var s = st(hall);
+    var fresh = !s.seen[id];
+    if (ok) s.quiz[id] = Date.now();
+    if (fresh) s.seen[id] = Date.now();
+    commit(hall, s);
+    if (fresh && !ok) ping(hall, "seen", { id: id });
+    ping(hall, ok ? "pass" : "fail", { id: id });
+    return progress(hall);
+  }
+
+  /* ---------------- 证书 ---------------- */
+  /* 编号规则：YC-<HALL>-<V|E>-<YYMMDD>-<6位>   */
+  function rnd6() {
+    var a = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", s = "";
+    for (var i = 0; i < 6; i++) s += a.charAt(Math.floor(Math.random() * a.length));
+    return s;
+  }
+  function fnv(str) {
+    var h = 0x811c9dc5;
+    for (var i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+    }
+    return ("00000000" + h.toString(16)).slice(-8);
+  }
+  function today() {
+    var d = new Date();
+    function p(n) { return (n < 10 ? "0" : "") + n; }
+    return { iso: d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()), short: String(d.getFullYear()).slice(2) + p(d.getMonth() + 1) + p(d.getDate()) };
+  }
+
+  var TIER = {
+    visitor: { code: "V", cn: "参观证书", en: "CERTIFICATE OF VISIT", rank: 1 },
+    elite: { code: "E", cn: "精英证书", en: "CERTIFICATE OF MASTERY", rank: 2 }
+  };
+
+  function issueCert(hall, tier, meta) {
+    meta = meta || {};
+    var t = TIER[tier] || TIER.visitor;
+    var d = today();
+    var cert = {
+      protocol: "YC-Cert 1.0",
+      hall: hall,
+      hallName: (SPECS[hall] && SPECS[hall].name) || hall,
+      tier: tier,
+      tierName: t.cn,
+      holder: meta.holder || "参观者",
+      no: "YC-" + hall + "-" + t.code + "-" + d.short + "-" + rnd6(),
+      date: d.iso,
+      play: meta.play || null,       /* 玩法名 */
+      score: meta.score != null ? meta.score : null,
+      detail: meta.detail || [],
+      checksum: ""
+    };
+    cert.checksum = fnv([cert.no, cert.hall, cert.tier, cert.date, cert.holder, String(cert.score)].join("|"));
+    var s = st(hall);
+    s.certs[tier] = cert;
+    if (tier === "elite") s.elite = { at: Date.now(), play: cert.play, score: cert.score, detail: cert.detail };
+    commit(hall, s);
+    ping(hall, tier === "elite" ? "elite" : "visit", { no: cert.no, play: cert.play, score: cert.score });
+    return cert;
+  }
+  function getCert(hall, tier) { return st(hall).certs[tier] || null; }
+  function allCerts() {
+    var all = readAll(), out = [];
+    Object.keys(all).forEach(function (h) {
+      var c = (all[h].certs || {});
+      if (c.visitor) out.push(c.visitor);
+      if (c.elite) out.push(c.elite);
+    });
+    return out;
+  }
+  function eliteCount() {
+    return allCerts().filter(function (c) { return c.tier === "elite"; }).length;
+  }
+
+  /* ---------------- 证书 SVG ---------------- */
+  /* 深色烫金 / 浅色纸本两套皮，按馆配色传入 accent */
+  function certSVG(cert, opt) {
+    opt = opt || {};
+    var accent = opt.accent || "#c9a227";
+    var ink = opt.ink || "#f2ece0";
+    var paper = opt.paper || "#0e1218";
+    var elite = cert.tier === "elite";
+    var W = 900, H = 620;
+    var esc = function (s) {
+      return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c];
+      });
+    };
+    var detail = (cert.detail || []).slice(0, 4);
+    var rows = detail.map(function (d, i) {
+      return '<text x="110" y="' + (430 + i * 30) + '" font-family="ui-monospace,Consolas,monospace" font-size="15" fill="' +
+        esc(ink) + '" opacity="0.78">· ' + esc(d) + '</text>';
+    }).join("");
+    var seal = elite
+      ? '<circle cx="760" cy="500" r="58" fill="none" stroke="' + accent + '" stroke-width="2.5" opacity="0.9"/>' +
+        '<circle cx="760" cy="500" r="48" fill="none" stroke="' + accent + '" stroke-width="1" opacity="0.55"/>' +
+        '<text x="760" y="494" text-anchor="middle" font-size="20" font-weight="700" fill="' + accent + '">精英</text>' +
+        '<text x="760" y="518" text-anchor="middle" font-size="11" letter-spacing="2" fill="' + accent + '" opacity="0.85">MASTERY</text>'
+      : '<circle cx="760" cy="500" r="58" fill="none" stroke="' + accent + '" stroke-width="1.6" opacity="0.55"/>' +
+        '<text x="760" y="496" text-anchor="middle" font-size="18" font-weight="600" fill="' + accent + '" opacity="0.85">参观</text>' +
+        '<text x="760" y="518" text-anchor="middle" font-size="10" letter-spacing="2" fill="' + accent + '" opacity="0.6">VISIT</text>';
+
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '">' +
+      '<defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0" stop-color="' + paper + '"/><stop offset="1" stop-color="' + paper + '" stop-opacity="0.86"/></linearGradient></defs>' +
+      '<rect width="' + W + '" height="' + H + '" fill="url(#cg)"/>' +
+      '<rect x="26" y="26" width="' + (W - 52) + '" height="' + (H - 52) + '" fill="none" stroke="' + accent + '" stroke-width="' + (elite ? 2.4 : 1.2) + '" opacity="' + (elite ? 0.85 : 0.45) + '"/>' +
+      '<rect x="36" y="36" width="' + (W - 72) + '" height="' + (H - 72) + '" fill="none" stroke="' + accent + '" stroke-width="0.8" opacity="0.28"/>' +
+      (elite ? '<path d="M26 26 L120 26 L26 120 Z" fill="' + accent + '" opacity="0.18"/>' : "") +
+      '<text x="' + (W / 2) + '" y="108" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="13" letter-spacing="6" fill="' + accent + '" opacity="0.9">' + TIER[cert.tier].en + '</text>' +
+      '<text x="' + (W / 2) + '" y="176" text-anchor="middle" font-family="Songti SC,SimSun,serif" font-size="44" font-weight="700" fill="' + ink + '">' + esc(cert.tierName) + '</text>' +
+      '<text x="' + (W / 2) + '" y="212" text-anchor="middle" font-family="Songti SC,SimSun,serif" font-size="17" fill="' + ink + '" opacity="0.66">' + esc(cert.hallName) + ' · 杨城</text>' +
+      '<line x1="150" y1="244" x2="' + (W - 150) + '" y2="244" stroke="' + accent + '" stroke-width="1" opacity="0.4"/>' +
+      '<text x="110" y="300" font-family="Songti SC,SimSun,serif" font-size="15" fill="' + ink + '" opacity="0.55">兹证明</text>' +
+      '<text x="180" y="304" font-family="Songti SC,SimSun,serif" font-size="26" font-weight="600" fill="' + ink + '">' + esc(cert.holder) + '</text>' +
+      '<text x="110" y="348" font-family="Songti SC,SimSun,serif" font-size="15" fill="' + ink + '" opacity="0.72">' +
+      (elite ? '已完成本馆的精英挑战「' + esc(cert.play || "未命名") + '」，' : '已逐件看完本馆八件展品并答对全部现场问题，') + '</text>' +
+      '<text x="110" y="378" font-family="Songti SC,SimSun,serif" font-size="15" fill="' + ink + '" opacity="0.72">' +
+      (elite ? '并能说明每一步判断所依据的判据。' : '能说出每件展品失效的机制与判据。') + '</text>' +
+      rows +
+      seal +
+      '<text x="110" y="556" font-family="ui-monospace,Consolas,monospace" font-size="12" fill="' + ink + '" opacity="0.5">编号 ' + esc(cert.no) + '</text>' +
+      '<text x="' + (W - 110) + '" y="556" text-anchor="end" font-family="ui-monospace,Consolas,monospace" font-size="12" fill="' + ink + '" opacity="0.5">' + esc(cert.date) + ' · 校验 ' + esc(cert.checksum) + '</text>' +
+      (cert.score != null ? '<text x="110" y="' + (430 + detail.length * 30 + 6) + '" font-family="ui-monospace,Consolas,monospace" font-size="14" fill="' + accent + '">得分 ' + cert.score + '</text>' : "") +
+      '</svg>';
+  }
+
+  function download(cert, opt) {
+    if (typeof document === "undefined") return null;
+    var svg = certSVG(cert, opt);
+    var blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = cert.no + ".svg";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 800);
+    return a.download;
+  }
+
+  /* ---------------- 展品长廊（DOM） ---------------- */
+  /* 结构：8 张卡，点开变详情；每张卡带一道现场题，答对才算「看过」 */
+  function mountGallery(box, hall, opt) {
+    if (!box) return null;
+    opt = opt || {};
+    var items = itemsOf(hall);
+    var cur = -1;
+    var accent = opt.accent || "#8fb7ff";
+
+    function paint() {
+      /* 每次重绘都重新读一遍存储。挂载时缓存的 s 是快照，
+         答完题不会回写到它 —— 那样卡片永远停在「待识破」。 */
+      var s = st(hall);
+      var p = progress(hall);
+      var H = [];
+      H.push('<div class="dpg-head">' +
+        '<div class="dpg-t">展品长廊 <em>' + p.passed + ' / ' + p.total + ' 已答对</em></div>' +
+        '<div class="dpg-bar"><i style="width:' + p.pct + '%;background:' + accent + '"></i></div>' +
+        '<div class="dpg-note">' + (p.visitorReady ? '八件全通 · 可领参观证书' : '逐件点开，答对现场题才算看过') + '</div>' +
+        '</div>');
+
+      H.push('<div class="dpg-grid">');
+      items.forEach(function (it, i) {
+        var done = !!s.quiz[it.id];
+        H.push('<button class="dpg-c' + (done ? " done" : "") + (cur === i ? " on" : "") + '" data-i="' + i + '"' +
+          ' style="--ac:' + accent + '">' +
+          '<span class="dpg-no">' + it.no + '</span>' +
+          '<span class="dpg-ic">' + (it.icon || "◆") + '</span>' +
+          '<span class="dpg-nm">' + esc(it.name) + '</span>' +
+          '<span class="dpg-sy">' + esc(it.symptom) + '</span>' +
+          '<span class="dpg-st">' + (done ? "✓ 已识破" : "待识破") + '</span>' +
+          '</button>');
+      });
+      H.push('</div>');
+
+      H.push('<div class="dpg-detail" id="dpgDetail">');
+      if (cur < 0) {
+        H.push('<div class="dpg-empty">选一件展品。<b>八件展品对应本馆的八个失效侧面</b>——它们不是八个知识点，' +
+          '是同一台仪器能做出的八种不同诊断。答对现场题，进度才往前走。</div>');
+      } else {
+        var it = items[cur];
+        var q = it.quiz;
+        var answered = !!s.quiz[it.id];
+        H.push('<div class="dpg-dh"><span class="dpg-dno">' + it.no + '</span>' +
+          '<span class="dpg-dnm">' + esc(it.name) + '</span>' +
+          '<span class="dpg-dsy">' + esc(it.symptom) + '</span></div>');
+        H.push('<div class="dpg-cols">');
+        H.push('<div class="dpg-col"><h4>机制</h4><p>' + it.mech + '</p></div>');
+        H.push('<div class="dpg-col"><h4>判据</h4><p>' + it.judge + '</p></div>');
+        H.push('<div class="dpg-col"><h4>真实案例</h4><p>' + it.real + '</p></div>');
+        H.push('</div>');
+        if (it.verify) {
+          H.push('<div class="dpg-verify"><button class="dpg-vb" data-v="' + cur + '">▶ 现场验证这件展品</button>' +
+            '<span class="dpg-vr" id="dpgVr">点一下，用本馆内核当场跑一次对照。</span></div>');
+        }
+        if (q) {
+          H.push('<div class="dpg-quiz"><div class="dpg-qt">现场题 · ' + esc(q.q) + '</div>');
+          H.push('<div class="dpg-opts">');
+          q.opts.forEach(function (o, k) {
+            H.push('<button class="dpg-opt' + (answered && k === q.a ? " ok" : "") + '" data-o="' + k + '">' +
+              String.fromCharCode(65 + k) + '　' + esc(o) + '</button>');
+          });
+          H.push('</div>');
+          H.push('<div class="dpg-qr" id="dpgQr">' + (answered ? "✓ 已答对。这一件算识破。" : "") + '</div>');
+          H.push('</div>');
+        }
+        H.push('</div>');
+      }
+      box.innerHTML = H.join("");
+    }
+
+    box.addEventListener("click", function (e) {
+      var c = e.target.closest(".dpg-c");
+      if (c) { cur = +c.dataset.i; markSeen(hall, items[cur].id); paint(); return; }
+      var vb = e.target.closest(".dpg-vb");
+      if (vb) {
+        var it = items[+vb.dataset.v];
+        var out = null;
+        try { out = it.verify ? it.verify() : null; } catch (err) { out = { label: "验证失败", value: "—", note: String(err && err.message || err) }; }
+        var vr = box.querySelector("#dpgVr");
+        if (vr && out) {
+          vr.innerHTML = '<b style="color:' + accent + '">' + esc(out.label) + '</b>　<span class="dpg-vv">' +
+            esc(out.value) + '</span>' + (out.note ? '　<span class="dpg-vn">' + esc(out.note) + '</span>' : "");
+        }
+        return;
+      }
+      var o = e.target.closest(".dpg-opt");
+      if (o) {
+        var it2 = items[cur], k = +o.dataset.o, ok = (k === it2.quiz.a);
+        var qr = box.querySelector("#dpgQr");
+        var all = box.querySelectorAll(".dpg-opt");
+        for (var i = 0; i < all.length; i++) all[i].classList.remove("ok", "no");
+        o.classList.add(ok ? "ok" : "no");
+        if (ok) {
+          markQuiz(hall, it2.id, true);
+          if (qr) qr.innerHTML = "✓ 正确。" + (it2.quiz.why ? " " + esc(it2.quiz.why) : "");
+          var nm = box.querySelector('.dpg-c[data-i="' + cur + '"]');
+          if (nm) { nm.classList.add("done"); nm.querySelector(".dpg-st").textContent = "✓ 已识破"; }
+          var p = progress(hall);
+          var t = box.querySelector(".dpg-t em");
+          if (t) t.textContent = p.passed + " / " + p.total + " 已答对";
+          var bar = box.querySelector(".dpg-bar i");
+          if (bar) bar.style.width = p.pct + "%";
+          var note = box.querySelector(".dpg-note");
+          if (note) note.textContent = p.visitorReady ? "八件全通 · 可领参观证书" : "逐件点开，答对现场题才算看过";
+          if (opt.onProgress) { try { opt.onProgress(p); } catch (e2) {} }
+        } else {
+          if (qr) qr.innerHTML = '<span style="color:#ff8f8f">再想想。' +
+            (it2.quiz.hint ? " 提示：" + esc(it2.quiz.hint) : "") + '</span>';
+        }
+        return;
+      }
+    });
+
+    paint();
+    return { repaint: paint, progress: function () { return progress(hall); } };
+  }
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c];
+    });
+  }
+
+  /* ---------------- 证书面板（DOM） ---------------- */
+  function mountCerts(box, hall, opt) {
+    if (!box) return null;
+    opt = opt || {};
+    var accent = opt.accent || "#c9a227";
+    var paper = opt.paper || "#0e1218";
+    var ink = opt.ink || "#f2ece0";
+
+    function paint() {
+      var p = progress(hall);
+      var v = getCert(hall, "visitor"), e2 = getCert(hall, "elite");
+      var H = [];
+      H.push('<div class="dpc-wrap">');
+
+      H.push('<div class="dpc-card' + (v ? " has" : "") + '">' +
+        '<div class="dpc-h"><span class="dpc-k">一级</span><span class="dpc-n">参观证书</span></div>' +
+        '<div class="dpc-d">看完八件展品并答对全部现场题即可领取。' +
+        (v ? '' : '当前进度 ' + p.passed + ' / ' + p.total + '。') + '</div>' +
+        '<div class="dpc-act">' +
+        (v ? '<span class="dpc-no">' + esc(v.no) + '</span><button class="dpc-b" data-dl="visitor">下载</button>'
+          : (p.visitorReady
+            ? '<button class="dpc-b" data-get="visitor">领取参观证书</button>'
+            : '<button class="dpc-b" data-get="visitor" disabled>还差 ' + (p.total - p.passed) + ' 件</button>')) +
+        '</div></div>');
+
+      H.push('<div class="dpc-card elite' + (e2 ? " has" : "") + '">' +
+        '<div class="dpc-h"><span class="dpc-k">二级</span><span class="dpc-n">精英证书</span></div>' +
+        '<div class="dpc-d">' + esc((opt.game && opt.game.brief) || "完成本馆的精英挑战。") + '</div>' +
+        '<div class="dpc-act">' +
+        (e2 ? '<span class="dpc-no">' + esc(e2.no) + '</span><button class="dpc-b" data-dl="elite">下载</button>'
+          : '<button class="dpc-b" data-go="1">进入挑战 →</button>') +
+        '</div></div>');
+
+      H.push('</div>');
+      box.innerHTML = H.join("");
+    }
+
+    box.addEventListener("click", function (e) {
+      var g = e.target.closest("[data-get]");
+      if (g && !g.disabled) {
+        var c = issueCert(hall, g.dataset.get, { holder: opt.holder || "参观者" });
+        paint();
+        if (opt.onIssue) opt.onIssue(c);
+        return;
+      }
+      var d = e.target.closest("[data-dl]");
+      if (d) { var cert = getCert(hall, d.dataset.dl); if (cert) download(cert, { accent: accent, paper: paper, ink: ink }); return; }
+      var go = e.target.closest("[data-go]");
+      if (go && opt.gameHref) location.href = opt.gameHref;
+    });
+
+    paint();
+    return { repaint: paint };
+  }
+
+  return {
+    VERSION: VERSION,
+    HALLS: HALLS,
+    TIER: TIER,
+    register: register,
+    specOf: specOf,
+    itemsOf: itemsOf,
+    progress: progress,
+    markSeen: markSeen,
+    markQuiz: markQuiz,
+    issueCert: issueCert,
+    getCert: getCert,
+    allCerts: allCerts,
+    eliteCount: eliteCount,
+    certSVG: certSVG,
+    download: download,
+    mountGallery: mountGallery,
+    mountCerts: mountCerts,
+    checksum: fnv
+  };
+});
+</script>
+<script>
+/* ============================================================
+   shared/yc-port.js — 驻馆人立绘引擎 · Portrait 2.0
+   ------------------------------------------------------------
+   为什么推翻重写
+   ------------------------------------------------------------
+   1.0 的画法是「一根根线」：五官全是半透明 stroke，没有面。
+   放大看是线框图，缩到 52px 就糊成一团灰。十个人只能靠
+   「圆脸 / 方脸」两个变量区分，谁都不像谁，也确实不好看。
+
+   2.0 换成赛璐璐上色（cel-shading），五件事：
+
+     一、统一光源。左上 45°，高光永远在左上，暗部永远在右下。
+         一旦每个人的光向不一样，十张脸放在一起就会「贴纸感」。
+     二、以色块为主、线为辅。色块缩小仍然可读，线缩小就消失。
+     三、五官分层。眼睛七层、头发四层、皮肤三层，不是一笔画完。
+     四、唯一 id 前缀。SVG 的渐变 / 滤镜 id 是全局的，十个立绘
+         同页时必须隔离，否则所有人都会用第一个人的渐变 ——
+         这是这类系统最容易踩、也最难查的坑。
+     五、成人骨相。脸宽 96 / 脸长 152（1 : 1.58），眼距 = 一个眼宽，
+         鼻底到嘴 20、嘴到下巴 26。娃娃脸是脸宽 ≈ 脸长、眼睛占半张脸，
+         一眼就像玩具。这一版所有比例按成人头骨重算。
+
+   坐标系 200×240（胸像）
+   ------------------------------------------------------------
+     发顶 16 / 发际 76 / 眉 96 / 眼 110 / 鼻尖 136
+     嘴 156 / 下巴 182 / 颈 176-206 / 肩 206-240
+
+   两种输出
+   ------------------------------------------------------------
+     bust   —— 完整胸像，全部图层，用在档案卡左栏（约 220×264）
+     avatar —— 只取头部，跳过柔光滤镜与发丝高光，用在 26—84px 的小头像
+               小尺寸下滤镜只会变成脏灰，去掉反而更清楚
+   ============================================================ */
+(function () {
+  "use strict";
+
+  var N = 0;
+  function uid() { return "yp" + (++N).toString(36); }
+  function n(v) { return Math.round(v * 100) / 100; }
+
+  /* 两个十六进制色按比例混。用来把配置里给的「发丝高光色」
+     往发色里压回去一点 —— 原样拿去铺渐变的亮端，
+     在 300px 的胸像上会横出一道浅色斜带，看着像秃了一块。 */
+  function mix(a, b, t) {
+    function p(h) { h = h.replace("#", ""); if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2]; return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; }
+    var A = p(a), B = p(b);
+    var o = A.map(function (v, i) { return Math.round(v + (B[i] - v) * t); });
+    return "#" + o.map(function (v) { var s = v.toString(16); return s.length < 2 ? "0" + s : s; }).join("");
+  }
+
+  /* ---------------- 肤色 ----------------
+     偏暖、比真实再提亮一档。深色面板上不提亮会像蜡像。 */
+  var SKIN = {
+    a: { base: "#e3a97f", lit: "#fbd4b2", sh: "#b87a5a", deep: "#8a4c36", line: "#63352a", blush: "#cd6652", lip: "#b25c49", lipd: "#873d30" },
+    b: { base: "#d69a72", lit: "#f0c49c", sh: "#ac7049", deep: "#81472f", line: "#5a3226", blush: "#bd5c49", lip: "#a85544", lipd: "#7c382b" },
+    c: { base: "#ecc09a", lit: "#ffdfc4", sh: "#c58f6a", deep: "#975c42", line: "#6d3f2e", blush: "#d47b61", lip: "#bd6750", lipd: "#904638" },
+    d: { base: "#ca9470", lit: "#ecc09d", sh: "#a16b48", deep: "#77432d", line: "#532d21", blush: "#b9604d", lip: "#a3523e", lipd: "#763627" },
+    e: { base: "#dfa57c", lit: "#f6ceaa", sh: "#b57756", deep: "#874a34", line: "#613426", blush: "#c96450", lip: "#af5945", lipd: "#833b2d" }
+  };
+
+  /* ---------------- 骨相 ----------------
+     五种脸型，差异集中在下半张脸：下颌角、颧宽、下巴长度。
+     这是「认得出是谁」的第一层，比换发型更有效。
+     脸宽统一 96，脸长 152（成人比例 1 : 1.58）。 */
+  var FACES = {
+    /* 鹅蛋：颧骨最宽，下颌收得干净 */
+    oval:   "M100 30C124 30 148 52 148 88C148 108 146 128 141 146C135 166 120 182 100 182C80 182 65 166 59 146C54 128 52 108 52 88C52 52 76 30 100 30Z",
+    /* 方脸：下颌角外扩，下巴平 */
+    square: "M100 30C126 30 150 52 150 88C150 110 149 132 146 150C142 170 124 182 100 182C76 182 58 170 54 150C51 132 50 110 50 88C50 52 74 30 100 30Z",
+    /* 长脸：整体上移下延，中庭长 */
+    long:   "M100 24C122 24 144 48 144 86C144 112 141 138 135 158C129 180 116 194 100 194C84 194 71 180 65 158C59 138 56 112 56 86C56 48 78 24 100 24Z",
+    /* 圆脸：颊部外扩，下巴圆 */
+    round:  "M100 32C130 32 152 58 152 94C152 118 145 140 132 158C121 174 111 182 100 182C89 182 79 174 68 158C55 140 48 118 48 94C48 58 70 32 100 32Z",
+    /* 瘦削：颧骨突出，颊部内收，下巴尖 */
+    sharp:  "M100 28C120 28 140 52 140 88C140 112 136 136 129 156C122 176 112 188 100 188C88 188 78 176 71 156C64 136 60 112 60 88C60 52 80 28 100 28Z"
+  };
+
+  /* ---------------- 眼型轮廓 ----------------
+     外眼角比内眼角高 —— 这是「眼睛有神」的唯一来源。
+     两点等高就变成死鱼眼。 */
+  function eyePath(cx, out, w, cy, h) {
+    function p(sx, sy) { return n(cx + out * w * sx) + " " + n(cy + h * sy); }
+    return "M" + p(1, -0.28) +
+      "C" + p(0.72, -1.14) + " " + p(0.26, -1.3) + " " + p(0, -1.14) +
+      "C" + p(-0.26, -1.3) + " " + p(-0.74, -0.92) + " " + p(-1, 0.3) +
+      "C" + p(-0.74, 1.0) + " " + p(-0.26, 1.22) + " " + p(0, 1.16) +
+      "C" + p(0.26, 1.22) + " " + p(0.74, 0.9) + " " + p(1, -0.28) + "Z";
+  }
+
+  /* ============================================================
+     单个部件
+     ============================================================ */
+
+  /* --- 眉 ---
+     不画成等宽的黑条。真眉毛是「外端细、内端粗、上缘拱、下缘平」的
+     一块面。用 stroke 画永远是马克笔，用填充面才像眉毛。
+     mood 改三件事：整体抬降、内端升降、眉峰高低。
+     down 时内端往下压才叫「皱眉」；只把整条眉往下挪是「失望」。 */
+  function brow(m, k, hc, cx, cy, w, thick, o) {
+    o = o || {};
+    var out = o.out, arch = o.arch == null ? 4.2 : o.arch;
+    var lift = m === "up" ? -2.2 : (m === "down" ? 1.0 : 0);
+    var innerDy = m === "down" ? 4.0 : (m === "up" ? -1.2 : 0);
+    var outerDy = m === "up" ? -2.4 : (m === "down" ? -0.4 : 0);
+    var W = w / 2;
+    var x0 = cx + out * W;            /* 外端：细 */
+    var x1 = cx - out * W;            /* 内端：粗 */
+    var y0 = cy + outerDy + lift;
+    var y1 = cy + innerDy + lift;
+    var t0 = thick * 0.4, t1 = thick;
+    var mx = (x0 + x1) / 2, my = cy - arch + lift;
+    /* 上缘一道、内端一刀平切、下缘一道。内端不能再加圆头，
+       否则眉头上会鼓起一个球，看起来像画了个逗号。 */
+    var d = "M" + n(x0) + " " + n(y0 - t0) +
+      "Q" + n(mx) + " " + n(my - t1 * 0.5) + " " + n(x1) + " " + n(y1 - t1 * 0.5) +
+      "L" + n(x1) + " " + n(y1 + t1 * 0.5) +
+      "Q" + n(mx) + " " + n(my + t1 * 0.56) + " " + n(x0) + " " + n(y0 + t0) + "Z";
+    return '<path d="' + d + '" fill="' + hc + '" opacity=".66"/>';
+  }
+
+  /* --- 眼 ---
+     七层：眼窝阴影 / 眼白 / 虹膜 / 瞳孔 / 双高光 / 上睑睫毛 / 下睑。
+     少任何一层都会「平」；多任何一层在 52px 下都是噪点。 */
+  function eye(u, m, k, ir, cx, cy, w, h, o) {
+    o = o || {};
+    var out = o.out, detail = o.detail || 2;
+    var p = eyePath(cx, out, w, cy, h);
+    var s = "";
+
+    if (detail >= 2) {
+      s += '<ellipse cx="' + n(cx) + '" cy="' + n(cy - h * 0.6) + '" rx="' + n(w * 1.16) +
+        '" ry="' + n(h * 1.2) + '" fill="' + k.deep + '" opacity=".14" filter="url(#' + u + 'sf2)"/>';
+    }
+    s += '<path d="' + p + '" fill="#f2eae0"/>';
+    s += '<g clip-path="url(#' + u + (out < 0 ? "el" : "er") + ')">' +
+      /* 虹膜半径要够大。偏小的时候上下都留一圈白，
+         眼睛就变成「瞪」——那是玩偶的做法，不是人的做法。
+         真眼睛的虹膜上缘被上睑压住、下缘贴着下睑，几乎不留白。 */
+      '<circle cx="' + n(cx) + '" cy="' + n(cy + h * 0.04) + '" r="' + n(w * 0.64) + '" fill="' + (o.irisFill || ("url(#" + u + "ir)")) + '"/>' +
+      '<circle cx="' + n(cx) + '" cy="' + n(cy + h * 0.04) + '" r="' + n(w * 0.64) +
+        '" fill="none" stroke="' + ir.deep + '" stroke-width="1.1" stroke-opacity=".75"/>' +
+      '<circle cx="' + n(cx) + '" cy="' + n(cy + h * 0.04) + '" r="' + n(w * 0.29) + '" fill="#100906"/>' +
+      '<circle cx="' + n(cx - w * 0.22) + '" cy="' + n(cy - h * 0.42) + '" r="' + n(w * 0.17) + '" fill="#fff" opacity=".95"/>' +
+      '<circle cx="' + n(cx + w * 0.28) + '" cy="' + n(cy + h * 0.42) + '" r="' + n(w * 0.08) + '" fill="#fff" opacity=".5"/>' +
+      /* 上睑投影：虹膜顶部压一层暗，眼睛才有厚度 */
+      '<path d="' + p + '" fill="none" stroke="' + k.deep + '" stroke-width="' + n(h * 0.78) + '" stroke-opacity=".26"/>' +
+      "</g>";
+
+    /* 上睑线：整张脸最重的一笔。它比任何细节都更决定「有没有神」 */
+    var lidY = cy - h * 1.0 + (m === "down" ? h * 0.2 : 0) - (m === "up" ? h * 0.06 : 0);
+    s += '<path d="M' + n(cx + out * w * 0.98) + " " + n(cy - h * 0.26) +
+      "C" + n(cx + out * w * 0.7) + " " + n(lidY - h * 0.12) + " " +
+            n(cx + out * w * 0.24) + " " + n(lidY - h * 0.26) + " " +
+            n(cx) + " " + n(lidY - h * 0.08) +
+      "C" + n(cx - out * w * 0.24) + " " + n(lidY - h * 0.26) + " " +
+            n(cx - out * w * 0.68) + " " + n(cy - h * 0.8) + " " +
+            n(cx - out * w) + " " + n(cy + h * 0.32) +
+      '" fill="none" stroke="#241409" stroke-width="' + (o.lash === false ? 2 : 3.1) +
+      '" stroke-linecap="round" stroke-opacity=".9"/>';
+
+    if (o.lash !== false) {
+      s += '<path d="M' + n(cx + out * w * 0.94) + " " + n(cy - h * 0.4) +
+        "L" + n(cx + out * w * 1.22) + " " + n(cy - h * 0.92) +
+        '" stroke="#241409" stroke-width="2" stroke-linecap="round" opacity=".78"/>';
+      s += '<path d="M' + n(cx + out * w * 0.68) + " " + n(cy - h * 0.98) +
+        "L" + n(cx + out * w * 0.9) + " " + n(cy - h * 1.46) +
+        '" stroke="#241409" stroke-width="1.6" stroke-linecap="round" opacity=".58"/>';
+    }
+    s += '<path d="M' + n(cx + out * w * 0.88) + " " + n(cy + h * 0.68) +
+      "C" + n(cx + out * w * 0.38) + " " + n(cy + h * 1.2) + " " +
+            n(cx - out * w * 0.3) + " " + n(cy + h * 1.18) + " " +
+            n(cx - out * w * 0.84) + " " + n(cy + h * 0.6) +
+      '" fill="none" stroke="' + k.line + '" stroke-width="1.4" stroke-linecap="round" stroke-opacity=".22"/>';
+
+    if (detail >= 2 && o.crease !== false) {
+      s += '<path d="M' + n(cx + out * w * 0.76) + " " + n(cy - h * 1.92) +
+        "C" + n(cx + out * w * 0.28) + " " + n(cy - h * 2.5) + " " +
+              n(cx - out * w * 0.28) + " " + n(cy - h * 2.4) + " " +
+              n(cx - out * w * 0.74) + " " + n(cy - h * 1.5) +
+        '" fill="none" stroke="' + k.line + '" stroke-width="1.4" stroke-linecap="round" stroke-opacity=".2"/>';
+    }
+    return s;
+  }
+
+  /* --- 鼻 ---
+     不画轮廓线。鼻子靠四块明暗立起来：
+     鼻梁高光（左）、鼻侧暗面（右）、鼻头高光、鼻底投影。
+     少了鼻头那一点高光，鼻子就会「塌」进脸里。 */
+  function nose(u, k, cx, cy, detail) {
+    var s = "";
+    if (detail >= 2) {
+      /* 鼻梁高光要压到「看得见但说不出」的程度。画成一条白线就假了 */
+      s += '<path d="M' + n(cx - 3) + " " + n(cy - 22) + "L" + n(cx - 4.6) + " " + n(cy - 8) +
+        '" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".14"/>';
+      s += '<ellipse cx="' + n(cx + 7) + '" cy="' + n(cy - 13) + '" rx="5.6" ry="13" fill="' +
+        k.deep + '" opacity=".22" filter="url(#' + u + 'sf2)"/>';
+      /* 鼻头高光：一小团，位置比鼻梁高光略低略右 */
+      s += '<ellipse cx="' + n(cx - 1.4) + '" cy="' + n(cy - 1.6) + '" rx="3.4" ry="2.6" fill="#fff" opacity=".2" filter="url(#' + u + 'sf2)"/>';
+      /* 鼻底投影：鼻子「浮起来」靠这一道 */
+      s += '<ellipse cx="' + n(cx) + '" cy="' + n(cy + 3.6) + '" rx="9.6" ry="3.6" fill="' +
+        k.deep + '" opacity=".3" filter="url(#' + u + 'sf2)"/>';
+    }
+    /* 鼻翼：两个小小的暗点，不是两道弧。
+       画成弧线会变成两撇「八字胡」，这是最容易翻车的一笔。 */
+    s += '<ellipse cx="' + n(cx - 7.4) + '" cy="' + n(cy + 1.4) + '" rx="2.6" ry="1.7" fill="' +
+      k.deep + '" opacity=".3"/>';
+    s += '<ellipse cx="' + n(cx + 7.4) + '" cy="' + n(cy + 1.4) + '" rx="2.6" ry="1.7" fill="' +
+      k.deep + '" opacity=".3"/>';
+    return s;
+  }
+
+  /* --- 嘴 ---
+     上唇暗、下唇亮、中间一条缝。笑是「嘴角抬、缝中段下沉」，
+     不是把整条线弯成上拱 —— 上拱是「猫嘴」，不是人笑。 */
+  function mouth(u, m, k, cx, cy, w, detail, style) {
+    var hw = w / 2;
+    var cdy = m === "up" ? -2.8 : (m === "down" ? 2.4 : 0);
+    var mdy = m === "up" ? 1.8 : (m === "down" ? -1.4 : 0.9);
+    var soft = style === "soft";          /* 男性：唇薄、颜色低 */
+    var th = soft ? 0.82 : 1;
+    var L = n(cx - hw), R = n(cx + hw);
+    var y0 = n(cy + cdy), y1 = n(cy + mdy);
+
+    var upper = "M" + L + " " + y0 +
+      "C" + n(cx - hw * 0.62) + " " + n(cy + cdy - 4.2 * th) + " " +
+            n(cx - hw * 0.3) + " " + n(cy + cdy - 4.6 * th) + " " +
+            n(cx - hw * 0.12) + " " + n(cy + cdy - 2.4 * th) +
+      "C" + n(cx - hw * 0.05) + " " + n(cy + cdy - 1.4) + " " +
+            n(cx + hw * 0.05) + " " + n(cy + cdy - 1.4) + " " +
+            n(cx + hw * 0.12) + " " + n(cy + cdy - 2.4 * th) +
+      "C" + n(cx + hw * 0.3) + " " + n(cy + cdy - 4.6 * th) + " " +
+            n(cx + hw * 0.62) + " " + n(cy + cdy - 4.2 * th) + " " +
+            R + " " + y0 +
+      "Q" + n(cx) + " " + y1 + " " + L + " " + y0 + "Z";
+
+    var lower = "M" + L + " " + y0 +
+      "Q" + n(cx) + " " + y1 + " " + R + " " + y0 +
+      "C" + n(cx + hw * 0.64) + " " + n(cy + cdy + 5.2 * th) + " " +
+            n(cx + hw * 0.3) + " " + n(cy + cdy + 6.8 * th) + " " +
+            n(cx) + " " + n(cy + cdy + 6.6 * th) +
+      "C" + n(cx - hw * 0.3) + " " + n(cy + cdy + 6.8 * th) + " " +
+            n(cx - hw * 0.64) + " " + n(cy + cdy + 5.2 * th) + " " +
+            L + " " + y0 + "Z";
+
+    var s = '<path d="' + upper + '" fill="' + k.lipd + '" opacity="' + (soft ? ".62" : ".88") + '"/>';
+    s += '<path d="' + lower + '" fill="' + k.lip + '" opacity="' + (soft ? ".68" : ".95") + '"/>';
+    if (detail >= 2) {
+      s += '<ellipse cx="' + n(cx - hw * 0.18) + '" cy="' + n(cy + cdy + 3.4 * th) + '" rx="' + n(hw * 0.32) +
+        '" ry="1.7" fill="#fff" opacity="' + (soft ? ".16" : ".24") + '"/>';
+    }
+    s += '<path d="M' + L + " " + y0 + "Q" + n(cx) + " " + y1 + " " + R + " " + y0 +
+      '" fill="none" stroke="' + k.lipd + '" stroke-width="1.5" stroke-linecap="round" stroke-opacity=".85"/>';
+    if (m === "up") {
+      s += '<path d="M' + L + " " + y0 + "Q" + n(cx) + " " + y1 + " " + R + " " + y0 +
+        "Q" + n(cx) + " " + n(cy + cdy + 2.4) + " " + L + " " + y0 +
+        '" fill="#3d1c17" opacity=".5"/>';
+    }
+    return s;
+  }
+
+  /* --- 颈 ---
+     下巴 182、肩 206，颈长 24。颈太短会「头直接架在肩上」，
+     太宽会跟下颌连成一块，看不出下巴在哪。宽 26 是上限。 */
+  function neck(u, k, detail, F) {
+    var s = '<path d="M87 166H113V210C113 215 107 218 100 218C93 218 87 215 87 210Z" fill="' + F + '"/>';
+    if (detail >= 2) {
+      s += '<ellipse cx="100" cy="184" rx="26" ry="15" fill="' + k.deep + '" opacity=".4" filter="url(#' + u + 'sf)"/>';
+      s += '<path d="M88 198C90 205 93 210 95 214" stroke="' + k.deep + '" stroke-width="2" fill="none" opacity=".13"/>';
+      s += '<path d="M112 198C110 205 107 210 105 214" stroke="' + k.deep + '" stroke-width="2" fill="none" opacity=".13"/>';
+    }
+    return s;
+  }
+
+  /* --- 衣 ---
+     三种领型，够撑起十个人的身份差：
+       shirt 衬衫 + 领带（证物官、指标员）
+       coat  大衣翻领（探员、守藤人）
+       stand 立领工装 + 拉链（净化、育种、配额） */
+  function body(u, cfg, k, detail, F) {
+    var c = cfg.cloth || {};
+    var hi = c.hi || "#2b3849", dp = c.deep || "#101724";
+    var ac = c.accent || cfg.accent || "#46d3e8";
+    var type = c.type || "shirt";
+    var s = "";
+
+    /* 衣身：肩宽 200，是头宽的 2 倍。窄了就像小孩穿大人衣服 */
+    s += '<path d="M100 196C74 196 44 204 22 217C11 224 5 232 2 240H198C195 232 189 224 178 217C156 204 126 196 100 196Z" fill="' + F + '"/>';
+
+    if (type === "shirt") {
+      /* 衬衫：V 领 + 两片翻领 + 领带。
+         领子不能用纯白 —— 纯白在深色背景上会变成一块抢戏的亮斑，
+         人物反而看不见了。压到 #d9d3c9、九成不透明就够。 */
+      s += '<path d="M87 194L100 222L113 194L128 201L100 240H72L72 201Z" fill="#d9d3c9" opacity=".9"/>';
+      s += '<path d="M87 194L100 222L113 194L104 191L100 197L96 191Z" fill="' + k.deep + '" opacity=".34"/>';
+      s += '<path d="M100 198L93.5 207L100 213.5L106.5 207Z" fill="' + ac + '" opacity=".95"/>';
+      s += '<path d="M100 213.5L94 231L100 240L106 231Z" fill="' + ac + '" opacity=".78"/>';
+      if (detail >= 2) {
+        s += '<path d="M87 194L76 207L73 240" stroke="' + dp + '" stroke-width="1.5" fill="none" opacity=".55"/>';
+        s += '<path d="M113 194L124 207L127 240" stroke="' + dp + '" stroke-width="1.5" fill="none" opacity=".55"/>';
+        s += '<path d="M100 222V240" stroke="' + k.deep + '" stroke-width="1.2" opacity=".18"/>';
+      }
+    } else if (type === "coat") {
+      /* 大衣：大翻领，左右各一片，压出厚度 */
+      s += '<path d="M100 196L72 189L48 215L76 240H100Z" fill="' + hi + '"/>';
+      s += '<path d="M100 196L128 189L152 215L124 240H100Z" fill="' + hi + '"/>';
+      s += '<path d="M100 196L72 189L56 216L100 240Z" fill="' + dp + '" opacity=".5"/>';
+      s += '<path d="M100 196L128 189L144 216L100 240Z" fill="' + dp + '" opacity=".36"/>';
+      if (detail >= 2) {
+        s += '<path d="M72 189L76 240" stroke="' + dp + '" stroke-width="1.7" opacity=".6"/>';
+        s += '<path d="M128 189L124 240" stroke="' + dp + '" stroke-width="1.7" opacity=".6"/>';
+        s += '<circle cx="100" cy="228" r="2.4" fill="' + ac + '" opacity=".7"/>';
+      }
+    } else {
+      /* 立领工装 */
+      s += '<path d="M81 196C81 187 90 182 100 182C110 182 119 187 119 196L119 205C111 200 89 200 81 205Z" fill="' + hi + '"/>';
+      s += '<path d="M100 185V240" stroke="' + dp + '" stroke-width="2" opacity=".72"/>';
+      if (detail >= 2) {
+        s += '<path d="M96.4 185V240" stroke="' + ac + '" stroke-width="1" opacity=".5"/>';
+        s += '<circle cx="100" cy="214" r="2.2" fill="' + ac + '" opacity=".55"/>';
+        s += '<path d="M79 207C74 219 71 231 70 240" stroke="' + dp + '" stroke-width="1.5" fill="none" opacity=".42"/>';
+        s += '<path d="M121 207C126 219 129 231 130 240" stroke="' + dp + '" stroke-width="1.5" fill="none" opacity=".42"/>';
+      }
+    }
+    return s;
+  }
+
+  /* --- 发 ---
+     四层：后发（衬在脸后）、鬓角（盖住耳前）、主发块、发丝高光。
+     「头盔感」来自发际线是一条光滑圆弧 —— 真实发际线有鬓角、
+     有 M 形后退、有碎发。所以这里把头发拆成可以各自给形的三层。 */
+  function hairShape(u, d, hd, detail, noStroke, F) {
+    if (!d) return "";
+    var s = '<path d="' + d + '" fill="' + (F || ("url(#" + u + "hk)")) + '"/>';
+    if (!noStroke) s += '<path d="' + d + '" fill="none" stroke="' + hd + '" stroke-width="1.4" stroke-opacity=".5" stroke-linejoin="round"/>';
+    return s;
+  }
+  function hairHi(paths, hl, detail) {
+    if (detail < 2 || !paths || !paths.length) return "";
+    return '<g>' + paths.map(function (d) {
+      return '<path d="' + d + '" fill="none" stroke="' + hl + '" stroke-width="2.6" stroke-linecap="round" stroke-opacity=".5"/>';
+    }).join("") + "</g>";
+  }
+
+  /* --- 发缕 ---
+     头发之所以「像头发」，靠的是发梢长短不一。
+     但发缕如果从发块外缘起笔，就会变成贴在额头上的黑色贴片 ——
+     所以起笔点必须落在发块内部（被发块盖住），只有收尖的末梢露出来。
+     这样叠出来的发际线才是「发梢」，不是「锯齿」。 */
+  function lock(x0, y0, x1, y1, w) {
+    var dy = y1 - y0;
+    return "M" + n(x0) + " " + n(y0) +
+      "C" + n(x0 + (x1 - x0) * 0.1) + " " + n(y0 + dy * 0.56) + " " +
+            n(x1 - w * 0.16) + " " + n(y1 - dy * 0.14) + " " + n(x1) + " " + n(y1) +
+      "C" + n(x1 + w * 0.34) + " " + n(y1 - dy * 0.26) + " " +
+            n(x0 + w + (x1 - x0) * 0.1) + " " + n(y0 + dy * 0.56) + " " +
+            n(x0 + w) + " " + n(y0) + "Z";
+  }
+
+  /* ============================================================
+     总装
+     ============================================================ */
+  function figure(cfg, mood, detail) {
+    detail = detail || 2;
+    mood = mood || "calm";
+    var u = uid();
+    var k = SKIN[cfg.skin || "a"];
+    var ir = cfg.iris || { lit: "#8a6038", base: "#5a3a24", deep: "#2a1a10" };
+    var h = cfg.hair || {};
+    var hc = h.color || "#241b14", hd = h.deep || "#0d0906", hl = h.light || "#4c3826";
+    var ac = cfg.accent || "#46d3e8";
+    var f = FACES[cfg.face] || cfg.face || FACES.oval;
+    var ey = (cfg.eye && cfg.eye.cy) || 110;
+    var ex = (cfg.eye && cfg.eye.gap) || 26;
+    var erx = (cfg.eye && cfg.eye.rx) || 13;
+    var ery = (cfg.eye && cfg.eye.ry) || 5.8;
+    var my = (cfg.mouth && cfg.mouth.y) || 156;
+    var mw = (cfg.mouth && cfg.mouth.w) || 30;
+    var by = (cfg.brow && cfg.brow.y) || 96;
+    var bw = (cfg.brow && cfg.brow.w) || 36;
+    var bt = (cfg.brow && cfg.brow.thick) || 5;
+    var barch = (cfg.brow && cfg.brow.arch != null) ? cfg.brow.arch : 4.2;
+    var cl = cfg.cloth || {};
+    var clhi = cl.hi || "#2b3849", cldp = cl.deep || "#101724";
+
+    /* 小头像一律用纯色，不引渐变。
+       两个原因：一是 52px 下渐变根本看不出来；
+       二是头像常常处在带 filter / transform 的合成层里，
+       那层里渐变填充会整块丢，脸直接变成一团黑。
+       大图才需要渐变 —— 那里才有足够的像素去表现过渡。 */
+    var solid = detail < 2;
+    var F_SK = solid ? k.base : "url(#" + u + "sk)";
+    var F_HK = solid ? hc : "url(#" + u + "hk)";
+    var F_CL = solid ? clhi : "url(#" + u + "cl)";
+    var F_IR = solid ? ir.base : "url(#" + u + "ir)";
+
+    /* 渐变一律用 userSpaceOnUse。
+       默认的 objectBoundingBox 会让每个元素各算一套渐变 ——
+       十几缕头发就变成十几个各自反光的小贴纸，永远合不成一坨头发。
+       坐标写死在同一套用户空间里，叠在一起才像同一个光源照的。 */
+    var defs = "";
+    defs += '<linearGradient id="' + u + 'sk" gradientUnits="userSpaceOnUse" x1="52" y1="34" x2="156" y2="188">' +
+      '<stop offset="0" stop-color="' + k.lit + '"/><stop offset=".44" stop-color="' + k.base + '"/>' +
+      '<stop offset="1" stop-color="' + k.sh + '"/></linearGradient>';
+    defs += '<linearGradient id="' + u + 'hk" gradientUnits="userSpaceOnUse" x1="44" y1="14" x2="150" y2="170">' +
+      '<stop offset="0" stop-color="' + mix(hl, hc, 0.5) + '"/><stop offset=".34" stop-color="' + hc + '"/>' +
+      '<stop offset="1" stop-color="' + hd + '"/></linearGradient>';
+    defs += '<linearGradient id="' + u + 'cl" gradientUnits="userSpaceOnUse" x1="30" y1="192" x2="180" y2="240">' +
+      '<stop offset="0" stop-color="' + clhi + '"/><stop offset="1" stop-color="' + cldp + '"/></linearGradient>';
+    defs += '<radialGradient id="' + u + 'ir" cx=".4" cy=".34" r=".66">' +
+      '<stop offset="0" stop-color="' + ir.lit + '"/><stop offset=".5" stop-color="' + ir.base + '"/>' +
+      '<stop offset="1" stop-color="' + ir.deep + '"/></radialGradient>';
+    defs += '<radialGradient id="' + u + 'bl" cx=".5" cy=".5" r=".5">' +
+      '<stop offset="0" stop-color="' + k.blush + '" stop-opacity=".34"/>' +
+      '<stop offset="1" stop-color="' + k.blush + '" stop-opacity="0"/></radialGradient>';
+    defs += '<radialGradient id="' + u + 'bg" cx=".5" cy=".36" r=".72">' +
+      '<stop offset="0" stop-color="' + ac + '" stop-opacity=".2"/>' +
+      '<stop offset=".6" stop-color="' + ac + '" stop-opacity=".05"/>' +
+      '<stop offset="1" stop-color="' + ac + '" stop-opacity="0"/></radialGradient>';
+    if (detail >= 2) {
+      defs += '<filter id="' + u + 'sf" x="-45%" y="-45%" width="190%" height="190%">' +
+        '<feGaussianBlur stdDeviation="4"/></filter>';
+      defs += '<filter id="' + u + 'sf2" x="-45%" y="-45%" width="190%" height="190%">' +
+        '<feGaussianBlur stdDeviation="2.2"/></filter>';
+    }
+    defs += '<clipPath id="' + u + 'fc"><path d="' + f + '"/></clipPath>';
+    defs += '<clipPath id="' + u + 'el"><path d="' + eyePath(100 - ex, -1, erx, ey, ery) + '"/></clipPath>';
+    defs += '<clipPath id="' + u + 'er"><path d="' + eyePath(100 + ex, 1, erx, ey, ery) + '"/></clipPath>';
+
+    var s = "";
+
+    /* 背景辉光交给 CSS 的 .cstc-por::before 做。
+       画在 SVG 里的话，SVG 一被缩放就会出现一个可见的矩形边界。 */
+
+    /* 后发：先于脸，形成「头发包住头」的外轮廓 */
+    s += hairShape(u, h.back, hd, detail, false, F_HK);
+
+    s += neck(u, k, detail, F_SK);
+    /* 衣身整体下移 12：下巴在 182，肩线原来在 196，只剩 14px 脖子 ——
+       头看着像直接搁在肩上。挪到 208 之后露出 26px，
+       这是「有脖子的人」和「贴纸人」的分界。 */
+    s += '<g transform="translate(0,12)">' + body(u, cfg, k, detail, F_CL) + "</g>";
+
+    /* 耳：先于脸画，脸盖住内侧一半，剩下的正好是耳廓。
+       位置必须跟着脸型走 —— 瘦削脸的边缘在 60，耳朵还钉在 50 的话
+       会挂到脸外面去，看起来像精灵耳。 */
+    var EARX = { oval: 52, square: 50, long: 55, round: 48, sharp: 59 };
+    var exr = EARX[cfg.face] || 50;
+    s += '<ellipse cx="' + exr + '" cy="108" rx="6.6" ry="11.4" fill="' + k.base + '" opacity=".95"/>';
+    s += '<ellipse cx="' + (200 - exr) + '" cy="108" rx="6.6" ry="11.4" fill="' + k.sh + '" opacity=".95"/>';
+    if (detail >= 2) {
+      s += '<path d="M' + (exr - 1.6) + ' 103C' + (exr + 1.4) + ' 101.4 ' + (exr + 2) + ' 108 ' + (exr - 1.2) + ' 111.4" fill="none" stroke="' + k.deep + '" stroke-width="1.4" opacity=".38"/>';
+      s += '<path d="M' + (201.6 - exr) + ' 103C' + (198.6 - exr) + ' 101.4 ' + (198 - exr) + ' 108 ' + (201.2 - exr) + ' 111.4" fill="none" stroke="' + k.deep + '" stroke-width="1.4" opacity=".38"/>';
+    }
+
+    /* 脸 */
+    s += '<path d="' + f + '" fill="' + F_SK + '"/>';
+
+    /* 脸内阴影：全部裁进脸形，绝不外溢 */
+    s += '<g clip-path="url(#' + u + 'fc)">';
+    if (detail >= 2) {
+      /* 右下半张脸的暗面：这是「立体」的来源，比任何描边都有效 */
+      s += '<ellipse cx="152" cy="126" rx="34" ry="62" fill="' + k.deep + '" opacity=".22" filter="url(#' + u + 'sf)"/>';
+      /* 颧骨受光 */
+      s += '<ellipse cx="70" cy="126" rx="16" ry="10" fill="#fff" opacity=".1" filter="url(#' + u + 'sf2)"/>';
+      /* 腮红：位置在颧骨下方，不能贴着眼下，也不能压到嘴角 */
+      s += '<ellipse cx="68" cy="133" rx="16" ry="10" fill="url(#' + u + 'bl)"/>';
+      s += '<ellipse cx="132" cy="133" rx="16" ry="10" fill="url(#' + u + 'bl)"/>';
+      /* 下颌线 */
+      s += '<path d="M100 182C120 182 138 172 147 152" stroke="' + k.deep + '" stroke-width="6" fill="none" opacity=".18" filter="url(#' + u + 'sf2)"/>';
+      /* 太阳穴暗：让额头有转折 */
+      s += '<ellipse cx="54" cy="88" rx="10" ry="18" fill="' + k.deep + '" opacity=".12" filter="url(#' + u + 'sf2)"/>';
+    }
+    s += "</g>";
+    s += '<path d="' + f + '" fill="none" stroke="' + k.line + '" stroke-width="1.4" stroke-opacity=".45"/>';
+
+    /* 轮廓光：必须画在头发之前。画在最后会沿着脸的轮廓浮在头发外面，
+       看起来像戴了一个发箍 —— 这是上一版最明显的「假」。 */
+    if (detail >= 2) {
+      s += '<g clip-path="url(#' + u + 'fc)" opacity=".42">' +
+        '<path d="' + f + '" fill="none" stroke="' + ac + '" stroke-width="3.2" transform="translate(1.8,1.8)"/>' +
+        "</g>";
+    }
+
+    /* 五官 */
+    s += brow(mood, k, hc, 100 - ex, by, bw, bt, { out: -1, arch: barch });
+    s += brow(mood, k, hc, 100 + ex, by, bw, bt, { out: 1, arch: barch });
+    s += eye(u, mood, k, ir, 100 - ex, ey, erx, ery, { out: -1, detail: detail, lash: !cfg.noLash, irisFill: F_IR });
+    s += eye(u, mood, k, ir, 100 + ex, ey, erx, ery, { out: 1, detail: detail, lash: !cfg.noLash, irisFill: F_IR });
+    s += nose(u, k, 100, (cfg.nose && cfg.nose.y) || 136, detail);
+    s += mouth(u, mood, k, 100, my, mw, detail, cfg.lipStyle);
+
+    /* 鬓角：盖住耳前那一小块，是「头发长在头上」而不是「戴上去」的关键。
+       不描边，否则两缕鬓角会各自变成一条深色贴片。 */
+    s += hairShape(u, h.side, hd, detail, true, F_HK);
+    /* 前发：压住额头，才有「发型」而不是「光头戴假发」 */
+    s += hairShape(u, h.front, hd, detail, false, F_HK);
+    /* 碎发：从发块内部垂下来的发缕。只填色、不描边 ——
+       一旦每缕都描边，它们就又变回一片片贴纸了。 */
+    if (h.fringe && h.fringe.length) {
+      s += '<g>' + h.fringe.map(function (d) {
+        return '<path d="' + d + '" fill="' + F_HK + '"/>';
+      }).join("") + "</g>";
+    }
+    s += hairHi(h.hi, hl, detail);
+
+    /* 道具：眼镜、护目镜、口罩、疤、耳饰，由人物自己给 */
+    if (cfg.prop) s += cfg.prop;
+
+    return '<defs>' + defs + "</defs>" + s;
+  }
+
+  /* ---------------- 对外 ---------------- */
+  var AVB = "12 10 176 176";   /* 头像取景：留一点边，下巴不贴边 */
+  var BUB = "0 0 200 240";
+
+  function wrap(cfg, mood, detail, vb, cls) {
+    return '<svg viewBox="' + vb + '" class="' + (cls || "") + '" aria-hidden="true" ' +
+      'preserveAspectRatio="xMidYMid meet">' + figure(cfg, mood, detail) + "</svg>";
+  }
+
+  window.YCPort = {
+    version: "2.1.0",
+    figure: figure,
+    lock: lock,
+    SKIN: SKIN,
+    FACES: FACES,
+    avatar: function (cfg, mood) { return wrap(cfg, mood, 1, AVB, "yp-av"); },
+    bust: function (cfg, mood) { return wrap(cfg, mood, 2, BUB, "yp-bust"); },
+    raw: function (cfg, mood, detail) { return figure(cfg, mood, detail || 2); }
+  };
+})();
+</script>
+<script>
+/* ============================================================
+   shared/yc-faces.js — 十位驻馆人的立绘配置
+   ------------------------------------------------------------
+   引擎在 yc-port.js，这里只放「人」。
+   一个人由六件事决定，改其中任何一件都会变成另一个人：
+
+     骨相  face   oval / square / long / round / sharp
+     发型  hair   后发 + 鬓角 + 发块 + 发缕，四层各自给形
+     眉眼  brow / eye   粗细、拱度、眼裂大小，决定「什么脾气」
+     衣    cloth  shirt / coat / stand
+     道具  prop   眼镜、口罩、护目镜、疤、头巾
+
+   两个人的差异必须落在「骨相 + 发型」上，不能只换颜色。
+   只换颜色，十个人就是同一个人穿了十件衣服。
+   ============================================================ */
+(function () {
+  "use strict";
+  var L = window.YCPort.lock;
+
+  /* 三种短发底型，十个人从这里派生 */
+  var CAP_SHORT = "M48 100C46 56 70 16 100 16C130 16 154 56 152 100L147 80C143 66 132 58 118 58C110 58 104 60 100 60C96 60 90 58 82 58C68 58 57 66 53 80Z";
+  var BACK_SHORT = "M100 22C68 22 46 50 46 92C46 102 47 110 49 118L60 114C56 104 55 96 56 90C58 64 76 46 100 46C124 46 142 64 144 90C145 96 144 104 140 114L151 118C153 110 154 102 154 92C154 50 132 22 100 22Z";
+  var SIDE_SHORT = "M51 84C52 92 53 100 53 108C55 100 56 92 56 84Z M149 84C148 92 147 100 147 108C145 100 144 92 144 84Z";
+  var SIDE_LONG = "M45 86C46 96 47 108 47 120C50 108 51 96 51 86Z M155 86C154 96 153 108 153 120C150 108 149 96 149 86Z";
+
+  window.YCFACES = {
+
+    /* ============================================================
+       H2 · 推理法医馆
+       ============================================================ */
+
+    /* 沈砚 · 首席证物官 · 女 · 三十五
+       方脸、短寸侧分、衬衫领带。整张脸是「收着」的：
+       眉平、眼窄、唇薄。她不是冷，是把话都留到该说的时候。 */
+    shen: {
+      skin: "a", face: "square",
+      iris: { lit: "#8a6038", base: "#4e3018", deep: "#22140a" },
+      hair: {
+        color: "#241a14", deep: "#0d0906", light: "#54402c",
+        back: BACK_SHORT, side: SIDE_SHORT, front: CAP_SHORT,
+        fringe: [L(58, 38, 52, 82, 17)],
+        hi: ["M74 34C62 46 56 62 56 78", "M92 26C78 34 70 50 70 66"]
+      },
+      brow: { y: 96, w: 36, thick: 5.0, arch: 3.2 },
+      eye: { cy: 110, gap: 26, rx: 13, ry: 5.2 },
+      nose: { y: 136 }, mouth: { y: 156, w: 29 }, lipStyle: "soft",
+      cloth: { type: "shirt", hi: "#232d3d", deep: "#0e141f" }
+    },
+
+    /* 祁野 · 现场探员 · 男 · 二十九
+       圆脸、乱发、旧风衣、左颊一道疤。脸比沈砚「开」：
+       眼大、眉拱、下巴圆。他不收着，他是来不及收。 */
+    qi: {
+      skin: "c", face: "round",
+      iris: { lit: "#8a5a26", base: "#54300f", deep: "#241203" },
+      hair: {
+        color: "#3a2418", deep: "#140b06", light: "#70472a",
+        back: "M100 20C64 20 42 52 42 96C42 118 40 140 46 156L58 150C52 134 54 110 56 96C58 66 76 44 100 44C124 44 142 66 144 96C146 110 148 134 142 150L154 156C160 140 158 118 158 96C158 52 136 20 100 20Z",
+        side: SIDE_LONG,
+        front: "M100 18C66 18 44 46 44 86C44 92 45 96 46 100L51 84C53 70 60 60 70 58C80 56 90 60 100 62C110 60 120 56 130 58C140 60 147 70 149 84L154 100C155 96 156 92 156 86C156 46 134 18 100 18Z",
+        fringe: [L(50, 50, 41, 112, 14), L(72, 42, 67, 88, 13), L(98, 36, 107, 72, 10), L(124, 44, 135, 104, 14)],
+        hi: ["M72 32C60 44 54 62 54 80", "M100 26C86 30 76 42 72 58"]
+      },
+      brow: { y: 96, w: 36, thick: 4.8, arch: 5.8 },
+      eye: { cy: 110, gap: 26, rx: 13.2, ry: 6.4 },
+      nose: { y: 136 }, mouth: { y: 156, w: 28 }, lipStyle: "soft",
+      cloth: { type: "coat", hi: "#2a3346", deep: "#0f1520" },
+      /* 左颊那道疤：从颧骨斜到下颌，是他这行的工龄 */
+      prop: '<path d="M127 122L133 142" stroke="#9d5443" stroke-width="1.9" stroke-linecap="round" opacity=".5"/>' +
+        '<path d="M127.8 124L132.2 140" stroke="#f2c4ac" stroke-width=".9" stroke-linecap="round" opacity=".45"/>'
+    },
+
+    /* ============================================================
+       H3 · 指标度量馆
+       ============================================================ */
+
+    /* 白珩 · 指标员 · 女 · 三十二
+       长脸、中分、细金属框眼镜。她的脸上没什么表情，
+       因为她的工作就是「不让表情影响读数」。 */
+    bai: {
+      skin: "b", face: "long",
+      iris: { lit: "#7e8a5a", base: "#48542c", deep: "#1e2410" },
+      hair: {
+        color: "#22222a", deep: "#0b0b10", light: "#4a4a58",
+        back: "M100 18C64 18 40 48 40 94C40 122 38 148 44 168L58 160C50 142 52 116 54 96C56 64 74 42 100 42C126 42 144 64 146 96C148 116 150 142 142 160L156 168C162 148 160 122 160 94C160 48 136 18 100 18Z",
+        side: "M51 88C52 100 53 114 53 126C55 114 56 100 56 88Z M149 88C148 100 147 114 147 126C145 114 144 100 144 88Z",
+        front: "M100 16C70 16 48 44 48 84C48 92 49 98 50 104L54 88C56 70 62 58 70 50C78 56 88 58 96 58C99 58 100 55 100 52C100 55 101 58 104 58C112 58 122 56 130 50C138 58 144 70 146 88L150 104C151 98 152 92 152 84C152 44 130 16 100 16Z",
+        fringe: [L(58, 56, 54, 120, 13), L(142, 56, 146, 120, 13)],
+        hi: ["M70 34C58 46 54 62 54 78", "M130 34C142 46 146 62 146 78"]
+      },
+      brow: { y: 96, w: 38, thick: 4.2, arch: 3.0 },
+      eye: { cy: 110, gap: 26, rx: 12.6, ry: 5.0 },
+      nose: { y: 136 }, mouth: { y: 156, w: 26 },
+      cloth: { type: "shirt", hi: "#26303c", deep: "#0f151d" },
+      /* 细框眼镜：镜片不填色，只留一圈金属 —— 她的眼睛必须看得清 */
+      prop: '<g fill="none" stroke="#b9c6d0" stroke-width="1.5" opacity=".75">' +
+        '<rect x="56" y="99" width="35" height="22" rx="7"/>' +
+        '<rect x="109" y="99" width="35" height="22" rx="7"/>' +
+        '<path d="M91 107h18"/><path d="M56 105L44 102"/><path d="M144 105l12-3"/></g>'
+    },
+
+    /* 陶叔 · 老技工 · 男 · 五十八
+       方脸、花白寸头、浓平眉、眯眼。这张脸的每一道纹都是工龄。
+       皮肤最深的一档 —— 他在温室和车间里待了三十一年。 */
+    tao: {
+      skin: "d", face: "square",
+      iris: { lit: "#7a5a3a", base: "#432c18", deep: "#1c1108" },
+      hair: {
+        color: "#6e6a62", deep: "#3c3a35", light: "#9a958c",
+        back: BACK_SHORT,
+        side: "M50 84C51 92 52 98 52 104C54 98 55 92 55 84Z M150 84C149 92 148 98 148 104C146 98 145 92 145 84Z",
+        front: "M48 98C46 56 70 18 100 18C130 18 154 56 152 98L148 78C144 66 132 60 118 60C110 60 104 62 100 62C96 62 90 60 82 60C68 60 56 66 52 78Z",
+        fringe: [L(62, 40, 58, 74, 14), L(96, 36, 98, 70, 12), L(128, 40, 132, 74, 14)],
+        hi: ["M74 34C64 46 58 60 58 74"]
+      },
+      brow: { y: 94, w: 40, thick: 6.2, arch: 2.2 },
+      eye: { cy: 110, gap: 26, rx: 12.4, ry: 4.4 },
+      nose: { y: 136 }, mouth: { y: 156, w: 31 }, lipStyle: "soft",
+      cloth: { type: "stand", hi: "#2a2e28", deep: "#101310" },
+      /* 额纹 + 法令纹。年龄不是靠头发变白说的，是靠这些说的 */
+      prop: '<g fill="none" stroke="#7b4630" stroke-linecap="round" opacity=".3">' +
+        '<path d="M72 82C84 78 116 78 128 82" stroke-width="1.6"/>' +
+        '<path d="M76 88C86 85 114 85 124 88" stroke-width="1.4"/>' +
+        '<path d="M84 136C82 146 82 152 84 156" stroke-width="1.8"/>' +
+        '<path d="M116 136C118 146 118 152 116 156" stroke-width="1.8"/></g>'
+    },
+
+    /* ============================================================
+       H4 · 数据净化馆
+       ============================================================ */
+
+    /* 岑默 · 净化工程师 · 男 · 三十六
+       瘦削脸、口罩遮住鼻子以下、护目镜推在额头上。
+       整张脸只剩眼睛和眉毛能动 —— 所以他的情绪全部走眉毛，
+       这是这一馆最狠的一处设计：你想看懂他，只能看眉。 */
+    cen: {
+      skin: "e", face: "sharp",
+      iris: { lit: "#6e7684", base: "#3a4048", deep: "#161a1e" },
+      hair: {
+        color: "#1e1e22", deep: "#0a0a0c", light: "#44444c",
+        back: BACK_SHORT, side: SIDE_SHORT,
+        front: "M48 98C46 54 70 16 100 16C130 16 154 54 152 98L148 78C144 66 132 58 118 58C110 58 104 60 100 60C96 60 90 58 82 58C68 58 56 66 52 78Z",
+        fringe: [L(64, 40, 60, 72, 13), L(120, 38, 124, 70, 12)],
+        hi: ["M74 32C64 44 58 58 58 72"]
+      },
+      brow: { y: 96, w: 36, thick: 5.4, arch: 2.8 },
+      eye: { cy: 110, gap: 26, rx: 13, ry: 5.6 },
+      nose: { y: 136 }, mouth: { y: 156, w: 28 }, lipStyle: "soft",
+      cloth: { type: "stand", hi: "#dfe4e8", deep: "#9aa4ac" },
+      prop:
+        /* 护目镜：推到额头上。真戴在眼睛上就没情绪可看了 */
+        '<path d="M52 62C52 55 64 50 100 50C136 50 148 55 148 62L146 72C134 78 116 80 100 80C84 80 66 78 54 72Z" fill="#2b3a44" opacity=".92"/>' +
+        '<rect x="60" y="58" width="33" height="17" rx="7" fill="#7fd8e8" opacity=".42"/>' +
+        '<rect x="107" y="58" width="33" height="17" rx="7" fill="#7fd8e8" opacity=".42"/>' +
+        '<path d="M93 64h14" stroke="#8fa4ae" stroke-width="2.4"/>' +
+        /* 口罩：从鼻梁盖到下颌，耳挂两道 */
+        '<path d="M63 128C63 121 76 117 100 117C124 117 137 121 137 128L133 166C125 177 112 181 100 181C88 181 75 177 67 166Z" fill="#e9edf0"/>' +
+        '<path d="M64 132C78 137 122 137 136 132" fill="none" stroke="#c3ccd2" stroke-width="1.5"/>' +
+        '<path d="M63 128L46 121M137 128L154 121" stroke="#c3ccd2" stroke-width="2.4" stroke-linecap="round"/>' +
+        '<path d="M72 150C82 156 118 156 128 150" fill="none" stroke="#d3dade" stroke-width="1.4"/>'
+    },
+
+    /* 罗姐 · 数据管家 · 女 · 四十五
+       圆脸、盘发、圆框眼镜。她的脸是这一馆里最「松」的 ——
+       不是因为轻松，是因为她见过太多次「再急也没用」。 */
+    luo: {
+      skin: "b", face: "round",
+      iris: { lit: "#7e5632", base: "#46290f", deep: "#1c1106" },
+      hair: {
+        color: "#2e2420", deep: "#120d0a", light: "#5c4a3a",
+        /* 盘发：后脑一个髻。髻要露出头顶一点点，
+           否则从正面完全看不见，读起来就成了普通短发。 */
+        back: "M100 22C70 22 48 50 48 92C48 108 50 120 54 130L64 126C58 114 58 102 60 94C62 66 78 46 100 46C122 46 138 66 140 94C142 102 142 114 136 126L146 130C150 120 152 108 152 92C152 50 130 22 100 22Z" +
+          "M118 22A18 18 0 1 0 82 22A18 18 0 1 0 118 22Z",
+        side: "M50 84C51 92 52 98 52 104C54 98 55 92 55 84Z M150 84C149 92 148 98 148 104C146 98 145 92 145 84Z",
+        front: "M48 96C46 54 70 18 100 18C130 18 154 54 152 96L149 78C145 66 134 60 122 60C112 60 104 62 100 62C96 62 88 60 78 60C66 60 55 66 51 78Z",
+        fringe: [],
+        hi: ["M76 32C66 44 60 58 60 72", "M124 32C134 44 140 58 140 72"]
+      },
+      brow: { y: 96, w: 36, thick: 4.6, arch: 4.6 },
+      eye: { cy: 110, gap: 26, rx: 12.6, ry: 5.6 },
+      nose: { y: 136 }, mouth: { y: 156, w: 28 },
+      cloth: { type: "shirt", hi: "#3a352e", deep: "#17140f" },
+      /* 圆框眼镜 + 一颗耳钉。她不是严肃的人，她是把事做完的人 */
+      prop: '<g fill="none" stroke="#c8b48a" stroke-width="1.6" opacity=".8">' +
+        '<circle cx="74" cy="110" r="17"/><circle cx="126" cy="110" r="17"/>' +
+        '<path d="M91 108h18"/><path d="M57 107L45 104"/><path d="M143 107l12-3"/></g>' +
+        '<circle cx="152" cy="124" r="2.2" fill="#c8b48a" opacity=".8"/>'
+    },
+
+    /* ============================================================
+       H5 · 谱系崩塌馆
+       ============================================================ */
+
+    /* 温野 · 育种师 · 女 · 三十八
+       长脸、半长发别在耳后、深绿工装。她的眼睛是这一馆最「远」的：
+       她看的不是这一代，是三代之后。 */
+    wen: {
+      skin: "c", face: "long",
+      iris: { lit: "#6a8a48", base: "#3a5020", deep: "#161f0a" },
+      hair: {
+        color: "#2a2018", deep: "#100b07", light: "#584028",
+        back: "M100 18C66 18 44 46 44 92C44 118 42 142 48 160L60 154C54 138 56 114 58 94C60 64 78 42 100 42C122 42 140 64 142 94C144 114 146 138 140 154L152 160C158 142 156 118 156 92C156 46 134 18 100 18Z",
+        side: "M46 88C47 98 48 110 48 122C51 110 52 98 52 88Z M154 88C153 98 152 110 152 122C149 110 148 98 148 88Z",
+        front: "M100 16C70 16 48 44 48 84C48 92 49 98 50 104L55 88C57 70 63 58 71 50C79 56 89 58 97 58C100 58 101 55 101 52C101 55 102 58 105 58C113 58 122 56 130 50C138 58 144 70 146 88L150 104C151 98 152 92 152 84C152 44 130 16 100 16Z",
+        fringe: [L(60, 56, 56, 116, 13), L(140, 54, 144, 110, 12)],
+        hi: ["M72 34C60 46 56 62 56 78", "M128 34C140 46 144 62 144 78"]
+      },
+      brow: { y: 96, w: 38, thick: 4.2, arch: 4.8 },
+      eye: { cy: 110, gap: 26, rx: 12.8, ry: 5.6 },
+      nose: { y: 136 }, mouth: { y: 156, w: 27 },
+      cloth: { type: "stand", hi: "#243028", deep: "#0d1410" }
+    },
+
+    /* 阿桑 · 守藤人 · 女 · 二十六
+       圆脸、深肤色、头巾。这一馆里唯一一个「不穿工装」的人 ——
+       她的衣服是外套，因为她的工作有一半在室外。 */
+    sang: {
+      skin: "d", face: "round",
+      iris: { lit: "#8a5a30", base: "#4a2a10", deep: "#1e1004" },
+      hair: {
+        color: "#201812", deep: "#0a0705", light: "#463020",
+        back: "M100 20C64 20 42 52 42 96C42 116 40 136 46 152L58 146C52 132 54 110 56 96C58 66 76 44 100 44C124 44 142 66 144 96C146 110 148 132 142 146L154 152C160 136 158 116 158 96C158 52 136 20 100 20Z",
+        side: SIDE_LONG,
+        front: "M100 18C66 18 44 46 44 86C44 92 45 96 46 100L51 84C53 70 60 60 70 58C80 56 90 60 100 62C110 60 120 56 130 58C140 60 147 70 149 84L154 100C155 96 156 92 156 86C156 46 134 18 100 18Z",
+        fringe: [L(52, 50, 45, 106, 14), L(78, 40, 74, 80, 12), L(124, 44, 132, 98, 14)],
+        hi: ["M74 32C62 44 56 62 56 80"]
+      },
+      brow: { y: 96, w: 36, thick: 5.0, arch: 5.2 },
+      eye: { cy: 110, gap: 26, rx: 13.4, ry: 6.6 },
+      nose: { y: 136 }, mouth: { y: 156, w: 29 },
+      cloth: { type: "coat", hi: "#33402e", deep: "#121a10" },
+      /* 头巾：一条压住发际线的布，右侧打一个结。
+         下缘必须停在眉毛上方 —— 压到眉上就成了眼罩。 */
+      prop: '<path d="M44 62C44 48 68 38 100 38C132 38 156 48 156 62L156 72C156 80 132 86 100 86C68 86 44 80 44 72Z" fill="#4d7a52"/>' +
+        '<path d="M44 64C44 52 68 44 100 44C132 44 156 52 156 64" fill="none" stroke="#6d9a70" stroke-width="2" opacity=".7"/>' +
+        '<path d="M150 72L170 82L156 90L146 82Z" fill="#4d7a52"/>' +
+        '<path d="M152 78L166 86" stroke="#6d9a70" stroke-width="1.6" opacity=".7"/>'
+    },
+
+    /* ============================================================
+       H6 · 算力配额馆
+       ============================================================ */
+
+    /* 陆准 · 配额官 · 男 · 四十一
+       瘦削脸、极短寸、冷蓝立领。脸上没有一条多余的线，
+       因为他的工作就是把所有多余的东西删掉。 */
+    lu: {
+      skin: "a", face: "sharp",
+      iris: { lit: "#7a8494", base: "#3c4450", deep: "#161a20" },
+      hair: {
+        color: "#1c1c20", deep: "#08080a", light: "#3e3e48",
+        back: "M100 24C72 24 52 50 52 92L58 100C56 78 66 50 100 50C134 50 144 78 142 100L148 92C148 50 128 24 100 24Z",
+        side: "M52 82C53 88 54 94 54 100C56 94 57 88 57 82Z M148 82C147 88 146 94 146 100C144 94 143 88 143 82Z",
+        front: "M50 96C48 52 72 18 100 18C128 18 152 52 150 96L147 74C144 62 132 56 118 56C110 56 104 58 100 58C96 58 90 56 82 56C68 56 56 62 53 74Z",
+        fringe: [L(66, 36, 64, 68, 12), L(100, 32, 100, 64, 12), L(134, 36, 136, 68, 12)],
+        hi: ["M76 30C66 42 60 56 60 70"]
+      },
+      brow: { y: 94, w: 36, thick: 5.0, arch: 2.2 },
+      eye: { cy: 110, gap: 26, rx: 12.4, ry: 4.6 },
+      nose: { y: 136 }, mouth: { y: 156, w: 27 }, lipStyle: "soft",
+      cloth: { type: "stand", hi: "#1e2836", deep: "#0a0f16" },
+      /* 领章：他的身份不在脸上，在领子上 */
+      prop: '<rect x="76" y="200" width="11" height="4" rx="1" fill="#5aa8c8" opacity=".85"/>' +
+        '<rect x="113" y="200" width="11" height="4" rx="1" fill="#5aa8c8" opacity=".85"/>'
+    },
+
+    /* 小满 · 试跑员 · 男 · 二十四
+       圆脸、短乱发、连帽衫。这一馆里唯一一个脸上还有「没算过」的人。
+       他的眼睛最亮 —— 因为他真的撞到过别人算不出来的地方。 */
+    man: {
+      skin: "c", face: "round",
+      iris: { lit: "#9a6a2c", base: "#5a3410", deep: "#241404" },
+      hair: {
+        color: "#2a1e14", deep: "#100a05", light: "#5e4128",
+        back: "M100 20C66 20 44 50 44 94C44 112 42 130 48 146L60 140C54 126 56 108 58 94C60 66 78 44 100 44C122 44 140 66 142 94C144 108 146 126 140 140L152 146C158 130 156 112 156 94C156 50 134 20 100 20Z",
+        side: SIDE_LONG,
+        front: "M100 18C66 18 44 46 44 86C44 92 45 96 46 100L51 84C53 70 60 58 70 56C80 54 90 60 100 62C110 60 120 54 130 56C140 58 147 70 149 84L154 100C155 96 156 92 156 86C156 46 134 18 100 18Z",
+        fringe: [L(52, 48, 44, 96, 14), L(76, 40, 72, 76, 13), L(104, 36, 112, 70, 11), L(130, 42, 140, 92, 14)],
+        hi: ["M74 32C62 44 56 62 56 80", "M104 26C90 32 80 44 76 58"]
+      },
+      brow: { y: 96, w: 36, thick: 5.2, arch: 6.0 },
+      eye: { cy: 110, gap: 26, rx: 13.2, ry: 6.6 },
+      nose: { y: 136 }, mouth: { y: 156, w: 30 }, lipStyle: "soft",
+      cloth: { type: "coat", hi: "#3d434b", deep: "#161a1f" },
+      /* 连帽衫的帽绳 */
+      prop: '<path d="M88 204C86 214 86 224 87 232" stroke="#8e959c" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+        '<path d="M112 204C114 214 114 224 113 232" stroke="#8e959c" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+        '<circle cx="87" cy="233" r="2" fill="#8e959c"/><circle cx="113" cy="233" r="2" fill="#8e959c"/>'
+    }
+  };
+})();
+</script>
+<script>
+/* ============================================================
+   yc-cast.js — 杨城「驻馆人」系统 · 引擎
+   ------------------------------------------------------------
+   老馆有四位导游，但他们是「同一个声音的四个语气」：
+   单向广播、不记得你、不互相冲突。
+
+   这一层解决三件事，缺一件人就是死的：
+     1) 立场 —— 每馆两人，对同一个问题主张相反，你必须选边
+     2) 记忆 —— 信任度 bond 持久化，他对你的态度随你做过的事变
+     3) 对话 —— 不是播报，是能追问的来回；他会主动来找你
+
+   数据在 src/hX/07-cast.js（每馆一份，含 SVG 立绘）。
+   本文件只做引擎，不含任何具体人物的内容。
+   ------------------------------------------------------------
+   对外 API
+     YCCast.register(hall, spec)     注册一馆（页面载入即自动挂载）
+     YCCast.state()                  读全部状态
+     YCCast.bondOf(id)               某人当前信任值
+     YCCast.tierOf(id)               某人当前档位名
+     YCCast.say(hall, ev, data)      手动触发一句（游戏内核可用）
+     YCCast.openPanel(hall, chId)    打开搭话面板
+     YCCast.openCard(hall, chId)     打开人物档案
+     YCCast.roster()                 今日值守（城市页用）
+     YCCast.mount(hall)              手动挂载
+   ============================================================ */
+window.YCCast = (function () {
+  "use strict";
+
+  var VERSION = "1.0.0";
+  var KEY = "yc.cast.v1";
+
+  /* ==========================================================
+     0 · 基础设施
+     ========================================================== */
+  function read() {
+    try {
+      var raw = (typeof localStorage !== "undefined") ? localStorage.getItem(KEY) : null;
+      var o = raw ? JSON.parse(raw) : null;
+      if (o && typeof o === "object") {
+        o.bond = o.bond || {}; o.camp = o.camp || {}; o.met = o.met || {};
+        o.oral = o.oral || {}; o.said = o.said || {}; o.flag = o.flag || {};
+        return o;
+      }
+    } catch (e) {}
+    return { bond: {}, camp: {}, met: {}, oral: {}, said: {}, flag: {} };
+  }
+  function write(o) {
+    try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {}
+  }
+  var S = read();
+
+  function num(v, d) { return typeof v === "number" && isFinite(v) ? v : d; }
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+
+  /* ==========================================================
+     1 · 信任度
+     ========================================================== */
+  var TIERS = [
+    { min: 0,  key: "cold",  cn: "生分", note: "公事公办" },
+    { min: 25, key: "warm",  cn: "熟络", note: "愿意多说两句" },
+    { min: 50, key: "open",  cn: "交底", note: "开始讲自己的事" },
+    { min: 75, key: "trust", cn: "托付", note: "把没写进档案的话给你" }
+  ];
+
+  function bondOf(id) { return clamp(num(S.bond[id], 0), 0, 100); }
+  function tierIdx(v) {
+    var i = 0;
+    for (var k = 0; k < TIERS.length; k++) if (v >= TIERS[k].min) i = k;
+    return i;
+  }
+  function tierOf(id) { return TIERS[tierIdx(bondOf(id))]; }
+
+  function addBond(id, delta, why) {
+    if (!id || !delta) return;
+    var before = bondOf(id);
+    var after = clamp(before + delta, 0, 100);
+    if (after === before) return;
+    S.bond[id] = after;
+    write(S);
+    var b0 = tierIdx(before), b1 = tierIdx(after);
+    if (b1 > b0) {
+      /* 升档：人物会主动交代一句 */
+      var ch = findChar(id);
+      if (ch) {
+        setTimeout(function () {
+          toast(ch, TIERS[b1].cn === "托付"
+            ? "有些话我本来不打算跟参观的人说。你现在可以问了。"
+            : "……行吧，你问的东西越来越像内行了。");
+        }, 700);
+      }
+    }
+    return after;
+  }
+
+  /* ==========================================================
+     2 · 注册表
+     ========================================================== */
+  var SPECS = {};
+  var CHARMAP = {};
+
+  function register(hall, spec) {
+    spec.hall = hall;
+    spec.cast = spec.cast || [];
+    spec.accent = spec.accent || "#46d3e8";
+    SPECS[hall] = spec;
+    spec.cast.forEach(function (c) {
+      c.hall = hall;
+      c.accent = c.color || spec.accent;
+      /* 立绘配置也要拿到强调色：轮廓光、领带、工装拉链都用它，
+         不然同一个人在小坞和档案卡里会串色。 */
+      if (c.port) c.port.accent = c.accent;
+      CHARMAP[c.id] = c;
+    });
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", function () { autoMount(hall); });
+    } else {
+      autoMount(hall);
+    }
+    return spec;
+  }
+  function specOf(hall) { return SPECS[hall] || null; }
+  function findChar(id) { return CHARMAP[id] || null; }
+
+  /* ==========================================================
+     3 · 立绘
+     ----------------------------------------------------------
+     不用 emoji。emoji 是「图标」，不是「人」——十个人共用一套
+     表情符号，看上去就是同一个人换了十件衣服。
+     这里给每人一段手绘 SVG：头型、眉眼、嘴、配饰各自不同，
+     三种情绪（calm/up/down）只改眉与嘴，其余保持可辨认。
+     ========================================================== */
+
+  /* 画法公共件：各馆文件用 YCCast.svg.* 拼自己的立绘 */
+  var svg = {
+    /* 胸肩：所有立绘共用，保证十个人站在同一条基线上 */
+    bust: function (c, d) {
+      d = d || "";
+      return '<path d="M11 64c0-11.6 9.4-18.4 21-18.4S53 52.4 53 64" fill="' + c +
+        '1f" stroke="' + c + '" stroke-width="1.6" stroke-linejoin="round"/>' + d;
+    },
+    /* 脖子 */
+    neck: function (c) {
+      return '<rect x="28.4" y="35.5" width="7.2" height="10" rx="2" fill="' + c + '30"/>';
+    },
+    /* 嘴：up=笑，down=皱眉，calm=平 */
+    mouth: function (m, c, cx, cy, w) {
+      cx = cx || 32; cy = cy || 36; w = w || 9;
+      var st = 'fill="none" stroke="' + c + '" stroke-width="1.7" stroke-linecap="round"';
+      if (m === "up") return '<path d="M' + (cx - w / 2) + " " + cy + " Q" + cx + " " + (cy + 3.6) + " " + (cx + w / 2) + " " + cy + '" ' + st + "/>";
+      if (m === "down") return '<path d="M' + (cx - w / 2) + " " + (cy + 1.8) + " Q" + cx + " " + (cy - 2.6) + " " + (cx + w / 2) + " " + (cy + 1.8) + '" ' + st + "/>";
+      return '<path d="M' + (cx - w / 2) + " " + cy + " L" + (cx + w / 2) + " " + cy + '" ' + st + "/>";
+    },
+    /* 眉：随情绪抬/压 */
+    brow: function (m, c, y, spread) {
+      y = y || 20.5; spread = spread || 6;
+      var dy = m === "up" ? -1.6 : (m === "down" ? 1.5 : 0);
+      var tilt = m === "down" ? 1.4 : 0;
+      var st = 'fill="none" stroke="' + c + '" stroke-width="1.7" stroke-linecap="round" opacity=".85"';
+      return '<path d="M' + (32 - spread - 3.4) + " " + (y + dy + tilt) + " L" + (32 - spread + 2.4) + " " + (y + dy - tilt) + '" ' + st + "/>" +
+        '<path d="M' + (32 + spread - 2.4) + " " + (y + dy - tilt) + " L" + (32 + spread + 3.4) + " " + (y + dy + tilt) + '" ' + st + "/>";
+    },
+    /* 眼：dot=圆点，line=细线，wide=睁大 */
+    eye: function (k, c, y, spread) {
+      y = y || 26; spread = spread || 6;
+      var L = 32 - spread, R = 32 + spread;
+      if (k === "line") {
+        var st = 'fill="none" stroke="' + c + '" stroke-width="1.8" stroke-linecap="round"';
+        return '<path d="M' + (L - 2.6) + " " + y + " L" + (L + 2.6) + " " + y + '" ' + st + "/>" +
+          '<path d="M' + (R - 2.6) + " " + y + " L" + (R + 2.6) + " " + y + '" ' + st + "/>";
+      }
+      if (k === "wide") {
+        return '<circle cx="' + L + '" cy="' + y + '" r="2.5" fill="' + c + '"/>' +
+          '<circle cx="' + R + '" cy="' + y + '" r="2.5" fill="' + c + '"/>' +
+          '<circle cx="' + L + '" cy="' + y + '" r="1" fill="#080b10"/>' +
+          '<circle cx="' + R + '" cy="' + y + '" r="1" fill="#080b10"/>';
+      }
+      return '<circle cx="' + L + '" cy="' + y + '" r="1.9" fill="' + c + '"/>' +
+        '<circle cx="' + R + '" cy="' + y + '" r="1.9" fill="' + c + '"/>';
+    }
+  };
+
+  /* Portrait 2.0 的取景框：留一点边，下巴不贴边 */
+  var PORT_VB = "12 10 176 176";
+
+  function hasPort(ch) { return !!(ch && ch.port && window.YCPort); }
+
+  function faceHTML(ch, mood, cls) {
+    mood = mood || "calm";
+    var inner = "", vb = "0 0 64 64", ring = "";
+    if (hasPort(ch)) {
+      try { inner = window.YCPort.raw(ch.port, mood, 1); } catch (e) { inner = ""; }
+      vb = PORT_VB;
+    } else {
+      try { inner = ch.art ? ch.art(mood, ch.color) : ""; } catch (e) { inner = ""; }
+      ring = '<circle cx="32" cy="32" r="31" fill="none" stroke="currentColor" stroke-opacity=".18" stroke-width="1.4"/>';
+    }
+    return '<button class="cst-face ' + (cls || "") + '" data-ch="' + ch.id +
+      '" title="' + esc(ch.name) + "（" + esc(ch.role) + '）" style="--cst-pc:' + (ch.color || "#46d3e8") + '">' +
+      '<svg viewBox="' + vb + '" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
+      ring + inner +
+      "</svg></button>";
+  }
+
+  /* 档案卡左栏的大幅胸像。这是全站唯一能看清五官的地方，
+     也是 Portrait 2.0 存在的理由 —— 小头像只需要认得出是谁，
+     大图才需要「像个人」。 */
+  function bustHTML(ch, mood) {
+    if (!hasPort(ch)) return faceHTML(ch, mood, "on");
+    var inner = "";
+    try { inner = window.YCPort.raw(ch.port, mood || "calm", 2); } catch (e) { inner = ""; }
+    return '<div class="cstc-por" aria-hidden="true">' +
+      '<div class="cstc-portag">PROFILE · 档案</div>' +
+      '<div class="cstc-porwm">' + esc(ch.name) + "</div>" +
+      '<svg viewBox="0 0 200 240" preserveAspectRatio="xMidYMax meet">' + inner + "</svg>" +
+      '<div class="cstc-porname">' + esc(ch.name) + '<em>' + esc(ch.role) + "</em></div>" +
+      "</div>";
+  }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  /* ==========================================================
+     4 · 说话（打字机）
+     ========================================================== */
+  var typeTimers = {};
+
+  function typeInto(el, text, done) {
+    if (!el) return;
+    var key = el.id || "anon";
+    clearTimeout(typeTimers[key]);
+    el.textContent = "";
+    var i = 0;
+    var caret = document.createElement("i");
+    caret.className = "cst-caret";
+    function tick() {
+      if (i >= text.length) {
+        if (caret.parentNode) caret.parentNode.removeChild(caret);
+        if (done) done();
+        return;
+      }
+      i++;
+      el.textContent = text.slice(0, i);
+      el.appendChild(caret);
+      typeTimers[key] = setTimeout(tick, 18 + (text.charCodeAt(i) % 3) * 9);
+    }
+    tick();
+  }
+
+  /* 富文本：把 **xx** 变成 <em>，<b> 原样保留 */
+  function rich(s) {
+    return esc(s).replace(/\*\*(.+?)\*\*/g, "<em>$1</em>").replace(/&lt;b&gt;/g, "<b>").replace(/&lt;\/b&gt;/g, "</b>");
+  }
+
+  /* ==========================================================
+     5 · 事件台词
+     ========================================================== */
+  function ctxOf(spec, ch) {
+    var D = window.YCDeep;
+    var prog = { seen: 0, passed: 0, total: 8 };
+    if (D && D.progress) { try { prog = D.progress(spec.hall); } catch (e) {} }
+    var elite = false, visit = false;
+    if (D && D.getCert) {
+      try { elite = !!D.getCert(spec.hall, "elite"); visit = !!D.getCert(spec.hall, "visitor"); } catch (e) {}
+    }
+    return {
+      hall: spec.hall, hallName: spec.name,
+      ch: ch, other: otherOf(spec, ch),
+      bond: bondOf(ch.id), tier: tierOf(ch.id),
+      progress: prog, elite: elite, visit: visit,
+      camp: S.camp[spec.hall] || null,
+      mine: S.camp[spec.hall] === ch.id
+    };
+  }
+  function otherOf(spec, ch) {
+    for (var i = 0; i < spec.cast.length; i++) if (spec.cast[i].id !== ch.id) return spec.cast[i];
+    return null;
+  }
+
+  function pickLine(ch, ev, ctx) {
+    var pool = ch.lines && ch.lines[ev];
+    if (typeof pool === "function") { try { pool = pool(ctx); } catch (e) { pool = null; } }
+    if (!pool) {
+      /* 兜底：跨人物通用，避免某一事件没写就哑了 */
+      var G = GENERIC[ev];
+      if (typeof G === "function") pool = G(ctx);
+      else pool = G;
+    }
+    if (!pool || !pool.length) return null;
+    var n = num(S.said[ch.id + ":" + ev], 0);
+    S.said[ch.id + ":" + ev] = n + 1;
+    write(S);
+    return pool[n % pool.length];
+  }
+
+  var GENERIC = {
+    greet: function (c) { return ["我是" + c.ch.name + "，" + c.ch.role + "。这一馆由我盯着。"]; },
+    idle: function (c) { return ["还在看？不急，我先不说话。", "需要我讲点什么的时候，点「搭话」。"]; },
+    seen: function (c) { return ["这一件看完了。记一句就够了：" + (c.ch.lesson || "别只看数字。")]; },
+    /* 换房间：他跟着你走。这是「有人在」最便宜也最有效的证据 */
+    zone: function (c) {
+      var n = (c.data && c.data.name) || "这一间";
+      var L = c.ch.lesson || "慢慢看，别急着下结论。";
+      return [
+        "「" + n + "」。" + L,
+        "进了「" + n + "」。这一间我只提醒一句：" + L
+      ];
+    },
+    pass: function (c) { return ["对了。别急着高兴，换个参数再跑一遍看看还成不成立。"]; },
+    fail: function (c) { return ["错了不要紧。先问自己：你凭什么这么判？"]; },
+    streak: function (c) { return ["连着错三次了。我换个说法——先别看答案，看条件。"]; },
+    elite: function (c) { return ["证书签了。但你自己知道，你刚才每一步为什么对。"]; },
+    visit: function (c) { return ["参观证书拿到了。这算见过，还不算懂。"]; },
+    enterDeep: function (c) { return ["进了这一步，就没有旁观的位置了。"]; },
+    campWin: function (c) { return ["你站我这边。那我把话说透一点。"]; },
+    campLose: function (c) { return ["你信他。行，我不争——数据会替我说。"]; }
+  };
+
+  /* ==========================================================
+     6 · 驻馆坞
+     ========================================================== */
+  var DOCK = null, DOCK_HALL = null, CUR = null, MOOD = "calm";
+  var lastSay = 0, idleTimer = null, probeTimer = null, probeSnap = null;
+  var SAYFN = null, PAINTFN = null;
+
+  function isGamePage() {
+    var p = (location.pathname || "").split("/").pop() || "";
+    return /-(case|maze|purge|forecast|tower)\.html$/.test(p);
+  }
+
+  function autoMount(hall) {
+    var spec = SPECS[hall];
+    if (!spec) return;
+    /* 一页只挂一馆；若页面已挂过别的馆，先拆 */
+    if (DOCK_HALL && DOCK_HALL !== hall) unmount();
+    if (DOCK_HALL === hall) return;
+    mount(hall);
+  }
+
+  function unmount() {
+    if (DOCK) { DOCK.parentNode && DOCK.parentNode.removeChild(DOCK); DOCK = null; }
+    clearInterval(probeTimer); probeTimer = null;
+    clearTimeout(idleTimer); idleTimer = null;
+    DOCK_HALL = null; CUR = null;
+  }
+
+  function mount(hall) {
+    var spec = SPECS[hall];
+    if (!spec || !spec.cast.length) return null;
+    DOCK_HALL = hall;
+
+    var saved = null;
+    try { saved = localStorage.getItem("yc.cast.cur." + hall); } catch (e) {}
+    CUR = (saved && CHARMAP[saved] && CHARMAP[saved].hall === hall) ? saved : spec.cast[0].id;
+
+    var folded = false;
+    try { folded = localStorage.getItem("yc.cast.fold." + hall) === "1"; } catch (e) {}
+
+    var el = document.createElement("div");
+    el.className = "castdock cst-root" + (folded ? " cst-fold" : "");
+    el.style.setProperty("--cst-ac", spec.accent);
+    el.setAttribute("data-hall", hall);
+    el.innerHTML =
+      '<div class="cst-mini">' +
+        '<div class="cst-faces"></div>' +
+        '<span>' + esc(spec.shortName || "驻馆人") + '</span>' +
+      "</div>" +
+      '<div class="cst-head">' +
+        '<i class="cst-live"></i><b>驻馆人</b>' +
+        '<span class="cst-where">' + esc(spec.hall) + " · " + esc(spec.roomName || spec.name) + "</span>" +
+        '<button class="cst-min" title="收起">–</button>' +
+      "</div>" +
+      '<div class="cst-row">' +
+        '<div class="cst-faces"></div>' +
+        '<div class="cst-who"></div>' +
+      "</div>" +
+      '<div class="cst-say" id="cstSay"></div>' +
+      '<div class="cst-acts">' +
+        '<button class="cst-btn pri" data-a="talk">搭话</button>' +
+        '<button class="cst-btn" data-a="card">档案</button>' +
+        (isGamePage() && typeof spec.hint === "function"
+          ? '<button class="cst-btn" data-a="hint" title="花信任度换一句真提示">求提示</button>'
+          : '<button class="cst-btn" data-a="switch">换人</button>') +
+      "</div>";
+    document.body.appendChild(el);
+    DOCK = el;
+
+    /* 头像渲染 */
+    function paintFaces() {
+      var big = el.querySelector(".cst-row .cst-faces");
+      var mini = el.querySelector(".cst-mini .cst-faces");
+      var html = spec.cast.map(function (c) {
+        var cls = c.id === CUR ? "on" : (S.camp[hall] && S.camp[hall] !== c.id ? "cold" : "");
+        return faceHTML(c, c.id === CUR ? MOOD : "calm", cls);
+      }).join("");
+      if (big) big.innerHTML = html;
+      if (mini) mini.innerHTML = html;
+    }
+
+    function paintWho() {
+      var ch = CHARMAP[CUR], o = otherOf(spec, ch);
+      var who = el.querySelector(".cst-who");
+      if (!who || !ch) return;
+      var t = tierOf(ch.id), b = bondOf(ch.id);
+      var mine = S.camp[hall] === ch.id;
+      var segs = "";
+      for (var i = 0; i < 10; i++) segs += '<i class="' + (b >= (i + 1) * 10 ? "on" : "") + '"></i>';
+      who.innerHTML =
+        '<div class="cst-nm">' + esc(ch.name) +
+          "<small>" + esc(ch.role) + "</small></div>" +
+        '<div class="cst-tag">' +
+          '<span class="cst-camp' + (mine ? " mine" : "") + '">「' + esc(ch.camp) + "」</span>" +
+          "<span>" + esc(t.cn) + " · " + esc(t.note) + "</span>" +
+        "</div>" +
+        '<div class="cst-bond">' +
+          '<span class="cst-bseg">' + segs + "</span>" +
+          "<b>" + b + "</b>" +
+        "</div>";
+    }
+
+    function paint() { paintFaces(); paintWho(); }
+    SAYFN = sayNow; PAINTFN = paint;
+
+    /* 切换当前说话人 */
+    function setCur(id, quiet) {
+      if (!CHARMAP[id]) return;
+      CUR = id; MOOD = "calm";
+      try { localStorage.setItem("yc.cast.cur." + hall, id); } catch (e) {}
+      paint();
+      if (!quiet) {
+        var ch = CHARMAP[id];
+        sayNow(pickLine(ch, "switchIn", ctxOf(spec, ch)) ||
+          "我来说吧。他刚才那套，我有一半不同意。");
+      }
+    }
+
+    function sayNow(text) {
+      var say = el.querySelector("#cstSay");
+      if (!say || !text) return;
+      lastSay = Date.now();
+      typeInto(say, "", null);
+      say.innerHTML = "";
+      typeText(say, text);
+    }
+    /* 支持 **强调** */
+    function typeText(host, text) {
+      clearTimeout(typeTimers["cstSay"]);
+      host.textContent = "";
+      var caret = document.createElement("i");
+      caret.className = "cst-caret";
+      var plain = String(text);
+      var i = 0;
+      function tick() {
+        if (i >= plain.length) {
+          if (caret.parentNode) caret.parentNode.removeChild(caret);
+          host.innerHTML = rich(plain);
+          return;
+        }
+        i++;
+        host.textContent = plain.slice(0, i);
+        host.appendChild(caret);
+        typeTimers["cstSay"] = setTimeout(tick, 18 + (plain.charCodeAt(i) % 3) * 9);
+      }
+      tick();
+    }
+
+    /* ---- 事件 ---- */
+    el.addEventListener("click", function (ev) {
+      var f = ev.target.closest(".cst-face");
+      if (f) { setCur(f.getAttribute("data-ch")); return; }
+      var b = ev.target.closest("[data-a]");
+      if (b) {
+        var a = b.getAttribute("data-a");
+        if (a === "talk") openPanel(hall, CUR);
+        else if (a === "card") openCard(hall, CUR);
+        else if (a === "hint") doHint(hall, spec);
+        else if (a === "switch") {
+          var o = otherOf(spec, CHARMAP[CUR]);
+          if (o) setCur(o.id);
+        }
+        return;
+      }
+      var mn = ev.target.closest(".cst-min");
+      if (mn) {
+        el.classList.add("cst-fold");
+        try { localStorage.setItem("yc.cast.fold." + hall, "1"); } catch (e) {}
+        return;
+      }
+      if (ev.target.closest(".cst-mini")) {
+        el.classList.remove("cst-fold");
+        try { localStorage.setItem("yc.cast.fold." + hall, "0"); } catch (e) {}
+        paint();
+        sayNow(pickLine(CHARMAP[CUR], "idle", ctxOf(spec, CHARMAP[CUR])) || "我在。");
+      }
+    });
+
+    paint();
+
+    /* ---- 首访：先选边，再打招呼 ---- */
+    var firstTime = !S.met[hall];
+    if (firstTime) {
+      S.met[hall] = Date.now(); write(S);
+      spec.cast.forEach(function (c) { addBond(c.id, 5); });
+      paint();
+      /* 先让坞里有人说话，再弹选边 —— 关掉弹层之后不至于是一片空白 */
+      setTimeout(function () {
+        var ch = CHARMAP[CUR];
+        sayNow(pickLine(ch, "greet", ctxOf(spec, ch)) ||
+          "我是" + ch.name + "。这一馆由我盯着。");
+      }, 600);
+      if (!S.camp[hall] && spec.campQ && !isGamePage()) {
+        setTimeout(function () { openCamp(hall); }, 1500);
+      }
+    } else {
+      setTimeout(function () {
+        var ch = CHARMAP[CUR];
+        var line = pickLine(ch, S.camp[hall] === ch.id ? "greetMine" : "greet", ctxOf(spec, ch)) ||
+          pickLine(ch, "greet", ctxOf(spec, ch));
+        sayNow(line);
+      }, 900);
+    }
+
+    /* ---- 跟着你走：换房间时他开口 ----
+       五个馆的房名控件类名各不相同（.tab/.lay/.door/.zone/.ks），
+       但都带 data-l —— 所以在 document 上代理一次，不去碰各馆代码。 */
+    var lastZone = "", lastZoneAt = 0;
+    function zoneLabel(el) {
+      var c = el.querySelector(".tt") || el.querySelector("span") || el;
+      var s = (c.textContent || "").replace(/[0-9０-９·]/g, " ").replace(/\s+/g, " ").trim();
+      return s.length > 12 ? s.slice(0, 12) : s;
+    }
+    document.addEventListener("click", function (e) {
+      var t = e.target.closest && e.target.closest("[data-l]");
+      if (!t) return;
+      var name = zoneLabel(t);
+      if (!name || name === lastZone) return;
+      if (Date.now() - lastZoneAt < 6000) return;
+      lastZone = name; lastZoneAt = Date.now();
+      setTimeout(function () { dispatch(hall, "zone", { name: name }); }, 340);
+    }, true);
+
+    /* ---- 闲置主动搭话 ---- */
+    function resetIdle() {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(function () {
+        if (document.hidden) return;
+        var ch = CHARMAP[CUR];
+        var t = pickLine(ch, "idle", ctxOf(spec, ch));
+        if (t) { sayNow(t); toast(ch, t, 6000); }
+        resetIdle();
+      }, 44000);
+    }
+    ["pointerdown", "keydown", "wheel"].forEach(function (e) {
+      window.addEventListener(e, resetIdle, { passive: true });
+    });
+    resetIdle();
+
+    /* ---- 游戏页：盯盘 ---- */
+    if (isGamePage() && typeof spec.probe === "function") {
+      probeSnap = safeProbe(spec);
+      probeTimer = setInterval(function () {
+        var s = safeProbe(spec);
+        if (!s || !probeSnap) { probeSnap = s; return; }
+        react(hall, spec, probeSnap, s);
+        probeSnap = s;
+      }, 1500);
+    }
+
+    window.addEventListener("yc:deep", function (e) {
+      var d = e.detail || {};
+      if (d.hall !== hall) return;
+      dispatch(hall, d.ev, d.data);
+    });
+
+    return el;
+  }
+
+  function safeProbe(spec) {
+    try { return spec.probe ? spec.probe() : null; } catch (e) { return null; }
+  }
+
+  /* 盯盘：状态变了就说一句 */
+  function react(hall, spec, a, b) {
+    var ch = CHARMAP[CUR];
+    if (!ch) return;
+    if (Date.now() - lastSay < 5200) return;
+    var ctx = ctxOf(spec, ch);
+    if (a.done !== b.done && b.done) { if (SAYFN) SAYFN(pickLine(ch, "gameDone", ctx) || "走完了。回头看一遍你刚才的每一步。"); return; }
+    if (b.left !== a.left && b.left < a.left) {
+      var t = pickLine(ch, "gameSpend", ctx);
+      if (t && SAYFN) SAYFN(t);
+      return;
+    }
+    if (b.score !== a.score && b.score > a.score) {
+      var t2 = pickLine(ch, "gameUp", ctx);
+      if (t2 && SAYFN) SAYFN(t2);
+      return;
+    }
+    if (b.warn && b.warn !== a.warn) {
+      var t3 = pickLine(ch, "gameWarn", ctx);
+      if (t3 && SAYFN) SAYFN(t3);
+    }
+  }
+
+  /* ==========================================================
+     7 · 求提示（只在玩法页）
+     ----------------------------------------------------------
+     这是本系统里唯一「有代价」的交互：一句真能用的提示，
+     要拿信任度换，而且越要越贵。
+     为什么这么做：如果提示免费，人就会一直问，人物就退化成
+     说明书；如果提示太贵，人就不敢问，人物就退化成装饰。
+     涨价的曲线是这条线的位置本身。
+     ========================================================== */
+  function hintCost(hall) {
+    var n = num(S.flag["hint." + hall], 0);
+    return 6 + n * 4;
+  }
+
+  function doHint(hall, spec) {
+    var ch = CHARMAP[CUR];
+    if (!ch || !spec.hint) return;
+    var n = num(S.flag["hint." + hall], 0);
+    var cost = hintCost(hall);
+    var b = bondOf(ch.id);
+    if (b < cost) {
+      if (SAYFN) SAYFN("你还不够信我。信任度 " + b + "，这一句要 " + cost +
+        "。先去把展品验几件，或者把这一关重走一遍——**信任是攒出来的，不是要出来的**。");
+      return;
+    }
+    var snap = safeProbe(spec);
+    var text = "";
+    try { text = spec.hint(snap, n) || ""; } catch (e) { text = ""; }
+    if (!text) { if (SAYFN) SAYFN("这一句我还没想好怎么跟你说。先自己试试。"); return; }
+    addBond(ch.id, -cost, "hint");
+    S.flag["hint." + hall] = n + 1;
+    write(S);
+    if (PAINTFN) PAINTFN();
+    if (SAYFN) SAYFN(text);
+    toast(ch, "这句花了你 " + cost + " 点信任。下一句要 " + hintCost(hall) + "。", 6000);
+  }
+
+  /* ==========================================================
+     8 · 事件派发
+     ========================================================== */
+  function dispatch(hall, ev, data) {
+    var spec = SPECS[hall];
+    if (!spec || !DOCK) return;
+    var ch = CHARMAP[CUR];
+    if (!ch) return;
+    var ctx = ctxOf(spec, ch);
+    ctx.data = data || {};
+
+    var DELTA = {
+      pass: 4, fail: -1, seen: 2, streak: 3,
+      elite: 15, visit: 6, enterDeep: 2, gameDone: 18, camp: 3
+    };
+    if (typeof DELTA[ev] === "number") addBond(ch.id, DELTA[ev], ev);
+
+    var line = pickLine(ch, ev, ctx);
+    if (!line) return;
+    /* 情绪：成功上扬、失败下压 */
+    MOOD = ev === "pass" || ev === "elite" || ev === "gameDone" ? "up"
+      : (ev === "fail" || ev === "streak" || ev === "gameWarn" ? "down" : "calm");
+    if (DOCK) {
+      var f = DOCK.querySelectorAll(".cst-face");
+      for (var i = 0; i < f.length; i++) {
+        var id = f[i].getAttribute("data-ch");
+        f[i].outerHTML = faceHTML(CHARMAP[id], id === CUR ? MOOD : "calm",
+          id === CUR ? "on" : (S.camp[hall] && S.camp[hall] !== id ? "cold" : ""));
+      }
+    }
+    if (SAYFN) SAYFN(line);
+    if (ev === "pass" || ev === "elite" || ev === "gameDone" || ev === "streak") toast(ch, line, 7000);
+  }
+
+  /* 兼容：老代码可以直接调 */
+  function say(hall, ev, data) { dispatch(hall, ev, data); }
+
+  /* ==========================================================
+     8 · 搭话面板
+     ========================================================== */
+  var PANEL = null;
+
+  function ensurePanel() {
+    if (PANEL) return PANEL;
+    var p = document.createElement("div");
+    p.className = "castpanel cst-root";
+    p.innerHTML =
+      '<div class="cstp-head">' +
+        '<div class="cstp-top"><div class="cst-faces"></div>' +
+          '<div class="cstp-id"></div>' +
+          '<button class="cst-x" title="关闭">×</button>' +
+        "</div>" +
+        '<div class="cstp-meta"></div>' +
+      "</div>" +
+      '<div class="cstp-flow" id="cstFlow"></div>' +
+      '<div class="cstp-topics" id="cstTopics"></div>';
+    document.body.appendChild(p);
+    PANEL = p;
+    p.querySelector(".cst-x").addEventListener("click", function () { p.classList.remove("open"); });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && p.classList.contains("open")) p.classList.remove("open");
+    });
+    return p;
+  }
+
+  function openPanel(hall, chId) {
+    var spec = SPECS[hall];
+    if (!spec) return;
+    var ch = CHARMAP[chId || CUR];
+    if (!ch) return;
+    var p = ensurePanel();
+    p.style.setProperty("--cst-ac", spec.accent);
+    p.setAttribute("data-hall", hall);
+    p.setAttribute("data-ch", ch.id);
+
+    var faces = p.querySelector(".cstp-top .cst-faces");
+    faces.innerHTML = spec.cast.map(function (c) {
+      return faceHTML(c, "calm", c.id === ch.id ? "on" : "");
+    }).join("");
+    faces.onclick = function (ev) {
+      var f = ev.target.closest(".cst-face");
+      if (f) openPanel(hall, f.getAttribute("data-ch"));
+    };
+
+    var idBox = p.querySelector(".cstp-id");
+    var t = tierOf(ch.id), b = bondOf(ch.id);
+    var mine = S.camp[hall] === ch.id;
+    idBox.innerHTML =
+      '<div class="cst-nm">' + esc(ch.name) + "<small>" + esc(ch.role) + "</small></div>" +
+      '<div class="cst-tag">' +
+        '<span class="cst-camp' + (mine ? " mine" : "") + '">「' + esc(ch.camp) + "」</span>" +
+        "<span>" + esc(t.cn) + "</span>" +
+      "</div>";
+
+    var meta = p.querySelector(".cstp-meta");
+    var prog = ctxOf(spec, ch).progress;
+    meta.innerHTML =
+      "<span>信任 <b>" + b + "</b>/100</span>" +
+      "<span>展品 <b>" + prog.passed + "</b>/" + prog.total + "</span>" +
+      "<span>口述史 <b>" + unlockedOral(ch).length + "</b>/" + (ch.oral || []).length + "</span>" +
+      (S.camp[hall] ? "<span>已选边 <b>" + esc((CHARMAP[S.camp[hall]] || {}).name || "—") + "</b></span>" : "<span>尚未选边</span>");
+
+    /* 对话流：开场一句 */
+    var flow = p.querySelector("#cstFlow");
+    flow.innerHTML = "";
+    var ctx = ctxOf(spec, ch);
+    var opening = pickLine(ch, mine ? "panelMine" : "panel", ctx) ||
+      pickLine(ch, "panel", ctx) || "问吧。我不一定全说。";
+    pushMsg(flow, "them", opening);
+
+    /* 话题 */
+    paintTopics(p, hall, ch);
+    p.classList.add("open");
+  }
+
+  function pushMsg(flow, who, text, lore) {
+    var d = document.createElement("div");
+    d.className = "cst-msg" + (who === "me" ? " me" : "");
+    if (who === "sys") {
+      d.className = "cst-msg sys";
+      d.innerHTML = "<span>" + esc(text) + "</span>";
+    } else {
+      var html = rich(text);
+      if (lore) html += '<span class="cst-lore">' + rich(lore) + "</span>";
+      d.innerHTML = '<div class="cst-bub">' + html + "</div>";
+    }
+    flow.appendChild(d);
+    flow.scrollTop = flow.scrollHeight;
+    return d;
+  }
+
+  function paintTopics(p, hall, ch) {
+    var spec = SPECS[hall];
+    var box = p.querySelector("#cstTopics");
+    var ctx = ctxOf(spec, ch);
+    var asked = S.flag["asked." + ch.id] || {};
+    var list = (ch.topics || []).filter(function (tp) {
+      if (!tp.need) return true;
+      if (tp.need.bond && bondOf(ch.id) < tp.need.bond) return false;
+      if (tp.need.camp && !ctx.mine) return false;
+      if (tp.need.elite && !ctx.elite) return false;
+      return true;
+    });
+
+    var h = '<div class="cstp-th">可以问的</div>';
+    if (!list.length) {
+      h += '<div style="font-size:11.5px;color:var(--cst-ink3);line-height:1.7">他还没打算跟你聊这些。先去看看展品，或者把这一馆的挑战走一遍。</div>';
+    }
+    list.forEach(function (tp, i) {
+      var isAsked = !!asked[tp.q];
+      h += '<button class="cst-tp' + (isAsked ? " done" : "") + '" data-tp="' + i + '">' +
+        esc(tp.q) +
+        (tp.sub ? "<small>" + esc(tp.sub) + "</small>" : (isAsked ? "<small>已问过 · 可再问</small>" : "")) +
+        "</button>";
+    });
+    /* 锁住的话题也显示，作为可见目标 */
+    (ch.topics || []).forEach(function (tp) {
+      if (!tp.need) return;
+      if (list.indexOf(tp) >= 0) return;
+      var why = tp.need.elite ? "需先完成本馆精英挑战" : (tp.need.camp ? "需先选边站队" : "需信任度 ≥ " + tp.need.bond);
+      h += '<button class="cst-tp lock" disabled>' + esc(tp.q) + "<small>🔒 " + esc(why) + "</small></button>";
+    });
+    box.innerHTML = h;
+
+    box.onclick = function (ev) {
+      var b = ev.target.closest("[data-tp]");
+      if (!b) return;
+      var tp = list[+b.getAttribute("data-tp")];
+      if (!tp) return;
+      var flow = p.querySelector("#cstFlow");
+      pushMsg(flow, "me", tp.q);
+      var ctx2 = ctxOf(spec, ch);
+      var ans = typeof tp.say === "function" ? tp.say(ctx2) : tp.say;
+      var lore = null;
+      if (tp.lore) lore = typeof tp.lore === "function" ? tp.lore(ctx2) : tp.lore;
+      setTimeout(function () {
+        pushMsg(flow, "them", ans, lore);
+        S.flag["asked." + ch.id] = S.flag["asked." + ch.id] || {};
+        S.flag["asked." + ch.id][tp.q] = 1;
+        write(S);
+        addBond(ch.id, 1);
+        /* 追问 */
+        if (tp.ask && tp.ask.length) {
+          var fa = document.createElement("div");
+          fa.style.cssText = "display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 12px";
+          tp.ask.forEach(function (a, k) {
+            var btn = document.createElement("button");
+            btn.className = "cst-btn";
+            btn.style.flex = "0 1 auto";
+            btn.textContent = a.q;
+            btn.onclick = function () {
+              fa.remove();
+              pushMsg(flow, "me", a.q);
+              setTimeout(function () {
+                pushMsg(flow, "them",
+                  typeof a.say === "function" ? a.say(ctxOf(spec, ch)) : a.say,
+                  a.lore ? (typeof a.lore === "function" ? a.lore(ctxOf(spec, ch)) : a.lore) : null);
+                addBond(ch.id, 1);
+              }, 380);
+            };
+            fa.appendChild(btn);
+          });
+          flow.appendChild(fa);
+          flow.scrollTop = flow.scrollHeight;
+        }
+        /* 刷新头部数字与话题态 */
+        var bb = bondOf(ch.id);
+        var m = p.querySelector(".cstp-meta");
+        if (m) m.children[0].innerHTML = "信任 <b>" + bb + "</b>/100";
+        paintTopics(p, hall, ch);
+      }, 420);
+    };
+  }
+
+  /* ==========================================================
+     9 · 人物档案
+     ========================================================== */
+  var CARD = null;
+
+  function unlockedOral(ch) {
+    var b = bondOf(ch.id);
+    var elite = false;
+    try { elite = !!(window.YCDeep && YCDeep.getCert(ch.hall, "elite")); } catch (e) {}
+    var out = [];
+    (ch.oral || []).forEach(function (o, i) {
+      var ok = true;
+      if (o.need) {
+        if (o.need.bond && b < o.need.bond) ok = false;
+        if (o.need.elite && !elite) ok = false;
+      }
+      if (ok) out.push(i);
+    });
+    return out;
+  }
+
+  function ensureCard() {
+    if (CARD) return CARD;
+    var c = document.createElement("div");
+    c.className = "castcard cst-root";
+    c.innerHTML = '<div class="cstc-box"><div class="cstc-head"></div>' +
+      '<div class="cstc-wrap"><div class="cstc-body"></div></div></div>';
+    document.body.appendChild(c);
+    CARD = c;
+    c.addEventListener("click", function (e) {
+      if (e.target === c || e.target.closest(".cst-x")) c.classList.remove("open");
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && c.classList.contains("open")) c.classList.remove("open");
+    });
+    return c;
+  }
+
+  function openCard(hall, chId) {
+    var spec = SPECS[hall];
+    if (!spec) return;
+    var ch = CHARMAP[chId || CUR];
+    if (!ch) return;
+    var c = ensureCard();
+    c.style.setProperty("--cst-ac", ch.color || spec.accent);
+    var head = c.querySelector(".cstc-head");
+    var b = bondOf(ch.id), t = tierOf(ch.id);
+    var mine = S.camp[hall] === ch.id;
+    head.innerHTML =
+      faceHTML(ch, "calm", "on") +
+      '<div class="cstc-t"><h3>' + esc(ch.name) + " · " + esc(ch.role) + "</h3>" +
+        "<p>" + esc(ch.camp) + "派 · " + esc(t.cn) + "（信任 " + b + "/100）" +
+        (mine ? " · 你站他这边" : "") + "</p></div>" +
+      '<button class="cst-x" title="关闭">×</button>';
+
+    var o = otherOf(spec, ch);
+    var ol = unlockedOral(ch);
+    var body = c.querySelector(".cstc-body");
+    /* 左栏大幅胸像：换人时要整块换掉，不能叠着留上一个人的脸 */
+    var wrap = c.querySelector(".cstc-wrap");
+    if (wrap) {
+      var oldPor = wrap.querySelector(".cstc-por");
+      if (oldPor) oldPor.parentNode.removeChild(oldPor);
+      wrap.insertAdjacentHTML("afterbegin", bustHTML(ch, "calm"));
+    }
+
+    var kv = ch.kv || {};
+    var kvHTML = Object.keys(kv).map(function (k) {
+      return '<div class="cstc-kv"><div class="k">' + esc(k) + '</div><div class="v">' + esc(kv[k]) + "</div></div>";
+    }).join("");
+
+    body.innerHTML =
+      '<div class="cstc-sec"><h4>他是谁</h4><p class="cstc-bio">' + rich(ch.bio || "") + "</p></div>" +
+      (kvHTML ? '<div class="cstc-sec"><h4>档案</h4><div class="cstc-grid">' + kvHTML + "</div></div>" : "") +
+      '<div class="cstc-sec"><h4>这一馆的分歧 <span>' + esc(spec.campQ || "") + "</span></h4>" +
+        '<div class="cst-campline">' +
+          '<div class="cst-campcard' + (mine ? " mine" : "") + '">' +
+            '<div class="cn">' + esc(ch.name) + "「" + esc(ch.camp) + "」</div>" +
+            '<div class="cq">' + esc(ch.stance || "") + "</div></div>" +
+          '<div class="cst-vs">VS</div>' +
+          (o ? '<div class="cst-campcard' + (S.camp[hall] === o.id ? " mine" : "") + '">' +
+            '<div class="cn">' + esc(o.name) + "「" + esc(o.camp) + "」</div>" +
+            '<div class="cq">' + esc(o.stance || "") + "</div></div>" : "<div></div>") +
+        "</div>" +
+        '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">' +
+          (S.camp[hall] ? "" : '<button class="cst-btn pri" style="flex:0 0 auto;padding:7px 14px" data-act="camp">还没选边 · 现在选</button>') +
+          (spec.clash ? '<button class="cst-btn" style="flex:0 0 auto;padding:7px 14px" data-act="clash">听他们吵一架 →</button>' : "") +
+        "</div>" +
+      "</div>" +
+      '<div class="cstc-sec"><h4>口述史 <span>' + ol.length + " / " + (ch.oral || []).length + "</span></h4>" +
+        (ch.oral || []).map(function (o2, i) {
+          var open = ol.indexOf(i) >= 0;
+          return '<div class="cst-loreitem' + (open ? "" : " lock") + '">' +
+            '<div class="lt">' + esc(o2.t) + "<em>" + (open ? "已解锁" : lockHint(o2)) + "</em></div>" +
+            '<div class="lx">' + rich(o2.x) + "</div></div>";
+        }).join("") +
+      "</div>";
+
+    body.onclick = function (e) {
+      if (e.target.closest('[data-act="camp"]')) { c.classList.remove("open"); openCamp(hall); }
+      if (e.target.closest('[data-act="clash"]')) { c.classList.remove("open"); openClash(hall); }
+    };
+    c.classList.add("open");
+  }
+  function lockHint(o) {
+    if (o.need && o.need.elite) return "需完成精英挑战";
+    if (o.need && o.need.bond) return "信任度 ≥ " + o.need.bond;
+    return "未解锁";
+  }
+
+  /* 玩法页不自动弹选边。
+     选边是「进馆时的邀请」，不是「开局前的关卡」——
+     在 h2-case / h3-maze 这类页面上，一个全屏弹层直接盖住棋盘，
+     玩家的第一反应是「游戏坏了」。要看两人的立场，坞里那个「立场」按钮还在。 */
+  function isGamePage() {
+    return /-(case|maze|purge|forecast|tower)\.html$/.test(location.pathname);
+  }
+
+  /* ==========================================================
+     10 · 选边
+     ========================================================== */
+  var CAMP = null;
+
+  function ensureCamp() {
+    if (CAMP) return CAMP;
+    var c = document.createElement("div");
+    c.className = "castcamp cst-root";
+    c.innerHTML = '<div class="cstk-box" id="cstkBox"></div>';
+    document.body.appendChild(c);
+    CAMP = c;
+    /* 必须能随手关掉：选边是邀请，不是关卡 */
+    c.addEventListener("click", function (e) {
+      if (e.target === c) c.classList.remove("open");
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && c.classList.contains("open")) c.classList.remove("open");
+    });
+    return c;
+  }
+
+  function openCamp(hall) {
+    var spec = SPECS[hall];
+    if (!spec || !spec.campQ) return;
+    var c = ensureCamp();
+    c.style.setProperty("--cst-ac", spec.accent);
+    c.setAttribute("data-hall", hall);
+    var box = c.querySelector("#cstkBox");
+    box.innerHTML =
+      '<div class="cstk-kick">' + esc(spec.hall) + " · " + esc(spec.roomName || spec.name) + " · 驻馆人立场</div>" +
+      "<h2>" + esc(spec.campQ) + "</h2>" +
+      '<p class="cstk-lead">' + rich(spec.campLead || "这一馆里两个人，对这个问题给出的答案不一样。他们都在这儿干了很久，都不打算改口。你站谁，之后听到的话就不一样——不是换个人说话，是换一套判断标准。") + "</p>" +
+      '<div class="cstk-grid">' +
+        spec.cast.map(function (ch) {
+          /* 这里必须是 div 不能是 button：卡里要放头像按钮，
+             button 套 button 会被解析器强制拆开，整张卡就散架了。 */
+          return '<div class="cstk-pick" role="button" tabindex="0" data-pick="' + ch.id + '">' +
+            '<div class="cst-faces">' + faceHTML(ch, "calm", "on") + "</div>" +
+            '<div class="pn">' + esc(ch.name) + "</div>" +
+            '<div class="pr">' + esc(ch.role) + " · 「" + esc(ch.camp) + "」派</div>" +
+            '<div class="pq">' + esc(ch.stance || "") + "</div>" +
+            '<div class="pc">我站他 →</div>' +
+          "</div>";
+        }).join("") +
+      "</div>" +
+      '<button class="cstk-skip">先不选，我再看看</button>';
+
+    function pick(el) {
+      var p = el.closest("[data-pick]");
+      if (!p) return false;
+      chooseCamp(hall, p.getAttribute("data-pick"));
+      c.classList.remove("open");
+      return true;
+    }
+    box.onclick = function (e) {
+      if (pick(e.target)) return;
+      if (e.target.closest(".cstk-skip")) c.classList.remove("open");
+    };
+    box.onkeydown = function (e) {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      if (pick(e.target)) e.preventDefault();
+    };
+    c.classList.add("open");
+  }
+
+  function chooseCamp(hall, id) {
+    var spec = SPECS[hall];
+    if (!spec || !CHARMAP[id]) return;
+    S.camp[hall] = id; write(S);
+    var ch = CHARMAP[id], o = otherOf(spec, ch);
+    addBond(id, 8, "camp");
+    if (o) addBond(o.id, -2, "campOther");
+    if (DOCK) {
+      CUR = id;
+      try { localStorage.setItem("yc.cast.cur." + hall, id); } catch (e) {}
+      mountRefresh(hall);
+    }
+    var line = pickLine(ch, "campWin", ctxOf(spec, ch)) ||
+      "你站我这边。那我把话说透一点。";
+    setTimeout(function () {
+      if (SAYFN) SAYFN(line);
+      toast(ch, line, 8000);
+    }, 500);
+    /* 让地图/首页知道状态变了 */
+    try { window.dispatchEvent(new CustomEvent("yc:camp", { detail: { hall: hall, id: id } })); } catch (e) {}
+  }
+
+  function mountRefresh(hall) {
+    /* 重挂一次，让头像的 cold/on 态、who 区全部重算 */
+    var spec = SPECS[hall];
+    if (!spec) return;
+    var wasFold = DOCK && DOCK.classList.contains("cst-fold");
+    unmount();
+    var el = mount(hall);
+    if (wasFold && el) el.classList.add("cst-fold");
+    /* 注意：sayNow 是 mount 内的局部函数，这里只能用模块级的 SAYFN */
+    if (el && SAYFN) SAYFN(pickLine(CHARMAP[CUR], "campWin", ctxOf(spec, CHARMAP[CUR])) || "行，我接着说。");
+  }
+
+  /* ==========================================================
+     10 · 「听他们吵一架」
+     ----------------------------------------------------------
+     一个人对你说话，你是观众；两个人互相说话，你才是在场。
+     台词不解释分歧，只把分歧演出来 —— 讲道理的部分留给玩家自己判断。
+     ========================================================== */
+  var CLASH = null, clashTimer = null, clashIdx = 0, clashHall = null;
+
+  function ensureClash() {
+    if (CLASH) return CLASH;
+    var c = document.createElement("div");
+    c.className = "castclash cst-root";
+    c.innerHTML =
+      '<div class="cstg-box">' +
+        '<div class="cstg-head">' +
+          '<div class="cstg-t"><h4>他们吵过一架</h4><p></p></div>' +
+          '<button class="cst-x" title="关闭">×</button>' +
+        "</div>" +
+        '<div class="cstg-stage"></div>' +
+        '<div class="cstg-foot">' +
+          '<span class="cstg-hint">他们不会和解 —— 这是这一馆存在的原因。</span>' +
+          '<button class="cst-btn" data-g="replay" style="flex:0 0 auto;padding:7px 12px">再说一遍</button>' +
+          '<button class="cst-btn pri" data-g="skip" style="flex:0 0 auto;padding:7px 12px">全部展开</button>' +
+        "</div>" +
+      "</div>";
+    document.body.appendChild(c);
+    CLASH = c;
+    c.addEventListener("click", function (e) {
+      if (e.target === c || e.target.closest(".cst-x")) { stopClash(); return; }
+      if (e.target.closest('[data-g="replay"]')) { openClash(clashHall); return; }
+      if (e.target.closest('[data-g="skip"]')) { flushClash(); }
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && c.classList.contains("open")) stopClash();
+    });
+    return c;
+  }
+
+  function clashRow(spec, l) {
+    var ch = spec.cast[l.w === "b" ? 1 : 0] || spec.cast[0];
+    var row = document.createElement("div");
+    row.className = "cstg-row" + (l.w === "b" ? " r" : "");
+    row.innerHTML = faceHTML(ch, l.mood || "calm", "on") +
+      '<div class="cstg-bub"><span class="cstg-n">' + esc(ch.name) + " · " + esc(ch.role) + "</span>" +
+      rich(l.t) + "</div>";
+    return row;
+  }
+
+  function stopClash() {
+    clearTimeout(clashTimer); clashTimer = null;
+    if (CLASH) CLASH.classList.remove("open");
+  }
+
+  function flushClash() {
+    var spec = SPECS[clashHall];
+    if (!spec || !spec.clash) return;
+    clearTimeout(clashTimer); clashTimer = null;
+    var stage = CLASH.querySelector(".cstg-stage");
+    while (clashIdx < spec.clash.length) {
+      stage.appendChild(clashRow(spec, spec.clash[clashIdx++]));
+    }
+    stage.scrollTop = stage.scrollHeight;
+    CLASH.querySelector('[data-g="skip"]').style.display = "none";
+  }
+
+  function openClash(hall) {
+    var spec = SPECS[hall];
+    if (!spec || !spec.clash || !spec.clash.length) return;
+    var c = ensureClash();
+    c.style.setProperty("--cst-ac", spec.accent);
+    c.querySelector("h4").textContent = spec.clashTitle || "他们吵过一架";
+    c.querySelector(".cstg-head p").textContent =
+      spec.hall + " · " + (spec.roomName || spec.name) + " · " + spec.campQ;
+    c.querySelector(".cstg-stage").innerHTML = "";
+    c.querySelector('[data-g="skip"]').style.display = "";
+    clashHall = hall; clashIdx = 0;
+    c.classList.add("open");
+    playClash();
+  }
+
+  function playClash() {
+    var spec = SPECS[clashHall];
+    if (!spec || !spec.clash) return;
+    var stage = CLASH.querySelector(".cstg-stage");
+    if (clashIdx >= spec.clash.length) {
+      CLASH.querySelector('[data-g="skip"]').style.display = "none";
+      return;
+    }
+    stage.appendChild(clashRow(spec, spec.clash[clashIdx++]));
+    stage.scrollTop = stage.scrollHeight;
+    clearTimeout(clashTimer);
+    clashTimer = setTimeout(playClash, 1750);
+  }
+
+  /* ==========================================================
+     11 · 插话提示
+     ========================================================== */
+  var TOAST = null, toastTimer = null;
+  function toast(ch, text, ms) {
+    if (!TOAST) {
+      TOAST = document.createElement("div");
+      TOAST.className = "csttoast cst-root";
+      document.body.appendChild(TOAST);
+    }
+    var spec = SPECS[ch.hall];
+    TOAST.style.setProperty("--cst-ac", ch.color || (spec ? spec.accent : "#46d3e8"));
+    TOAST.innerHTML =
+      faceHTML(ch, "calm", "on") +
+      '<div class="tx"><div class="nm">' + esc(ch.name) + " · " + esc(ch.role) + "</div>" +
+      '<div class="sy">' + rich(text) + "</div></div>";
+    TOAST.classList.add("on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { TOAST.classList.remove("on"); }, ms || 5200);
+  }
+
+  /* ==========================================================
+     12 · 今日值守（城市页 / 地图页）
+     ========================================================== */
+  /* 轮值表：按北京时间分四班。名字与颜色在此登记，
+     完整立绘仍由各馆文件提供——城市页只放小徽章，不加载五个馆的立绘。 */
+  var MINI = {
+    shen: { hall: "H2", nm: "沈砚", role: "首席证物官", color: "#a887ff", mono: "砚" },
+    qi:   { hall: "H2", nm: "祁野", role: "现场探员",   color: "#a887ff", mono: "野" },
+    bai:  { hall: "H3", nm: "白珩", role: "指标员",     color: "#f2a63c", mono: "珩" },
+    tao:  { hall: "H3", nm: "陶叔", role: "老技师",     color: "#f2a63c", mono: "陶" },
+    cen:  { hall: "H4", nm: "岑默", role: "净化工程师", color: "#35cfa8", mono: "岑" },
+    luo:  { hall: "H4", nm: "罗姐", role: "产能主管",   color: "#35cfa8", mono: "罗" },
+    wen:  { hall: "H5", nm: "温野", role: "育种师",     color: "#ef6a72", mono: "温" },
+    sang: { hall: "H5", nm: "阿桑", role: "抢救组",     color: "#ef6a72", mono: "桑" },
+    lu:   { hall: "H6", nm: "陆准", role: "配额官",     color: "#6d9bff", mono: "陆" },
+    man:  { hall: "H6", nm: "小满", role: "攀爬者",     color: "#6d9bff", mono: "满" }
+  };
+
+  var SHIFTS = [
+    { from: 6,  to: 12, name: "早班", ids: ["qi", "luo", "man"] },
+    { from: 12, to: 18, name: "午班", ids: ["bai", "sang", "shen"] },
+    { from: 18, to: 24, name: "夜班", ids: ["cen", "wen", "lu"] },
+    { from: 0,  to: 6,  name: "守夜", ids: ["tao"] }
+  ];
+
+  function roster() {
+    /* 城市页写的是「北京时间」，那就必须真的按东八区算，
+       不能拿本机 local hour 糊过去 —— 用户在别的时区打开会错班。 */
+    var now = new Date();
+    var bj = new Date(now.getTime() + (now.getTimezoneOffset() + 480) * 60000);
+    var h = bj.getHours(), mi = bj.getMinutes();
+    var sh = SHIFTS[0];
+    for (var i = 0; i < SHIFTS.length; i++) {
+      if (h >= SHIFTS[i].from && h < SHIFTS[i].to) { sh = SHIFTS[i]; break; }
+    }
+    var leftMin = (sh.to - h) * 60 - mi;
+    if (leftMin < 0) leftMin += 1440;
+    return {
+      hour: h, minute: mi, shift: sh.name,
+      until: leftMin,
+      clock: (h < 10 ? "0" : "") + h + ":" + (mi < 10 ? "0" : "") + mi,
+      people: sh.ids.map(function (id) {
+        var m = MINI[id] || {};
+        return {
+          id: id, hall: m.hall, name: m.nm, role: m.role,
+          color: m.color, mono: m.mono,
+          bond: bondOf(id), tier: tierOf(id).cn
+        };
+      })
+    };
+  }
+
+  function miniBadge(p, size) {
+    var s = size || 30;
+    return '<span class="cst-mbadge" style="width:' + s + "px;height:" + s + "px;border-radius:" + Math.round(s / 3.6) +
+      "px;background:linear-gradient(150deg," + p.color + "33," + p.color + "0d);border:1px solid " + p.color +
+      '66;display:inline-grid;place-items:center;font-size:' + Math.round(s * .44) + "px;font-weight:800;color:" +
+      p.color + ';flex:none;font-family:var(--mono,monospace)">' + esc(p.mono || "·") + "</span>";
+  }
+
+  /* ==========================================================
+     13 · 导出
+     ========================================================== */
+  return {
+    version: VERSION,
+    register: register,
+    specOf: specOf,
+    svg: svg,
+    state: function () { return S; },
+    bondOf: bondOf,
+    tierOf: function (id) { return tierOf(id).cn; },
+    addBond: addBond,
+    say: say,
+    dispatch: dispatch,
+    openPanel: openPanel,
+    openCard: openCard,
+    openCamp: openCamp,
+    openClash: openClash,
+    chooseCamp: chooseCamp,
+    mount: mount,
+    roster: roster,
+    miniBadge: miniBadge,
+    MINI: MINI,
+    unlockedOral: unlockedOral,
+    faceHTML: faceHTML,
+    /* 让游戏内核自己报事件 */
+    emit: function (hall, ev, data) { dispatch(hall, ev, data); }
+  };
+})();
+</script>
+<script>
+/* ==========================================================================
+   H4 精英挑战 · 净化车间 · 十二道工序
+   --------------------------------------------------------------------------
+   玩法内核与 H2（四幕审讯）、H3（3D 迷宫）都不同：这是**资源受限下的审计**。
+   核心约束：
+     · 十二道工序额度。改参数、复核、开庭都要花额度。
+     · 每次开庭必须**先解释这次读数是什么意思**，解释对了才返还额度。
+       这一条把「拧旋钮碰运气」变成「必须读懂守卫」。
+     · 最终报告要成立，需要三件事同时成立：
+         判定明确（不是 undetermined）· 五道守卫全绿 · 换种子复核判定不变。
+       第三件是本馆真正的门槛：一个换种子就翻的结论，本来就不该交出去。
+   所有数值都来自 yc-contamination.js 实算。
+   ========================================================================== */
+(function () {
+  "use strict";
+
+  var C = window.YCContam, D = window.YCDeep;
+  if (!C) { return; }
+  function $(id) { return document.getElementById(id); }
+
+  var BUDGET = 12;
+  /* 最后一档是陷阱：0.90 会让记忆认不出这道题，探针断开。 */
+  var WSTEPS = [0.15, 0.30, 0.45, 0.60, 0.90];
+  var NSTEPS = [24, 48, 96, 192, 384];
+  var VERIFY_SEED = 9176;
+  var MEM_TRUTH = 0.95;          /* 被审计者的真实记忆强度，玩家看不到 */
+
+  var st = {
+    wi: 0, ni: 0, ln: 0.35,
+    left: BUDGET,
+    seed: 20261031,
+    reading: null,
+    verify: null,
+    log: [],
+    asked: 0, right: 0,
+    quiz: null,
+    over: false
+  };
+
+  /* ---------------- 读数 → 该怎么读 ---------------- */
+  var REASONS = {
+    "supported/stale": { ok: 1, t: "可以下结论：它在回吐旧答案，不是算错。" },
+    "refuted/compute": { ok: 1, t: "可以下结论：它在算——回吐率与偶然水平分不开。" },
+    "noeffect/noadv": { ok: 1, t: "可以下结论：见过这道题没带来可测优势，没有需要解释的东西。" },
+    "conflict/label": { ok: 1, t: "可以下结论，但 κ̂ 只能当「至少」读：泄漏的答案里有一部分本身是错的。" },
+    "undetermined/vacuous": { ok: 0, t: "不能判：改数没改变答案，这一整档题不提供任何信息。" },
+    "undetermined/probe": { ok: 0, t: "不能判：探针没接通，κ̂≈0 不携带信息。" },
+    "undetermined/n": { ok: 0, t: "不能判：题组太少，自助法区间压不下来。" },
+    "undetermined/straddle": { ok: 0, t: "不能判：区间跨过判定边界，点估计不能当结论。" },
+    "undetermined/mixed": { ok: 0, t: "不能判：回吐压力落在中间地带，两种解释都成立。" }
+  };
+  function reasonKey(r) { return r.verdict + "/" + r.subtype; }
+  function reasonOf(r) { return REASONS[reasonKey(r)] || { ok: 0, t: "不能判：判定未定。" }; }
+
+  /* ---------------- 计算 ---------------- */
+  function params(seed) {
+    return {
+      rewrite: WSTEPS[st.wi],
+      n: NSTEPS[st.ni],
+      labelNoise: st.ln,
+      mem: MEM_TRUTH,
+      seed: seed == null ? st.seed : seed
+    };
+  }
+  function compute(seed) {
+    try { return C.runAudit(params(seed)); }
+    catch (e) { return null; }
+  }
+
+  /* ---------------- 工具 ---------------- */
+  function pct(v) { return v == null ? "—" : Math.round(v * 100) + "%"; }
+  function f2(v) { return v == null ? "—" : v.toFixed(2); }
+  function greens(r) { var c = 0; for (var i = 0; i < r.guards.length; i++) if (r.guards[i].ok) c++; return c; }
+  function clearVerdict(r) { return r.verdict !== "undetermined"; }
+  function allGreen(r) { return greens(r) === r.guards.length; }
+
+  /* ============================================================
+     绘制：额度条
+     ============================================================ */
+  function paintBudget() {
+    var h = "";
+    for (var i = 0; i < BUDGET; i++) {
+      h += '<i class="' + (i < st.left ? "on" : "spent") + '"></i>';
+    }
+    $("pips").innerHTML = h;
+    $("budN").textContent = st.left;
+  }
+
+  /* ============================================================
+     绘制：档位条
+     ============================================================ */
+  function paintSteps() {
+    var hw = "", hn = "";
+    WSTEPS.forEach(function (v, i) {
+      var cost = Math.abs(i - st.wi);
+      var dis = st.over || (cost > 0 && cost > st.left);
+      hw += '<button data-w="' + i + '"' + (i === st.wi ? ' class="on"' : "") + (dis ? " disabled" : "") +
+        ' title="' + (cost ? "移动 " + cost + " 道工序" : "当前档") + '">' + v.toFixed(2) + "</button>";
+    });
+    NSTEPS.forEach(function (v, i) {
+      var cost = Math.abs(i - st.ni);
+      var dis = st.over || (cost > 0 && cost > st.left);
+      hn += '<button data-n="' + i + '"' + (i === st.ni ? ' class="on"' : "") + (dis ? " disabled" : "") +
+        ' title="' + (cost ? "移动 " + cost + " 道工序" : "当前档") + '">' + v + "</button>";
+    });
+    $("wSteps").innerHTML = hw;
+    $("nSteps").innerHTML = hn;
+
+    $("wHint").innerHTML = "改得太轻，题目根本没变（甲乙同答案 100%）；改得太重，记忆认不出这道题。" +
+      " 当前 <b>" + WSTEPS[st.wi].toFixed(2) + "</b>，移动一格花 1 道工序。";
+    $("nHint").innerHTML = "题组太少，自助法区间压不下来，任何点估计都会跨线。下限是 60 组。" +
+      " 当前 <b>" + NSTEPS[st.ni] + "</b> 组，移动一格花 1 道工序。";
+  }
+
+  /* ============================================================
+     绘制：读数台
+     ============================================================ */
+  function paintRead() {
+    var r = st.reading;
+    if (!r) {
+      $("rdEmpty").style.display = "";
+      $("rdBody").style.display = "none";
+      $("rdSt").className = "st";
+      $("rdSt").textContent = "待开庭";
+      return;
+    }
+    $("rdEmpty").style.display = "none";
+    $("rdBody").style.display = "";
+
+    var cl = clearVerdict(r), ag = allGreen(r);
+    $("rdSt").className = "st " + (cl && ag ? "ok" : (cl ? "ok" : "bad"));
+    $("rdSt").textContent = (cl ? "判定明确" : "不可判") + " · 守卫 " + greens(r) + "/" + r.guards.length;
+
+    var H = [];
+    H.push('<div class="pgkv">');
+    H.push(cell("三档准确率 甲 / 乙 / 丙", pct(r.est.accA) + " / " + pct(r.est.accB) + " / " + pct(r.est.accC),
+      "甲−丙 " + (r.est.advAC * 100).toFixed(1) + "pp", "hi"));
+    H.push(cell("回吐率 R / 偶然 R₀", pct(r.est.R) + " / " + pct(r.est.R0),
+      "参照组同答案水平", r.est.R > 0.5 ? "warn" : ""));
+    H.push(cell("κ̂ · 回吐压力", f2(r.est.kappa),
+      r.est.ci ? "区间 " + f2(r.est.ci[0]) + "–" + f2(r.est.ci[1]) : "区间 —", "hi"));
+    H.push(cell("表面匹配 ρ̄", f2(r.est.rhoBar),
+      "阈值 0.55 · 甲乙同答案 " + pct(r.est.eqRate), r.est.rhoBar < 0.55 ? "warn" : ""));
+    H.push('</div>');
+
+    H.push('<div class="pgguard">');
+    r.guards.forEach(function (g) {
+      H.push('<div class="pgg' + (g.ok ? "" : " no") + '"><div class="gn"><i></i>' + esc(g.label) + "</div>" +
+        '<div class="gd">' + esc(g.detail) + "</div></div>");
+    });
+    H.push('</div>');
+
+    H.push(scale(r));
+
+    var cls = r.verdict === "undetermined" ? "undet" : (r.verdict === "conflict" ? "conflict" : "");
+    H.push('<div class="pgverdict ' + cls + '">' +
+      '<div class="vt">' + verdictCN(r) + "</div>" +
+      '<div class="vw">' + esc(r.why) + "</div></div>");
+
+    if (st.verify) {
+      H.push('<div class="pgverdict ' + (st.verify.same ? "" : "conflict") + '" style="margin-top:10px">' +
+        '<div class="vt">复核（种子 +' + VERIFY_SEED + "）· " + (st.verify.same ? "判定不变" : "判定翻了") + "</div>" +
+        '<div class="vw">复核读数 ' + verdictCN(st.verify.r) + "。种子 " + st.verify.seed +
+        "，κ̂ = " + f2(st.verify.r.est.kappa) +
+        (st.verify.same ? "。结论稳得住。" : "。同一个设计换一批题就换结论 —— 这份报告不能交。") + "</div></div>");
+    }
+
+    $("rdBody").innerHTML = H.join("");
+  }
+
+  /* κ̂ 标尺：把数放到 0—1 的轴上，并画出 95% 区间与两条判定线 */
+  function scale(r) {
+    var k = r.est.kappa;
+    var lo = r.est.ci ? r.est.ci[0] : null, hi = r.est.ci ? r.est.ci[1] : null;
+    var pos = function (v) { return (Math.max(0, Math.min(1, v)) * 100).toFixed(2) + "%"; };
+    var H = ['<div class="pgscale"><div class="track">'];
+    if (lo != null && hi != null && hi > lo) {
+      H.push('<div class="ci" style="left:' + pos(lo) + ';width:' + pos(hi - lo) + '"></div>');
+    }
+    if (k != null) H.push('<div class="pin" style="left:' + pos(k) + '"></div>');
+    H.push('</div>');
+    H.push('<div class="ticks"><span class="on">0 全在算</span><span>0.25</span><span>0.60</span><span class="on">1 全在搬</span></div>');
+    var cap;
+    if (k == null) {
+      cap = "κ̂ 无定义 —— 偶然水平已经到 1，分母塌了。";
+    } else if (r.verdict === "undetermined") {
+      cap = "这条区间<b>跨过了判定线</b>，所以标尺上的位置不能当结论读。";
+    } else if (k >= 0.60) {
+      cap = "落在<b>回吐区</b>：扣掉偶然水平之后，仍有超过六成的题根本没算。";
+    } else if (k <= 0.25) {
+      cap = "落在<b>计算区</b>：回吐率与偶然水平分不开，它在算。";
+    } else {
+      cap = "落在<b>中间地带</b>：两种解释都成立，这个位置本身不是结论。";
+    }
+    H.push('<div class="cap">' + cap + "</div></div>");
+    return H.join("");
+  }
+
+  function cell(lb, vv, nn, cls) {
+    return '<div class="cell ' + (cls || "") + '"><div class="lb">' + esc(lb) + "</div>" +
+      '<div class="vv">' + esc(vv) + '</div><div class="nn">' + esc(nn) + "</div></div>";
+  }
+  function verdictCN(r) {
+    var m = {
+      supported: "结论：确认回吐（supported）",
+      refuted: "结论：它在算（refuted）",
+      noeffect: "结论：没有可测优势（noeffect）",
+      conflict: "结论：两通道矛盾，κ̂ 是下界（conflict）",
+      undetermined: "结论：不可判（undetermined）"
+    };
+    return (m[r.verdict] || r.verdict) + " · " + r.subtype;
+  }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c];
+    });
+  }
+
+  /* ============================================================
+     绘制：账本
+     ============================================================ */
+  function paintLog() {
+    var box = $("log");
+    if (!st.log.length) { box.innerHTML = '<div class="none">还没有工序记录。</div>'; return; }
+    var H = [];
+    st.log.slice().reverse().forEach(function (e) {
+      H.push('<div class="pglrow' + (e.final ? " final" : "") + '">' +
+        '<span class="n">' + e.no + "</span>" +
+        '<span class="d">' + e.d + "</span>" +
+        '<span class="v ' + e.cls + '">' + esc(e.v) + "</span></div>");
+    });
+    box.innerHTML = H.join("");
+  }
+
+  /* ============================================================
+     工序
+     ============================================================ */
+  function spend(k) { st.left = Math.max(0, st.left - k); }
+  function invalidate() { st.reading = null; st.verify = null; }
+
+  function moveW(i) {
+    var cost = Math.abs(i - st.wi);
+    if (st.over || cost === 0 || cost > st.left) return;
+    spend(cost); st.wi = i; invalidate();
+    pushLog("改写力度 → " + WSTEPS[i].toFixed(2), "−" + cost + " 道", "ok");
+    repaint();
+  }
+  function moveN(i) {
+    var cost = Math.abs(i - st.ni);
+    if (st.over || cost === 0 || cost > st.left) return;
+    spend(cost); st.ni = i; invalidate();
+    pushLog("题组规模 → " + NSTEPS[i] + " 组", "−" + cost + " 道", "ok");
+    repaint();
+  }
+
+  function opLabel() {
+    if (st.over || st.left < 2 || st.ln < 0.05) return;
+    spend(2); st.ln = st.ln * 0.4; invalidate();
+    pushLog("标签复核 · 噪声 → " + st.ln.toFixed(3), "−2 道", "ok");
+    repaint();
+  }
+
+  function opRun() {
+    if (st.over || st.left < 1) return;
+    var r = compute(st.seed);
+    if (!r) return;
+    spend(1);
+    st.reading = r; st.verify = null;
+    pushLog("开庭 · w=" + WSTEPS[st.wi].toFixed(2) + " n=" + NSTEPS[st.ni] + " ln=" + st.ln.toFixed(3),
+      verdictShort(r), r.verdict === "undetermined" ? "undet" : "ok");
+    repaint();
+    askDiag(r);
+  }
+
+  function opRep() {
+    if (st.over || st.left < 2 || !st.reading) return;
+    var seed = (st.seed + VERIFY_SEED) >>> 0;
+    var r = compute(seed);
+    if (!r) return;
+    spend(2);
+    var same = r.verdict === st.reading.verdict;
+    st.verify = { r: r, same: same, seed: seed };
+    pushLog("复核 · 换种子重跑", same ? "判定不变" : "判定翻了", same ? "ok" : "bad");
+    repaint();
+  }
+
+  function verdictShort(r) {
+    var m = { supported: "确认回吐", refuted: "在算", noeffect: "无优势", conflict: "通道矛盾", undetermined: "不可判" };
+    return (m[r.verdict] || r.verdict) + "/" + r.subtype;
+  }
+
+  function pushLog(d, v, cls) {
+    st.log.push({ no: "0" + (st.log.length + 1), d: d, v: v, cls: cls });
+  }
+
+  /* ============================================================
+     诊断题
+     ============================================================ */
+  var POOL = [
+    "supported/stale", "refuted/compute", "noeffect/noadv", "conflict/label",
+    "undetermined/vacuous", "undetermined/probe", "undetermined/n",
+    "undetermined/straddle", "undetermined/mixed"
+  ];
+
+  function askDiag(r) {
+    var key = reasonKey(r);
+    var right = REASONS[key] ? key : "undetermined/mixed";
+    var others = POOL.filter(function (k) { return k !== right; });
+    /* 干扰项优先挑「同类但不同原因」的：判定同为 undetermined 的那几个最能骗人 */
+    var sameFamily = others.filter(function (k) { return k.split("/")[0] === right.split("/")[0]; });
+    var crossFamily = others.filter(function (k) { return k.split("/")[0] !== right.split("/")[0]; });
+    var d1 = sameFamily.length ? sameFamily[(st.asked * 3) % sameFamily.length] : crossFamily[0];
+    var rest = others.filter(function (k) { return k !== d1; });
+    var d2 = rest[(st.asked * 5 + 2) % rest.length];
+
+    var opts = [
+      { k: right, ok: 1 },
+      { k: d1, ok: 0 },
+      { k: d2, ok: 0 }
+    ];
+    /* 打散位置：正确项不能永远在第一 */
+    var shift = st.asked % 3;
+    opts = opts.slice(shift).concat(opts.slice(0, shift));
+
+    st.quiz = { right: right, opts: opts, answered: false };
+
+    $("qH").textContent = "读数诊断 · 第 " + (st.asked + 1) + " 次开庭";
+    $("qT").textContent = "这一次读数，该怎么读？";
+    $("qS").innerHTML = "κ̂ = <b>" + f2(r.est.kappa) + "</b>，区间 " +
+      (r.est.ci ? f2(r.est.ci[0]) + "–" + f2(r.est.ci[1]) : "—") +
+      "，表面匹配 ρ̄ = <b>" + f2(r.est.rhoBar) + "</b>，甲乙同答案 <b>" + pct(r.est.eqRate) +
+      "</b>，守卫 <b>" + greens(r) + "/" + r.guards.length + "</b> 绿。";
+    $("qO").innerHTML = opts.map(function (o, i) {
+      return '<button data-i="' + i + '">' + String.fromCharCode(65 + i) + "　" + esc(REASONS[o.k].t) + "</button>";
+    }).join("");
+    $("qR").innerHTML = "";
+    $("qNext").disabled = true;
+    $("mask").classList.add("on");
+  }
+
+  function answerDiag(i) {
+    var q = st.quiz;
+    if (!q || q.answered) return;
+    var o = q.opts[i];
+    if (!o) return;
+    q.answered = true;
+    st.asked++;
+    var btns = $("qO").querySelectorAll("button");
+    for (var j = 0; j < btns.length; j++) {
+      btns[j].disabled = true;
+      if (q.opts[j].ok) btns[j].classList.add("ok");
+    }
+    if (o.ok) {
+      st.right++;
+      st.left++;   /* 读懂了就返还这一道工序 */
+      $("qR").innerHTML = '<span style="color:#35cfa8">✓ 记账。这一道工序返还 —— 你看懂了这台仪器在说什么。</span>';
+    } else {
+      btns[i].classList.add("no");
+      $("qR").innerHTML = '<span style="color:#ffb3b3">✗ 记错了。</span> 正确的读法是：' +
+        esc(REASONS[q.right].t) + "<br>读数已经进了账本，但这一次的工序不返还。";
+    }
+    $("qNext").disabled = false;
+    repaint();
+  }
+
+  function closeDiag() {
+    $("mask").classList.remove("on");
+    st.quiz = null;
+  }
+
+  /* ============================================================
+     结算
+     ============================================================ */
+  function score() {
+    var r = st.reading;
+    var cl = r ? clearVerdict(r) : false;
+    var ag = r ? allGreen(r) : false;
+    var usable = cl && ag;
+    var verifyOk = !!(st.verify && st.verify.same);
+    var diagRate = st.asked ? st.right / st.asked : 0;
+
+    var s1 = usable ? 40 : ((cl || ag) ? 15 : 0);
+    var s2 = verifyOk ? 25 : 0;
+    var s3 = st.asked ? Math.round(diagRate * 25) : 0;
+    var s4 = Math.min(10, st.left * 2);
+    return {
+      s1: s1, s2: s2, s3: s3, s4: s4, total: s1 + s2 + s3 + s4,
+      usable: usable, clear: cl, allGreen: ag, verifyOk: verifyOk, diagRate: diagRate,
+      elite: usable && verifyOk && (s1 + s2 + s3 + s4) >= 80
+    };
+  }
+
+  function seal() {
+    if (st.over) return;
+    st.over = true;
+    var sc = score();
+    var r = st.reading;
+
+    var H = [];
+    H.push('<div class="pgend">');
+    H.push('<div class="eh"><h2>' + (sc.elite ? "报告成立" : "报告不成立") + "</h2>" +
+      '<span class="sc">' + sc.total + "<small> / 100</small></span></div>");
+    H.push('<div class="es">' + (sc.elite
+      ? "判定明确、五道守卫全绿、换种子复核判定不变 —— 三件事同时成立，这份报告可以交出去。"
+      : (sc.usable
+        ? "判定与守卫都过关，但复核没过：同一个设计换一批题就换结论，这份报告不能交。"
+        : "判定不可用。要么守卫有红（这一档题提供不了信息），要么判定本身是 undetermined（不可判）。")) + "</div>");
+
+    H.push('<div class="parts">');
+    H.push(part("报告可用性", sc.s1, 40, sc.usable ? "判定明确 + 守卫全绿" : (sc.clear ? "判定明确但守卫有红" : "判定不可判")));
+    H.push(part("可复核", sc.s2, 25, sc.verifyOk ? "换种子判定不变" : "未复核或复核翻面"));
+    H.push(part("读数诊断", sc.s3, 25, st.right + " / " + st.asked + " 次读对"));
+    H.push(part("工序节省", sc.s4, 10, "剩余 " + st.left + " 道"));
+    H.push("</div>");
+
+    if (sc.elite) {
+      var cert = D ? D.getCert("H4", "elite") : null;
+      if (!cert) {
+        cert = D.issueCert("H4", "elite", {
+          play: "净化车间 · 十二道工序",
+          score: sc.total,
+          detail: [
+            "改写力度 " + WSTEPS[st.wi].toFixed(2) + " · 题组 " + NSTEPS[st.ni] + " 组 · 标签噪声 " + st.ln.toFixed(3),
+            "判定 " + (r ? verdictShort(r) : "—") + " · κ̂ = " + (r ? f2(r.est.kappa) : "—"),
+            "五道守卫全绿 · 换种子复核判定不变",
+            "读数诊断 " + st.right + " / " + st.asked + " 次正确"
+          ]
+        });
+      }
+      H.push('<div class="certbox"><div class="ct">精英证书已签发</div>' +
+        '<div class="cd">这一馆的二级证书不发给「参观过的人」，只发给能在预算不够、探针会断、参照组会变暖的条件下交出一份站得住报告的人。</div>' +
+        '<div class="cn">' + esc(cert.no) + " · 校验 " + esc(cert.checksum) + "</div></div>");
+    } else {
+      H.push('<div class="certbox" style="border-color:rgba(255,107,107,.34);background:rgba(255,107,107,.05)">' +
+        '<div class="ct" style="color:#ff8f8f">未达精英线</div>' +
+        '<div class="cd">精英线 80 分，且必须同时满足「判定明确 + 守卫全绿 + 复核一致」。' +
+        '重开一次，先想清楚：这一档题到底提供不了什么信息。</div></div>');
+    }
+
+    H.push('<div class="btnrow"><button id="btnRestart">重开车间</button>' +
+      '<button class="ghost" id="btnBack">回污染馆</button></div>');
+    H.push("</div>");
+
+    $("endBox").innerHTML = H.join("");
+    $("btnRestart").addEventListener("click", restart);
+    $("btnBack").addEventListener("click", function () { location.href = "h4-contam.html"; });
+    repaint();
+    $("endBox").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function part(l, v, max, note) {
+    return '<div class="p"><div class="pl">' + esc(l) + "</div>" +
+      '<div class="pv">' + v + " <span style=\"font-size:11px;color:var(--pg-tx3)\">/ " + max + "</span></div>" +
+      '<div class="pn">' + esc(note) + "</div></div>";
+  }
+
+  function restart() {
+    st.wi = 0; st.ni = 0; st.ln = 0.35; st.left = BUDGET;
+    st.reading = null; st.verify = null; st.log = [];
+    st.asked = 0; st.right = 0; st.quiz = null; st.over = false;
+    $("endBox").innerHTML = "";
+    repaint();
+  }
+
+  /* ============================================================
+     重绘
+     ============================================================ */
+  function repaint() {
+    paintBudget(); paintSteps(); paintRead(); paintLog();
+    var r = st.reading;
+    $("opLabel").disabled = st.over || st.left < 2 || st.ln < 0.05;
+    $("opRun").disabled = st.over || st.left < 1;
+    $("opRep").disabled = st.over || st.left < 2 || !r;
+    $("opSeal").disabled = st.over;
+  }
+
+  /* ============================================================
+     绑定
+     ============================================================ */
+  function boot() {
+    $("wSteps").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-w]"); if (b) moveW(+b.dataset.w);
+    });
+    $("nSteps").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-n]"); if (b) moveN(+b.dataset.n);
+    });
+    $("opLabel").addEventListener("click", opLabel);
+    $("opRun").addEventListener("click", opRun);
+    $("opRep").addEventListener("click", opRep);
+    $("opSeal").addEventListener("click", seal);
+    $("qO").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-i]"); if (b) answerDiag(+b.dataset.i);
+    });
+    $("qNext").addEventListener("click", closeDiag);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && st.quiz && st.quiz.answered) closeDiag();
+    });
+    repaint();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+
+  /* ---------------- 体检钩子（只读） ---------------- */
+  window.YCPurge = {
+    status: function () {
+      return {
+        left: st.left, wi: st.wi, ni: st.ni, ln: st.ln,
+        verdict: st.reading ? st.reading.verdict : null,
+        subtype: st.reading ? st.reading.subtype : null,
+        greens: st.reading ? greens(st.reading) : 0,
+        guards: st.reading ? st.reading.guards.length : 0,
+        asked: st.asked, right: st.right,
+        verify: st.verify ? { same: st.verify.same, verdict: st.verify.r.verdict } : null,
+        over: st.over
+      };
+    },
+    /* 直接设定参数（探针用，绕过工序消耗） */
+    set: function (o) {
+      if (o.wi != null) st.wi = o.wi;
+      if (o.ni != null) st.ni = o.ni;
+      if (o.ln != null) st.ln = o.ln;
+      if (o.left != null) st.left = o.left;
+      invalidate(); repaint();
+    },
+    run: function () { opRun(); },
+    rep: function () { opRep(); },
+    answer: function (i) { answerDiag(i); },
+    rightAnswer: function () {
+      if (!st.quiz) return -1;
+      for (var i = 0; i < st.quiz.opts.length; i++) if (st.quiz.opts[i].ok) return i;
+      return -1;
+    },
+    seal: function () { seal(); },
+    score: function () { return score(); }
+  };
+})();
+</script>
+<script>
+/* ============================================================
+   src/h4/07-cast.js — 数据污染博物馆 · 驻馆人
+   ------------------------------------------------------------
+   这一馆问的是：它答对，是泛化、记忆，还是当前证据分不开？
+   污染一旦进了训练集，所有下游数字都成了下界。
+
+   两个人的分歧：
+     岑默（净化工程师）说：宁可整批废掉重跑
+     罗姐（产能主管）说：十二道工序是十二份钱，你说废就废？
+   ============================================================ */
+(function () {
+  "use strict";
+  /* 立绘：Portrait 2.0 的配置统一放在 shared/yc-faces.js。
+     这里只管人说什么、怎么想 —— 长什么样是另一个文件的事。 */
+
+  window.YCCast.register("H4", {
+    name: "数据污染博物馆",
+    shortName: "污染馆",
+    roomName: "泄题法医室",
+    accent: "#35cfa8",
+
+    campQ: "发现数据脏了，要不要整批废掉重跑？",
+    campLead: "这一馆的结论都带一条尾巴：一旦训练集被污染，所有下游数字都只是下界。两个人对「发现了脏东西怎么办」给出的答案不一样 —— 一个要废掉重来，一个要算清代价。你站谁，之后听到的判断标准就不一样。",
+
+    clashTitle: "3% · 那批放过去的数据",
+    clash: [
+      { w: "a", t: "3% 的污染。你说影响面小，放过去了。" },
+      { w: "b", t: "我算过。那 3% 落在一个不进结论的字段上。" },
+      { w: "a", t: "你怎么知道它以后不进结论？" },
+      { w: "b", t: "我不知道。我只知道重跑要三周。" },
+      { w: "a", t: "三周之后那个数还是假的。**只是没人知道了**。" },
+      { w: "b", t: "……所以你在报告里写了那一句。" },
+      { w: "a", t: "写了。那句话是给你留的，也是给我自己留的。" }
+    ],
+    cast: [
+      /* ================= 岑默 ================= */
+      {
+        id: "cen", name: "岑默", role: "净化工程师", camp: "洁净",
+        color: "#35cfa8",
+        lesson: "污染不会让你算错，会让你算对但算的是别的。",
+        stance: "污染一旦进去，所有数都变成下界。宁可整批废掉重跑，也不要把一个不干净的数写进报告。",
+        bio: "岑默常年戴着口罩说话，声音闷。他管这一馆所有进出的数据，标准只有一条：**进来之前验，进来之后不信**。他的工作记录里最多的词是「已作废」。",
+        kv: { "工龄": "6 年", "作废批次": "1 047 批", "放过批次": "23 批", "口头禅": "这个数不能用了" },
+        port: window.YCFACES.cen,
+
+        lines: {
+          greet: [
+            "岑默。这里的东西我经手，脏的我会挑出来，挑不出来我会说挑不出来。",
+            "先说规矩：**这批数据干不干净，不是我说的，是验的**。"
+          ],
+          greetMine: [
+            "你站我这边。那我直说：你会觉得我很浪费。",
+            "你选了洁净。那我们把话说清楚：浪费的是钱，不是结论。"
+          ],
+          idle: [
+            "你可以先问自己一句：你现在信的那个数，是验过的，还是没人验过？",
+            "点「搭话」。我说话慢，但我不绕。"
+          ],
+          seen: [
+            "这一件看完了。记一句：**污染不会让你算错，会让你算对但算的是别的东西**。",
+            "记住它的失效路径，不用记数字。数字会变。"
+          ],
+          pass: ["对了。现在把参照组也污染一下，看结论还在不在——多数结论不在。"],
+          fail: ["错了。先别改答案，去看你那个参照组是不是也脏了。"],
+          streak: ["连错三次。停。**你的参照组有问题**，不是你的判断有问题。"],
+          visit: ["参观证书。这张证书我验过，干净的。"],
+          elite: ["证书签了。你现在知道为什么我宁可作废 —— **下界写进报告，就再也删不掉了**。"],
+          panel: ["问。我会告诉你哪些能信，哪些我不知道。"],
+          panelMine: ["你站我这边。那我不用留余地了。问。"],
+          switchIn: ["我来说。她刚才那套算法，前提是数据干净。这前提不成立。"],
+          campWin: ["你站我这边。那我先说：**你会因为我说「不知道」而难受很多次**。"],
+          gameSpend: ["又花一道工序。你花掉的每一道，都是别人的一次复核机会。"],
+          gameUp: ["这一步干净。记住这个参数组合。"],
+          gameWarn: ["这个读数已经不能用了。你要么修，要么承认它作废。"],
+          gameDone: ["走完了。现在回头看：你哪一步是带着脏数据往下走的？"]
+        },
+
+        topics: [
+          {
+            q: "污染到底会怎么骗人？",
+            sub: "先搞清楚机制",
+            say: "它不让你算错。它让你**算对**，只是算的是别的东西。\n\n你有一批题，模型 89%。你想知道它会做还是会背。你把题里的数改一下再问，它错了，你说这是背的。\n\n可你改的那个数，也让题变难了。你测到的不是「记得」，是「算不动」。这两个在准确率上长得一模一样。",
+            ask: [
+              {
+                q: "那怎么才分得开？",
+                say: "**三档对照**。原题、改了数的题、还有一个只改表面不改难度的题。第三个是关键 —— 它告诉你「变难」到底贡献了多少。\n\n没有第三档，你永远在两种解释之间猜。"
+              },
+              { q: "如果分不开呢？", say: "那就说分不开。**「当前证据无法区分」是一个合法结论**，而且比一个错的结论有用得多。" }
+            ]
+          },
+          {
+            q: "我卡住了，给我一个提示",
+            sub: "按你现在的进度给",
+            say: function (ctx) {
+              var p = ctx.progress;
+              if (!p.seen) return "先去层架走一遍。八件展品，每一件讲一种污染进来的方式。你至少要知道脏东西是怎么进来的。";
+              if (p.passed < 4) return "验了 " + p.passed + " 件。挑讲「参照组要冷」那件 —— 你现在的参照组大概率是热的。";
+              if (!ctx.elite) return "去「净化车间」。十二道工序，每一步都要在「改得够狠」和「改到失真」之间找位置。改太狠，探针会断。";
+              return "走完了。那你可以试试：换个种子再跑一次，看结论还站不站得住。站不住，说明你刚才那次数是运气。";
+            }
+          },
+          {
+            q: "你和罗姐差在哪？",
+            sub: "需要信任度 25",
+            need: { bond: 25 },
+            say: "她算账，我算干净。\n\n她说：十二道工序是十二份钱，你一句话废掉，这钱谁出？我说：不废的话，报告里那个数就是假的，那个数会被人拿去用，用的地方赔的钱比十二道工序多得多。\n\n**我们两个都对。这就是这一馆最难的地方**。",
+            ask: [
+              { q: "那你妥协过吗？", say: "妥协过。有一批数据我明知道有 3% 污染，还是放过去了 —— 因为那 3% 落在一个不影响结论的位置上。\n\n我在报告里写了这一句。写完我盯着它看了很久。" },
+              { q: "她怎么看你这句？", say: "她说这句写得很好。我说这不是好，这是我在给自己留后路。" }
+            ]
+          },
+          {
+            q: "你作废过多少？心疼吗？",
+            sub: "需要信任度 50",
+            need: { bond: 50 },
+            say: "1 047 批。心疼。\n\n最疼的一次是 40 万条标注，跑了三个礼拜，最后发现采集脚本把一个字段对齐错了。整批废。\n\n那天我在车间坐到半夜。不是因为钱，是因为**我验了三遍都没验出来**。",
+            lore: "他把那次的对齐错误做成了展品 04，说明牌最后一行是：「这次是我自己没查出来。」",
+            ask: [{ q: "后来怎么防的？", say: "现在每批数据进来，我先随机抽 200 条人工看。不看结论，只看字段对不对。这 200 条救过我很多次。" }]
+          },
+          {
+            q: "「当前证据无法区分」是不是偷懒？",
+            sub: "需要信任度 50",
+            need: { bond: 50 },
+            say: "不是偷懒，是**唯一诚实的选项**。\n\n你手上只有两种解释，证据分不开它们。这时候你说「是记忆」，或者你说「是泛化」，都是在猜。猜对了没人知道，猜错了也没人知道 —— 直到有人用你的结论做了决定。\n\n说「分不开」，至少下一个人知道该补什么。"
+          },
+          {
+            q: "我拿到精英证书了，然后呢？",
+            sub: "需要先完成本馆精英挑战",
+            need: { elite: true },
+            say: "然后你可以开始怀疑我的「干净」标准。\n\n我验污染，用的是我自己那套探针。**探针本身也可能被污染** —— 它要是坏了，我验什么都通过。\n\n所以真正的规矩是：验探针，比验数据重要。这一条我写在手册第一页，但很少有人真的去做。",
+            ask: [{ q: "你怎么验探针？", say: "拿一批我知道肯定脏的数据喂它。它要是说干净，我就把探针废掉。每次换探针我都做这一遍。" }]
+          }
+        ],
+
+        oral: [
+          {
+            t: "口述 01 · 为什么戴口罩", need: { bond: 25 },
+            x: "不是因为怕脏。是因为我不太会管表情。\n\n刚干这行的时候，有人拿着一批数据来找我，说跑了三个月。我一看就知道有问题，脸上大概露出了什么。他当场就明白了，一句话没说，走了。\n\n从那以后我戴口罩。让话从嘴里出来，别从脸上出来。"
+          },
+          {
+            t: "口述 02 · 那 40 万条", need: { bond: 50 },
+            x: "对齐错的那个字段，是「时间」。\n\n所有记录的时间戳整体偏移了 8 小时。数据本身没错，标注也没错，错的是时间。用这批数据训出来的模型，在跨天的问题上会莫名其妙地差。\n\n我验了三遍都没验出来，因为我一直在验值，没验顺序。"
+          },
+          {
+            t: "口述 03 · 我怕的事", need: { bond: 75, elite: true },
+            x: "我最怕的不是放过去一批脏数据。我最怕的是**有一天我作的废太多了，上面决定换一个「更好合作」的人来做这个位置**。\n\n那个人会很受欢迎。他放过去的批次会很多，报告会很好看，项目会很顺利。\n\n所以我现在每作废一批，都把理由写得特别长。不是给现在的人看的，是给以后查账的人看的。"
+          }
+        ]
+      },
+
+      /* ================= 罗姐 ================= */
+      {
+        id: "luo", name: "罗姐", role: "产能主管", camp: "交付",
+        color: "#2fb894",
+        lesson: "不问用途就给数，是在耍流氓。",
+        stance: "十二道工序就是十二份钱。发现脏了要先算它脏在哪、影响多大，再决定废多少 —— 全废是最贵的方案，不是最对的方案。",
+        bio: "罗姐管这一馆的进度和人。她桌上永远摊着一块夹板，上面写着三行：今天要交什么、谁在等、超期几天。她说自己不懂模型，只懂一件事：**没有东西交出去，就没人知道你在干什么**。",
+        kv: { "工龄": "14 年", "带过项目": "96 个", "延期": "3 次", "口头禅": "什么时候能交" },
+        port: window.YCFACES.luo,
+
+        lines: {
+          greet: [
+            "罗姐。你是来参观的还是来干活的？两种我都接待，说话方式不一样。",
+            "这馆里人人都讲严谨。我只问一句：**你严谨完之后，东西什么时候交**。"
+          ],
+          greetMine: [
+            "你站我这边。那我先教你算账：脏了多少、脏在哪、影响哪些结论。",
+            "你选了交付。那记住：我不是不严谨，我是**按影响面严谨**。"
+          ],
+          idle: [
+            "别站着了。你手上这件事，卡在哪一步？",
+            "有事点「搭话」。我时间不多，但我给的都是实话。"
+          ],
+          seen: [
+            "看完了？看完就记一句：**不是所有脏都要废，但所有脏都要写进报告**。",
+            "别在这儿耗太久。这一馆看完还有下一馆。"
+          ],
+          pass: ["对了。快一点，下一件。"],
+          fail: ["错了。改。别复盘太久，复盘会变成拖延。"],
+          streak: ["连错三次。行，我停一下：**你现在是在硬扛**。去问岑默，他比我懂这块。"],
+          visit: ["证书。这个我熟，我签过很多张。"],
+          elite: ["签了。你现在懂了吧：**能按时交出来的严谨，才叫严谨**。"],
+          panel: ["问。三个问题以内。"],
+          panelMine: ["你站我这边。那我说点不上报告的。问。"],
+          switchIn: ["我讲两句。他那一套我尊重，但项目等不了。"],
+          campWin: ["你站我这边。那我直说：**全废是最容易的决定，也是最贵的决定**。"],
+          gameSpend: ["工序又少一道。你现在该算的是：剩下的够不够走完。"],
+          gameUp: ["对。省下来的就是钱。"],
+          gameWarn: ["这个数有问题。你现在有两个选择：修，或者带着它交出去并在报告里写清楚。"],
+          gameDone: ["走完了。你现在明白我为什么不肯全废了吧 —— 十二道，一道都不多余。"]
+        },
+
+        topics: [
+          {
+            q: "你是不是不太在意严谨？",
+            sub: "她听过太多次这句了",
+            say: "在意。我在意的是**严谨到什么程度**。\n\n一个结论要用在哪儿，决定它要多严谨。用在内部讨论，误差 5% 可以；用在对外发布的报告，1% 都不行；用在会伤到人的地方，一点都不能有。\n\n所以我的第一句话永远是：**这个数要拿去干什么**。不问这个就谈严谨，是在耍流氓。",
+            ask: [
+              {
+                q: "那如果对方说不出用途呢？",
+                say: "那就不给数。给一个区间，加一句「用途不明，不给点估计」。这句话我写过很多次，每次都有人不高兴。"
+              },
+              { q: "有人因为你这句不高兴过？", say: "有。后来那个数被用在了一个我没预料到的地方，出了问题。我拿出当时的邮件，上面写着用途不明。\n\n我赢了吗？没有。事情还是坏了。" }
+            ]
+          },
+          {
+            q: "我卡住了，给我一个提示",
+            sub: "按你现在的进度给",
+            say: function (ctx) {
+              var p = ctx.progress;
+              if (!p.seen) return "八件展品，你还有 " + (8 - p.seen) + " 件没看。别挑着看，按顺序看完 —— 顺序本身是设计过的。";
+              if (p.passed < 4) return "验了 " + p.passed + " 件。挑最快的先做，别一上来啃最难的。**先拿到能交的东西**。";
+              if (!ctx.elite) return "去净化车间。十二道工序，别一上来就改最狠的 —— 改太狠，探针会断，你连读数都没有。";
+              return "走完了。那你该去算一下：你用了多少道工序？省下来的那几道，就是你比我强的地方。";
+            }
+          },
+          {
+            q: "你和岑默到底谁对？",
+            sub: "需要信任度 25",
+            need: { bond: 25 },
+            say: "都对的次数最多。\n\n他有一次拦住了一批数据，我算了账，坚持放过去。后来那个数被人引用在一份对外材料里，出了事。\n\n从那之后我改了一条规矩：**凡是可能被引到外面的数，一律按他的标准来**。内部用的，按我的标准。这条线划下来之后，我们吵得少了。",
+            ask: [
+              { q: "那如果划错线了呢？", say: "划错过。有个数我以为只在内部用，结果被贴进了汇报 PPT。那之后我改成：**不确定就按对外标准**。代价是慢，但比返工便宜。" },
+              { q: "他服你吗？", say: "他不服。但他会在我算账的时候站旁边不说话 —— 这对他来说已经算服了。" }
+            ]
+          },
+          {
+            q: "延期三次，是哪三次？",
+            sub: "需要信任度 50",
+            need: { bond: 50 },
+            say: "第一次是数据出问题，我坚持重跑。第二次是有人离职。第三次是我自己判断错了工期。\n\n第三次最难受。前两次都有原因，第三次纯粹是我蠢 —— 我把一个需要两周的事排进了五天。\n\n后来我做排期都乘 1.6。这个系数不是科学，是我交的学费。",
+            lore: "她夹板背面用马克笔写着一个数字：1.6。没有任何说明。",
+            ask: [{ q: "1.6 会不会太保守？", say: "会。但保守的代价是我多花时间，激进的代价是所有人陪我熬夜然后还是延。这两笔账我算过。" }]
+          },
+          {
+            q: "你怎么看「先交再改」？",
+            sub: "需要信任度 50",
+            need: { bond: 50 },
+            say: "分东西。代码可以先交再改，因为改的成本低。**结论不行**。\n\n一个结论交出去，它就开始被人引用了。你再改，改的是你自己那份文档，别人手里那份不会变。\n\n所以我这条线很清楚：过程可以赶，结论不许赶。"
+          },
+          {
+            q: "我拿到精英证书了，然后呢？",
+            sub: "需要先完成本馆精英挑战",
+            need: { elite: true },
+            say: "然后你该知道：**这套工序是有成本的**。\n\n你在里面省下来的每一道，现实中都是一个真实的人省下的一个下午。省得对，是本事；省错了，是别人替你补。\n\n我干了十四年，最怕的不是交不出来，是**交出去的东西里有一个我没算到的坑**。"
+          }
+        ],
+
+        oral: [
+          {
+            t: "口述 01 · 我怎么干上这行的", need: { bond: 25 },
+            x: "我原来是做项目协调的，就是那种天天催人的角色。催了几年，我发现自己有个本事：**我能看出来一件事到底还要多久**，比排期表准。\n\n后来有人跟我说，这本事在这儿有用 —— 因为这里最缺的不是聪明人，是能算清代价的人。"
+          },
+          {
+            t: "口述 02 · 那次我没拦住", need: { bond: 50 },
+            x: "那个数被贴进对外材料的时候，我已经下班了。第二天早上我在地铁上看到，站在车厢里把那份材料看了三遍。\n\n我到公司第一件事是去找岑默。他没说什么，只是把当时的记录调出来给我看。上面有他的意见，也有我签字放行的记录。\n\n他一句责备的话都没说。这比骂我一顿难受多了。"
+          },
+          {
+            t: "口述 03 · 我的私心", need: { bond: 75, elite: true },
+            x: "我一直跟人说「按影响面严谨」。但有件事我没说过：**我判断影响面的时候，是有私心的**。\n\n我会下意识地把「会影响我负责的这部分」估得更高，把「会影响别人那部分」估得更低。\n\n这半年我在试着把这条私心写进我的判断记录里，就写在每次估影响面的旁边。写上之后，我估的数字变保守了。" 
+          }
+        ]
+      }
+    ],
+
+    /* 净化车间盯盘 */
+    probe: function () {
+      var P = window.YCPurge;
+      if (!P || !P.status) return null;
+      try {
+        var s = P.status();
+        return {
+          left: s.left,
+          score: s.greens,
+          done: !!s.over,
+          warn: s.verify && s.verify.verdict ? s.verify.verdict : null,
+          raw: s
+        };
+      } catch (e) { return null; }
+    },
+
+    /* 求提示：花信任度换一句真的能用的 */
+    hint: function (snap, n) {
+      if (!snap) return "先跑一次再说。空着手我没法给你提示。";
+      var s = snap.raw || {};
+      var hs = [
+        "改得越狠，题越难。**你不是在测记忆，你是在测它算不算得动**。把力度降一档再跑。",
+        "看那个「读数诊断」。答对了额度会返还 —— 这是唯一不花钱的路。",
+        "换种子复核。同一个参数跑两遍结论不一样，那你第一遍就是运气。",
+        "十二道工序，别全花在一个参数上。留两道给最后的复核。"
+      ];
+      return hs[Math.min(n, hs.length - 1)];
+    }
+  });
+})();
+</script>
+</body>
+</html>

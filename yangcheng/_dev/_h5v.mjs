@@ -1,0 +1,16 @@
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const G = require('../instruments/yc-greenhouse.js');
+const f2=v=>v==null?"—":(typeof v==='number'?v.toFixed(2):v);
+const pct=v=>v==null?"—":(v*100).toFixed(1)+"%";
+const D=G.DEFAULTS; console.log("DEFAULTS",JSON.stringify(D));
+console.log("LAYER_NAME",JSON.stringify(G.LAYER_NAME));
+const base = G.run({});
+console.log("verdict",base.verdict,base.subtype);
+console.log("est",JSON.stringify({wiltFrac:base.est.wiltFrac,keepG:base.est.keepG,medLost:base.est.medLost,wilted:base.est.wilted,blind:base.est.blind,alive:base.est.alive,fid0:base.est.fid0,fidG:base.est.fidG,H0:base.est.H0,HG:base.est.HG,medDeath:base.est.medDeath},null,0));
+console.log("wiltedLayers",JSON.stringify(base.wiltedLayers));
+console.log("blindLayers",JSON.stringify(base.blindLayers));
+console.log("aliveLayers",JSON.stringify(base.aliveLayers));
+console.log("guards",JSON.stringify(base.guards,null,1).slice(0,600));
+console.log("fate[0]",JSON.stringify(base.fate[0]));
+console.log("byGen len",base.byGen.length, JSON.stringify(base.byGen[0]).slice(0,300));

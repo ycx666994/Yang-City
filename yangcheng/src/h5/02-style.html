@@ -1,0 +1,585 @@
+<style>
+/* ============================================================
+   H5 递归坍塌博物馆 · 局部样式
+   ------------------------------------------------------------
+   与前三馆刻意错开的地方（不是换配色，是换信息架构）：
+
+   H3  深色仪表盘 · 左侧竖排四层 · 双旋钮
+   H2  浅色案卷纸 · 顶部横向卷宗标签 · 左右分栏审讯室
+   H4  墨绿档案库 · 左侧竖排门牌 · 中部三列层架 · 右侧常驻取证栏
+   H5  靛紫玻璃温室 · 顶部穹顶光带（不是导航）· 中部藤架＋镜面 ·
+       底部「小径」四块踏石（导航）· 参数在藤架下方
+
+   导航换了位置也换了隐喻：不是门牌，不是标签，是走在温室里踩过的四块石头。
+   视觉本体是「向上生长的藤」—— 竖轴是世代，横轴是 16 条平行谱系，
+   颜色是这一代这一条还剩下几成支撑。枯萎的藤在枯死点以上变成虚线残影。
+   ============================================================ */
+
+/* ---------------- 令牌：靛紫夜色玻璃 ---------------- */
+.hall.h5{
+  --bg:#0c0a14;
+  --bg2:#12101d;
+  --panel:rgba(21,18,33,.80);
+  --panel2:rgba(27,23,42,.70);
+  --panelSolid:#151221;
+  --line:rgba(196,176,228,.15);
+  --line2:rgba(196,176,228,.30);
+  --tx:#f2ecf7;
+  --tx2:#a89dbd;
+  --tx3:#726887;
+  --tx4:#4c4560;
+
+  --ac:#ef6a72;        /* 绛：馆身份色，也是「枯萎」 */
+  --alive:#5fd08a;     /* 苔绿：还活着 */
+  --wilt:#c9a05a;      /* 枯金：正在失去 */
+  --dead:#8d4a52;      /* 枯绛：已经失去 */
+  --sun:#ffd27f;       /* 阳光：新鲜数据 */
+  --glass:rgba(210,226,255,.055);
+
+  --serif:"Songti SC","Noto Serif SC",Georgia,serif;
+  background:var(--bg);
+  color:var(--tx);
+  overflow:hidden;
+}
+html,body{background:#0c0a14}
+body{color:#f2ecf7}
+
+/* 温室玻璃：极淡的斜向格栅 + 顶部穹顶光晕 */
+.hall.h5::before{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(1100px 460px at 50% -12%, rgba(239,106,114,.13), transparent 66%),
+    radial-gradient(760px 420px at 12% 108%, rgba(95,208,138,.09), transparent 62%),
+    radial-gradient(680px 380px at 92% 100%, rgba(109,155,255,.07), transparent 62%);
+}
+.hall.h5::after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    repeating-linear-gradient(112deg, rgba(210,226,255,.030) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(22deg, rgba(210,226,255,.018) 0 1px, transparent 1px 34px);
+  mask-image:linear-gradient(180deg,transparent,#000 9%,#000 92%,transparent);
+}
+
+.hall.h5 .ycbar{position:relative;z-index:4;background:rgba(12,10,20,.66);border-bottom:1px solid var(--line)}
+
+/* ============================================================
+   顶部穹顶：馆名 + 日照计（不是导航）
+   ============================================================ */
+.canopy{
+  position:relative;z-index:3;flex:none;height:88px;
+  display:flex;align-items:center;gap:26px;padding:0 24px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(239,106,114,.07),rgba(12,10,20,.10));
+}
+/* 穹顶弧：一条很细的亮弧压在顶部，像玻璃天窗的起拱线 */
+.canopy .dome{
+  position:absolute;left:0;right:0;top:0;height:88px;pointer-events:none;
+  overflow:visible;
+}
+.canopy .dome path{
+  fill:none;stroke:rgba(210,226,255,.20);stroke-width:1;
+}
+.canopy .dome path.glow{stroke:rgba(255,210,127,.16);stroke-width:2.5;filter:blur(1.4px)}
+
+.canopy .idn{display:flex;align-items:center;gap:13px;flex:none}
+.canopy .hno{
+  font-family:var(--mono);font-size:11px;letter-spacing:1.4px;color:#0c0a14;
+  background:var(--ac);border-radius:4px;padding:4px 7px;font-weight:700;
+}
+.canopy .hname b{display:block;font-size:17px;font-weight:700;letter-spacing:.6px}
+.canopy .hname span{
+  display:block;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;
+  color:var(--tx3);margin-top:3px;
+}
+
+.canopy .spacer{flex:1}
+
+/* 日照计：条的长度 = ρ，直接对应「每代有多少新鲜数据」 */
+.sunbox{flex:none;width:236px}
+.sunbox .sl{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-family:var(--mono);font-size:8.5px;letter-spacing:1.4px;color:var(--tx3);
+  margin-bottom:6px;
+}
+.sunbox .sl b{font-family:var(--mono);font-size:13px;color:var(--sun);letter-spacing:0}
+.sunbox .track{
+  height:7px;border-radius:4px;background:rgba(210,226,255,.07);
+  border:1px solid var(--line);overflow:hidden;position:relative;
+}
+.sunbox .track>i{
+  display:block;height:100%;border-radius:3px;width:5%;
+  background:linear-gradient(90deg,rgba(255,210,127,.45),var(--sun));
+  box-shadow:0 0 12px rgba(255,210,127,.55);transition:width .3s;
+}
+/* 刻度：0 / 25 / 50 / 75 / 100 */
+.sunbox .track::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,transparent 0 calc(25% - 1px),rgba(12,10,20,.85) calc(25% - 1px) 25%);
+}
+.sunbox .sd{
+  font-size:9.5px;color:var(--tx3);margin-top:5px;line-height:1.4;
+  text-shadow:0 1px 3px rgba(8,6,14,.95),0 0 8px rgba(8,6,14,.9);
+}
+
+/* ============================================================
+   主场景
+   ============================================================ */
+.bed{position:relative;z-index:2;flex:1;min-height:0;overflow:hidden}
+
+.zone{display:none;height:100%;min-height:0}
+.zone.on{display:grid;animation:zIn .42s cubic-bezier(.2,.9,.3,1) both}
+@keyframes zIn{from{opacity:0;transform:translateY(10px) scale(.995)}}
+
+/* ---- 藤架厅：藤架 + 镜面 / 参数台 ---- */
+.zone[data-l="trellis"]{
+  grid-template-columns:minmax(0,1fr) 396px;
+  grid-template-rows:minmax(0,1fr) 84px;
+}
+.trellisWrap{
+  grid-column:1;grid-row:1;min-width:0;min-height:0;
+  display:flex;flex-direction:column;position:relative;
+  border-right:1px solid var(--line);
+}
+.twHead{
+  flex:none;display:flex;align-items:center;gap:14px;
+  padding:10px 20px 6px;
+}
+.twHead .tk{
+  font-family:var(--mono);font-size:9px;letter-spacing:2.2px;color:var(--ac);
+  text-transform:uppercase;
+}
+.twHead .tn{font-size:12.5px;color:var(--tx2)}
+.twHead .spacer{flex:1}
+.twHead .vleg{
+  display:flex;align-items:center;gap:5px;flex:none;
+}
+.twHead .vleg em{
+  font-style:normal;font-family:var(--mono);font-size:8px;letter-spacing:1px;
+  color:var(--tx4);margin-right:2px;
+}
+.twHead .vleg span{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  font-family:var(--mono);font-size:7.5px;color:var(--tx4);line-height:1;
+}
+.twHead .vleg i{display:block;width:9px;height:9px;border-radius:2px}
+
+.twHead .pick{
+  font-family:var(--mono);font-size:10px;color:var(--tx3);
+  border:1px solid var(--line);border-radius:5px;padding:3px 8px;background:transparent;
+  cursor:pointer;
+}
+.twHead .pick:hover{color:var(--tx);border-color:var(--line2)}
+
+#trellis{flex:1;min-height:0;width:100%;display:block;cursor:crosshair}
+#trellis .vseg{stroke-linecap:round}
+#trellis .vseg.ghost{stroke-dasharray:2 4;opacity:.30}
+#trellis .col-hit{fill:transparent;cursor:pointer}
+#trellis .col-hit:hover{fill:rgba(210,226,255,.045)}
+#trellis .col.on .col-hit{fill:rgba(255,210,127,.075)}
+#trellis .tip{stroke-width:1.4}
+#trellis .dmark{stroke:var(--ac);stroke-width:1.7;opacity:.9}
+#trellis .axis{stroke:rgba(196,176,228,.09);stroke-width:1}
+#trellis .axlab{font-family:var(--mono);font-size:9px;fill:#726887}
+#trellis .col.on .clab{fill:#ffd27f}
+#trellis .clab{font-family:var(--mono);font-size:8.5px;fill:#5a5370}
+
+/* 世代滑块：横贯藤架底部 */
+.twFoot{flex:none;padding:2px 20px 12px;display:flex;align-items:center;gap:12px}
+.twFoot .gl{
+  font-family:var(--mono);font-size:9px;letter-spacing:1.4px;color:var(--tx4);flex:none;
+}
+.twFoot input[type=range]{flex:1;min-width:0}
+.twFoot .gv{
+  font-family:var(--mono);font-size:12px;color:var(--sun);flex:none;min-width:52px;text-align:right;
+}
+
+/* ---- 右侧：镜面 + 分位归宿 ---- */
+.side{
+  grid-column:2;grid-row:1/3;min-height:0;overflow-y:auto;
+  display:flex;flex-direction:column;background:rgba(10,8,17,.34);
+}
+.side::-webkit-scrollbar{width:8px}
+.side::-webkit-scrollbar-thumb{background:rgba(196,176,228,.20);border-radius:4px}
+
+.mirror{flex:none;padding:12px 16px 10px;border-bottom:1px solid var(--line)}
+.mirror .mh{display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
+.mirror .mh .t{font-size:11.5px;font-weight:600;color:var(--tx2)}
+.mirror .mh .g{font-family:var(--mono);font-size:9px;color:var(--tx4);margin-left:auto}
+.mirror .ms{font-size:9px;color:var(--tx4);line-height:1.5;margin-bottom:6px}
+#mirrorSvg{width:100%;height:104px;display:block}
+#mirrorSvg .base{fill:rgba(198,222,255,.14);stroke:none}
+#mirrorSvg .now{fill:rgba(239,106,114,.22);stroke:none}
+#mirrorSvg .base-l{fill:none;stroke:rgba(198,222,255,.72);stroke-width:1.3;stroke-dasharray:4 3}
+#mirrorSvg .now-l{fill:none;stroke:#ef6a72;stroke-width:1.7}
+#mirrorSvg .zl{stroke:rgba(196,176,228,.14);stroke-width:1}
+#mirrorSvg .zlb{font-family:var(--mono);font-size:7.5px;fill:#4c4560}
+#mirrorSvg .sat{fill:rgba(255,210,127,.85)}
+
+.mrow{display:flex;gap:0;margin-top:7px;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.mrow>div{flex:1;padding:5px 8px;background:rgba(21,18,33,.55)}
+.mrow>div+div{border-left:1px solid var(--line)}
+.mrow .ml{font-family:var(--mono);font-size:7.5px;letter-spacing:1px;color:var(--tx4);display:block}
+.mrow .mv{font-family:var(--mono);font-size:13px;margin-top:2px;display:block;line-height:1.1}
+
+/* 分位归宿表 */
+.fates{flex:1;min-height:0;padding:10px 16px 16px}
+.fates .fh{display:flex;align-items:baseline;gap:8px;margin-bottom:7px}
+.fates .fh .t{font-size:11.5px;font-weight:600;color:var(--tx2)}
+.fates .fh .w{font-family:var(--mono);font-size:8.5px;color:var(--tx4);margin-left:auto}
+.frow{
+  display:grid;grid-template-columns:56px 1fr 54px 52px;gap:7px;align-items:center;
+  padding:5px 0;border-top:1px solid rgba(196,176,228,.07);
+}
+.frow:first-of-type{border-top:none}
+.frow .fl{font-family:var(--mono);font-size:9px;color:var(--tx3);white-space:nowrap}
+.frow .fbar{height:9px;border-radius:3px;background:rgba(210,226,255,.07);overflow:hidden;position:relative}
+.frow .fbar>i{display:block;height:100%;border-radius:3px;transition:width .35s}
+.frow .fv{font-family:var(--mono);font-size:9.5px;text-align:right;color:var(--tx2)}
+.frow .ft{
+  font-size:8.5px;text-align:center;border-radius:3px;padding:2px 0;
+  font-family:var(--mono);letter-spacing:.5px;
+}
+.ft.alive{color:#8fe8b0;background:rgba(95,208,138,.14);border:1px solid rgba(95,208,138,.30)}
+.ft.wilted{color:#f0c37a;background:rgba(201,160,90,.15);border:1px solid rgba(201,160,90,.34)}
+.ft.blind{color:#7b7090;background:rgba(120,112,144,.12);border:1px solid rgba(120,112,144,.26)}
+
+/* 结论块：主视图里必须有结论和它的理由，不能只留一个四字标签 */
+.verdict{
+  margin:10px 16px 0;padding:11px 12px;border-radius:9px;
+  border:1px solid var(--line);background:rgba(16,13,26,.62);flex:none;
+}
+.verdict .vb{
+  display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.4px;
+  border-radius:5px;padding:3px 9px;
+}
+.verdict.ok .vb{color:#8fe8b0;background:rgba(95,208,138,.15);border:1px solid rgba(95,208,138,.36)}
+.verdict.warn .vb{color:#f0c37a;background:rgba(201,160,90,.15);border:1px solid rgba(201,160,90,.36)}
+.verdict.bad .vb{color:#ff9ea3;background:rgba(239,106,114,.15);border:1px solid rgba(239,106,114,.38)}
+.verdict.idle .vb{color:#9aa0b8;background:rgba(120,112,144,.14);border:1px solid rgba(120,112,144,.32)}
+.verdict .vstat{
+  font-family:var(--mono);font-size:9.5px;line-height:1.75;color:var(--tx3);
+  margin-top:7px;letter-spacing:.2px;
+}
+.verdict .vstat b{color:var(--tx);font-weight:600}
+.verdict .vwhy{font-size:10.5px;line-height:1.72;color:var(--tx2);margin-top:6px}
+.verdict .vnote{
+  font-size:10px;line-height:1.66;color:#c9a05a;margin-top:7px;
+  border-left:2px solid rgba(201,160,90,.45);padding-left:8px;
+}
+
+/* ---- 参数台（藤架下方） ---- */
+.console{
+  grid-column:1;grid-row:2;min-width:0;
+  display:flex;align-items:center;gap:18px;padding:0 20px;
+  border-top:1px solid var(--line);border-right:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(21,18,33,.55),rgba(12,10,20,.72));
+}
+.dial{flex:none;width:132px}
+.dial .dl{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-family:var(--mono);font-size:8px;letter-spacing:1.1px;color:var(--tx4);margin-bottom:5px;
+}
+.dial .dl b{font-family:var(--mono);font-size:11.5px;color:var(--tx);letter-spacing:0}
+.dial input[type=range]{width:100%}
+.console .spacer{flex:1}
+.acts{display:flex;gap:8px;flex:none}
+.ab{
+  font-family:inherit;font-size:11px;color:var(--tx2);cursor:pointer;
+  border:1px solid var(--line2);border-radius:7px;padding:8px 12px;background:rgba(21,18,33,.7);
+  transition:.16s;white-space:nowrap;
+}
+.ab:hover{color:var(--tx);border-color:rgba(239,106,114,.55);background:rgba(239,106,114,.10)}
+.ab.pri{background:rgba(239,106,114,.16);border-color:rgba(239,106,114,.55);color:#ffd9db;font-weight:600}
+.ab.pri:hover{background:rgba(239,106,114,.26)}
+.ab:disabled{opacity:.42;cursor:default}
+
+/* 滑杆统一外观 */
+input[type=range]{
+  -webkit-appearance:none;appearance:none;height:4px;border-radius:2px;
+  background:rgba(210,226,255,.14);outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:13px;height:13px;border-radius:50%;
+  background:#e8dff2;border:2px solid var(--ac);box-shadow:0 0 8px rgba(239,106,114,.55);
+  cursor:pointer;
+}
+input[type=range]::-moz-range-thumb{
+  width:11px;height:11px;border-radius:50%;background:#e8dff2;border:2px solid var(--ac);
+}
+
+/* ============================================================
+   底部小径：四块踏石（导航）
+   ============================================================ */
+.path{
+  position:relative;z-index:3;flex:none;height:76px;
+  display:flex;align-items:center;justify-content:center;gap:0;
+  border-top:1px solid var(--line);
+  background:linear-gradient(0deg,rgba(10,8,17,.86),rgba(12,10,20,.30));
+}
+/* 多了一枚「玩法」踏石之后，整排会撞上右下角的驻馆人坞（x≈1056 起）。
+   宽屏时把整排往左推一点，六枚都露得出来。 */
+@media (min-width:1080px){
+  .path.has-game{padding-right:340px}
+  .path.has-game .line{width:min(640px,60%)}
+}
+.path .line{
+  position:absolute;left:50%;transform:translateX(-50%);
+  width:min(720px,84%);height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent);
+  top:34px;
+}
+.stone{
+  position:relative;z-index:1;flex:none;width:168px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:transparent;border:none;cursor:pointer;font-family:inherit;padding:6px 4px;
+  color:var(--tx3);transition:.18s;
+}
+.stone .dot{
+  width:11px;height:11px;border-radius:50%;
+  border:1.5px solid var(--line2);background:#151221;
+  transition:.22s;position:relative;
+}
+.stone .dot::after{
+  content:"";position:absolute;inset:-7px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,210,127,.34),transparent 70%);
+  opacity:0;transition:.25s;
+}
+.stone .sn{
+  font-family:var(--mono);font-size:8px;letter-spacing:1.4px;color:var(--tx4);
+}
+.stone .st{font-size:11.5px;letter-spacing:.4px}
+.stone:hover{color:var(--tx2)}
+.stone:hover .dot{border-color:var(--ac)}
+.stone.on{color:var(--tx)}
+.stone.on .dot{
+  width:15px;height:15px;border-color:var(--sun);background:var(--sun);
+  box-shadow:0 0 16px rgba(255,210,127,.75);
+}
+.stone.on .dot::after{opacity:1}
+.stone.on .sn{color:var(--sun)}
+.stone.on .st{font-weight:600}
+
+/* ============================================================
+   通用内容件（育苗间 / 标本室 / 移交口）
+   ============================================================ */
+.zone[data-l="nursery"],.zone[data-l="check"],.zone[data-l="hand"]{
+  display:none;grid-template-columns:1fr;overflow-y:auto;
+}
+.zone.on[data-l="nursery"],.zone.on[data-l="check"],.zone.on[data-l="hand"]{
+  display:block;overflow-y:auto;
+}
+.zone::-webkit-scrollbar{width:9px}
+.zone::-webkit-scrollbar-thumb{background:rgba(196,176,228,.20);border-radius:5px}
+
+.pad{padding:22px 30px 40px;max-width:1180px}
+
+.kick{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:2.6px;color:var(--ac);
+  text-transform:uppercase;display:block;margin-bottom:7px;
+}
+h1.big{
+  font-size:27px;line-height:1.36;font-weight:700;letter-spacing:.2px;
+  margin-bottom:10px;max-width:900px;
+}
+h1.big em{font-style:normal;color:var(--sun)}
+.lede{font-size:13px;line-height:1.85;color:var(--tx2);max-width:860px}
+.lede b{color:var(--tx)}
+
+h2.sec{
+  font-size:15px;font-weight:700;margin:26px 0 10px;padding-left:11px;
+  border-left:3px solid var(--ac);letter-spacing:.3px;
+}
+h2.sec .n{
+  font-family:var(--mono);font-size:9px;color:var(--tx4);letter-spacing:1.4px;
+  display:block;margin-bottom:3px;font-weight:400;
+}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.card{
+  border:1px solid var(--line);border-radius:10px;padding:13px 15px;
+  background:rgba(21,18,33,.55);
+}
+.card .ct{
+  font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--ac);
+  display:block;margin-bottom:6px;
+}
+.card .cb{font-size:12px;line-height:1.72;color:var(--tx2)}
+.card .cb b{color:var(--tx)}
+.card.warn{border-color:rgba(201,160,90,.34);background:rgba(201,160,90,.07)}
+.card.warn .ct{color:#e6bb77}
+.card.bad{border-color:rgba(239,106,114,.36);background:rgba(239,106,114,.07)}
+.card.bad .ct{color:#ff9ea3}
+
+/* 图版 */
+.fig{
+  border:1px solid var(--line);border-radius:11px;padding:13px 16px 12px;
+  background:linear-gradient(180deg,rgba(21,18,33,.55),rgba(12,10,20,.42));
+  margin:14px 0 4px;
+}
+.fig .figHead{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.fig .figHead .ft{
+  font-family:var(--mono);font-size:9px;letter-spacing:1.8px;color:var(--ac);
+  text-transform:uppercase;
+}
+.fig .figHead .fw{font-family:var(--mono);font-size:8.5px;color:var(--tx4)}
+.fig svg{width:100%;height:206px;display:block}
+.fig .figCap{
+  font-size:10.5px;line-height:1.72;color:var(--tx3);margin-top:6px;
+  border-top:1px solid rgba(196,176,228,.08);padding-top:9px;
+}
+.fig .figCap b{color:var(--tx2)}
+
+/* 剪报 */
+.clip{
+  position:relative;border:1px solid rgba(210,226,255,.16);border-radius:3px;
+  background:linear-gradient(174deg,rgba(238,236,232,.965),rgba(226,223,216,.945));
+  color:#221d2b;padding:17px 20px 15px;margin:16px 0;
+  box-shadow:0 22px 46px -24px rgba(0,0,0,.8);
+  transform:rotate(-.32deg);
+}
+.clip::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(180deg,rgba(40,32,52,.035) 0 1px,transparent 1px 26px);
+}
+.clip .src{
+  font-family:var(--mono);font-size:8.5px;letter-spacing:1.8px;color:#7a6f88;
+  display:block;margin-bottom:7px;
+}
+.clip .hl{font-size:15.5px;font-weight:700;line-height:1.5;margin-bottom:8px;letter-spacing:.2px}
+.clip .tx{font-size:12px;line-height:1.85;color:#3a3348}
+.clip .tx b{background:rgba(239,106,114,.20);padding:0 3px;border-radius:2px;color:#1b1626}
+.clip .q{
+  margin-top:11px;padding-top:10px;border-top:1px dashed rgba(40,32,52,.28);
+  font-size:12.5px;font-style:italic;color:#4a3f5c;
+}
+.clip .tape{
+  position:absolute;top:-9px;left:34px;width:74px;height:19px;
+  background:rgba(255,255,255,.42);border:1px solid rgba(0,0,0,.06);
+  transform:rotate(-2.4deg);
+}
+
+/* 三档说明 */
+.tier{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+  border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:12px 0;
+}
+.tier>div{padding:13px 15px;background:rgba(21,18,33,.5)}
+.tier>div+div{border-left:1px solid var(--line)}
+.tier .tl{
+  font-family:var(--mono);font-size:8.5px;letter-spacing:1.4px;color:var(--tx4);
+  display:block;margin-bottom:5px;
+}
+.tier .tt{font-size:13px;font-weight:700;margin-bottom:5px}
+.tier .td{font-size:10.5px;line-height:1.65;color:var(--tx3)}
+.tier .a .tt{color:#8fe8b0}
+.tier .b .tt{color:#f0c37a}
+.tier .c .tt{color:#9aa0b8}
+
+/* 表格 */
+.tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.tbl th{
+  font-family:var(--mono);font-size:8.5px;letter-spacing:1.2px;color:var(--tx4);
+  text-align:left;padding:6px 9px;border-bottom:1px solid var(--line2);font-weight:400;
+}
+.tbl td{padding:7px 9px;border-bottom:1px solid rgba(196,176,228,.07);color:var(--tx2);line-height:1.5}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td.mono{font-family:var(--mono);font-size:10.5px;color:var(--tx)}
+.tbl td.ok{color:#8fe8b0}
+.tbl td.no{color:#ff9ea3}
+.tbl .bar-cell{width:22%}
+.mini-bar{height:6px;border-radius:3px;background:rgba(210,226,255,.09);overflow:hidden}
+.mini-bar>i{display:block;height:100%;border-radius:3px}
+
+/* 负例 / 预测清单 */
+.list{display:flex;flex-direction:column;gap:7px;margin:10px 0}
+.li{
+  display:grid;grid-template-columns:20px 1fr auto;gap:9px;align-items:start;
+  border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:rgba(21,18,33,.45);
+}
+.li .ic{
+  font-family:var(--mono);font-size:11px;line-height:1.5;text-align:center;
+}
+.li.ok .ic{color:#5fd08a}
+.li.no .ic{color:#ef6a72}
+.li .lt{font-size:11.5px;color:var(--tx);line-height:1.5}
+.li .ld{font-size:10px;color:var(--tx4);line-height:1.6;margin-top:3px}
+.li .lv{
+  font-family:var(--mono);font-size:9.5px;color:var(--tx3);white-space:nowrap;
+  border:1px solid var(--line);border-radius:4px;padding:2px 6px;
+}
+
+/* 扫描图 */
+.chartbox{
+  border:1px solid var(--line);border-radius:10px;padding:13px 15px 9px;
+  background:rgba(16,13,26,.62);margin:10px 0;
+}
+.chartbox .ch{display:flex;align-items:baseline;gap:9px;margin-bottom:6px}
+.chartbox .ch .t{font-size:11.5px;font-weight:600;color:var(--tx2)}
+.chartbox .ch .v{font-family:var(--mono);font-size:10px;color:var(--sun);margin-left:auto}
+.chartbox svg{width:100%;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:7px}
+.legend span{
+  font-family:var(--mono);font-size:8.5px;letter-spacing:.6px;color:var(--tx4);
+  display:flex;align-items:center;gap:5px;
+}
+.legend i{width:14px;height:2px;border-radius:1px;display:block}
+
+/* 边界清单 */
+.lim{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0}
+.lim>div{
+  border:1px solid var(--line);border-left:2px solid var(--ac);border-radius:0 7px 7px 0;
+  padding:9px 12px;background:rgba(21,18,33,.42);
+}
+.lim .lt{font-size:11.5px;font-weight:600;margin-bottom:4px;color:var(--tx)}
+.lim .ld{font-size:10px;line-height:1.65;color:var(--tx3)}
+
+/* 存档 */
+.savebox{
+  border:1px solid var(--line);border-radius:10px;padding:15px 17px;
+  background:rgba(21,18,33,.55);margin:12px 0;
+}
+.savebox .sr{
+  font-family:var(--mono);font-size:10px;line-height:1.8;color:var(--tx2);
+  margin-top:10px;white-space:pre-wrap;word-break:break-all;
+}
+.savebox .sr.ok{color:#8fe8b0}
+.savebox .sr.no{color:#ff9ea3}
+
+/* 空态 / 提示 */
+.hint{
+  font-size:10.5px;color:var(--tx4);line-height:1.65;
+  border-left:2px solid var(--line2);padding-left:10px;margin:9px 0;
+}
+.hint b{color:var(--tx2)}
+
+/* ============================================================
+   窄屏：整段重写，不做微调
+   ============================================================ */
+@media (max-width: 1080px){
+  .zone[data-l="trellis"]{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}
+  .trellisWrap{grid-column:1;grid-row:1;border-right:none}
+  .side{grid-column:1;grid-row:2;max-height:none;border-top:1px solid var(--line)}
+  .console{grid-column:1;grid-row:3;border-right:none;flex-wrap:wrap;gap:12px;padding:10px 16px}
+  .canopy{height:auto;flex-wrap:wrap;gap:14px;padding:12px 16px}
+  .canopy .dome{display:none}
+  .sunbox{width:100%}
+  .grid3,.tier{grid-template-columns:1fr}
+  .tier>div+div{border-left:none;border-top:1px solid var(--line)}
+  .grid2,.lim{grid-template-columns:1fr}
+  .pad{padding:16px 16px 34px}
+  h1.big{font-size:21px}
+  .path{height:auto;padding:8px 0}
+  .path .line{display:none}
+  .stone{width:auto;flex:1;min-width:0}
+  .stone .st{font-size:10.5px}
+}
+
+@media (max-width: 720px){
+  .zone[data-l="trellis"]{grid-template-rows:auto auto}
+  #trellis{min-height:300px}
+  .frow{grid-template-columns:48px 1fr 40px 46px}
+  .canopy .hname b{font-size:15px}
+  .stone .st{font-size:9.5px}
+  .stone .sn{font-size:7px}
+}
+</style>

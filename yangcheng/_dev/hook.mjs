@@ -1,0 +1,10 @@
+import fs from "fs";
+const src = fs.readFileSync("instruments/yc-metrics.js","utf8");
+global.window = {};
+new Function("window", src)(global.window);
+const M = global.window.YCMetrics;
+const w = M.makeWorld(1001,{budget:120});
+const frames = [];
+const ep = M.runEpisode(w, [0.3,0.5], 11, null, {every:10, cb:(s,W,P,cur)=>frames.push({s,P:+P.toFixed(1),cur,d:W.rooms.map(r=>+r.dirt.toFixed(2))})});
+console.log("帧数", frames.length, "| 末帧", JSON.stringify(frames[frames.length-1]).slice(0,140));
+console.log("P", ep.P.toFixed(1), "vacs", ep.vacs, "wasted", ep.wasted);

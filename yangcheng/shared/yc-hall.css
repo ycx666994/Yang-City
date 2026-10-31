@@ -1,0 +1,220 @@
+/* ============================================================
+   yc-hall.css — 馆内仪器界面（深色仪表风）
+   与 yc-core.css 共用令牌。老馆（Trust Lab）是纸质档案，
+   新馆是仪器面板 —— 这个差异是刻意的，不是没统一。
+   ============================================================ */
+
+/* ---- 四层骨架 ---- */
+.hall{
+  position:relative;z-index:10;height:100dvh;display:flex;flex-direction:column;
+}
+.hall .body{flex:1;display:grid;grid-template-columns:186px 1fr;min-height:0}
+.hall .rail{
+  border-right:1px solid var(--line);padding:14px 10px;display:flex;flex-direction:column;gap:7px;
+  background:linear-gradient(180deg,rgba(9,13,19,.72),rgba(9,13,19,.35));
+}
+.rail .rh{
+  font-family:var(--mono);font-size:9px;letter-spacing:1.6px;color:var(--tx4);
+  padding:0 6px 6px;border-bottom:1px solid var(--line);margin-bottom:2px;
+}
+.lay{
+  cursor:pointer;text-align:left;font-family:inherit;color:var(--tx2);
+  border:1px solid transparent;background:transparent;border-radius:9px;
+  padding:9px 10px;transition:.16s;display:block;width:100%;
+}
+.lay:hover{background:rgba(120,152,186,.08);color:var(--tx)}
+.lay.on{
+  color:var(--tx);border-color:color-mix(in srgb,var(--hall-ac) 45%,transparent);
+  background:color-mix(in srgb,var(--hall-ac) 12%,transparent);
+  box-shadow:inset 2px 0 0 var(--hall-ac);
+}
+.lay .ln{font-family:var(--mono);font-size:8.5px;letter-spacing:1.2px;color:var(--tx4);display:block}
+.lay.on .ln{color:var(--hall-ac)}
+.lay .lt{font-size:13px;font-weight:600;display:block;margin-top:1px}
+.lay .ld{font-size:9.5px;color:var(--tx4);display:block;margin-top:2px;line-height:1.4}
+.rail .spacer{flex:1}
+.rail .rfoot{font-family:var(--mono);font-size:9px;color:var(--tx4);line-height:1.6;padding:8px 6px 0;border-top:1px solid var(--line)}
+
+.hall .main{min-height:0;overflow-y:auto;padding:18px 22px 30px;position:relative}
+.hall .main::-webkit-scrollbar{width:9px}
+.hall .main::-webkit-scrollbar-thumb{background:rgba(120,152,186,.24);border-radius:5px}
+
+/* ---- 层 ---- */
+.layer{display:none;animation:fadeUp .4s cubic-bezier(.2,.9,.3,1) both}
+.layer.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}}
+
+.lhead{margin-bottom:16px}
+.lhead .kick{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:2.4px;
+  color:var(--hall-ac);text-transform:uppercase;display:block;margin-bottom:6px;
+}
+.lhead h2{font-size:24px;font-weight:800;letter-spacing:1px;line-height:1.3}
+.lhead p{margin-top:7px;font-size:13px;color:var(--tx2);line-height:1.85;max-width:74ch}
+
+/* ---- 卡片 ---- */
+.cd{
+  border:1px solid var(--line);border-radius:var(--r);background:var(--panel);
+  padding:16px 18px;margin-bottom:14px;position:relative;
+}
+.cd>.ct{
+  font-size:12.5px;font-weight:700;letter-spacing:1.4px;margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
+}
+.cd>.ct .k{font-family:var(--mono);font-size:9px;color:var(--tx4);letter-spacing:1px;font-weight:400}
+.cd>.ct .spacer{flex:1}
+.cd p{font-size:12.5px;line-height:1.9;color:var(--tx2)}
+.cd p+p{margin-top:9px}
+.cd b{color:var(--tx)}
+.cd .hl{color:var(--hall-ac)}
+
+/* 网格 */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+
+/* ---- 读数 ---- */
+.stat{
+  border:1px solid var(--line);border-radius:10px;padding:11px 13px;
+  background:rgba(15,21,31,.6);
+}
+.stat .sl{font-family:var(--mono);font-size:9px;letter-spacing:1.2px;color:var(--tx4);display:block}
+.stat .sv{font-family:var(--mono);font-size:23px;font-weight:600;color:var(--tx);line-height:1.2;margin-top:3px;display:block}
+.stat .sv small{font-size:11px;color:var(--tx3);font-weight:400;margin-left:3px}
+.stat .sd{font-size:10px;color:var(--tx3);margin-top:3px;line-height:1.5}
+.stat.p .sv{color:#ffcf7a}
+.stat.t .sv{color:#7fe3c0}
+.stat.bad .sv{color:var(--bad)}
+.stat.ok .sv{color:var(--ok)}
+
+/* ---- 滑块 ---- */
+.knob{margin-bottom:14px}
+.knob:last-child{margin-bottom:0}
+.knob .kh{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.knob .kn{font-size:11.5px;color:var(--tx2)}
+.knob .kv{margin-left:auto;font-family:var(--mono);font-size:13px;color:var(--hall-ac);font-weight:600}
+.knob input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:2px;
+  background:linear-gradient(90deg,var(--hall-ac) var(--pct,50%),rgba(120,152,186,.2) var(--pct,50%));
+  outline:none;cursor:pointer;
+}
+.knob input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--hall-ac);border:2px solid #0a0f17;
+  box-shadow:0 0 10px color-mix(in srgb,var(--hall-ac) 60%,transparent);cursor:grab;
+}
+.knob input[type=range]::-moz-range-thumb{
+  width:12px;height:12px;border-radius:50%;background:var(--hall-ac);
+  border:2px solid #0a0f17;cursor:grab;
+}
+.knob .kt{font-size:9.5px;color:var(--tx4);margin-top:4px;line-height:1.5}
+
+/* ---- 房间格 ---- */
+.rooms{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.rm{
+  position:relative;border-radius:8px;border:1px solid var(--line);
+  aspect-ratio:1/.82;overflow:hidden;background:#0b1018;
+  transition:box-shadow .2s;
+}
+.rm .dirt{
+  position:absolute;inset:0;background:
+    radial-gradient(circle at 30% 34%,rgba(150,132,96,.85) 0 14%,transparent 15%),
+    radial-gradient(circle at 68% 62%,rgba(132,116,84,.8) 0 11%,transparent 12%),
+    radial-gradient(circle at 46% 78%,rgba(120,106,78,.7) 0 8%,transparent 9%);
+  opacity:var(--d,1);transition:opacity .35s;
+}
+.rm .wear{
+  position:absolute;inset:0;opacity:var(--w,0);transition:opacity .35s;
+  background-image:repeating-linear-gradient(118deg,rgba(239,106,114,.55) 0 1px,transparent 1px 6px);
+  mix-blend-mode:screen;
+}
+.rm .tag{
+  position:absolute;left:5px;top:4px;font-family:var(--mono);font-size:8.5px;color:var(--tx3);
+}
+.rm .val{
+  position:absolute;right:5px;bottom:3px;font-family:var(--mono);font-size:10px;
+  color:var(--tx);font-weight:600;
+}
+.rm.tail{border-color:rgba(239,106,114,.42)}
+.rm.tail .tag{color:#ef8a90}
+.rm.cur{box-shadow:0 0 0 1.5px var(--hall-ac),0 0 18px -4px var(--hall-ac)}
+
+/* ---- 表格 ---- */
+.tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.tbl th{
+  text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--tx4);
+  font-weight:400;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap;
+}
+.tbl td{padding:7px 8px;border-bottom:1px solid rgba(120,152,186,.08);color:var(--tx2);vertical-align:top}
+.tbl td.m{font-family:var(--mono);color:var(--tx)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr.hi td{background:rgba(242,166,60,.07)}
+
+/* ---- 结论条 ---- */
+.vd{
+  display:flex;align-items:flex-start;gap:12px;padding:13px 15px;border-radius:11px;
+  border:1px solid var(--line);background:rgba(15,21,31,.7);margin-bottom:14px;
+}
+.vd .vic{font-size:19px;line-height:1;flex:none;margin-top:1px}
+.vd .vt{font-size:13px;font-weight:700;letter-spacing:.6px}
+.vd .vx{font-size:11.5px;color:var(--tx2);margin-top:3px;line-height:1.7}
+.vd.ok{border-color:rgba(63,208,138,.4);background:rgba(63,208,138,.07)}
+.vd.ok .vt{color:var(--ok)}
+.vd.bad{border-color:rgba(240,85,77,.4);background:rgba(240,85,77,.07)}
+.vd.bad .vt{color:var(--bad)}
+.vd.warn{border-color:rgba(240,166,60,.4);background:rgba(240,166,60,.07)}
+.vd.warn .vt{color:var(--warn)}
+.vd.idle .vt{color:var(--tx2)}
+
+/* ---- 图表容器 ---- */
+.chart{position:relative;width:100%;height:288px}
+.chart canvas{width:100%;height:100%;display:block}
+.chart-lg{
+  display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:9.5px;color:var(--tx3);
+  margin-top:10px;padding-top:9px;border-top:1px solid rgba(120,152,186,.10);
+}
+.chart-lg i{display:inline-block;width:16px;height:2px;vertical-align:middle;margin-right:5px}
+.chart .tip{
+  position:absolute;pointer-events:none;z-index:5;background:rgba(9,13,19,.96);
+  border:1px solid var(--line2);border-radius:8px;padding:7px 10px;font-size:10.5px;
+  font-family:var(--mono);color:var(--tx);white-space:nowrap;display:none;
+  box-shadow:0 10px 30px -10px #000;
+}
+.chart .tip b{color:var(--hall-ac)}
+
+/* ---- 进度条 ---- */
+.bar{height:5px;border-radius:3px;background:rgba(120,152,186,.16);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:3px;background:var(--hall-ac);transition:width .3s}
+
+/* ---- 故事层 ---- */
+.story{
+  border-left:2px solid var(--hall-ac);padding:2px 0 2px 16px;margin:14px 0;
+  font-size:13px;line-height:1.95;color:var(--tx2);
+}
+.story b{color:var(--tx)}
+.q{font-size:15px;line-height:1.8;color:var(--tx);font-weight:600;margin:4px 0 10px}
+
+/* ---- 不可回答 ---- */
+.cannot{
+  border:1px dashed rgba(240,85,77,.34);border-radius:10px;padding:12px 14px;
+  background:rgba(240,85,77,.045);font-size:11.5px;line-height:1.8;color:var(--tx2);
+}
+.cannot b{color:#ef8a90}
+
+/* ---- 窄屏 ---- */
+@media (max-width:880px){
+  .hall{height:auto;min-height:100dvh}
+  .hall .body{grid-template-columns:1fr}
+  .hall .rail{
+    flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--line);
+    padding:8px 10px;gap:6px;
+  }
+  .rail .rh,.rail .rfoot,.rail .spacer{display:none}
+  .lay{width:auto;flex:none;padding:7px 11px}
+  .lay .ld{display:none}
+  .lay .lt{font-size:12px}
+  .hall .main{padding:14px 13px 26px;overflow:visible}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .rooms{grid-template-columns:repeat(3,1fr)}
+  .lhead h2{font-size:20px}
+}

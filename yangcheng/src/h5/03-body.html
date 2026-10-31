@@ -1,0 +1,520 @@
+<div class="hall h5" style="--hall-ac:#ef6a72">
+
+  <header class="ycbar">
+    <div class="brand">
+      <a href="index.html" style="text-decoration:none;color:inherit;display:flex;align-items:baseline;gap:9px">
+        <span class="nm">杨城</span>
+      </a>
+      <span class="sub">H5 · 递归坍塌博物馆</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="rd"><span class="dot" id="rdDot"></span>仪器在线 <b>lineage-greenhouse</b> v0.2.0</div>
+    <nav class="nav">
+      <a href="map.html">地图</a>
+      <a href="index.html">城市</a>
+      <a href="evidence.html">证据厅</a>
+      <a href="../h1-lab.html">老馆</a>
+    </nav>
+  </header>
+
+  <!-- ==================== 穹顶：馆名 + 日照计 ==================== -->
+  <div class="canopy">
+    <svg class="dome" viewBox="0 0 1440 88" preserveAspectRatio="none" aria-hidden="true">
+      <path class="glow" d="M0 88 C 360 6 1080 6 1440 88"></path>
+      <path d="M0 88 C 360 14 1080 14 1440 88"></path>
+    </svg>
+    <div class="idn">
+      <span class="hno">H5</span>
+      <div class="hname">
+        <b>递归坍塌博物馆</b>
+        <span>坍塌观测站 · 谱系温室</span>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="sunbox">
+      <div class="sl"><span>日照 · 每代新鲜真数据</span><b id="sunVal">5%</b></div>
+      <div class="track"><i id="sunFill"></i></div>
+      <div class="sd" id="sunNote">日照越低，温室越封闭：模型开始吃自己的产出。</div>
+    </div>
+  </div>
+
+  <!-- ==================== 主场景 ==================== -->
+  <div class="bed">
+
+    <!-- ---------- 01 育苗间 ---------- -->
+    <section class="zone on" data-l="nursery">
+      <div class="pad">
+        <span class="kick">H5 · 坍塌观测站</span>
+        <h1 class="big">种子留在温室里，<em>会变成什么</em>？</h1>
+        <p class="lede">
+          这一馆不测「模型答得对不对」，测的是更慢的一件事：<b>当训练数据越来越多地来自模型自己，
+          哪些信息会消失，哪些会留下来，以及这件事到底能不能被看见。</b>
+          它不预设必然崩溃，也不接受「画一条往下掉的曲线」当作证明。
+        </p>
+        <!-- 精英挑战入口（首屏版）：玩法页藏在底部踏石第 5 枚之后，
+             用户根本不知道它存在，所以在第一屏就先给一块牌子。 -->
+        <div class="elitecard first">
+          <div class="ec-k"><i></i>ELITE CHALLENGE · 这一馆的玩法</div>
+          <div class="ec-t">坍塌预报台：只看半程，你敢判哪一层会死？</div>
+          <p class="ec-d">
+            这一馆的参观是「读图」，玩法是「<b>下判断</b>」。给你一张只画到第 12 代的藤蔓图，
+            你要为八个质量层各插一面旗：<b>还活着</b>、<b>会枯死</b>、还是<b>根本看不见</b>。
+            三轮，插错一层就少一分，全对领<b>精英证书</b>。
+          </p>
+          <a class="ec-a" href="h5-forecast.html">进入玩法 →</a>
+          <span class="ec-n">约 4 分钟 · 8 层 × 3 轮</span>
+        </div>
+
+        <div class="clip">
+          <div class="tape"></div>
+          <span class="src">育种站日志 · 第 12 卷 · 2031 年 4 月</span>
+          <div class="hl">连续自繁十二代之后，叶形只剩两种</div>
+          <div class="tx">
+            第七代还很正常。第八代开始出现「叶形单一化」：苗床上几乎所有植株的叶片都变成了同一个宽度。
+            第十一代盘点，只剩两个品系，其中一个是<b>第一代里最不起眼的那株</b> ——
+            它当初只是碰巧结的种子多。农学家把这个叫近交衰退，教科书上写着：<b>没有外来种质，
+            多样性只会单向减少。</b>
+          </div>
+          <div class="q">问题不是「会不会变差」，是「你从第几代开始看得出来」。</div>
+        </div>
+
+        <h2 class="sec"><span class="n">01 / 三件事必须分开</span>分辨率、递归、不可逆</h2>
+        <p class="lede">
+          「尾部先死」这句话在文献里出现得太多，以至于很少有人追问：<b>它是被谁弄死的。</b>
+          在这套模型里，至少有两个完全不同的凶手，而它们留下的痕迹一模一样。
+        </p>
+
+        <div class="tier">
+          <div class="a">
+            <span class="tl">因子一 · N</span>
+            <div class="tt">分辨率</div>
+            <div class="td">每代只抽 N 件样本。概率 1e-4 的仓，N=400 时期望计数是 0.04 ——
+              它<b>从来没被采到过</b>，谈不上「死」。加大 N，这些层才会进入视野。</div>
+          </div>
+          <div class="b">
+            <span class="tl">因子二 · ρ</span>
+            <div class="tt">递归</div>
+            <div class="td">每代有 (1−ρ) 的数据来自模型自己。看见过的仓，会在一代代重采样里
+              被随机漂移抹掉。<b>一旦归零就永远回不来</b> —— 这是吸收态，不是渐变。</div>
+          </div>
+          <div class="c">
+            <span class="tl">结果</span>
+            <div class="tt">不可逆</div>
+            <div class="td">两者叠起来才是「坍塌」。分辨率只决定<b>早死</b>，
+              递归才决定<b>必死</b>。这一馆的核心工作，就是把这两件事分开报。</div>
+          </div>
+        </div>
+
+        <div class="fig">
+          <div class="figHead">
+            <span class="ft">图 1 · 怎么读一条藤</span>
+            <span class="fw">竖轴＝世代，一条藤＝一条谱系</span>
+          </div>
+          <svg viewBox="0 0 1070 212" preserveAspectRatio="xMidYMid meet">
+            <text x="46" y="24" font-family="monospace" font-size="10" fill="#726887">世代 ↑</text>
+            <line x1="46" y1="32" x2="46" y2="178" stroke="rgba(196,176,228,.20)" stroke-width="1"/>
+            <line x1="46" y1="178" x2="1032" y2="178" stroke="rgba(196,176,228,.20)" stroke-width="1"/>
+            <text x="34" y="182" text-anchor="end" font-family="monospace" font-size="9" fill="#5a5370">0</text>
+
+            <!-- 幸存：一路绿到顶，顶端有芽 -->
+            <path d="M180 176 C 190 146, 170 122, 180 96 C 190 70, 170 54, 180 34"
+                  fill="none" stroke="#5fd08a" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="180" cy="30" r="12" fill="#5fd08a" opacity=".16"/>
+            <circle cx="180" cy="30" r="5" fill="#8fe8b0" stroke="#5fd08a" stroke-width="1.5"/>
+            <text x="180" y="202" text-anchor="middle" font-size="13" fill="#8fe8b0"
+                  font-family="system-ui,sans-serif">幸存</text>
+            <text x="208" y="44" font-size="10" fill="#726887" font-family="monospace">顶端有芽</text>
+            <text x="208" y="62" font-size="10" fill="#4c4560" font-family="monospace">八层一层没丢</text>
+
+            <!-- 枯萎：绿→枯金，× 在枯死点，上面是虚线残影 -->
+            <path d="M500 176 C 510 160, 490 148, 500 132" fill="none" stroke="#5fd08a"
+                  stroke-width="8" stroke-linecap="round"/>
+            <path d="M500 132 C 510 124, 490 116, 500 108" fill="none" stroke="#c9a05a"
+                  stroke-width="6.5" stroke-linecap="round"/>
+            <path d="M500 100 C 510 80, 490 58, 500 34" fill="none" stroke="#8d5a62"
+                  stroke-width="2" stroke-dasharray="4 6" opacity=".9"/>
+            <line x1="491" y1="99" x2="509" y2="117" stroke="#ef6a72" stroke-width="2.6"/>
+            <line x1="509" y1="99" x2="491" y2="117" stroke="#ef6a72" stroke-width="2.6"/>
+            <text x="500" y="202" text-anchor="middle" font-size="13" fill="#f0c37a"
+                  font-family="system-ui,sans-serif">枯萎</text>
+            <text x="530" y="112" font-size="10" fill="#726887" font-family="monospace">× 落在真正枯萎的那一代</text>
+            <text x="530" y="130" font-size="10" fill="#4c4560" font-family="monospace">上面是残影，不会再长回来</text>
+
+            <!-- 看不见：起始覆盖率就不够一半 -->
+            <path d="M820 176 C 828 168, 812 162, 820 154" fill="none" stroke="#8b7fa4"
+                  stroke-width="7" stroke-linecap="round"/>
+            <line x1="820" y1="148" x2="820" y2="32" stroke="#5a5370" stroke-width="1.4"
+                  stroke-dasharray="1 7"/>
+            <circle cx="820" cy="32" r="3" fill="none" stroke="#5a5370" stroke-width="1.2"/>
+            <text x="820" y="202" text-anchor="middle" font-size="13" fill="#b3a8c8"
+                  font-family="system-ui,sans-serif">看不见</text>
+            <text x="850" y="120" font-size="10" fill="#726887" font-family="monospace">第 1 代覆盖率就不够一半</text>
+            <text x="850" y="138" font-size="10" fill="#4c4560" font-family="monospace">这不是坍塌，是分辨率不够</text>
+          </svg>
+          <div class="figCap">
+            <b>绿 → 黄绿 → 枯金 → 锈褐</b>是「还剩几层」的阶梯，不是渐变的装饰。
+            一条藤只有在<b>被看见之后</b>才谈得上枯萎；从第 1 代就没采到的层记作<b>看不见</b>，
+            它不算坍塌，算分辨率不够。这个区分是整馆的底线。
+          </div>
+        </div>
+
+        <h2 class="sec"><span class="n">02 / 为什么这里不用一条曲线</span>总体距离看不见尾部</h2>
+        <div class="grid2">
+          <div class="card bad">
+            <span class="ct">展品 A · 会骗人的指标</span>
+            <div class="cb">
+              用 TV 距离（总变差）衡量「模型离真分布多远」，是这个领域最自然的做法。
+              但它被主体质量主导：在 N=2000、ρ=0 的设置里，<b>最稀的三个质量层全部归零，
+              TV 保真度只从 0.93 掉到 0.78。</b>
+              你盯着一根缓慢下滑的曲线，会得出「基本没事」的结论。
+            </div>
+          </div>
+          <div class="card">
+            <span class="ct">展品 B · 换个问法</span>
+            <div class="cb">
+              不问「整体差多少」，问<b>「哪一层还在」</b>。
+              把真分布按密度排名切成 8 个质量层（最密 50% 到最稀 0.1%），
+              逐层看<b>支撑覆盖率</b>：这层的仓还有几成在模型里有非零质量。
+              于是每一层都拿到一个明确的归宿。
+            </div>
+          </div>
+        </div>
+        <div class="hint">
+          <b>这不是精度问题，是测量对象的问题。</b>同一个实验，用 TV 看是「轻微退化」，
+          用分位覆盖率看是「三个层彻底消失」。后者才是能拿去追责的说法。
+        </div>
+
+        <h2 class="sec"><span class="n">03 / 这一馆要你亲眼看一遍的事</span>一次实验说明不了任何事</h2>
+        <div class="grid3">
+          <div class="card">
+            <span class="ct">默认设置下的实测</span>
+            <div class="cb">
+              16 条平行谱系、24 代、ρ=5%、N=400。
+              第一条枯死在第 <b>2</b> 代，最后一条撑到第 <b>24</b> 代。
+              <b>同一组参数，差 22 代。</b>
+            </div>
+          </div>
+          <div class="card">
+            <span class="ct">所以仪器不给单点</span>
+            <div class="cb">
+              它报的是<b>存活率</b>与<b>枯萎世代的中位数和区间</b>。
+              只播一条谱系时，仪器会直接拒判 —— 一条线不构成一个定律。
+            </div>
+          </div>
+          <div class="card">
+            <span class="ct">而且它给出可被推翻的归因</span>
+            <div class="cb">
+              把观测窗拉长三倍、仍不加新鲜数据，谱系应该<b>全部</b>枯萎；
+              加 30% 新鲜数据则应该保持。这两条一旦不成立，归因就是错的。
+            </div>
+          </div>
+        </div>
+
+        <h2 class="sec"><span class="n">04 / 怎么玩</span>三步走到藤架厅</h2>
+        <div class="grid3">
+          <div class="card">
+            <span class="ct">第一步</span>
+            <div class="cb">看藤。<b>竖轴是世代，横轴是 16 条谱系。</b>
+              颜色越绿活得越好，变枯金就是开始丢仓，变枯绛就是丢了。枯萎的藤在枯死点以上是虚线残影。</div>
+          </div>
+          <div class="card">
+            <span class="ct">第二步</span>
+            <div class="cb">拖世代滑块，看右边镜子里<b>分布怎么变形</b>。
+              你会看到三个峰慢慢变尖，而那条宽尾一段段消失。</div>
+          </div>
+          <div class="card">
+            <span class="ct">第三步</span>
+            <div class="cb">点「同 seed 对照」。同一颗种子、只改日照，看同一条谱系从第几代枯变成第几代枯。</div>
+          </div>
+        </div>
+
+
+        <div class="hint">
+          底部踏石就是参观顺序：<b>育苗间 → 藤架厅 → 标本室 → 移交口 → 标本长廊</b>，
+          最后一枚虚线踏石是<b>玩法</b>。参数在藤架厅的藤下面，改完会自动重播。
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- 02 藤架厅 ---------- -->
+    <section class="zone" data-l="trellis">
+
+      <div class="trellisWrap">
+        <div class="twHead">
+          <span class="tk">谱系藤架</span>
+          <span class="tn" id="twSub">16 条谱系 · 24 代 · 向上生长</span>
+          <span class="spacer"></span>
+          <div class="vleg" id="vleg"></div>
+          <button class="pick" id="pickBack" style="display:none">← 回到全体</button>
+        </div>
+        <svg id="trellis" viewBox="0 0 760 620" preserveAspectRatio="xMidYMid meet"
+             role="img" aria-label="16 条谱系的世代生长图"></svg>
+        <div class="twFoot">
+          <span class="gl">世代</span>
+          <input type="range" id="genSlider" min="1" max="24" value="24" step="1">
+          <span class="gv" id="genVal">24 / 24</span>
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="mirror">
+          <div class="mh">
+            <span class="t">分布形变镜</span>
+            <span class="g" id="mGen">第 24 代</span>
+          </div>
+          <div class="ms" id="mSub">浅色轮廓＝真分布 p₀；绛色＝16 条谱系的平均分布</div>
+          <svg id="mirrorSvg" viewBox="0 0 380 104" preserveAspectRatio="none"></svg>
+          <div class="mrow">
+            <div><span class="ml">TV 保真</span><span class="mv" id="mFid">—</span></div>
+            <div><span class="ml">有效仓数</span><span class="mv" id="mH">—</span></div>
+            <div><span class="ml">可见层</span><span class="mv" id="mCov">—</span></div>
+          </div>
+        </div>
+        <div class="verdict" id="vBox">
+          <div class="vhead"><span class="vb" id="vBadge">—</span></div>
+          <div class="vstat" id="vStat">—</div>
+          <div class="vwhy" id="vWhy">—</div>
+          <div class="vnote" id="vNote" style="display:none"></div>
+        </div>
+
+        <div class="fates">
+          <div class="fh">
+            <span class="t" id="fateTitle">八层归宿</span>
+            <span class="w" id="fateWho">全体 · 中位</span>
+          </div>
+          <div id="fateBody"></div>
+          <div class="hint" id="fateHint">
+            覆盖率＝这一层的仓还有几成在模型里。低于起始值一半，就记作枯萎。
+          </div>
+        </div>
+      </div>
+
+      <div class="console">
+        <div class="dial">
+          <div class="dl"><span>ρ 新鲜数据</span><b id="kRhoV">5%</b></div>
+          <input type="range" id="kRho" min="0" max="100" value="5" step="1">
+        </div>
+        <div class="dial">
+          <div class="dl"><span>N 每代样本</span><b id="kNV">400</b></div>
+          <input type="range" id="kN" min="0" max="100" value="26" step="1">
+        </div>
+        <div class="dial">
+          <div class="dl"><span>G 代数</span><b id="kGV">24</b></div>
+          <input type="range" id="kG" min="5" max="48" value="24" step="1">
+        </div>
+        <span class="spacer"></span>
+        <div class="acts">
+          <button class="ab" id="btnCF">同 seed 对照</button>
+          <button class="ab" id="btnAttr">归因分解</button>
+          <button class="ab pri" id="btnRun">重新播种</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- 03 标本室 ---------- -->
+    <section class="zone" data-l="check">
+      <div class="pad">
+        <span class="kick">H5 · 标本室</span>
+        <h1 class="big">这台仪器<b>有资格</b>审模型吗？</h1>
+        <p class="lede">
+          仪器在真值已知的地方必须能把真值收回来，否则它只是在输出好看的数。
+          下面五项都是<b>数学上必然成立</b>的性质 —— 只要有一项不成立，
+          就说明实现错了，而不是发现了新东西。
+        </p>
+
+        <h2 class="sec"><span class="n">01 / 自检</span>五项可回收的真值</h2>
+        <div id="scSum" class="hint">正在跑自检……</div>
+        <table class="tbl" id="scTable">
+          <thead>
+            <tr><th style="width:20%">性质</th><th style="width:26%">实测</th>
+                <th style="width:16%">要求</th><th>为什么它是真值</th></tr>
+          </thead>
+          <tbody id="scBody"></tbody>
+        </table>
+
+        <h2 class="sec"><span class="n">02 / 拒判线</span>每一条都必须能真的触发</h2>
+        <p class="lede">
+          能拒判才叫仪器。下面五条不是文案，是五个真实跑出来的负例 ——
+          每一条都用了会让结论失效的具体参数。
+        </p>
+        <div class="list" id="negList"></div>
+
+        <h2 class="sec"><span class="n">03 / 归因</span>N 改速度，ρ 改归宿</h2>
+        <p class="lede">
+          这一节是这一馆最想让你带走的东西。<b>「N 太小所以尾部死了」这个解释，
+          只能说明为什么早死，说明不了为什么必死。</b>下面三条预测都可以被推翻。
+        </p>
+        <div id="attrBox"></div>
+
+        <h2 class="sec"><span class="n">04 / 两个扫描</span>临界混合比，与看得见多细</h2>
+        <div class="grid2">
+          <div class="chartbox">
+            <div class="ch"><span class="t">混合比扫描</span><span class="v" id="critVal">—</span></div>
+            <svg id="sweepSvg" viewBox="0 0 440 170"></svg>
+            <div class="legend">
+              <span><i style="background:#5fd08a"></i>存活率</span>
+              <span><i style="background:#ef6a72"></i>50% 线</span>
+              <span><i style="background:#ffd27f"></i>临界 ρ*</span>
+            </div>
+          </div>
+          <div class="chartbox">
+            <div class="ch"><span class="t">采样量扫描</span><span class="v" id="visVal">—</span></div>
+            <svg id="nSvg" viewBox="0 0 440 170"></svg>
+            <div class="legend">
+              <span><i style="background:#5fd08a"></i>层 1</span>
+              <span><i style="background:#ffd27f"></i>层 4</span>
+              <span><i style="background:#ef6a72"></i>层 7</span>
+            </div>
+          </div>
+        </div>
+        <div class="hint">
+          右图只跑第 1 代，所以它测的是纯分辨率，不含递归。
+          <b>想看更细的尾巴，就得付采样预算</b> —— 这是这一馆里唯一「花钱能解决」的问题。
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- 04 移交口 ---------- -->
+    <section class="zone" data-l="hand">
+      <div class="pad">
+        <span class="kick">H5 · 移交口</span>
+        <h1 class="big">把这一次播种，<b>变成一份可回放的记录</b></h1>
+        <p class="lede">
+          存档不是截图。同一组种子、参数、代数重跑，必须得到完全相同的 16 条谱系与同样的枯萎世代。
+          存进去的档案会带上四轴标签和校验值，进入公共证据厅。
+        </p>
+
+        <div class="savebox">
+          <div class="acts">
+            <button class="ab pri" id="btnSave">存入公共证据厅</button>
+            <button class="ab" id="btnExport">导出档案（Markdown）</button>
+          </div>
+          <div class="sr" id="saveResult">尚未存档。</div>
+        </div>
+
+        <h2 class="sec"><span class="n">01 / 边界</span>这台仪器不能做什么</h2>
+        <div class="lim">
+          <div>
+            <div class="lt">不预设必然崩溃</div>
+            <div class="ld">ρ 足够高时它必须报「未检出坍塌」。如果它永远只能得出坍塌，那它测的不是现象，是设定。</div>
+          </div>
+          <div>
+            <div class="lt">动画变糊不等于模型训练</div>
+            <div class="ld">这里的模型是 96 个仓的直方图，不是神经网络。它展示的是<b>重采样的数学结构</b>，不是任何真实模型的训练过程。</div>
+          </div>
+          <div>
+            <div class="lt">不签发「有没有污染」</div>
+            <div class="ld">它只回答「在这个 N、ρ、G 下，哪一层还剩多少支撑」。换参数结论会变，报告必须写明参数。</div>
+          </div>
+          <div>
+            <div class="lt">分位等权是人为选择</div>
+            <div class="ld">八层按层等权，不按质量加权。因为尾部承载的是一类信息，不是一点点质量。这个选择必须写在结论旁边。</div>
+          </div>
+          <div>
+            <div class="lt">不支持真实模型直接接入</div>
+            <div class="ld">没有接口去调真实 LLM 做自训练。那是另一件事，需要真实的算力与数据血缘记录。</div>
+          </div>
+          <div>
+            <div class="lt">不宣称方法首创</div>
+            <div class="ld">模型坍塌、Wright–Fisher 漂变、尾部截断都是既有概念。这一馆做的是把它们拆成可分别测量的量。</div>
+          </div>
+        </div>
+
+        <h2 class="sec"><span class="n">02 / 接口</span>它和别的馆怎么接上</h2>
+        <div class="grid3">
+          <div class="card">
+            <span class="ct">→ H4 数据污染</span>
+            <div class="cb">H4 问「它记住了哪道题」，H5 问「它记住的东西能传几代」。
+              H4 的 κ̂ 高，说明污染已经进了权重；H5 的枯萎快，说明这份权重撑不过几轮自训练。</div>
+          </div>
+          <div class="card">
+            <span class="ct">→ H3 指标失效</span>
+            <div class="cb">如果只盯 TV 保真度，H5 的实验会得出「轻微退化」。
+              这正是 H3 讲的事：<b>代理指标一旦被优化，就会失去分辨力。</b></div>
+          </div>
+          <div class="card">
+            <span class="ct">→ H6 潜能与预算</span>
+            <div class="cb">H5 里「加 N 只改速度、不改归宿」，是 H6 预算问题的前身：
+              有些事加预算能解决，有些不能。H6 会把这个区分做细。</div>
+          </div>
+        </div>
+
+        <div class="hint">
+          档案格式沿用 YC-Evidence 1.0：八类最小记录 + 四轴标签 + 五词结论表 + FNV-1a 校验。
+          <b>校验值只用于发现记录被改动，不保证来源真实。</b>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- 05 标本长廊 ---------- -->
+    <section class="zone" data-l="deep">
+      <div class="pad">
+        <span class="kick">H5 · 标本长廊</span>
+        <h1 class="big">八件标本，<b>八条读图的规矩</b></h1>
+        <p class="lede">
+          这一馆的展品不是八个知识点，是八条<b>判据</b>——每一条都能把一张看起来「还行」的藤蔓图读成完全不同的结论。
+          每件配一次现场实算和一道现场题，答对才算看过。八件全通领参观证书；
+          再走一遍坍塌预报台，领精英证书。
+        </p>
+
+        <div id="dpGallery" style="margin-top:18px"></div>
+
+        <!-- 精英挑战入口（长廊版） -->
+        <div class="elitecard">
+          <div class="ec-k"><i></i>ELITE CHALLENGE · 玩法</div>
+          <div class="ec-t">坍塌预报台 · 三个温室</div>
+          <p class="ec-d">
+            只给你看半程的藤蔓图，你要为八个质量层各插一面旗：<b>还活着</b>、<b>会枯死</b>、还是<b>根本看不见</b>。
+            三轮，插错一层就少一分。它考的不是你记住了几条判据，是你能不能在信息只到一半时就敢下判断。
+          </p>
+          <a class="ec-a" href="h5-forecast.html">进入挑战 →</a>
+          <span class="ec-n">8 层 × 3 轮 · 独立精英证书</span>
+        </div>
+
+        <h2 class="sec"><span class="n">06 / 证书</span>参观是一级，动手是二级</h2>
+        <p class="lede" style="margin-bottom:14px">
+          参观证书证明你能读懂这八条判据；精英证书证明你面对一张只画到一半的藤蔓图，
+          能说清哪一层还活着、哪一层会死、哪一层根本不该下判断。
+        </p>
+        <div id="dpCerts"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ==================== 底部小径：四块踏石 ==================== -->
+  <nav class="path has-game" aria-label="参观顺序">
+    <div class="line"></div>
+    <button class="stone on" data-l="nursery">
+      <span class="dot"></span>
+      <span class="sn">01</span>
+      <span class="st">育苗间</span>
+    </button>
+    <button class="stone" data-l="trellis">
+      <span class="dot"></span>
+      <span class="sn">02</span>
+      <span class="st">藤架厅</span>
+    </button>
+    <button class="stone" data-l="check">
+      <span class="dot"></span>
+      <span class="sn">03</span>
+      <span class="st">标本室</span>
+    </button>
+    <button class="stone" data-l="hand">
+      <span class="dot"></span>
+      <span class="sn">04</span>
+      <span class="st">移交口</span>
+    </button>
+    <button class="stone" data-l="deep">
+      <span class="dot"></span>
+      <span class="sn">05</span>
+      <span class="st">标本长廊</span>
+    </button>
+    <a class="stone game" href="h5-forecast.html" title="精英挑战 · 坍塌预报台">
+      <span class="dot"></span>
+      <span class="sn">◆</span>
+      <span class="st">玩法</span>
+    </a>
+  </nav>
+
+</div>

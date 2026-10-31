@@ -1,0 +1,66 @@
+<style>
+/* 指标馆专属微调：把「双刻度塔」的意象带进页面 */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:rgba(15,21,31,.6)}
+.duo>div{padding:13px 15px;position:relative}
+.duo>div+div{border-left:1px solid var(--line)}
+.duo .dl{font-family:var(--mono);font-size:9px;letter-spacing:1.4px;color:var(--tx4)}
+.duo .dv{font-family:var(--mono);font-size:27px;font-weight:600;margin-top:4px;line-height:1}
+.duo .dd{font-size:10px;color:var(--tx3);margin-top:5px;line-height:1.5}
+.duo .p .dv{color:#ffcf7a}
+.duo .t .dv{color:#7fe3c0}
+.duo .spark{position:absolute;right:12px;top:12px;width:64px;height:26px;opacity:.75}
+
+/* 层内的小节标题 */
+.sub{font-family:var(--mono);font-size:9.5px;letter-spacing:1.8px;color:var(--tx4);margin:16px 0 8px}
+.sub:first-child{margin-top:0}
+
+/* 结论四联 */
+.outs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.out{border:1px solid var(--line);border-radius:10px;padding:11px 13px;background:rgba(15,21,31,.55)}
+.out .ol{font-family:var(--mono);font-size:9px;letter-spacing:1.1px;color:var(--tx4);display:block}
+.out .ov{font-size:14px;font-weight:700;margin-top:5px;line-height:1.4}
+.out .od{font-size:10px;color:var(--tx3);margin-top:4px;line-height:1.55}
+.out.none .ov{color:var(--tx3);font-weight:400;font-size:12px}
+.out.hit .ov{color:#ffcf7a}
+
+/* 自检表 */
+.st-table td{font-family:var(--mono);font-size:11px}
+.st-table td.bar-cell{width:38%}
+
+/* 代码块 */
+.code{
+  font-family:var(--mono);font-size:10.5px;line-height:1.7;color:#a9bccf;
+  background:#070a10;border:1px solid var(--line);border-radius:9px;
+  padding:12px 14px;overflow:auto;max-height:300px;white-space:pre;
+}
+
+/* 开关 */
+.sw{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;padding:7px 0}
+.sw input{display:none}
+.sw .track{width:34px;height:18px;border-radius:10px;background:rgba(120,152,186,.2);position:relative;transition:.2s;flex:none}
+.sw .track::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#8a99ad;transition:.2s}
+.sw input:checked+.track{background:color-mix(in srgb,var(--hall-ac) 42%,transparent)}
+.sw input:checked+.track::after{left:18px;background:var(--hall-ac);box-shadow:0 0 8px var(--hall-ac)}
+.sw .st{font-size:11.5px;color:var(--tx2);line-height:1.4}
+.sw .st small{display:block;color:var(--tx4);font-size:9.5px}
+
+/* 输入 */
+.inp{
+  background:#0a0f17;border:1px solid var(--line);border-radius:7px;color:var(--tx);
+  font-family:var(--mono);font-size:11.5px;padding:6px 9px;width:100%;
+}
+.inp:focus{outline:none;border-color:var(--hall-ac)}
+
+/* 进度遮罩 */
+.busy{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(5,8,12,.55);backdrop-filter:blur(3px)}
+.busy.on{display:flex}
+.busy .bx{font-family:var(--mono);font-size:11px;color:var(--tx2);letter-spacing:1px;text-align:center}
+.busy .bl{width:150px;height:2px;background:rgba(120,152,186,.2);margin:10px auto 0;overflow:hidden;border-radius:2px}
+.busy .bl::after{content:"";display:block;width:40%;height:100%;background:var(--hall-ac);animation:sl 1s linear infinite}
+@keyframes sl{from{transform:translateX(-100%)}to{transform:translateX(280%)}}
+
+@media (max-width:880px){
+  .outs{grid-template-columns:1fr}
+  .duo .spark{display:none}
+}
+</style>

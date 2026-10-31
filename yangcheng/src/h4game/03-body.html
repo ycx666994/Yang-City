@@ -1,0 +1,99 @@
+<div class="pgwrap">
+
+  <header class="pgbar">
+    <a class="bk" href="h4-contam.html">← 回污染馆</a>
+    <div class="pgttl">
+      <b>净化车间 · 十二道工序</b>
+      <span>PURGE FLOOR · H4 ANNEX · 精英挑战</span>
+    </div>
+    <div class="sp"></div>
+    <div class="pgbudget">
+      <span class="lb">工序额度</span>
+      <span class="pgpips" id="pips"></span>
+      <b id="budN">12</b>
+    </div>
+  </header>
+
+  <div class="pgmain">
+
+    <!-- ==================== 左：工序台 ==================== -->
+    <div class="pgctl">
+
+      <div class="pgcard">
+        <div class="hd"><h3>改写力度</h3><span class="k">REWRITE</span></div>
+        <div class="pgstep" id="wSteps"></div>
+        <div class="pghint" id="wHint">改得太轻，题目根本没变；改得太重，记忆认不出这道题。</div>
+      </div>
+
+      <div class="pgcard">
+        <div class="hd"><h3>题组规模</h3><span class="k">SAMPLE</span></div>
+        <div class="pgstep" id="nSteps"></div>
+        <div class="pghint" id="nHint">题组太少，自助法区间压不下来，任何点估计都跨线。</div>
+      </div>
+
+      <div class="pgcard">
+        <div class="hd"><h3>工序台</h3><span class="k">OPERATIONS</span></div>
+        <div class="pgops">
+          <button class="pgop" id="opLabel">
+            <span class="ic">🏷</span>
+            <span class="tx">标签复核<small>把泄漏答案里的错标清掉，噪声 × 0.4</small></span>
+            <span class="cost">−2</span>
+          </button>
+          <button class="pgop primary" id="opRun">
+            <span class="ic">▶</span>
+            <span class="tx">开庭<small>跑一次审计，读五道守卫</small></span>
+            <span class="cost">−1</span>
+          </button>
+          <button class="pgop" id="opRep">
+            <span class="ic">⟳</span>
+            <span class="tx">复核<small>换一个种子重跑，看判定会不会翻</small></span>
+            <span class="cost">−2</span>
+          </button>
+          <button class="pgop" id="opSeal">
+            <span class="ic">📄</span>
+            <span class="tx">封卷出报告<small>交出结论，结算</small></span>
+            <span class="cost">0</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== 右：读数台 ==================== -->
+    <div class="pgright">
+
+      <div class="pgread" id="readBox">
+        <div class="pgrhd">
+          <span class="t">读数台</span>
+          <span class="st" id="rdSt">待开庭</span>
+        </div>
+        <div class="pgempty" id="rdEmpty">
+          还没有读数。<br>
+          <b>先调改写力度与题组规模，再按「开庭」。</b><br>
+          车间里最贵的不是算力，是「你不知道这个 0 是什么意思」。
+        </div>
+        <div id="rdBody" style="display:none"></div>
+      </div>
+
+      <div class="pgcard">
+        <div class="hd"><h3>工序账本</h3><span class="k">LEDGER</span></div>
+        <div class="pglog" id="log"><div class="none">还没有工序记录。</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="endBox"></div>
+</div>
+
+<!-- ==================== 诊断题 ==================== -->
+<div class="pgmask" id="mask">
+  <div class="pgquiz">
+    <div class="qh" id="qH">读数诊断 · 第 1 次开庭</div>
+    <div class="qt" id="qT">这一次读数，该怎么读？</div>
+    <div class="qs" id="qS"></div>
+    <div class="qo" id="qO"></div>
+    <div class="qr" id="qR"></div>
+    <div class="qb"><button id="qNext" disabled>继续</button></div>
+  </div>
+</div>

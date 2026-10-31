@@ -1,0 +1,11 @@
+import fs from "fs";
+const src = fs.readFileSync("instruments/yc-metrics.js","utf8");
+global.window = {};
+new Function("window", src)(global.window);
+const M = global.window.YCMetrics;
+const t0=Date.now();
+const st = M.selfTest({reps:80});
+console.log("耗时", Date.now()-t0, "ms");
+console.log("minEffect  误报   检出");
+st.rows.forEach(r=>console.log(String(r.minEffect).padStart(8), (r.falsePositiveRate*100).toFixed(0).padStart(5)+"%", (r.power*100).toFixed(0).padStart(5)+"%"));
+console.log("推荐:", st.recommend);

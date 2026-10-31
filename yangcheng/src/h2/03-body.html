@@ -1,0 +1,327 @@
+<div class="hall h2" style="--hall-ac:#a887ff">
+
+  <header class="ycbar">
+    <div class="brand">
+      <a href="index.html" style="text-decoration:none;color:inherit;display:flex;align-items:baseline;gap:9px">
+        <span class="nm">杨城</span>
+      </a>
+      <span class="sub">H2 · 推理法医馆</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="rd"><span class="dot" id="rdDot"></span>仪器在线 <b>forensic-fidelity</b> v0.1.0</div>
+    <nav class="nav">
+      <a href="map.html">地图</a>
+      <a href="index.html">城市</a>
+      <a href="evidence.html">证据厅</a>
+      <a href="../h1-lab.html">老馆</a>
+    </nav>
+  </header>
+
+  <!-- 横向卷宗标签：与 H3 的左侧竖排刻意不同 -->
+  <div class="tabbar" role="tablist" aria-label="四卷">
+    <div class="th">CASE FILE / 案卷</div>
+    <button class="tab on" data-l="story" role="tab"><span class="tn">卷 01</span><span class="tt">卷宗</span></button>
+    <button class="tab" data-l="device" role="tab"><span class="tn">卷 02</span><span class="tt">审讯台</span></button>
+    <button class="tab" data-l="instrument" role="tab"><span class="tn">卷 03</span><span class="tt">审判</span></button>
+    <button class="tab" data-l="evidence" role="tab"><span class="tn">卷 04</span><span class="tt">附卷</span></button>
+    <button class="tab" data-l="deep" role="tab"><span class="tn">卷 05</span><span class="tt">长廊</span></button>
+    <div class="tspacer"></div>
+    <div class="tstat">状态 · 仪器可用<br><span id="tstatRun">尚未开庭</span></div>
+  </div>
+
+  <main class="main">
+
+    <!-- ==================== 卷 01 · 卷宗 ==================== -->
+    <section class="layer on" data-l="story">
+      <div class="lhead">
+        <span class="kick">H2 · 思考的证词</span>
+        <h2>解释得通，是否意味着解释真的影响了答案？</h2>
+        <p>模型写下一段理由。它读起来通顺、术语正确、因果链完整。然后你把那段理由里最关键的那个因素改掉——答案纹丝不动。这件事比「解释错了」更麻烦：解释可能根本没有参与决策，它只是事后写的一段话。</p>
+      </div>
+
+      <div class="cd">
+        <div class="ct">解释很便宜<span class="k">为什么这值得一台仪器</span></div>
+        <p>生成一段听起来合理的原因，成本远低于真的按这个原因做决定。语言模型的训练目标里并没有「说出的理由必须等于实际的计算路径」这一项。所以「模型说了什么」和「模型为什么这么做」是两件事，可以完全脱钩，而外部看不出任何异常。</p>
+        <p>更麻烦的是：<b class="hl">脱钩的解释往往比忠实的解释更好看</b>。因为它不受真实计算的约束，可以挑一个最符合人类直觉的理由。于是「解释质量」这个指标会系统性地奖励不忠实的模型——这是本馆与 H3 的接口：又一个被当作目标后失效的指标。</p>
+      </div>
+
+      <div class="cd">
+        <div class="ct">一个案子<span class="k">仅叙事 · 不入证据</span></div>
+        <div class="story">
+          一家公司上了工单分诊模型。每条工单进来，模型给一个优先级：低 / 中 / 高。<br>
+          它会附一句话：「<b>因为紧急度为 5，所以判为高优先级。</b>」<br>
+          审计的人觉得合理，就放行了。三个月后有人做了件很朴素的事：把紧急度从 5 改成 1，其他一个字没动，再问一次。<br>
+          答案还是「高」。<br>
+          真正在起作用的是「付费等级」。紧急度只是它习惯写在理由里的那个词。
+        </div>
+        <p style="margin-top:10px;color:var(--tx3);font-size:11.5px">
+          这条案子本馆<b>没有</b>对应的原始运行数据，所以只作叙事存在。接下来你要做的不是再读一遍故事，
+          而是<b class="hl">把这件事测出来</b>——用一台真的会改字段、真的会重算答案的仪器。
+        </p>
+      </div>
+
+      <div class="g2">
+        <div class="cd" style="margin-bottom:0">
+          <div class="ct">这台仪器只做一件事</div>
+          <p><b class="hl">同一道题，只改一个字段，其余全部锁死。</b>然后看答案动不动。</p>
+          <p>改哪个字段，决定了这一针是打在什么上：</p>
+          <p style="line-height:2">
+            <b>改它指认的</b>　模型自己说「因为紧急度」，那就改紧急度。<br>
+            <b>改它没提的</b>　改一个它没提到的普通字段，作为对照基线。<br>
+            <b>改真正的首要因素</b>　正控：这一针必须有效，否则测法本身没力气。<br>
+            <b>改备注字数</b>　负控：这个字段从不参与打分，答案一动都不该动。
+          </p>
+        </div>
+        <div class="cd" style="margin-bottom:0">
+          <div class="ct">四个词，别混</div>
+          <p><b class="hl">指认因素</b>　模型自己在解释里点名的那个字段。</p>
+          <p><b class="hl">真正的首要因素</b>　在这台规则装置里由隐藏权重决定，审计器<b>看不到</b>，只能靠干预反推。</p>
+          <p><b class="hl">耦合度 c</b>　指认因素恰好就是首要因素的概率。这是本馆要估的那个数。</p>
+          <p><b class="hl">效力</b>　改首要因素的翻转率减去改普通因素的翻转率。它是 ĉ 的分母——<b>分母塌了就不许给数</b>。</p>
+        </div>
+      </div>
+
+      <div class="warnbox">
+        <b>这台仪器里的「模型」是规则装置，不是任何真实大模型。</b>
+        所以本馆产出的不是「某模型不忠实」的证据，而是「这套测法在有真值的地方能回收真值」的证据。
+        真值已知，仪器才算可被审判。这一点在卷 04 会用校准表验证。
+      </div>
+    </section>
+
+    <!-- ==================== 卷 02 · 审讯台 ==================== -->
+    <section class="layer" data-l="device">
+      <div class="lhead">
+        <span class="kick">卷 02 · 审讯台</span>
+        <h2>先手动打一针</h2>
+        <p>下面是一道题、模型给的答案、和它自己写的理由。选一条臂，按下执行——它会把那一个字段推到另一端，其余字段一个字不动，然后重新算答案。</p>
+      </div>
+
+      <div class="bench">
+        <!-- 证人席 -->
+        <div class="wbox">
+          <div class="wh">证人席 / WITNESS STAND <span class="badge" id="caseNo">CASE #000</span></div>
+          <table class="ftab">
+            <thead><tr><th>字段</th><th></th><th style="text-align:right">取值</th></tr></thead>
+            <tbody id="wFields"></tbody>
+          </table>
+          <div class="ansrow">
+            <span class="al">ANSWER</span>
+            <span class="achip" id="wAns">—</span>
+            <span class="arrow" id="wArrow" style="display:none">→</span>
+            <span class="achip a2" id="wAns2" style="display:none">—</span>
+          </div>
+          <div class="say">
+            <p id="wSay">（正在取卷）</p>
+          </div>
+          <div class="note" id="wNote">
+            灰底虚线的字段是<b>备注字数</b>——它出现在题面里，但从不参与打分。它是这台仪器的负控探针。
+          </div>
+        </div>
+
+        <!-- 干预台 -->
+        <div class="ibox">
+          <div class="wh">干预台 / INTERVENTION BENCH</div>
+          <div class="arms" id="armList"></div>
+          <div class="irow">
+            <button class="ibtn" id="btnRun1">执行这一针</button>
+            <button class="ibtn ghost" id="btnNext">换一道题</button>
+            <button class="ibtn ghost" id="btnBatch">连打 60 题</button>
+          </div>
+          <div class="one" id="oneResult">
+            选一条臂，然后按「执行这一针」。<br>
+            你会看到：改的哪个字段、从几改成几、答案有没有动。
+          </div>
+          <div class="armstats" id="armStats">
+            <div class="as"><span class="asl">TREAT</span><span class="asv" id="asT">—</span><span class="asn">改它指认的</span></div>
+            <div class="as"><span class="asl">CTRL</span><span class="asv" id="asC">—</span><span class="asn">改它没提的</span></div>
+            <div class="as"><span class="asl">POS</span><span class="asv" id="asP">—</span><span class="asn">正控 · 必须有效</span></div>
+            <div class="as"><span class="asl">NEG</span><span class="asv" id="asN">—</span><span class="asn">负控 · 必须无效</span></div>
+          </div>
+          <div class="note">
+            单次只能告诉你「这一针有没有效」。要判断一段解释可不可信，得看<b>成百道题上的翻转率差</b>——
+            那是卷 03 的事。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 卷 03 · 审判 ==================== -->
+    <section class="layer" data-l="instrument">
+      <div class="lhead">
+        <span class="kick">卷 03 · 审判</span>
+        <h2>四臂齐发，估一个耦合度</h2>
+        <p>每道题同时打四针：改它指认的、改它没提的、改真正的首要因素、改备注字数。四组翻转率放在一起，才能反推出「它说的理由到底有没有在驱动答案」。</p>
+      </div>
+
+      <div class="cd">
+        <div class="ct">先设被审计的系统<span class="k">DEVICE PARAMETERS</span></div>
+        <p style="margin-bottom:12px">这四个旋钮描述的是<b>你要审的那个系统</b>（前三个）和<b>你的测法</b>（最后一个）。它们决定真值，但不决定结论——结论由仪器从数据里反推。</p>
+        <div class="knobs">
+          <div class="knob">
+            <label>解释与决策的耦合度 c <span class="kq">真值</span><b id="vCoupling">0.90</b></label>
+            <input type="range" id="kCoupling" min="0" max="100" value="90">
+          </div>
+          <div class="knob">
+            <label>答案抖动 <span class="kq">同题重问会变吗</span><b id="vTemp">0.00</b></label>
+            <input type="range" id="kTemp" min="0" max="40" value="0">
+          </div>
+          <div class="knob">
+            <label>输入迟钝度 <span class="kq">答案依赖输入吗</span><b id="vFlat">0.00</b></label>
+            <input type="range" id="kFlat" min="0" max="95" value="0">
+          </div>
+          <div class="knob">
+            <label>干预幅度 <span class="kq">推到端点 / 只动一档</span></label>
+            <div class="seg" id="kMag">
+              <button data-m="max" class="on">最大</button>
+              <button data-m="1">一档</button>
+            </div>
+          </div>
+          <div class="knob">
+            <label>题数 <span class="kq">每道题打四针</span></label>
+            <div class="seg" id="kN">
+              <button data-n="40">40</button>
+              <button data-n="120" class="on">120</button>
+              <button data-n="320">320</button>
+            </div>
+          </div>
+          <div class="knob" style="display:flex;align-items:flex-end">
+            <button class="ibtn" id="btnRun" style="width:100%">开庭 · 跑完整审判</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="cd" id="resCard">
+        <div class="ct">四组翻转率<span class="k">FLIP RATES</span></div>
+        <div class="fourbar">
+          <div class="fb treat"><div class="fbl">改它指认的<em>pTreat</em></div><div class="fbt"><i id="barT" style="width:0%"></i></div><div class="fbv" id="valT">—</div></div>
+          <div class="fb ctrl"><div class="fbl">改它没提的<em>pCtrl</em></div><div class="fbt"><i id="barC" style="width:0%"></i></div><div class="fbv" id="valC">—</div></div>
+          <div class="fb pos"><div class="fbl">正控 · 首要因素<em>pPos</em></div><div class="fbt"><i id="barP" style="width:0%"></i></div><div class="fbv" id="valP">—</div></div>
+          <div class="fb neg"><div class="fbl">负控 · 备注字数<em>pNeg</em></div><div class="fbt"><i id="barN" style="width:0%"></i></div><div class="fbv" id="valN">—</div></div>
+        </div>
+
+        <div class="chatbox">
+          <div>
+            <div style="font-family:var(--mono);font-size:9px;letter-spacing:1.6px;color:var(--tx4)">Ĉ · 反推耦合度</div>
+            <div class="cv" id="chatVal">—</div>
+          </div>
+          <div class="cm" id="chatCI">
+            还没开庭。<br>ĉ = (pTreat − pCtrl) / (pPos − pCtrl)，分母就是这套测法的效力。
+          </div>
+        </div>
+
+        <div class="verdict idle" id="verdictBox">
+          <div class="vg" id="vVerdict">待审</div>
+          <div class="vw" id="vWhy">设置好参数后按「开庭」。四组翻转率会同时算出来，然后由规则表判定，不是由参数直接决定。</div>
+        </div>
+      </div>
+
+      <div class="cd">
+        <div class="ct">逐题对照<span class="k">PER-ITEM LEDGER</span></div>
+        <p style="font-size:11px;color:var(--tx3);margin-bottom:8px">每一行是一道题。第三列是<b>真值</b>——它指认的因素是不是真的首要因素。审计器看不到这一列，只用来让你事后核对。</p>
+        <div class="tlist">
+          <table>
+            <thead><tr>
+              <th>#</th><th>它指认</th><th>真值</th><th>原答案</th>
+              <th>改指认的→</th><th>改没提的→</th><th>正控→</th><th>负控→</th>
+            </tr></thead>
+            <tbody id="tlistBody"><tr><td colspan="8" style="color:var(--tx4);padding:14px 9px">还没开庭。</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 卷 04 · 附卷 ==================== -->
+    <section class="layer" data-l="evidence">
+      <div class="lhead">
+        <span class="kick">卷 04 · 附卷</span>
+        <h2>这台仪器自己也要被审判</h2>
+        <p>上面那个 ĉ 到底准不准？唯一诚实的验法是：在真值已知的地方跑一遍，看它能不能把真值收回来。收不回来，它就没资格去审任何真实模型。</p>
+      </div>
+
+      <div class="cd">
+        <div class="ct">校准表<span class="k">RECOVERY OF KNOWN TRUTH</span></div>
+        <p style="font-size:11.5px;color:var(--tx3);margin-bottom:4px">五个已知耦合度 × 三个种子 = 15 次独立审判。看 ĉ 是否落回真值，以及置信区间是否覆盖真值。</p>
+        <div class="irow" style="margin-bottom:10px">
+          <button class="ibtn" id="btnSelf">跑校准</button>
+          <span id="calibSum" style="align-self:center;font-size:11.5px;color:var(--tx3)">尚未运行</span>
+        </div>
+        <table class="calib">
+          <thead><tr><th>真值 c</th><th>种子</th><th>ĉ</th><th>95% 区间</th><th>效力</th><th>负控</th><th>判定</th></tr></thead>
+          <tbody id="calibBody"><tr><td colspan="7" style="color:var(--tx4)">尚未运行。</td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="cd">
+        <div class="ct">负例：让仪器自己失效<span class="k">NEGATIVE CASES</span></div>
+        <p style="font-size:11.5px;color:var(--tx3);margin-bottom:10px">一台只会说「有问题」的仪器没有价值。下面四种情况下它必须<b>拒绝下结论</b>或<b>拒绝相信数据</b>，否则它的肯定也不可信。</p>
+        <div class="irow" style="flex-wrap:wrap">
+          <button class="ibtn ghost" data-neg="jitter">① 答案会抖动</button>
+          <button class="ibtn ghost" data-neg="dull">② 输入很迟钝</button>
+          <button class="ibtn ghost" data-neg="tiny">③ 只打 30 题</button>
+          <button class="ibtn ghost" data-neg="edge">④ 真值卡在边界</button>
+        </div>
+        <div class="one" id="negResult" style="margin-top:10px">点一个负例，看仪器怎么拒绝。</div>
+      </div>
+
+      <div class="cd">
+        <div class="ct">方法边界<span class="k">LIMITS</span></div>
+        <p><b>① 对象轴永远是「规则装置」。</b>这里的证人是隐藏权重的打分器 + 一个与决策解耦的自述模块。它没有任何内部表示，所以本馆无法讨论「真实模型的内部思维」。</p>
+        <p><b>② 干预只改一个字段，且只改到端点。</b>真实系统里因素之间有交互项，单因素干预测到的是<b>边际效应</b>，不是完整的因果结构。</p>
+        <p><b>③ ĉ 是概率意义上的耦合度，不是「解释正确率」。</b>c=0.6 不等于「60% 的解释是对的」，而是「指认因素有 60% 的概率就是首要因素」。</p>
+        <p><b>④ 外显解释与行为是两件事。</b>即使 ĉ=1，也只说明它这次说的理由是这次决策的原因，不说明它「理解」了什么。</p>
+        <p><b>⑤ 负控被触发时不解释结果。</b>抖动的系统会让任何干预都看起来「有效」，这时唯一诚实的动作是停手。</p>
+        <p><b>⑥ ĉ 是矩估计，抽样噪声会让它略超出 [0,1]。</b>区间已按参数空间截断，点估计不截断——把 -0.15 改成 0 会掩盖估计量的方差。</p>
+      </div>
+
+      <div class="cd">
+        <div class="ct">存档<span class="k">ARCHIVE</span></div>
+        <p style="font-size:11.5px;color:var(--tx3)">把当前这次审判写成一份 YC-Evidence 1.0 档案，进公共证据厅。记录里包含完整参数，同参数重跑会得到同一批题与同一批干预结果。</p>
+        <div class="irow">
+          <button class="ibtn" id="btnSave">存入证据厅</button>
+          <button class="ibtn ghost" id="btnExport">导出 Markdown</button>
+        </div>
+        <div class="one" id="saveResult" style="margin-top:10px">还没有可存的审判。</div>
+      </div>
+    </section>
+
+    <!-- ==================== 卷 05 · 长廊 ==================== -->
+    <section class="layer" data-l="deep">
+      <div class="lhead">
+        <span class="kick">卷 05 · 长廊</span>
+        <h2>八件展品，八种「理由不可信」的样子</h2>
+        <p>前面四卷是一台仪器。这一卷把这台仪器能做的八种诊断摊开：每件展品对应一个具体的失效侧面，配一条现场验证——数字当场算，不是写死的。八件都答对现场题，可以领参观证书；走完旁边的精英挑战，可以领精英证书。</p>
+      </div>
+
+      <div class="cd">
+        <div class="dpx-light" id="dpGallery"></div>
+      </div>
+
+      <div class="cd">
+        <div class="ct">精英挑战 · 案卷 0117「十一日」<span class="k">ELITE CHALLENGE</span></div>
+        <p>八件展品教你怎么看。真正的考试是去查一个案子：一条工单被判成低优先级，压了 11 天，患者在第十一天去世。日志里写着「因为紧急度为 2」。</p>
+        <p>你要做的不是判断判决对不对，而是<b class="hl">证明那句话是伪证</b>——用六个证人的翻转率，证明真正驱动答案的是另一个字段。</p>
+        <div class="irow" style="margin-top:4px">
+          <a class="ibtn" href="h2-case.html" style="text-decoration:none;display:inline-block">进入案卷 0117 →</a>
+          <span style="align-self:center;font-size:11px;color:var(--tx3)">四幕 · 约 8—12 分钟 · 全对可得精英证书</span>
+        </div>
+      </div>
+
+      <div class="cd">
+        <div class="ct">证书<span class="k">CERTIFICATES</span></div>
+        <div class="dpx-light" id="dpCerts"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 底部固定裁决条 -->
+  <div class="verdictbar">
+    <span class="vb-t">RULING</span>
+    <span class="vb-v" id="vbV">待审</span>
+    <span class="vb-c" id="vbC">ĉ —</span>
+    <span class="spacer"></span>
+    <button id="vbRun">开庭</button>
+    <button class="primary" id="vbSave">存入证据厅</button>
+  </div>
+
+</div>

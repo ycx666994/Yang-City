@@ -1,0 +1,59 @@
+<canvas id="cityCv" aria-label="杨城城市天际线，随北京时间变化"></canvas>
+<div class="vignette"></div>
+
+<header class="topbar">
+  <div class="brand">杨城 <em>YANGCHENG · EVIDENCE CITY</em></div>
+  <div class="clock">
+    <span id="clkTime">--:--:--</span>
+    <span id="clkPhase">北京时间</span>
+  </div>
+  <nav class="topnav">
+    <a href="map.html">杨城地图</a>
+    <a href="evidence.html">公共证据厅</a>
+    <a href="../h1-lab.html">Trust Lab</a>
+  </nav>
+</header>
+
+<aside class="hudleft" aria-label="城市读数">
+  <div class="ht">城市读数 / CITY STATUS</div>
+  <div class="hudrow"><span>可用馆</span><b id="cAvail">2<small>/6</small></b></div>
+  <div class="hudrow"><span>档案总数</span><b id="cRec">0</b></div>
+  <div class="hudrow"><span>可回放</span><b id="cReplay">0</b></div>
+  <div class="hudrow"><span>已复核</span><b id="cReview">0</b></div>
+</aside>
+
+<div class="phaseNote" id="phaseNote"></div>
+
+<aside class="duty" id="duty" aria-label="今日值守的驻馆人">
+  <div class="duty-h">今日值守 / ON DUTY</div>
+  <div id="dutyList"></div>
+  <div class="duty-f" id="dutyFoot"></div>
+</aside>
+
+<div class="cta">
+  <div class="maphint" id="mapHint">先看地图：六馆在哪、按什么顺序走</div>
+  <a class="mapbtn" id="btnMap" href="map.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20V6.5Z"/>
+      <path d="M9 4v13.5M15 6.5V20"/>
+      <circle cx="12" cy="11.5" r="1.6" fill="currentColor" stroke="none"/>
+    </svg>
+    <span class="mbt">
+      <b>进入杨城地图</b>
+      <i>MAP · 六馆定位 · 参观顺序</i>
+    </span>
+  </a>
+</div>
+
+<footer class="botbar">
+  <span>北京时间实时驱动</span>
+  <span class="sep">/</span>
+  <span id="footPhase">--</span>
+  <span class="sep hide-sm">/</span>
+  <span class="hide-sm">YC-EVIDENCE 1.0</span>
+  <div class="right">
+    <span class="hide-sm"><kbd>M</kbd> 地图</span>
+    <span class="hide-sm"><kbd>E</kbd> 证据厅</span>
+    <span>不宣称世界首创</span>
+  </div>
+</footer>

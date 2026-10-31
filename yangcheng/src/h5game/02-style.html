@@ -1,0 +1,259 @@
+<style>
+/* ==========================================================================
+   H5 精英挑战 · 坍塌预报台 · 三个温室
+   与 H2 案卷（浅色纸本）、H3 指标塔（3D 迷宫）、H4 净化车间（调度台）
+   刻意错开：这里是**预报台** —— 一张只画到一半的藤蔓图，玩家为每层插旗。
+   所有类名 fc- 前缀。
+   ========================================================================== */
+:root{
+  --fc-bg:#0a0507;
+  --fc-bg2:#140a0d;
+  --fc-panel:rgba(26,12,16,.9);
+  --fc-line:rgba(239,106,114,.16);
+  --fc-line2:rgba(239,106,114,.34);
+  --fc-tx:#f6e6e8;
+  --fc-tx2:#c9a3a8;
+  --fc-tx3:#8a6a70;
+  --fc-ac:#ef6a72;
+  --fc-gold:#c9a227;
+  --fc-green:#6fbf73;
+  --fc-mono:ui-monospace,"SF Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(ellipse 66% 44% at 18% -8%,rgba(239,106,114,.13),transparent 66%),
+    radial-gradient(ellipse 50% 40% at 90% 104%,rgba(111,191,115,.08),transparent 70%),
+    linear-gradient(180deg,#0a0507 0%,#140a0d 56%,#070405 100%);
+  color:var(--fc-tx);
+  font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:repeating-linear-gradient(0deg,rgba(239,106,114,.024) 0 1px,transparent 1px 3px);
+}
+.fcwrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 20px 56px}
+
+/* ---------------- 顶栏 ---------------- */
+.fcbar{
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:13px 0 12px;border-bottom:1px solid var(--fc-line2);
+}
+.fcbar .bk{
+  color:var(--fc-ac);text-decoration:none;font-size:13px;
+  border:1px solid var(--fc-line2);border-radius:7px;padding:6px 11px;
+  transition:background .16s;
+}
+.fcbar .bk:hover{background:rgba(239,106,114,.1)}
+.fcttl b{display:block;font-size:16px;letter-spacing:.5px}
+.fcttl span{
+  display:block;font-family:var(--fc-mono);font-size:10.5px;letter-spacing:2.4px;
+  color:var(--fc-tx3);margin-top:3px;
+}
+.fcbar .sp{flex:1}
+.fcrounds{display:flex;gap:6px;align-items:center}
+.fcrounds .rd{
+  width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+  font-family:var(--fc-mono);font-size:11px;color:var(--fc-tx3);
+  border:1px solid var(--fc-line);background:rgba(239,106,114,.05);
+  transition:all .2s;
+}
+.fcrounds .rd.on{border-color:var(--fc-ac);color:var(--fc-ac);box-shadow:0 0 0 3px rgba(239,106,114,.14)}
+.fcrounds .rd.done{background:rgba(111,191,115,.16);border-color:rgba(111,191,115,.5);color:var(--fc-green)}
+.fcscore{font-family:var(--fc-mono);font-size:12px;color:var(--fc-tx3)}
+.fcscore b{color:var(--fc-gold);font-size:16px}
+
+/* ---------------- 轮次说明 ---------------- */
+.fchead{
+  margin-top:16px;padding:15px 17px;border-radius:12px;
+  background:var(--fc-panel);border:1px solid var(--fc-line);
+}
+.fchead .k{
+  font-family:var(--fc-mono);font-size:10px;letter-spacing:2.2px;
+  color:var(--fc-ac);margin-bottom:7px;
+}
+.fchead h2{margin:0 0 8px;font-size:19px;letter-spacing:.5px}
+.fchead p{margin:0;font-size:12.5px;line-height:1.85;color:var(--fc-tx2)}
+.fchead p b{color:var(--fc-tx)}
+.fcparams{
+  display:flex;gap:8px;flex-wrap:wrap;margin-top:11px;
+}
+.fcparams .pp{
+  font-family:var(--fc-mono);font-size:11px;padding:4px 9px;border-radius:6px;
+  background:rgba(239,106,114,.07);border:1px solid var(--fc-line);color:var(--fc-tx2);
+}
+.fcparams .pp b{color:var(--fc-ac)}
+
+/* ---------------- 藤蔓图 ---------------- */
+.fcchart{
+  margin-top:13px;padding:14px 16px 16px;border-radius:12px;
+  background:linear-gradient(180deg,rgba(26,12,16,.95),rgba(12,6,8,.95));
+  border:1px solid var(--fc-line2);
+}
+.fcaxis{
+  display:grid;grid-template-columns:118px minmax(0,1fr) 152px;gap:10px;
+  align-items:center;margin-bottom:7px;
+}
+.fcaxis .al{font-family:var(--fc-mono);font-size:9.5px;letter-spacing:1.4px;color:var(--fc-tx3)}
+.fcaxis .gens{display:flex;gap:2px}
+.fcaxis .gens i{
+  flex:1;text-align:center;font-family:var(--fc-mono);font-size:9px;
+  color:var(--fc-tx3);font-style:normal;
+}
+.fcaxis .gens i:first-child{color:var(--fc-ac)}
+.fcaxis .fg{font-family:var(--fc-mono);font-size:9.5px;letter-spacing:1.4px;color:var(--fc-tx3);text-align:center}
+
+.fcrow{
+  display:grid;grid-template-columns:118px minmax(0,1fr) 152px;gap:10px;
+  align-items:center;padding:5px 0;border-radius:7px;
+  transition:background .16s;
+}
+.fcrow:hover{background:rgba(239,106,114,.035)}
+.fcln{display:flex;align-items:baseline;gap:7px;min-width:0}
+.fcln b{
+  font-family:var(--fc-mono);font-size:10px;color:var(--fc-tx3);flex:none;
+}
+.fcln span{
+  font-size:11.5px;color:var(--fc-tx2);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;
+}
+.fccells{display:flex;gap:2px;height:22px}
+.fccells i{
+  flex:1;border-radius:2px;display:block;
+  transition:background .3s,transform .3s;
+}
+.fccells i.first{
+  outline:1px solid rgba(246,230,232,.32);outline-offset:0;
+}
+.fcflag{display:flex;gap:4px;justify-content:flex-end}
+.fcflag button{
+  padding:5px 0;width:46px;border-radius:6px;cursor:pointer;
+  font-size:11.5px;letter-spacing:.5px;
+  background:rgba(239,106,114,.05);border:1px solid rgba(239,106,114,.18);
+  color:var(--fc-tx3);transition:all .15s;
+}
+.fcflag button:hover:not(:disabled){background:rgba(239,106,114,.14);color:var(--fc-tx)}
+.fcflag button.on[data-f="alive"]{background:rgba(111,191,115,.2);border-color:var(--fc-green);color:var(--fc-green);font-weight:700}
+.fcflag button.on[data-f="wilted"]{background:rgba(201,120,60,.2);border-color:#c9783c;color:#e2a06a;font-weight:700}
+.fcflag button.on[data-f="blind"]{background:rgba(150,150,160,.18);border-color:#8b8b96;color:#b9b9c4;font-weight:700}
+.fcflag button:disabled{cursor:default;opacity:.55}
+.fcflag .mark{
+  width:20px;display:grid;place-items:center;font-size:13px;font-family:var(--fc-mono);
+}
+.fcflag .mark.ok{color:var(--fc-green)}
+.fcflag .mark.no{color:#ff7d7d}
+
+/* 揭示行 */
+.fcrow.rev .fcln span{color:var(--fc-tx)}
+.fcrow.rev.wrong{background:rgba(255,90,90,.055)}
+
+/* 图例 */
+.fclegend{
+  display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;padding-top:11px;
+  border-top:1px dashed var(--fc-line);font-size:10.5px;color:var(--fc-tx3);
+}
+.fclegend span{display:flex;align-items:center;gap:5px}
+.fclegend i{width:12px;height:9px;border-radius:2px;display:block}
+
+/* ---------------- 底部：诊断 + 提交 ---------------- */
+.fcfoot{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:13px;margin-top:13px}
+.fcdiag{
+  padding:14px 16px;border-radius:12px;
+  background:var(--fc-panel);border:1px solid var(--fc-line);
+}
+.fcdiag .dh{display:flex;align-items:baseline;gap:9px;margin-bottom:9px}
+.fcdiag .dh h3{margin:0;font-size:13px;letter-spacing:.6px}
+.fcdiag .dh .left{
+  margin-left:auto;font-family:var(--fc-mono);font-size:11px;color:var(--fc-gold);
+}
+.fcdiag .dbtn{
+  display:flex;align-items:center;gap:9px;width:100%;text-align:left;cursor:pointer;
+  padding:10px 12px;border-radius:8px;margin-bottom:7px;
+  background:rgba(239,106,114,.05);border:1px solid rgba(239,106,114,.2);
+  color:var(--fc-tx);font-size:12.5px;transition:all .15s;
+}
+.fcdiag .dbtn:hover:not(:disabled){background:rgba(239,106,114,.13);border-color:var(--fc-ac)}
+.fcdiag .dbtn:disabled{opacity:.32;cursor:not-allowed}
+.fcdiag .dbtn .ic{font-size:14px}
+.fcdiag .dbtn .tx small{display:block;font-size:10.5px;color:var(--fc-tx3);margin-top:2px}
+.fcdiag .dres{
+  margin-top:4px;font-size:11.5px;line-height:1.8;color:var(--fc-tx2);
+  padding:9px 11px;border-radius:7px;background:rgba(239,106,114,.05);
+  border-left:2px solid var(--fc-ac);
+}
+.fcdiag .dres:empty{display:none}
+.fcdiag .dres b{color:var(--fc-ac)}
+
+.fcsubmit{
+  padding:14px 16px;border-radius:12px;display:flex;flex-direction:column;
+  background:var(--fc-panel);border:1px solid var(--fc-line);
+}
+.fcsubmit .sn{font-size:12.5px;color:var(--fc-tx2);line-height:1.8;margin-bottom:10px}
+.fcsubmit .sn b{color:var(--fc-tx)}
+.fcsubmit .cnt{font-family:var(--fc-mono);font-size:22px;color:var(--fc-ac);margin-bottom:10px}
+.fcsubmit .cnt small{font-size:12px;color:var(--fc-tx3)}
+.fcsubmit button{
+  margin-top:auto;padding:12px;border-radius:9px;cursor:pointer;
+  background:var(--fc-ac);border:none;color:#1a0507;font-weight:700;font-size:13.5px;
+  transition:filter .15s;
+}
+.fcsubmit button:hover:not(:disabled){filter:brightness(1.1)}
+.fcsubmit button:disabled{opacity:.32;cursor:not-allowed}
+.fcsubmit button.ghost{background:transparent;border:1px solid var(--fc-line2);color:var(--fc-tx2);font-weight:500;margin-top:8px}
+
+/* ---------------- 结算 ---------------- */
+.fcend{
+  margin-top:14px;padding:24px;border-radius:14px;
+  background:linear-gradient(180deg,rgba(201,162,39,.09),rgba(12,6,8,.95));
+  border:1px solid rgba(201,162,39,.34);
+}
+.fcend .eh{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.fcend .eh h2{margin:0;font-size:22px;letter-spacing:.6px}
+.fcend .eh .sc{font-family:var(--fc-mono);font-size:30px;color:var(--fc-gold);margin-left:auto}
+.fcend .eh .sc small{font-size:13px;color:var(--fc-tx3)}
+.fcend .es{font-size:13px;color:var(--fc-tx2);line-height:1.9;margin-bottom:16px}
+.fcend .parts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.fcend .parts .p{
+  background:rgba(239,106,114,.05);border:1px solid var(--fc-line);
+  border-radius:9px;padding:11px 12px;
+}
+.fcend .parts .p .pl{font-size:10.5px;color:var(--fc-tx3);margin-bottom:5px}
+.fcend .parts .p .pv{font-family:var(--fc-mono);font-size:18px;color:var(--fc-tx)}
+.fcend .parts .p .pn{font-size:10px;color:var(--fc-tx3);margin-top:4px}
+.fcend .certbox{
+  border-radius:11px;padding:16px;border:1px dashed rgba(201,162,39,.4);
+  background:rgba(201,162,39,.05);
+}
+.fcend .certbox .ct{font-size:14px;font-weight:700;color:var(--fc-gold);margin-bottom:6px}
+.fcend .certbox .cd{font-size:12.5px;color:var(--fc-tx2);line-height:1.8}
+.fcend .certbox .cn{
+  font-family:var(--fc-mono);font-size:12px;color:var(--fc-gold);
+  margin-top:9px;letter-spacing:.5px;
+}
+.fcend .btnrow{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.fcend .btnrow button{
+  padding:10px 18px;border-radius:8px;cursor:pointer;font-size:13px;
+  background:var(--fc-gold);border:none;color:#1a1405;font-weight:700;
+}
+.fcend .btnrow button.ghost{background:transparent;border:1px solid var(--fc-line2);color:var(--fc-tx2);font-weight:500}
+
+/* ---------------- 窄屏 ---------------- */
+@media (max-width:960px){
+  .fcfoot{grid-template-columns:1fr}
+  .fcend .parts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:700px){
+  .fcwrap{padding:0 12px 40px}
+  .fcaxis,.fcrow{grid-template-columns:78px minmax(0,1fr) 128px;gap:6px}
+  .fcln span{font-size:10px}
+  .fccells{height:18px}
+  .fcflag button{width:38px;font-size:10.5px;padding:4px 0}
+  .fcaxis .gens i{font-size:7.5px}
+  .fcend{padding:16px}
+  .fcend .parts{grid-template-columns:1fr}
+  .fcend .eh .sc{font-size:24px}
+}
+</style>

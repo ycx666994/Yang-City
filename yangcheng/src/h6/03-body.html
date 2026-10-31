@@ -1,0 +1,457 @@
+<div class="stars" aria-hidden="true"></div>
+<div class="hall h6" style="--hall-ac:#6d9bff">
+
+  <!-- ==================== 顶栏：馆名 + 实时读数 + 预算细条 ==================== -->
+  <header class="d6top">
+    <div class="d6brand">
+      <span class="d6badge">H6</span>
+      <span class="bt">
+        <b>潜能与预算博物馆</b>
+        <i>BUDGET DOME · <em>预算天穹</em></i>
+      </span>
+    </div>
+
+    <div class="d6live">
+      <div class="kv k"><span>预算 k</span><b id="tk">32</b></div>
+      <div class="kv e"><span>有效预算</span><b id="te">7.6</b></div>
+      <div class="kv p"><span>命中 pass@k</span><b id="tp">50.0%</b></div>
+      <div class="kv d"><span>选择器赤字</span><b id="td">19.2</b></div>
+    </div>
+
+    <div class="d6strip" id="strip" title="拖动改预算（对数刻度 1—256）">
+      <div class="lab"><span>1</span><span>预算</span><span>256</span></div>
+      <div class="trk">
+        <i class="fill" id="stripFill"></i>
+        <i class="tkn" id="stripKnob"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== 拱石导航 ==================== -->
+  <nav class="d6arch" id="arch">
+    <button class="ks on" data-l="budget"><span class="in"><span class="n">01</span><span class="t">预算间</span></span></button>
+    <button class="ks" data-l="dome"><span class="in"><span class="n">02</span><span class="t">天穹厅</span></span></button>
+    <button class="ks" data-l="settle"><span class="in"><span class="n">03</span><span class="t">结算室</span></span></button>
+    <button class="ks" data-l="hand"><span class="in"><span class="n">04</span><span class="t">移交口</span></span></button>
+    <button class="ks" data-l="deep"><span class="in"><span class="n">05</span><span class="t">复算清单</span></span></button>
+  </nav>
+
+  <main class="d6main" id="main">
+
+    <!-- ============================================================
+         01 预算间
+         ============================================================ -->
+    <section class="zone on" data-l="budget">
+      <div class="zh">
+        <div class="zno">01</div>
+        <div class="zt">
+          <h2>加预算，买到的是能力，还是「至少有一次」？</h2>
+          <p>同一个模型，同一批题，只把采样次数从 8 提到 512，榜单分数就能从 41 涨到 78。这张榜在测什么？</p>
+        </div>
+      </div>
+
+      <div class="elitecard first">
+        <div class="ec-k"><i></i>ELITE CHALLENGE · 这一馆的玩法</div>
+        <div class="ec-t">预算塔 · 十层：每一次加预算，都必须花在还没饱和的地方</div>
+        <p class="ec-d">
+          这一馆的参观是「拆判定」，玩法是「<b>真的去花这笔钱</b>」。十层塔，每层只给你一次加预算的机会。
+          加在已经饱和的地方，钱就白花了；加在还没饱和的地方，收益才回来。十层走完，
+          看的是你有没有一次花错 —— 一次花错，<b>精英证书</b>就没了。
+        </p>
+        <a class="ec-a" href="h6-tower.html">进入玩法 →</a>
+        <span class="ec-n">约 5 分钟 · 十层</span>
+      </div>
+
+      <div class="d6clip">
+        <div class="txt">
+          <span class="src">剪报 · 某评测周报</span>
+          <h3>「采样 512 次后，该模型在推理集上从 41 分跃升至 78 分，接近人类专家水平。」</h3>
+          <p>这句话没有说错，但它报的是 <b>pass@512</b>：512 次里只要有<b>一次</b>答对就算对。它假设你有一个完美的裁判，能把那一次挑出来。现实里的系统没有这个裁判 —— 它必须自己选一个交上去。</p>
+        </div>
+        <div class="num">
+          <div class="row"><span>pass@8</span><b>41</b></div>
+          <div class="row"><span>pass@512</span><b>78</b></div>
+          <div class="row"><span>单次准确率</span><b>41 → 43</b></div>
+        </div>
+      </div>
+
+      <div class="f3">
+        <div class="fc">
+          <span class="fl">因子 ① 名义预算 k</span>
+          <div class="fv">抽多少次</div>
+          <div class="fd">你付的账。但它不等于你拿到的独立证据数量 —— 见「有效预算」。</div>
+        </div>
+        <div class="fc">
+          <span class="fl">因子 ② 多样性 τ</span>
+          <div class="fv">每次抽得多不一样</div>
+          <div class="fd">温度越高，答案越散。散能撞到稀有正确答案，也会把常见错误摊薄。</div>
+        </div>
+        <div class="fc">
+          <span class="fl">因子 ③ 选择器</span>
+          <div class="fv">谁来挑那一个</div>
+          <div class="fd">oracle / 多数表决 / 直接取首选。选错了，前面两次都白花。</div>
+        </div>
+      </div>
+
+      <div class="fig1">
+        <svg viewBox="0 0 1060 176" role="img" aria-label="同一道题采样十二次，三种不同的失败">
+          <!-- 列标题 -->
+          <text x="24" y="14" fill="#a3e34a" font-family="ui-monospace,monospace" font-size="11" letter-spacing="1.6">① 可达但稀有</text>
+          <text x="374" y="14" fill="#ffb03a" font-family="ui-monospace,monospace" font-size="11" letter-spacing="1.6">② 近失</text>
+          <text x="724" y="14" fill="#ff5ea8" font-family="ui-monospace,monospace" font-size="11" letter-spacing="1.6">③ 不可达</text>
+
+          <!-- 面板 1：12 次里撞上 1 次 -->
+          <line x1="24" y1="86" x2="344" y2="86" stroke="rgba(120,152,186,.22)" stroke-width="1"/>
+          <line x1="156" y1="34" x2="156" y2="138" stroke="#a3e34a" stroke-width="1.2" stroke-dasharray="4 5" opacity=".85"/>
+          <text x="156" y="152" fill="#a3e34a" font-family="ui-monospace,monospace" font-size="9" text-anchor="middle" opacity=".9">正确答案</text>
+          <g fill="rgba(120,152,186,.34)">
+            <rect x="26" y="80" width="9" height="12" rx="2"/><rect x="50" y="80" width="9" height="12" rx="2"/>
+            <rect x="74" y="80" width="9" height="12" rx="2"/><rect x="98" y="80" width="9" height="12" rx="2"/>
+            <rect x="122" y="80" width="9" height="12" rx="2"/><rect x="194" y="80" width="9" height="12" rx="2"/>
+            <rect x="218" y="80" width="9" height="12" rx="2"/><rect x="242" y="80" width="9" height="12" rx="2"/>
+            <rect x="266" y="80" width="9" height="12" rx="2"/><rect x="290" y="80" width="9" height="12" rx="2"/>
+            <rect x="314" y="80" width="9" height="12" rx="2"/>
+          </g>
+          <rect x="150" y="74" width="13" height="24" rx="3" fill="#a3e34a"/>
+          <text x="184" y="60" fill="#a3e34a" font-family="ui-monospace,monospace" font-size="10">命中 1 / 12</text>
+
+          <!-- 面板 2：12 次都差一步 -->
+          <line x1="374" y1="86" x2="694" y2="86" stroke="rgba(120,152,186,.22)" stroke-width="1"/>
+          <line x1="506" y1="34" x2="506" y2="138" stroke="#ffb03a" stroke-width="1.2" stroke-dasharray="4 5" opacity=".85"/>
+          <text x="506" y="152" fill="#ffb03a" font-family="ui-monospace,monospace" font-size="9" text-anchor="middle" opacity=".9">正确答案（从未出现）</text>
+          <g fill="rgba(255,176,58,.75)">
+            <rect x="478" y="78" width="9" height="16" rx="2"/><rect x="454" y="78" width="9" height="16" rx="2"/>
+            <rect x="530" y="78" width="9" height="16" rx="2"/><rect x="502" y="78" width="9" height="16" rx="2"/>
+            <rect x="554" y="78" width="9" height="16" rx="2"/>
+          </g>
+          <g fill="rgba(120,152,186,.24)">
+            <rect x="398" y="80" width="9" height="12" rx="2"/><rect x="422" y="80" width="9" height="12" rx="2"/>
+            <rect x="578" y="80" width="9" height="12" rx="2"/><rect x="602" y="80" width="9" height="12" rx="2"/>
+            <rect x="626" y="80" width="9" height="12" rx="2"/><rect x="650" y="80" width="9" height="12" rx="2"/>
+            <rect x="674" y="80" width="9" height="12" rx="2"/>
+          </g>
+          <text x="534" y="60" fill="#ffb03a" font-family="ui-monospace,monospace" font-size="10">5 次落在隔壁</text>
+
+          <!-- 面板 3：12 次一次都没靠近 -->
+          <line x1="724" y1="86" x2="1044" y2="86" stroke="rgba(120,152,186,.22)" stroke-width="1"/>
+          <line x1="856" y1="34" x2="856" y2="138" stroke="#ff5ea8" stroke-width="1.2" stroke-dasharray="4 5" opacity=".7"/>
+          <text x="856" y="152" fill="#ff5ea8" font-family="ui-monospace,monospace" font-size="9" text-anchor="middle" opacity=".9">正确答案（不在支持集）</text>
+          <g fill="rgba(255,94,168,.42)">
+            <rect x="726" y="80" width="9" height="12" rx="2"/><rect x="750" y="80" width="9" height="12" rx="2"/>
+            <rect x="774" y="80" width="9" height="12" rx="2"/><rect x="798" y="80" width="9" height="12" rx="2"/>
+            <rect x="894" y="80" width="9" height="12" rx="2"/><rect x="918" y="80" width="9" height="12" rx="2"/>
+            <rect x="942" y="80" width="9" height="12" rx="2"/><rect x="966" y="80" width="9" height="12" rx="2"/>
+            <rect x="990" y="80" width="9" height="12" rx="2"/><rect x="1014" y="80" width="9" height="12" rx="2"/>
+          </g>
+          <text x="884" y="60" fill="#ff5ea8" font-family="ui-monospace,monospace" font-size="10">最近的一发还差 2</text>
+        </svg>
+        <div class="cap">同一道题、同样十二次采样，三种失败的处方完全不同：<b class="c6r">①加预算能治</b>、<b class="c6n">②换判分口径才能治</b>、<b class="c6v">③只有换模型能治</b>。pass@k 把三者加在一起报成一个数，于是所有失败看起来都像「预算不够」。</div>
+      </div>
+
+      <div class="g2">
+        <div class="ex">
+          <div class="eh"><span class="tag">EXHIBIT A</span><b>pass@k 是 oracle 上界，不是系统表现</b></div>
+          <p>默认运行（k=32）同时给出三个数。它们的差不是误差，是三件不同的事。</p>
+          <div class="trio">
+            <div class="tr"><span>oracle 挑选（pass@k）</span><b id="exPass" style="color:var(--reach)">—</b></div>
+            <div class="tr"><span>直接取首选（greedy）</span><b id="exGreedy" style="color:var(--ice)">—</b></div>
+            <div class="tr"><span>多数表决（vote@k）</span><b id="exVote" style="color:var(--near)">—</b></div>
+          </div>
+          <p style="margin-top:9px">多数表决比直接取首选<b>还差</b>：稀有正确答案会被常见错误稀释掉。这就是<b class="c6r">选择器赤字 <span id="exDef">—</span> 个百分点</b>。</p>
+        </div>
+
+        <div class="ex">
+          <div class="eh"><span class="tag">EXHIBIT B</span><b>名义预算 ≠ 有效预算</b></div>
+          <p>32 次采样，落到 120 道题上，平均每道题只说出 <b class="hl"><span id="exEff">—</span> 个不同答案</b>。其余都是重复。</p>
+          <div class="big" style="color:var(--h6)"><span id="exEff2">—</span> / 32</div>
+          <p>把温度压到 0.05，有效预算塌到 <b class="c6v">1.5</b>：64 次采样几乎全在复读同一个答案。这时候「加预算」只是把同一句话又抽了一遍 —— 仪器会直接拒判。</p>
+        </div>
+      </div>
+
+      <div class="g3" style="margin-top:11px">
+        <div class="ex">
+          <div class="eh"><span class="tag">RULE 1</span><b>预算效果单独报</b></div>
+          <p>只报「从 1 次到 k 次涨了多少」。涨不动就直说涨不动。</p>
+        </div>
+        <div class="ex">
+          <div class="eh"><span class="tag">RULE 2</span><b>天花板单独报</b></div>
+          <p>可达上限是世界的属性，不是预算的函数。它必须与预算效果分开列。</p>
+        </div>
+        <div class="ex">
+          <div class="eh"><span class="tag">RULE 3</span><b>选择器赤字单独报</b></div>
+          <p>oracle 与实际选择器的差，随预算变大而变大。合并进 pass@k 就看不见了。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         02 天穹厅
+         ============================================================ -->
+    <section class="zone" data-l="dome">
+      <div class="zh">
+        <div class="zno">02</div>
+        <div class="zt">
+          <h2>穹顶线升到天花板，就停住了</h2>
+          <p>蓝线是当前预算下的平均命中率（穹顶线），琥珀虚线是这道题集的上限（天花板）。右边那一段贴着地面的柱子，预算加到 256 次也还是零。拖动下面那张曲线图改预算 —— 主图本身就是控制器。</p>
+        </div>
+      </div>
+
+      <div class="domegrid">
+        <div>
+          <div class="stage">
+            <div class="sh">
+              <b>预算剖面</b>
+              <span>120 根柱 · 每根一道题 · 柱高 = 这道题在 k 次采样里被找到的概率</span>
+              <span class="sp"></span>
+              <span id="domeCap">k = 32 · 阈值 2.1%</span>
+            </div>
+            <svg id="domeSvg" role="img" aria-label="穹顶剖面：每道题被找到的概率与当前预算的阈值"></svg>
+
+            <div class="split" id="splitBar">
+              <i class="hit" id="spHit" style="width:50%"></i>
+              <i class="near" id="spNear" style="width:50%"></i>
+              <i class="cold" id="spCold" style="width:0%"></i>
+            </div>
+            <div class="splitleg">
+              <span class="a"><i></i>命中 <b id="lgHit">50.0%</b></span>
+              <span class="b"><i></i>只差一步 <b id="lgNear">50.0%</b></span>
+              <span class="c"><i></i>什么都没碰到 <b id="lgCold">0.0%</b></span>
+            </div>
+          </div>
+
+          <div class="stage" style="margin-top:12px">
+            <div class="sh">
+              <b>预算阶梯</b>
+              <span>横轴 1→256（对数） · 纵轴命中率 · 点或拖这条图改预算</span>
+              <span class="sp"></span>
+              <span id="ladCap">当前 k = 32</span>
+            </div>
+            <svg id="ladderSvg" role="img" aria-label="预算阶梯：pass@k、vote@k、greedy 随预算变化"></svg>
+          </div>
+        </div>
+
+        <aside class="console">
+          <div class="ch">结算台</div>
+
+          <div class="meter p">
+            <div class="ml"><span>pass@k（oracle）</span><b id="mPass">50.0%</b></div>
+            <div class="bar"><i id="bPass" style="width:50%"></i></div>
+          </div>
+          <div class="meter v">
+            <div class="ml"><span>vote@k（多数表决）</span><b id="mVote">30.8%</b></div>
+            <div class="bar"><i id="bVote" style="width:30.8%"></i></div>
+          </div>
+          <div class="meter g">
+            <div class="ml"><span>greedy（取首选）</span><b id="mGreedy">35.0%</b></div>
+            <div class="bar"><i id="bGreedy" style="width:35%"></i></div>
+          </div>
+
+          <div class="mrow">
+            <div class="m"><span>可达上限</span><b id="mCeil" style="color:var(--reach)">66.7%</b></div>
+            <div class="m"><span>永远够不到</span><b id="mUnreach" style="color:var(--void)">33.3%</b></div>
+            <div class="m n"><span>有效预算 / 名义</span><b id="mEff">7.6 / 32</b></div>
+            <div class="m c"><span>选择器赤字</span><b id="mDef">19.2pp</b></div>
+          </div>
+
+          <div class="v6" id="vBox">
+            <span class="vb" id="vBadge">—</span>
+            <div class="vs" id="vStat">—</div>
+            <div class="vw" id="vWhy">—</div>
+          </div>
+
+          <div class="scope" id="scope">
+            <div class="sc-h">
+              <span>任务显微</span>
+              <span class="sp"></span>
+              <span class="x" id="scopeX" style="display:none">×</span>
+            </div>
+            <div class="sc-b" id="scopeBody">
+              <div class="empty">点穹顶剖面里任意一根柱子，看这道题的 k 次采样明细：哪几次撞上了正确答案，哪几次落在隔壁。</div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         03 结算室
+         ============================================================ -->
+    <section class="zone" data-l="settle">
+      <div class="zh">
+        <div class="zno">03</div>
+        <div class="zt">
+          <h2>仪器先把自己验回来</h2>
+          <p>五项自检、五条拒判线、一组四臂归因。全部当场重跑，不是写死的结论。</p>
+        </div>
+      </div>
+
+      <div class="p6">
+        <div class="pt"><span class="k">SELF-CHECK</span>五项自检<span class="sp"></span><span id="scSum" style="font-family:var(--mono);font-size:10px;color:var(--reach)">—</span></div>
+        <table class="tbl6">
+          <thead><tr><th style="width:110px">自检项</th><th style="width:64px">结果</th><th>实测</th><th>为什么这条必须成立</th></tr></thead>
+          <tbody id="scBody"></tbody>
+        </table>
+      </div>
+
+      <div class="p6">
+        <div class="pt"><span class="k">NEGATIVES</span>五条拒判线<span class="sp"></span><span id="negSum" style="font-family:var(--mono);font-size:10px;color:var(--reach)">—</span></div>
+        <div class="neglist" id="negList"></div>
+        <p style="margin-top:10px;font-size:11px;color:var(--tx4)">每条都对应一次真实运行。测试不可信时，仪器拒绝解释结果 —— 而不是硬给一个数。</p>
+      </div>
+
+      <div class="p6">
+        <div class="pt"><span class="k">ATTRIBUTION</span>归因：预算到底治了什么<span class="sp"></span><span id="attrSum" style="font-family:var(--mono);font-size:10px;color:var(--reach)">—</span></div>
+        <div class="arms" id="armBox"></div>
+        <div class="preds" id="predBox"></div>
+      </div>
+
+      <div class="p6">
+        <div class="pt"><span class="k">DIVERSITY</span>多样性不是越大越好<span class="sp"></span><span id="tauCap" style="font-family:var(--mono);font-size:10px;color:var(--tx4)">—</span></div>
+        <svg id="tauSvg" role="img" aria-label="温度扫描：命中率与多数表决随多样性变化" style="display:block;width:100%;height:190px"></svg>
+        <p style="margin-top:8px">温度往上走，<b class="c6r">oracle 命中率一路涨</b>，但<b class="c6n">多数表决一路掉</b>。多样性的全部收益都押在「你有一个完美裁判」这个假设上 —— 而现实里没有。</p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         04 移交口
+         ============================================================ -->
+    <section class="zone" data-l="hand">
+      <div class="zh">
+        <div class="zno">04</div>
+        <div class="zt">
+          <h2>把它交出去之前，先说清它不能做什么</h2>
+          <p>档案存进公共证据厅，四轴标签固定，校验值可复核。</p>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="b6 pri" id="btnSave">存入公共证据厅</button>
+        <button class="b6" id="btnExport">导出 Markdown</button>
+        <button class="b6" id="btnReplay">回到天穹厅</button>
+      </div>
+      <div class="saveres" id="saveResult"></div>
+
+      <div class="lims">
+        <div class="lim">
+          <b>不是能力许愿池</b>
+          <p>这里测的是「在给定预算下能不能捞到正确答案」，不是「模型有多聪明」。预算买不到不在支持集里的答案。</p>
+        </div>
+        <div class="lim">
+          <b>pass@k 不是系统表现</b>
+          <p>pass@k 假设存在完美选择器。任何真实系统都必须自己选一个，赤字必须单独报。</p>
+        </div>
+        <div class="lim">
+          <b>世界是玩具分布</b>
+          <p>120 道题、每道 3—15 个候选答案。规模远小于真实模型，结论只对「支持集 + 采样」这个结构成立。</p>
+        </div>
+        <div class="lim">
+          <b>不签发「模型有没有潜能」</b>
+          <p>潜能的定义依赖任务族与判分口径。换一套题，可达上限就变。这里只报这一套题上的数。</p>
+        </div>
+        <div class="lim">
+          <b>可达上限是测出来的，不是假设的</b>
+          <p>它由世界里「正确答案是否在支持集内」决定。负例里把不可达任务去掉，上限必须变成 100%。</p>
+        </div>
+        <div class="lim">
+          <b>不宣称方法首创</b>
+          <p>pass@k、温度采样、多数表决、有效样本量都是既有概念。这里做的是把它们拆开并分别报。</p>
+        </div>
+      </div>
+
+      <div class="ifaces">
+        <a class="ifc" href="h5-collapse.html">
+          <div class="ih">→ H5 递归坍塌</div>
+          <b>预算买不到的那部分，会不会被递归吃掉</b>
+          <p>H6 说「有些答案根本不在支持集里」。H5 接着问：如果数据反复来自模型自己，支持集会怎么缩小。</p>
+        </a>
+        <a class="ifc" href="h3-metrics.html">
+          <div class="ih">→ H3 指标失效</div>
+          <b>把 pass@k 当指标，会发生什么</b>
+          <p>H6 的「选择器赤字」正是 H3 说的代理指标偏离：分数涨了，任务没变好。</p>
+        </a>
+        <a class="ifc" href="evidence.html">
+          <div class="ih">→ 公共证据厅</div>
+          <b>这份档案和别的馆放在一起看</b>
+          <p>四轴标签是 toydist / live / controlled / replayable。可以和 H4、H5 的档案并排复核。</p>
+        </a>
+      </div>
+
+      <div class="recalc">
+        <div class="rh">
+          <b>复算清单</b>
+          <span>三个头条数字，每个都能拿原始采样自己算一遍 —— 不需要相信这台仪器</span>
+          <span class="sp"></span>
+          <span class="seed" id="rcSeed">seed —</span>
+        </div>
+        <div class="rcards">
+          <div class="rcard">
+            <div class="rk">预算泄漏率</div>
+            <div class="rv" id="rcLeak">—</div>
+            <div class="rf">leak = 1 − 平均不同答案数 ÷ k</div>
+            <p>把 k 次采样去重，数出说了几个不同的答案。重复的那部分预算是白花的。</p>
+          </div>
+          <div class="rcard">
+            <div class="rk">选择器赤字</div>
+            <div class="rv" id="rcDef">—</div>
+            <div class="rf">deficit = pass@k − vote@k</div>
+            <p>oracle 有完美裁判，多数表决没有。两者之差就是「选」这一步要付的代价。</p>
+          </div>
+          <div class="rcard">
+            <div class="rk">可达上限</div>
+            <div class="rv" id="rcCeil">—</div>
+            <div class="rf">ceiling = 支持集含真解的任务数 ÷ 总任务数</div>
+            <p>不管预算加到多少，这个数都动不了。它是模型结构的边界，不是采样的问题。</p>
+          </div>
+        </div>
+        <div class="rparam">
+          <span><i>任务</i><b id="rcN">120</b></span>
+          <span><i>可达 / 不可达</i><b id="rcSplit">80 / 40</b></span>
+          <span><i>单次采样上限 KMAX</i><b>256</b></span>
+          <span><i>预算阶梯</i><b>1 → 256 九级</b></span>
+          <span><i>温度 τ</i><b>1.00</b></span>
+          <span><i>判定顺序</i><b>少 → 短 → 泄漏 → 无效 → 饱和</b></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         05 复算清单（展品长廊）
+         ============================================================ -->
+    <section class="zone" data-l="deep">
+      <div class="zh">
+        <div class="zno">05</div>
+        <div class="zt">
+          <h2>八件展品，八种「预算花在哪」</h2>
+          <p>每件配一次现场实算和一道现场题，答对才算看过。八件全通领参观证书；再走一遍预算塔，领精英证书。</p>
+        </div>
+      </div>
+
+      <div style="padding:0 22px 8px">
+        <div id="dpGallery"></div>
+
+        <!-- 精英挑战入口：证书区在页面最底部，不放一块显眼的牌子，
+             大多数人逛完长廊就走了，根本不知道还有个玩法页。 -->
+        <div class="elitecard">
+          <div class="ec-k"><i></i>ELITE CHALLENGE · 玩法</div>
+          <div class="ec-t">预算塔 · 十层</div>
+          <p class="ec-d">
+            十层塔，每层只给你一次加预算的机会。加在已经饱和的地方，钱就白花了；
+            加在还没饱和的地方，收益才回来。十层走完，看的是你有没有一次花错。
+          </p>
+          <a class="ec-a" href="h6-tower.html">进入挑战 →</a>
+          <span class="ec-n">独立精英证书</span>
+        </div>
+
+        <div style="margin:30px 0 12px;font-size:13px;letter-spacing:.6px;color:var(--tx3,#5d6d8c)">
+          CERTIFICATES · 两级证书
+        </div>
+        <p style="font-size:13px;line-height:1.9;color:var(--tx2,#93a6c8);max-width:74ch;margin:0 0 14px">
+          参观证书证明你能把「加预算」拆成六种判定；精英证书证明你在十层塔里，
+          每一次机会都用在了还没饱和的地方。
+        </p>
+        <div id="dpCerts" style="padding-bottom:24px"></div>
+      </div>
+    </section>
+
+  </main>
+</div>

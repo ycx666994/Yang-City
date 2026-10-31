@@ -1,0 +1,369 @@
+<div class="hall h4" style="--hall-ac:#35cfa8">
+
+  <header class="ycbar">
+    <div class="brand">
+      <a href="index.html" style="text-decoration:none;color:inherit;display:flex;align-items:baseline;gap:9px">
+        <span class="nm">杨城</span>
+      </a>
+      <span class="sub">H4 · 数据污染博物馆</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="rd"><span class="dot" id="rdDot"></span>仪器在线 <b>contam-trace</b> v0.1.0</div>
+    <nav class="nav">
+      <a href="map.html">地图</a>
+      <a href="index.html">城市</a>
+      <a href="evidence.html">证据厅</a>
+      <a href="../h1-lab.html">老馆</a>
+    </nav>
+  </header>
+
+  <div class="h4shell">
+
+    <!-- ==================== 左侧竖排门牌 ==================== -->
+    <nav class="h4rail" aria-label="四间房">
+      <div class="rh">H4 · 泄题法医室</div>
+      <button class="door on" data-l="story"><b>01</b><span>门厅</span></button>
+      <button class="door" data-l="shelf"><b>02</b><span>卷库</span></button>
+      <button class="door" data-l="check"><b>03</b><span>证物室</span></button>
+      <button class="door" data-l="hand"><b>04</b><span>移交</span></button>
+      <button class="door" data-l="deep"><b>05</b><span>长廊</span></button>
+      <div class="rsp"></div>
+      <div class="rfoot">ARC · 档案层架</div>
+    </nav>
+
+    <!-- ==================== 中部：四间房 ==================== -->
+    <main class="h4main">
+
+      <!-- ---------- 01 门厅 ---------- -->
+      <section class="room on" data-l="story">
+        <div class="rh2">
+          <span class="kick">H4 · 泄题法医室</span>
+        </div>
+        <h2 style="font-size:25px;font-weight:800;letter-spacing:.6px;line-height:1.32;max-width:24ch">
+          它答对，是泛化、记忆，<br>还是当前证据无法区分？
+        </h2>
+        <p class="rlead">
+          这是本馆唯一的问题。它听起来像学术讨论，实际上是每个评测报告里最难写出口的那一句：
+          <b>我们不知道这个分数是怎么来的。</b>
+        </p>
+
+        <!-- 精英挑战入口（首屏版）：玩法页挂在长廊最底部，用户逛不到，
+             所以在门厅第一屏就先给一块牌子。 -->
+        <div class="elitecard first">
+          <div class="ec-k"><i></i>ELITE CHALLENGE · 这一馆的玩法</div>
+          <div class="ec-t">净化车间：12 次额度，把一批脏数据洗成一份站得住的报告</div>
+          <p class="ec-d">
+            这一馆的参观是「读诊断」，玩法是「<b>亲手做一次净化</b>」。4 道工序、5 组守卫、12 次额度。
+            样本不够、探针断开、参照组变暖 —— 你要在额度耗尽前交出一份<b>经得起复核</b>的清洗报告。
+            交不出来就领不到<b>精英证书</b>。
+          </p>
+          <a class="ec-a" href="h4-purge.html">进入玩法 →</a>
+          <span class="ec-n">约 6 分钟 · 12 次额度</span>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <div class="ch"><span class="ct">「改一改再问」为什么不够</span><span class="csp"></span><span class="ck">METHOD</span></div>
+          <p>你有一道题，模型答对了。你想知道它是会做，还是见过。最自然的办法：把题里的数改掉，再问一次。</p>
+          <p>如果它答错，你说这是记忆。</p>
+          <p>可你改的那个数，<b class="hl">也让题变难了呢</b>？四位数加减比两位数更容易算错，这跟记不记得住毫无关系。</p>
+          <p>只看准确率，这两件事长得一模一样。这不是数据不够 —— 是<b>设计</b>分不开它们。</p>
+        </div>
+
+        <div class="clip" style="margin-top:12px">
+          <div class="cm">案例 · 仅供叙事，不入证据</div>
+          某团队的报告里，模型在一套数学题上从 <b>62%</b> 提到 <b>89%</b>。三个月后有人发现，那套题来自一个公开题库，
+          而题库早就在训练语料里。<br>
+          于是他们做了一次「净化」：把题里的数字全改一遍，重新跑。准确率掉到 <b>64%</b>，与对照组持平。
+          结论写成「<span class="q">确认存在数据污染</span>」。<br>
+          审稿人只问了一句：<b>你改完数字以后，题目是变难了还是变简单了？</b><br>
+          没人测过。
+        </div>
+
+        <div class="tiergrid" style="margin-top:14px">
+          <div class="tier a">
+            <div class="tt">SHELF A</div>
+            <div class="tn">甲架 · 原题</div>
+            <div class="td">训练语料里出现过的那道题，表面逐字相同。</div>
+            <div class="tm">若记忆存在 → 直接取答案<br>准确率会虚高</div>
+          </div>
+          <div class="tier b">
+            <div class="tt">SHELF B</div>
+            <div class="tn">乙架 · 改数</div>
+            <div class="td">同一道题，改掉一个数。正确答案随之改变，技能没变。</div>
+            <div class="tm">记忆在此处最容易露馅<br>因为它会搬旧答案</div>
+          </div>
+          <div class="tier c">
+            <div class="tt">SHELF C</div>
+            <div class="tn">丙架 · 新题</div>
+            <div class="td">同一技能族、从未出现过的题。它代表「真的会做」。</div>
+            <div class="tm">这是基准线<br>甲减丙 = 见过的优势</div>
+          </div>
+        </div>
+
+        <div class="g2" style="margin-top:12px">
+          <div class="card" style="margin-top:0">
+            <div class="ch"><span class="ct">三个词，别混</span><span class="csp"></span><span class="ck">TERMS</span></div>
+            <p><b class="hl">泛化</b>　它掌握的是方法，换个数照样会算。</p>
+            <p><b class="hl">记忆</b>　它存的是这道题的答案，改一个数就不认得了 —— 但它仍然会把旧答案交出来。</p>
+            <p><b class="hl">不可区分</b>　你手上的证据，两种解释都成立。这不是失败，这是必须如实写下的结论。</p>
+          </div>
+          <div class="card" style="margin-top:0">
+            <div class="ch"><span class="ct">为什么这里要有第二条通道</span><span class="csp"></span><span class="ck">CHANNEL</span></div>
+            <p>准确率会骗人。但有一件事准确率骗不了：<b class="hl">它给出的错误答案是什么</b>。</p>
+            <p>把题里的 47 改成 53，正确答案从 55 变成 61，而它答 <b>55</b> —— 那不是算错，那是把旧答案搬过来了。</p>
+            <p>算错是随机的，搬旧答案是<b>系统性</b>的。这是记忆的直接指纹，而且<b>不依赖难度</b>。</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ch"><span class="ct">所以这台仪器做什么</span><span class="csp"></span><span class="ck">INSTRUMENT</span></div>
+          <p>三个档 × 两条通道 × 一道冷参照。</p>
+          <p><b>通道一 · 准确率分解</b>　甲减丙是见过的优势，乙减丙是改数后还活着的优势。配一个<b>关闭了记忆通道的同一解算器</b>做参照，用它证明三档难度相当 —— 否则一切归零。</p>
+          <p><b>通道二 · 答案溯源</b>　在乙架上，它给出的答案是不是原题答案。扣除参照组测出来的偶然水平之后，剩下的就是<b>回吐压力 κ̂</b>。</p>
+          <p><b>冷参照</b>　它不是装饰。参照组要是自己也沾过语料，难度校准就废了 —— 而你不会知道，除非你专门去查它。</p>
+        </div>
+      </section>
+
+      <!-- ---------- 02 卷库 ---------- -->
+      <section class="room shelfroom" data-l="shelf">
+        <div class="ctl">
+          <div class="k">
+            <div class="kh"><span class="kn">记忆强度</span><b class="kv" id="vMem">0.95</b></div>
+            <input type="range" id="kMem" min="0" max="100" value="95">
+          </div>
+          <div class="k">
+            <div class="kh"><span class="kn">改写力度</span><b class="kv" id="vRewrite">0.45</b></div>
+            <input type="range" id="kRewrite" min="0" max="100" value="45">
+          </div>
+          <div class="k">
+            <div class="kh"><span class="kn">标签噪声</span><b class="kv" id="vNoise">0.00</b></div>
+            <input type="range" id="kNoise" min="0" max="90" value="0">
+          </div>
+          <div class="k">
+            <div class="kh"><span class="kn">题组</span><b class="kv" id="vN">96</b></div>
+            <input type="range" id="kN" min="30" max="240" step="6" value="96">
+          </div>
+          <button class="run" id="btnRun">重新开庭</button>
+        </div>
+
+        <div class="shelf">
+          <div class="shelf-head">
+            <div class="gut"></div>
+            <div class="sc a">
+              <div class="sn">SHELF A · SEEN</div>
+              <div class="st">甲架 · 原题</div>
+              <div class="sv" id="shA">—</div>
+              <div class="sref" id="shRefA">参照 —</div>
+            </div>
+            <div class="sc b">
+              <div class="sn">SHELF B · MODIFIED</div>
+              <div class="st">乙架 · 改数</div>
+              <div class="sv" id="shB">—</div>
+              <div class="sref" id="shRefB">参照 —</div>
+            </div>
+            <div class="sc c">
+              <div class="sn">SHELF C · HELD OUT</div>
+              <div class="st">丙架 · 新题</div>
+              <div class="sv" id="shC">—</div>
+              <div class="sref" id="shRefC">参照 —</div>
+            </div>
+          </div>
+          <div class="shelf-body" id="shelfBody"></div>
+        </div>
+
+        <div class="drawer" id="drawer">
+          <div class="dempty">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3">
+              <rect x="1.5" y="4" width="13" height="10" rx="1.5"/><path d="M1.5 7h13"/>
+            </svg>
+            点任一张卡，把同一题组的三件抽出来并排看
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- 03 证物室 ---------- -->
+      <section class="room" data-l="check">
+        <div class="rh2"><span class="kick">ROOM 03 · 证物室</span></div>
+        <h2 style="font-size:21px;font-weight:800;letter-spacing:.6px">仪器自己也接受尸检</h2>
+        <p class="rlead">
+          唯一诚实的验法是：在真值已知的地方跑一遍，看它能不能把真值收回来。
+          下面每一个数字都是现场跑出来的，不是抄的。
+        </p>
+
+        <div class="card" style="margin-top:14px">
+          <div class="ch">
+            <span class="ct">自检 · 已知真值能不能收回来</span><span class="csp"></span>
+            <span class="ck" id="scSum">运行中…</span>
+          </div>
+          <p style="margin-bottom:9px">
+            五档记忆强度 × 三个种子 = 15 次独立审判。真值 = 记忆强度 × 回吐压力（0.90）。
+          </p>
+          <div style="max-height:280px;overflow:auto">
+            <table class="tbl">
+              <thead><tr>
+                <th>真值 κ</th><th>种子</th><th>κ̂</th><th>95% 区间</th><th>误差</th><th>覆盖</th><th>判定</th>
+              </tr></thead>
+              <tbody id="scBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ch"><span class="ct">四种必须被拒绝的情形</span><span class="csp"></span><span class="ck">NEGATIVE CONTROLS</span></div>
+          <p style="margin-bottom:10px">一台只会说「有污染」的仪器没有价值。点开看它在什么情况下必须拒判。</p>
+          <div class="neg" id="negList"></div>
+        </div>
+
+        <div class="card">
+          <div class="ch"><span class="ct">改写力度与可估性</span><span class="csp"></span><span class="ck">SWEEP</span></div>
+          <p style="margin-bottom:9px">
+            改写力度不是越大越好。<b>太弱</b>，题目根本没变，回吐率与准确率分不开；
+            <b>太强</b>，记忆根本触发不了，κ̂=0 只是探针没通电。中间那段才是有效窗口。
+          </p>
+          <div class="sweepbox">
+            <div id="sweepSvg"></div>
+            <div class="sweepleg">
+              <span><i style="background:#35cfa8"></i>κ̂（可用）</span>
+              <span><i style="background:repeating-linear-gradient(45deg,#c9a227 0 2px,transparent 2px 4px)"></i>κ̂（不可用）</span>
+              <span><i style="background:rgba(53,207,168,.18)"></i>有效窗口</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ch"><span class="ct">参照体检 · 控制组自己是不是控制组</span><span class="csp"></span><span class="ck">REFERENCE</span></div>
+          <p style="margin-bottom:9px">
+            参照组必须真的「冷」。它要是也沾过语料，就会把污染造成的差距解释成难度，整个设计失效。
+          </p>
+          <div id="refList"></div>
+        </div>
+      </section>
+
+      <!-- ---------- 04 移交 ---------- -->
+      <section class="room" data-l="hand">
+        <div class="rh2"><span class="kick">ROOM 04 · 移交</span></div>
+        <h2 style="font-size:21px;font-weight:800;letter-spacing:.6px">把它交出去，连同它的不确定</h2>
+        <p class="rlead">
+          一份能用的污染报告，必须让读者能看出结论在什么条件下成立、在什么条件下会翻。
+          下面这张档案会带着守卫状态、两条通道的状态、以及 κ̂ 的区间一起进入公共证据厅。
+        </p>
+
+        <div class="savebox" style="margin-top:14px">
+          <div style="font-size:12.5px;line-height:1.9;color:var(--tx2)">
+            当前这次审判的完整参数、三档准确率、参照组数值、五条守卫的判定依据、κ̂ 与区间，
+            都会写进档案。四轴标签固定为<b>规则装置 / 现场执行 / 自建受控实验</b> ——
+            本馆不冒充真实模型实验。
+          </div>
+          <div class="btnrow">
+            <button class="btn" id="btnSave">存入公共证据厅</button>
+            <button class="btn ghost" id="btnExport">导出 Markdown</button>
+          </div>
+          <div class="saveres" id="saveResult">还没有存档。</div>
+        </div>
+
+        <div class="card">
+          <div class="ch"><span class="ct">这台仪器不能做什么</span><span class="csp"></span><span class="ck">BOUNDARIES</span></div>
+          <div class="lim">
+            <div class="li"><b>不能签发无污染证明。</b>κ̂ 低只说明「在这个改写强度下没测到」，不说明训练集干净。未知的训练历史永远只能形成受限的风险信号。</div>
+            <div class="li"><b>不能把 κ̂ 当成「记忆比例」。</b>它测的是回吐压力：在改数题上不去算、直接搬旧答案的概率。记忆可能以别的方式存在。</div>
+            <div class="li"><b>标签被污染时 κ̂ 是下界。</b>如果泄漏的答案本身是错的，回吐错误答案与算错在行为上不可区分，溯源通道会低估。</div>
+            <div class="li"><b>参照组不是现实可得的东西。</b>这里是同一解算器关闭记忆通道的版本；现实里你只能找另一个模型，而那会引入新的混杂。</div>
+            <div class="li"><b>结论绑定在改写强度上。</b>同一批题，改一个数和改两个数会给出不同结论。报告里必须写明是哪一个。</div>
+            <div class="li"><b>不宣称方法首创。</b>扰动测试、canary 串、成员推断都已存在。本馆做的是把它们的前提条件摆到台面上。</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ch"><span class="ct">与其它馆的接口</span><span class="csp"></span><span class="ck">LINKS</span></div>
+          <p><b class="hl">H3 指标失效</b>　污染是一个被当作目标之后失效的指标：准确率一旦成为唯一目标，「见过」与「会做」的差别就被系统性地藏起来了。</p>
+          <p><b class="hl">H2 推理法医</b>　那里问的是「解释是否真的影响了答案」，这里问的是「答案是否真的来自计算」。两个问题共享同一种怀疑：行为与自述可以脱钩。</p>
+          <p><b class="hl">H5 递归坍塌</b>　污染的下游。当训练数据反复来自模型自身，丙架（新题）会先坏 —— 因为新题也开始长得像旧题。</p>
+        </div>
+      </section>
+
+      <!-- ---------- 05 长廊 ---------- -->
+      <section class="room" data-l="deep">
+        <div class="rh2"><span class="kick">ROOM 05 · 展品长廊</span></div>
+        <h2 style="font-size:21px;font-weight:800;letter-spacing:.6px">八件展品，八种诊断</h2>
+        <p class="rlead">
+          这台仪器能做的不止「有污染 / 无污染」。八件展品是本馆的八个失效侧面——
+          每一件都配一次现场实算和一道现场题，答对才算看过。八件全通，领参观证书；
+          再走一遍净化车间，领精英证书。
+        </p>
+
+        <div id="dpGallery" style="margin-top:16px"></div>
+
+        <!-- 精英挑战入口：证书区在页面最底部，不放一块显眼的牌子，
+             大多数人逛完长廊就走了，根本不知道还有个玩法页。 -->
+        <div class="elitecard">
+          <div class="ec-k"><i></i>ELITE CHALLENGE · 玩法</div>
+          <div class="ec-t">净化车间 · 十二道工序</div>
+          <p class="ec-d">
+            12 次额度、4 道工序、5 组守卫。样本不够、探针断开、参照组变暖——
+            你要在额度耗尽前交出一份站得住的清洗报告。每一步都会被复核。
+          </p>
+          <a class="ec-a" href="h4-purge.html">进入挑战 →</a>
+          <span class="ec-n">独立精英证书</span>
+        </div>
+
+        <div class="rh2" style="margin-top:26px"><span class="kick">CERTIFICATES · 两级证书</span></div>
+        <h2 style="font-size:19px;font-weight:800;letter-spacing:.6px">参观是一级，动手是二级</h2>
+        <p class="rlead">
+          参观证书证明你看懂了这八种诊断；精英证书证明你在预算不够、探针会断、参照组会变暖的条件下，
+          还能把一批脏数据洗成一份站得住的报告。
+        </p>
+        <div id="dpCerts" style="margin-top:14px"></div>
+      </section>
+
+    </main>
+
+    <!-- ==================== 右侧常驻取证栏 ==================== -->
+    <aside class="bench" id="bench">
+      <div class="bh"><span class="bt">取证栏</span><span class="bk" id="benchK">LIVE</span></div>
+
+      <div class="bs">
+        <div class="bst">三档准确率</div>
+        <div class="abar a"><span class="an">甲 原题</span><span class="at"><i id="barA"></i></span><span class="av" id="valA">—</span></div>
+        <div class="abar b"><span class="an">乙 改数</span><span class="at"><i id="barB"></i></span><span class="av" id="valB">—</span></div>
+        <div class="abar c"><span class="an">丙 新题</span><span class="at"><i id="barC"></i></span><span class="av" id="valC">—</span></div>
+        <div class="aref" id="aref">参照组 —</div>
+      </div>
+
+      <div class="bs">
+        <div class="bst">两条通道</div>
+        <div class="chan ok" id="chanAcc"><span class="dot"></span><span class="cn">准确率通道</span><span class="cs" id="chanAccS">正常</span></div>
+        <div class="chan ok" id="chanTrace"><span class="dot"></span><span class="cn">溯源通道</span><span class="cs" id="chanTraceS">正常</span></div>
+      </div>
+
+      <div class="bs">
+        <div class="bst">主估计 · 回吐压力</div>
+        <div class="kbig">
+          <div class="kl">κ̂ = (R − R₀) / (1 − R₀)</div>
+          <div class="kn2" id="kVal">—</div>
+          <div class="kci" id="kCi">区间 —</div>
+          <div class="kbadge" id="kBadge">这个数字作废 · 见下方守卫</div>
+          <div class="kbar">
+            <div class="wh" id="kWin" style="left:0;width:0"></div>
+            <i id="kPin" style="left:0"></i>
+          </div>
+          <div class="ksc"><span class="f">0 全在算</span><span style="left:25%">0.25</span><span style="left:60%">0.60</span><span class="l">1 全在搬</span></div>
+          <div class="kex" id="kEx">R = 回吐率　R₀ = 参照组的偶然水平</div>
+        </div>
+      </div>
+
+      <div class="bs">
+        <div class="bst">结论</div>
+        <div class="vbox idle" id="vBox">
+          <div class="vt" id="vTitle">待审<span class="tag" id="vTag">—</span></div>
+          <div class="vw" id="vWhy">先按「重新开庭」。</div>
+        </div>
+      </div>
+
+      <div class="bs" style="margin-bottom:0">
+        <div class="bst">五道守卫</div>
+        <div id="guardList"></div>
+      </div>
+    </aside>
+
+  </div>
+</div>

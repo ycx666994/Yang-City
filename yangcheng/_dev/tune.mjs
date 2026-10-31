@@ -1,0 +1,22 @@
+import fs from "fs";
+const src = fs.readFileSync("instruments/yc-metrics.js", "utf8");
+global.window = {};
+new Function("window", src)(global.window);
+const M = global.window.YCMetrics;
+
+const ck = [8, 16, 32, 64, 128, 256, 512];
+const dev = M.makeWorld(1001, { budget: 120 });
+const t0 = Date.now();
+const r = M.optimize(dev, ck, { seeds: [11, 29], optSeed: 20261029 });
+console.log("耗时", Date.now() - t0, "ms | 评估回合", r.episodes);
+console.log("预算    P       T        θ");
+r.trace.forEach(p => console.log(String(p.budget).padStart(4), p.P.toFixed(1).padStart(7), p.T.toFixed(3).padStart(8), "  ", p.label));
+const a = M.analyze(r.trace, { minEffect: 0.03 });
+console.log("\nverdict:", a.verdict);
+console.log("结构变点:", a.structural);
+console.log("峰值:", a.peak);
+console.log("CUSUM:", { onset: a.cusum.onset, stat: +a.cusum.stat.toFixed(2), sigma: +a.cusum.sigma.toFixed(4) });
+console.log("下降区间:", a.decline);
+console.log("异常:", a.anomalies);
+console.log("gaps:", a.gaps);
+console.log("\n自检:", M.selfTest());

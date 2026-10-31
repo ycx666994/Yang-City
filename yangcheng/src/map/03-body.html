@@ -1,0 +1,62 @@
+<div class="mapshell">
+
+  <header class="maptop">
+    <div class="mt-brand"><b>杨城地图</b><i>YANGCHENG · CITY MAP</i></div>
+    <div class="mt-sep"></div>
+    <div class="mt-title" id="mtTitle">六馆定位与建议路线</div>
+    <div class="mt-right">
+      <span id="mapClock">--:--</span>
+      <a href="index.html">回城市</a>
+      <a href="evidence.html">证据厅</a>
+      <a href="../h1-lab.html">Trust Lab</a>
+    </div>
+  </header>
+
+  <aside class="mapside">
+    <div class="ms-h">六馆 / SIX HALLS</div>
+    <div id="hallItems"></div>
+
+
+    <div class="ms-h">建议顺序 / ROUTE</div>
+    <div class="sideNote">
+      路线只是叙事顺序，<b>不是解锁条件</b>。任何馆都可以直接进入——研究工具不该被剧情挡住。<br>
+      虚线沿街道走，<b>不是直线距离</b>。跨河与跨城区两段建议乘车，其余步行。
+    </div>
+    <div id="routeLegs"></div>
+
+    <div class="ms-h">城市设施 / CIVIC</div>
+    <div id="civicItems"></div>
+
+    <div class="ms-h">今日值守 / ON DUTY</div>
+    <div id="dutyStrip"></div>
+    <div class="duty-n" id="dutyNote"></div>
+  </aside>
+
+  <main class="mapmain" id="mapMain">
+    <svg id="mapSvg" viewBox="0 0 1200 820" preserveAspectRatio="xMidYMid slice" role="img" aria-label="杨城俯瞰地图"></svg>
+
+    <div class="zoomctl">
+      <button id="zIn" title="放大" aria-label="放大">+</button>
+      <button id="zOut" title="缩小" aria-label="缩小">−</button>
+      <button id="zReset" title="复位" aria-label="复位" style="font-size:11px">⌂</button>
+    </div>
+
+    <div class="legend2">
+      <div class="lg-t">图例 / LEGEND</div>
+      <span><i class="solid"></i>仪器可用 · 可进入</span>
+      <span><i class="dash"></i>筹建中 · 点击看缺什么</span>
+      <span><i style="background:#7b93a5;border-radius:50%"></i>城市公共设施</span>
+      <span><i style="background:none;border-top:2px dashed #d1842a;height:0;border-radius:0"></i>建议参观顺序 · 步行段</span>
+      <span><i style="background:none;border-top:2px dotted #b8904e;height:0;border-radius:0"></i>跨城段 · 建议乘车</span>
+    </div>
+
+    <svg class="compass2" viewBox="0 0 60 60" aria-hidden="true">
+      <circle cx="30" cy="30" r="22" fill="none" stroke="#1b3f5c" stroke-width="1" opacity=".4"/>
+      <path d="M30 8 L35 30 L30 26 L25 30 Z" fill="#1b3f5c"/>
+      <text x="30" y="52" text-anchor="middle" font-size="9" fill="#1b3f5c" font-family="monospace">N</text>
+    </svg>
+  </main>
+
+</div>
+
+<div class="tipcard" id="tipCard" role="tooltip"></div>

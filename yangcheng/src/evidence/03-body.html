@@ -1,0 +1,109 @@
+<div class="ev">
+
+  <header class="ycbar">
+    <div class="brand">
+      <a href="index.html" style="text-decoration:none;color:inherit"><span class="nm">杨城</span></a>
+      <span class="sub">PUBLIC HALL · 公共证据厅</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="rd" id="rdN"><span class="dot off"></span><b>0</b> 份档案</div>
+    <nav class="nav">
+      <a href="map.html">地图</a>
+      <a href="index.html">城市</a>
+      <a href="evidence.html" class="on">证据厅</a>
+      <a href="../h1-lab.html">老馆</a>
+    </nav>
+  </header>
+
+  <div class="evbody">
+
+    <aside class="evlist">
+      <div class="lh">
+        <div class="lt">档案索引</div>
+        <div class="ls" id="lsMeta">YC-Evidence 1.0 · 0 条记录</div>
+      </div>
+      <div class="filters" id="filters">
+        <button class="fb on" data-f="all">全部</button>
+        <button class="fb" data-f="H1">01 能力</button>
+        <button class="fb" data-f="H2">02 推理</button>
+        <button class="fb" data-f="H3">03 指标</button>
+        <button class="fb" data-f="H4">04 污染</button>
+        <button class="fb" data-f="H5">05 坍塌</button>
+        <button class="fb" data-f="H6">06 潜能</button>
+      </div>
+      <div class="evitems" id="evitems">
+        <div class="blank" style="border:none;padding:24px 12px">
+          <b>还没有档案</b>
+          去任一可用馆跑一次实验。<br>档案会自动出现在这里，并带上四轴标签。
+        </div>
+      </div>
+    </aside>
+
+    <main class="evmain">
+      <div id="evdetail">
+        <div class="blank">
+          <b>公共证据厅不是第七馆</b>
+          它承担五项服务：案例索引、证据托盘、实验回放、分歧记录、条件性结论导出。<br>
+          左侧选一份档案，这里会显示它的四轴标签、来源、设计、统计与结论边界。
+        </div>
+      </div>
+
+      <!-- ============================================================
+           全城联合复核台（YC-Audit）
+           ============================================================ -->
+      <div class="audit" id="audit">
+        <div class="ah">
+          <div class="at">全城联合复核<span class="abadge">YC-AUDIT 0.1</span></div>
+          <div class="as" id="auditSum">还没有可复核的档案</div>
+          <span class="spacer"></span>
+          <button class="btn" id="btnBase">载入五馆基准档案</button>
+          <button class="btn ghost" id="btnRecheck">重新复核</button>
+        </div>
+        <div id="auditBody">
+          <p class="aempty">联合复核要至少两份档案。点「载入五馆基准档案」会现场调用 H2—H6 的仪器内核各跑一次，
+            把真实结果写成五份档案再复核 —— 不是演示数据。</p>
+        </div>
+      </div>
+
+      <div class="sec" style="margin-top:14px">
+        <div class="st">证据托盘 · 跨馆复核<span class="spacer"></span><span class="tag idle" id="trayTag">0 个案件</span></div>
+        <div id="tray">
+          <p style="color:var(--tx4)">同一案件下，不同馆的结论会在这里并列。当两馆结论相反，标记为「结果冲突」；当一馆被另一馆降级，标记为「降级」。</p>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="st">协议说明<span class="spacer"></span></div>
+        <div class="kv">
+          <dt>对象轴</dt><dd>规则装置 / 玩具分布模型 / 指定真实模型 / 模型＋工具系统</dd>
+          <dt>运行轴</dt><dd>现场执行 / 固定记录回放 / 仅故事引用</dd>
+          <dt>来源轴</dt><dd>自建受控实验 / 外部论文数据 / 用户提交</dd>
+          <dt>复核轴</dt><dd>未复核 / 记录可回放 / 独立复核</dd>
+        </div>
+        <p style="margin-top:10px;font-size:11px;color:var(--tx4)">
+          这四轴是<b>并列描述</b>，不是一条高低排名。内容校验值只用于发现记录被改动，不保证来源真实；
+          AI 自动生成的摘要也不能把档案升级为已核实。
+        </p>
+      </div>
+
+      <div class="sec">
+        <div class="st">导出<span class="spacer"></span></div>
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+          <button class="btn" id="btnBundle">导出全部档案（JSON）</button>
+          <button class="btn ghost" id="btnClear">清空本地档案</button>
+        </div>
+        <p style="margin-top:9px;font-size:10.5px;color:var(--tx4)">
+          档案存在本机 localStorage。清空不可撤销，导出的 JSON 里含完整记录与校验值。
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <footer class="ycfoot">
+    <span>公共证据厅</span>
+    <span>YC-Evidence 1.0</span>
+    <span class="spacer"></span>
+    <span class="khint"><kbd>Esc</kbd> 回城</span>
+    <span>结论以向量和条件展示，不合成「模型可信度总分」</span>
+  </footer>
+</div>

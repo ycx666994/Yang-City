@@ -1,0 +1,203 @@
+<style>
+/* ==========================================================================
+   H3 指标塔 · 3D 迷宫
+   深色仪表盘皮，与 H3 同源（--h3 电蓝）。类名统一 mz- 前缀。
+   ========================================================================== */
+:root{
+  --mz-bg:#070b14;
+  --mz-panel:#0c1220;
+  --mz-line:#1b2740;
+  --mz-line2:#24344f;
+  --mz-tx:#dce8fb;
+  --mz-tx2:#93a7c4;
+  --mz-tx3:#64748b;
+  --mz-ac:#4ea3ff;
+  --mz-ac2:#7cc4ff;
+  --mz-warn:#ffb03a;
+  --mz-bad:#ff5e6c;
+  --mz-good:#3ecf8e;
+  --mz-mono:ui-monospace,"SF Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:radial-gradient(900px 500px at 50% -10%,#0e1930,transparent 65%),var(--mz-bg);
+  color:var(--mz-tx);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+
+.mzwrap{max-width:1180px;margin:0 auto;padding:0 16px 40px;position:relative;z-index:1}
+
+/* ---------------- 顶栏 ---------------- */
+.mzbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0 11px;
+  border-bottom:1px solid var(--mz-line)}
+.mzbar .bk{text-decoration:none;color:var(--mz-tx2);font-size:11.5px;
+  border:1px solid var(--mz-line2);border-radius:5px;padding:5px 10px;transition:.15s}
+.mzbar .bk:hover{color:var(--mz-ac);border-color:var(--mz-ac);background:rgba(78,163,255,.08)}
+.mzttl b{font-size:17px;letter-spacing:.6px;display:block;line-height:1.2}
+.mzttl span{font-family:var(--mz-mono);font-size:9px;letter-spacing:1.8px;color:var(--mz-tx3)}
+.mzbar .sp{flex:1}
+
+.mzhud{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-family:var(--mz-mono);font-size:10px}
+.mzhud .h{display:flex;align-items:center;gap:5px;color:var(--mz-tx3);letter-spacing:.6px}
+.mzhud .h b{color:var(--mz-tx);font-size:13px;letter-spacing:0}
+.mzhud .h .u{font-size:8.5px;color:var(--mz-tx3)}
+.mzlife{display:flex;gap:3px}
+.mzlife i{width:12px;height:12px;border-radius:2px;background:rgba(78,163,255,.22);
+  border:1px solid rgba(78,163,255,.4);transition:.2s}
+.mzlife i.on{background:var(--mz-ac);box-shadow:0 0 8px rgba(78,163,255,.6)}
+.mzlife i.gone{background:rgba(255,94,108,.18);border-color:rgba(255,94,108,.5)}
+
+/* ---------------- 视口 ---------------- */
+.mzstage{position:relative;margin-top:14px;border:1px solid var(--mz-line2);border-radius:10px;
+  overflow:hidden;background:#04070d;box-shadow:0 0 0 1px rgba(0,0,0,.6),0 22px 60px -30px rgba(78,163,255,.35)}
+#mzcv{display:block;width:100%;height:auto;image-rendering:pixelated}
+
+.mzoverlay{position:absolute;inset:0;pointer-events:none}
+.mzcross{position:absolute;left:50%;top:50%;width:14px;height:14px;transform:translate(-50%,-50%);
+  opacity:.55}
+.mzcross::before,.mzcross::after{content:"";position:absolute;background:var(--mz-ac2)}
+.mzcross::before{left:6px;top:0;width:2px;height:14px}
+.mzcross::after{left:0;top:6px;width:14px;height:2px}
+
+.mzmap{position:absolute;right:10px;top:10px;border:1px solid var(--mz-line2);border-radius:6px;
+  background:rgba(6,10,18,.82);backdrop-filter:blur(4px);padding:4px}
+#mzmini{display:block}
+
+.mzprompt{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);
+  background:rgba(10,16,28,.92);border:1px solid var(--mz-ac);border-radius:7px;
+  padding:7px 15px;font-size:12px;color:var(--mz-ac2);letter-spacing:.4px;
+  opacity:0;transition:.2s;white-space:nowrap}
+.mzprompt.on{opacity:1}
+
+.mzmsg{position:absolute;left:50%;top:18px;transform:translateX(-50%);
+  background:rgba(10,16,28,.94);border-left:3px solid var(--mz-ac);border-radius:0 7px 7px 0;
+  padding:9px 15px;font-size:12px;line-height:1.7;color:var(--mz-tx);max-width:min(560px,86%);
+  opacity:0;transition:.25s;pointer-events:none}
+.mzmsg.on{opacity:1}
+.mzmsg.bad{border-left-color:var(--mz-bad)}
+.mzmsg.good{border-left-color:var(--mz-good)}
+.mzmsg.warn{border-left-color:var(--mz-warn)}
+
+/* ---------------- 鼠标锁定提示 ----------------
+   进入视口先看到它。pointer-events:none —— 点击必须穿过去打到 canvas，
+   否则第一下点击会被这层吃掉，锁不上鼠标。 */
+.mzlock{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  text-align:center;pointer-events:none;opacity:0;transition:.3s;
+  background:rgba(6,10,18,.78);border:1px solid var(--mz-line2);border-radius:10px;
+  padding:16px 22px;backdrop-filter:blur(3px);max-width:88%;
+}
+.mzlock.on{opacity:1}
+.mzlock b{display:block;font-size:14px;letter-spacing:.5px;color:var(--mz-ac2);margin-bottom:7px}
+.mzlock span{font-size:11px;color:var(--mz-tx3);line-height:1.9}
+.mzlock kbd{font-family:var(--mz-mono);font-size:10px;border:1px solid var(--mz-line2);
+  border-radius:4px;padding:1px 5px;color:var(--mz-tx2);background:rgba(255,255,255,.04)}
+
+/* ---------------- 危险红晕 ----------------
+   逮捕者越近越亮。用 mix-blend-mode:screen 叠在画面上，
+   不遮挡视线，只在边缘压一层血色。 */
+.mzvig{
+  position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .35s;
+  background:radial-gradient(circle at 50% 50%,transparent 42%,rgba(190,22,38,.55) 100%);
+  mix-blend-mode:screen;
+}
+.mzvig.on{opacity:1}
+.mzvig.beat{animation:mzBeat 1s ease-in-out infinite}
+@keyframes mzBeat{0%,100%{opacity:.55}50%{opacity:1}}
+
+.mzhud .hunt{color:var(--mz-tx3)}
+.mzhud .hunt b{color:var(--mz-tx3)}
+.mzhud .hunt.live b{color:var(--mz-bad);animation:mzPulse 1.1s ease-in-out infinite}
+.mzhud .hunt.near b{color:#ff2f42}
+@keyframes mzPulse{0%,100%{opacity:.55}50%{opacity:1}}
+
+/* ---------------- 控制 ---------------- */
+.mzctl{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.mzpad{display:grid;grid-template-columns:repeat(3,40px);grid-template-rows:repeat(2,40px);gap:5px}
+.mzpad button{border:1px solid var(--mz-line2);background:rgba(78,163,255,.07);color:var(--mz-tx2);
+  border-radius:7px;font:inherit;font-size:15px;cursor:pointer;transition:.12s;user-select:none;
+  display:flex;align-items:center;justify-content:center}
+.mzpad button:active{background:rgba(78,163,255,.28);color:#fff}
+.mzpad .up{grid-column:2;grid-row:1}
+.mzpad .lf{grid-column:1;grid-row:2}
+.mzpad .dn{grid-column:2;grid-row:2}
+.mzpad .rt{grid-column:3;grid-row:2}
+
+.mztips{font-size:11px;line-height:1.9;color:var(--mz-tx3);flex:1;min-width:200px}
+.mztips kbd{font-family:var(--mz-mono);font-size:10px;border:1px solid var(--mz-line2);
+  border-radius:4px;padding:1px 5px;color:var(--mz-tx2);background:rgba(255,255,255,.04)}
+.mzbtn{cursor:pointer;border:1px solid var(--mz-ac);background:rgba(78,163,255,.12);color:var(--mz-ac2);
+  border-radius:7px;padding:8px 16px;font:inherit;font-size:12px;font-weight:700;transition:.15s}
+.mzbtn:hover{background:rgba(78,163,255,.24)}
+.mzbtn.ghost{border-color:var(--mz-line2);background:transparent;color:var(--mz-tx2);font-weight:600}
+.mzbtn.ghost:hover{border-color:var(--mz-tx2);background:rgba(255,255,255,.05)}
+
+/* ---------------- 碎片条 ---------------- */
+.mzfrag{display:flex;gap:6px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.mzfrag .lb{font-family:var(--mz-mono);font-size:9px;letter-spacing:1.4px;color:var(--mz-tx3)}
+.mzf{width:26px;height:26px;border-radius:5px;border:1px dashed var(--mz-line2);
+  display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--mz-tx3);
+  font-family:var(--mz-mono);transition:.25s}
+.mzf.got{border-style:solid;border-color:var(--mz-ac);background:rgba(78,163,255,.16);color:var(--mz-ac2);
+  box-shadow:0 0 10px rgba(78,163,255,.3)}
+.mzf.miss{border-color:rgba(255,94,108,.5);color:rgba(255,94,108,.7)}
+
+/* ---------------- 题目弹层 ---------------- */
+.mzmodal{position:fixed;inset:0;z-index:90;background:rgba(4,7,13,.86);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;padding:20px}
+.mzmodal.on{display:flex}
+.mzq{width:min(620px,100%);background:var(--mz-panel);border:1px solid var(--mz-line2);
+  border-radius:12px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.9)}
+.mzqh{padding:13px 18px;border-bottom:1px solid var(--mz-line);display:flex;align-items:center;gap:10px;
+  background:linear-gradient(180deg,rgba(78,163,255,.1),transparent)}
+.mzqh .n{font-family:var(--mz-mono);font-size:9px;letter-spacing:1.6px;color:var(--mz-ac);}
+.mzqh .t{font-size:14.5px;font-weight:700;letter-spacing:.3px}
+.mzqh .sp{flex:1}
+.mzqh .tag{font-family:var(--mz-mono);font-size:8.5px;letter-spacing:1.2px;color:var(--mz-tx3);
+  border:1px solid var(--mz-line2);border-radius:4px;padding:2px 6px}
+.mzqb{padding:16px 18px}
+.mzqb .q{font-size:13px;line-height:1.9;color:var(--mz-tx);margin-bottom:13px}
+.mzopts{display:flex;flex-direction:column;gap:8px}
+.mzo{cursor:pointer;text-align:left;border:1px solid var(--mz-line2);border-radius:7px;
+  background:rgba(255,255,255,.025);color:var(--mz-tx2);font:inherit;font-size:12px;
+  padding:10px 13px;transition:.14s;line-height:1.65;display:flex;gap:9px}
+.mzo .k{font-family:var(--mz-mono);font-size:10px;color:var(--mz-tx3);flex:0 0 auto}
+.mzo:hover:not(:disabled){border-color:var(--mz-ac);background:rgba(78,163,255,.09);color:var(--mz-tx)}
+.mzo.ok{border-color:var(--mz-good);background:rgba(62,207,142,.14);color:#9bf0c9}
+.mzo.no{border-color:var(--mz-bad);background:rgba(255,94,108,.12);color:#ffa8b0}
+.mzo:disabled{cursor:default}
+.mzwhy{margin-top:12px;font-size:11.5px;line-height:1.85;color:var(--mz-tx2);
+  border-left:2px solid var(--mz-ac);padding-left:11px;display:none}
+.mzwhy.on{display:block}
+.mzqf{padding:12px 18px;border-top:1px solid var(--mz-line);display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.mzqf .hint{font-size:10.5px;color:var(--mz-tx3)}
+
+/* ---------------- 结算 ---------------- */
+.mzend{margin-top:14px}
+.mzend .box{border:1px solid var(--mz-line2);border-radius:10px;padding:18px 20px;background:var(--mz-panel)}
+.mzend .box.win{border-color:rgba(201,162,39,.55);box-shadow:inset 0 0 60px -30px rgba(201,162,39,.8)}
+.mzend .box.caught{border-color:rgba(255,47,66,.55);
+  background:linear-gradient(180deg,rgba(255,47,66,.08),var(--mz-panel) 60%);
+  box-shadow:inset 0 0 80px -40px rgba(255,47,66,.9)}
+.mzend .box.caught h3{color:#ff8b96}
+.mzend h3{margin:0 0 8px;font-size:17px;letter-spacing:.5px}
+.mzend p{margin:0 0 9px;font-size:12px;line-height:1.9;color:var(--mz-tx2)}
+.mzend .sc{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0;font-family:var(--mz-mono);font-size:10px;color:var(--mz-tx3)}
+.mzend .sc b{display:block;font-size:20px;color:var(--mz-tx);margin-top:2px;letter-spacing:-.5px}
+.mzend .certbox{margin-top:14px;overflow:auto;border:1px solid var(--mz-line2);border-radius:8px}
+
+.mztoast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,18px);z-index:95;
+  background:#0e1726;border:1px solid var(--mz-line2);color:var(--mz-tx);padding:9px 17px;
+  border-radius:7px;font-size:12px;opacity:0;pointer-events:none;transition:.25s;max-width:88vw;text-align:center}
+.mztoast.on{opacity:1;transform:translate(-50%,0)}
+
+@media(max-width:760px){
+  .mzwrap{padding:0 10px 34px}
+  .mzttl b{font-size:15px}
+  .mzpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px)}
+  .mzmap{right:6px;top:6px;transform:scale(.78);transform-origin:top right}
+  .mzmodal{padding:10px}
+  .mzqb{padding:13px 14px}
+}
+</style>
