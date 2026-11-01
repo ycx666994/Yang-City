@@ -9,7 +9,7 @@
     <div class="sp"></div>
     <div class="mzhud">
       <span class="h">可信度<span class="mzlife" id="life"></span></span>
-      <span class="h">碎片 <b id="fragN">0</b><span class="u">/8</span></span>
+      <span class="h">答对 <b id="fragN">0</b><span class="u" id="fragTotal">/10</span></span>
       <span class="h">用时 <b id="clock">00:00</b></span>
       <span class="h hunt" id="huntHud">追捕 <b id="huntN">—</b></span>
     </div>
@@ -25,16 +25,16 @@
       <div class="mzvig" id="vig"></div>
       <div class="mzlock" id="lockHint">
         <b>点击画面锁定鼠标</b>
-        <span>移动鼠标转身 · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动 · <kbd>E</kbd> 开门 · <kbd>Esc</kbd> 释放鼠标</span>
+        <span>移动鼠标转身 · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动 · <kbd>E</kbd> 开门 · <kbd>P</kbd> 调视角 · <kbd>Esc</kbd> 释放鼠标</span>
       </div>
     </div>
   </div>
 
   <div class="mzfrag">
-    <span class="lb">指标碎片</span>
+    <span class="lb">知识门</span>
     <div id="frags" style="display:flex;gap:6px"></div>
     <span style="font-size:10.5px;color:var(--mz-tx3);margin-left:6px" id="fragTip">
-      答对一道知识门得一枚。集满 6 枚并走到出口，才算走出这座塔。
+      每道门一道题，答对记一枚。<b>答对 6 道以上</b>走到出口才算通过；不够 6 道，就算没被逮捕也是挑战失败。
     </span>
   </div>
 
@@ -52,11 +52,13 @@
     </div>
     <div class="mztips">
       <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动 · <b style="color:var(--mz-ac2)">移动鼠标转身</b> · <kbd>E</kbd> 开门 ·
-      <kbd>Esc</kbd> 释放鼠标。<br>
+      <kbd>P</kbd> 调视角 · <kbd>Esc</kbd> 释放鼠标。<br>
       红色的地面是<b style="color:var(--mz-bad)">刷分陷阱</b>——踩上去扣一点可信度。
       <b style="color:var(--mz-bad)">进塔 60 秒后会有一个逮捕者</b>：它比你慢一点，但它不会停。
-      答题时塔是静止的，它也是。
+      答题时塔是静止的，它也是。<br>
+      灰色块是<b style="color:var(--mz-ac2)">大厅</b>：走廊里它必中，大厅里你能绕开它。
     </div>
+    <button class="mzbtn ghost" id="btnAim">视角设置</button>
     <button class="mzbtn ghost" id="btnRestart">重开一座塔</button>
   </div>
 
@@ -90,3 +92,27 @@
 </div>
 
 <div class="mztoast" id="mztoast"></div>
+
+<!-- 视角设置：手感是个人化的，不该由作者替你定死 -->
+<div class="mzaim" id="aimPanel">
+  <div class="ah"><b>视角设置</b><span>MOUSE / LOOK</span><button id="aimClose" aria-label="关闭">×</button></div>
+  <label class="ar">
+    <span>灵敏度</span>
+    <input type="range" id="aimSens" min="0.3" max="3" step="0.05" value="1">
+    <b id="aimSensV">1.00×</b>
+  </label>
+  <label class="ar">
+    <span>平滑</span>
+    <input type="range" id="aimSmooth" min="0" max="0.9" step="0.05" value="0.35">
+    <b id="aimSmoothV">35%</b>
+  </label>
+  <label class="ar chk">
+    <span>反转 Y 轴</span>
+    <input type="checkbox" id="aimInv">
+  </label>
+  <div class="af">
+    <span>转一整圈约 <b id="aimCm">30 cm</b><i>（按 800 DPI 估，只作参照）</i></span>
+    <button class="mzbtn ghost" id="aimReset">恢复默认</button>
+  </div>
+  <p class="an">调到「推一下鼠标刚好转半圈」就对了。平滑越高越顺，但会有延迟感；射击手感要 0，探索要 30–50%。</p>
+</div>

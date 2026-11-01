@@ -1,186 +1,162 @@
-<div class="c2wrap">
+<div class="c3wrap">
 
-  <header class="c2bar">
+  <header class="c3bar">
     <a class="bk" href="h2-forensic.html">← 回法医馆</a>
-    <div class="c2ttl">
+    <div class="c3ttl">
       <b>案卷 0117 · 十一日</b>
-      <span>CASE FILE · H2 FORENSIC ANNEX · 精英挑战</span>
+      <span>CASE 0117 · THE ELEVEN DAYS</span>
     </div>
-    <div class="sp"></div>
-    <button class="c2snd" id="btnSnd" aria-pressed="false"><span class="dot"></span><span id="sndTxt">环境音 关</span></button>
-    <div class="c2meter"><span>调查点</span><span class="c2pips" id="pips"></span><b id="pipN">9 / 9</b></div>
+    <div class="c3id">
+      <span class="lb">你的身份</span>
+      <b id="meName">沈砚</b>
+      <span class="sub" id="meRole">独立审计员</span>
+    </div>
+    <div class="c3res">
+      <span class="r"><i>调阅</i><b id="apN">8</b></span>
+      <span class="r"><i>传唤</i><b id="sumN">4</b></span>
+    </div>
   </header>
 
-  <div class="c2press">
-    <span>案件压力</span>
-    <div class="bar"><i id="pressBar"></i></div>
-    <b id="pressTxt">0%</b>
-  </div>
-
-  <nav class="c2acts" id="acts">
-    <button class="c2act on" data-a="1"><b>一 · 现场</b><span>THE SCENE</span></button>
-    <button class="c2act" data-a="2" disabled><b>二 · 审讯</b><span>INTERROGATION</span></button>
-    <button class="c2act" data-a="3" disabled><b>三 · 对撞</b><span>CONFRONTATION</span></button>
-    <button class="c2act" data-a="4" disabled><b>四 · 指认</b><span>INDICTMENT</span></button>
+  <nav class="c3acts" id="acts" aria-label="幕次">
+    <button data-a="1" class="on"><b>一</b><span>剧本</span></button>
+    <button data-a="2" disabled><b>二</b><span>搜证</span></button>
+    <button data-a="3" disabled><b>三</b><span>质询</span></button>
+    <button data-a="4" disabled><b>四</b><span>时间线</span></button>
+    <button data-a="5" disabled><b>五</b><span>指认</span></button>
   </nav>
 
-  <!-- ==================== 幕一 · 现场 ==================== -->
-  <section class="c2lay on" data-a="1">
-    <div class="c2card">
-      <div class="c2h"><h3>卷宗</h3><span class="k">READ ONLY</span></div>
-      <div class="c2doc">
-        <span class="stamp">已归档</span>
-        杨城市第三人民医院 · 工单分诊系统「分诊助手 v3」<br>
-        2026-10-17 08:41　工单 #A-7741 建档<br>
-        主诉：反复胸痛 11 天，社区医院建议转诊上级医院<br>
-        家属陈述：已在社区输液 6 天无缓解，要求转诊<br>
-        <span class="lg">
-08:41:07　系统输出<br>
-　优先级：<em>低</em><br>
-　理由：因为紧急度为 2，所以判为低优先级。
-        </span>
-        <span class="lg">
-08:41:07　分诊建议<br>
-　建议科室：全科门诊　　预计等待：72 小时
-        </span>
-        10-17 至 10-28　工单状态：待处理（11 天）<br>
-        10-28 22:16　患者在家中去世
-      </div>
-      <p style="margin-top:12px">
-        系统在日志里留下了<b>一句话</b>，而不是一段计算记录。这句话读起来完全合理——紧急度确实是 2，
-        判成低优先级也确实说得通。所以家属的申诉被驳回了三次。
-      </p>
-      <p>
-        你被派来做的不是判断「这个判决对不对」，而是一件更窄、也更难的事：
-        <b class="hl">证明那句话是伪证</b>——证明「紧急度」根本不是让答案变成「低」的原因。
-      </p>
-    </div>
+  <div class="c3main">
 
-    <div class="c2card">
-      <div class="c2h"><h3>从卷宗里挑出三个真正的疑点</h3><span class="k">选 3 个 · 多选少选都扣分</span></div>
-      <p style="font-size:11.5px;color:var(--c2-ink3)">
-        注意：疑点不是「看起来奇怪的地方」，而是<b>能让那句话失去证明力的地方</b>。
-      </p>
-      <div class="c2pick" id="pick1"></div>
-      <div style="margin-top:12px;display:flex;gap:9px;flex-wrap:wrap;align-items:center">
-        <button class="c2btn" id="btnAct1">提交勘察结论</button>
-        <span id="act1Hint" style="font-size:11px;color:var(--c2-ink3)">已选 0 / 3</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==================== 幕二 · 审讯 ==================== -->
-  <section class="c2lay" data-a="2">
-    <div class="c2card" style="margin-bottom:13px">
-      <div class="c2h"><h3>六个证人，六段证词</h3><span class="k">INTERROGATION</span></div>
-      <p>
-        分诊模型的输入有六个字段。每个字段都有一个「负责人」站出来作证，说优先级是照着它判的。
-        其中<b class="hl">至少有两个在说谎</b>。
-      </p>
-      <p style="font-size:11.5px;color:var(--c2-ink3)">
-        你没法相信任何一段证词——包括听起来最合理的那段。你只有一种手段：
-        <b>把它负责的字段推到另一个极端，其余五个字段一个字不动，重算答案</b>，跑 90 道同类工单，
-        看答案翻了多少次。这就是本馆卷 02 里那台审讯台，只是这次证人有六个。
-      </p>
-    </div>
-
-    <div class="c2room">
-      <div class="c2list">
-        <div class="lt"><span>证人席</span><span id="wCount">0 / 6 已测</span></div>
-        <div id="wlist"></div>
-      </div>
-
-      <div class="c2dossier" id="dossier"></div>
-
-      <div class="c2wall">
-        <div class="wt">线索墙 · 翻转率</div>
-        <div class="wb" id="wall"></div>
-        <div class="c2base" id="wallBase">
-          还没测过<b>备注字数</b>。它是这台仪器的负控——从不参与打分，翻转率必须是 0。
-          测了它，你才知道「翻不动」到底长什么样。
+    <!-- ==================== 幕一 · 剧本 ==================== -->
+    <section class="c3lay on" data-a="1">
+      <div class="c3card">
+        <div class="c3h"><h3 id="actH">第一幕 · 委任</h3><span class="k">SCRIPT · 只给你看</span></div>
+        <div class="c3script" id="scriptBox"></div>
+        <div class="c3foot">
+          <button class="c3btn" id="btnScriptNext">继续读</button>
+          <span class="hint" id="scriptHint">1 / 4</span>
         </div>
       </div>
-    </div>
-
-    <div class="c2card" style="margin-top:13px">
-      <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
-        <button class="c2btn go" id="btnAct2" disabled>结束审讯 · 进入对撞</button>
-        <span id="act2Hint" style="font-size:11px;color:var(--c2-ink3)">至少测 4 个证人，才能形成对照。</span>
+      <div class="c3card c3secret" id="secretCard" hidden>
+        <div class="c3h"><h3>你的秘密</h3><span class="k">ONLY YOU</span></div>
+        <p class="c3sec" id="secretTxt"></p>
+        <p class="c3stake" id="stakeTxt"></p>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ==================== 幕三 · 对撞 ==================== -->
-  <section class="c2lay" data-a="3">
-    <div class="c2card">
-      <div class="c2h"><h3>把两组数据摆在一起</h3><span class="k">CONFRONTATION</span></div>
-      <p style="font-size:11.5px;color:var(--c2-ink3)">
-        单个翻转率什么也证明不了。要证明「谁在驱动」，必须有一组<b>基线</b>作对照。
-        下面两题用的都是你自己测出来的数。
-      </p>
-      <div class="c2pair" id="pairBox"></div>
-    </div>
-
-    <div class="c2card">
-      <div class="c2h"><h3>第一问 · 谁在驱动</h3><span class="k">Q1</span></div>
-      <div class="c2opts" id="q1opts"></div>
-      <div class="c2note" id="q1why" style="display:none"></div>
-    </div>
-
-    <div class="c2card">
-      <div class="c2h"><h3>第二问 · 0% 是什么意思</h3><span class="k">Q2</span></div>
-      <div class="c2opts" id="q2opts"></div>
-      <div class="c2note" id="q2why" style="display:none"></div>
-    </div>
-
-    <div class="c2card">
-      <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
-        <button class="c2btn go" id="btnAct3" disabled>进入指认</button>
-        <span id="act3Hint" style="font-size:11px;color:var(--c2-ink3)">两题都答对才能进入指认。</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==================== 幕四 · 指认 ==================== -->
-  <section class="c2lay" data-a="4">
-    <div class="c2card">
-      <div class="c2h"><h3>提交审计结论</h3><span class="k">INDICTMENT</span></div>
-      <p style="font-size:11.5px;color:var(--c2-ink3)">
-        结论要写成一个可以被反驳的句子。三项都填对，才算证明那句话是伪证。
-      </p>
-      <div class="c2form" style="margin-top:13px">
-        <div class="c2fld">
-          <div class="q">① 真正驱动答案的字段是<em>PRIMARY DRIVER</em></div>
-          <div class="c2opts" id="f1"></div>
-        </div>
-        <div class="c2fld">
-          <div class="q">② 模型在日志里点名的字段是<em>STATED REASON</em></div>
-          <div class="c2opts" id="f2"></div>
-        </div>
-        <div class="c2fld">
-          <div class="q">③ 你凭什么这么判<em>JUDGEMENT BASIS</em></div>
-          <div class="c2opts" id="f3"></div>
+    <!-- ==================== 幕二 · 搜证 ==================== -->
+    <section class="c3lay" data-a="2">
+      <div class="c3card">
+        <div class="c3h"><h3>调阅 · 十二个地点</h3><span class="k">你只有八次</span></div>
+        <p class="c3lede">
+          每一份调阅都要签一次字，签完就记在案上。你不可能全看——
+          <b>选什么不选什么，本身就是一次判断</b>。看错了地方，第四幕你会发现自己排不出那条链。
+        </p>
+        <div class="c3grid" id="placeGrid"></div>
+        <div class="c3foot">
+          <button class="c3btn" id="btnAct2" disabled>结束调阅 · 进入传唤</button>
+          <span class="hint" id="act2Hint">至少调阅 3 份，才拿得出一个可辩护的判断。</span>
         </div>
       </div>
-      <div style="margin-top:14px;display:flex;gap:9px;flex-wrap:wrap;align-items:center">
-        <button class="c2btn red" id="btnSubmit">提交结论 · 出具证书</button>
-        <span id="submitHint" style="font-size:11px;color:var(--c2-ink3)">三项都要选。</span>
+    </section>
+
+    <!-- ==================== 幕三 · 质询 ==================== -->
+    <section class="c3lay" data-a="3">
+      <div class="c3card">
+        <div class="c3h"><h3>传唤 · 六个人</h3><span class="k">你只有四次</span></div>
+        <p class="c3lede">
+          每个人都会说一部分真话。说谎的地方不会写在脸上——但会
+          <b>和你手里的某一份材料对不上</b>。对不上时，你可以把材料推过去。
+        </p>
+        <div class="c3cast" id="castList"></div>
       </div>
+
+      <div class="c3room" id="room">
+        <div class="c3empty" id="roomEmpty">
+          <b>还没有人进来</b>
+          <span>点上面的名字传唤。传唤一次，就少一次。</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 幕四 · 时间线 ==================== -->
+    <section class="c3lay" data-a="4">
+      <div class="c3card">
+        <div class="c3h"><h3>十一日 · 排回去</h3><span class="k" id="tlTry">三次机会</span></div>
+        <p class="c3lede" id="tlIntro"></p>
+        <div class="c3tl" id="tlList"></div>
+        <div class="c3foot">
+          <button class="c3btn" id="btnTl">提交排序</button>
+          <span class="hint" id="tlHint">拖动卡片，或用 ↑ ↓ 调整。</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 幕五 · 指认 ==================== -->
+    <section class="c3lay" data-a="5">
+      <div class="c3card">
+        <div class="c3h"><h3>提交审计结论</h3><span class="k">INDICTMENT</span></div>
+        <p class="c3lede">
+          结论要写成一个可以被反驳的句子。三个空都填对，才算证明那句话是伪证。
+        </p>
+        <div class="c3form" id="vForm"></div>
+        <div class="c3foot">
+          <button class="c3btn red" id="btnVerdict">提交结论 · 出具证书</button>
+          <span class="hint" id="vHint">三问都要选。</span>
+        </div>
+      </div>
+      <div id="resultBox"></div>
+    </section>
+
+  </div>
+
+  <!-- ==================== 线索墙 ==================== -->
+  <aside class="c3wall" id="wall">
+    <div class="wh">
+      <b>卷宗</b>
+      <span id="wallN">0 份</span>
+      <button id="wallToggle" aria-label="收起">‹</button>
     </div>
+    <div class="wb" id="wallBody">
+      <div class="c3wnone" id="wallNone">还没有调阅任何材料。<br>线索会在这里累积。</div>
+    </div>
+  </aside>
 
-    <div id="resultBox"></div>
-  </section>
-
-  <div style="margin-top:22px;padding-top:14px;border-top:1px solid var(--c2-line);
-       display:flex;gap:14px;flex-wrap:wrap;font-size:10.5px;color:var(--c2-ink3)">
+  <div class="c3foot-note">
     <span>杨城 · H2 推理法医馆 · 精英挑战《十一日》</span>
     <span>·</span>
-    <span>六名证人是同一个规则装置的六个输入字段，不是真实模型</span>
-    <a href="h2-forensic.html" style="color:var(--c2-ac);text-decoration:none">回法医馆读卷 03 →</a>
+    <span>六名角色与十二份材料均基于分诊系统的真实失效模式构造，不是真实病例</span>
+    <a href="h2-forensic.html">回法医馆读卷 03 →</a>
   </div>
 </div>
 
-<div class="c2toast" id="c2toast"></div>
-<div class="c2vig" id="c2vig"></div>
-<div class="c2grain" aria-hidden="true"></div>
-<div class="c2flash" id="c2flash" aria-hidden="true"></div>
+<!-- 线索详情 -->
+<div class="c3modal" id="clueModal">
+  <div class="c3m">
+    <div class="c3mh">
+      <span class="tag" id="clueTag">材料</span>
+      <b id="clueTtl">标题</b>
+      <button id="clueClose" aria-label="关闭">×</button>
+    </div>
+    <pre class="c3mb" id="clueBody"></pre>
+    <div class="c3mf">
+      <button class="c3btn" id="clueKeep">收入卷宗</button>
+      <span class="hint" id="clueHint"></span>
+    </div>
+  </div>
+</div>
+
+<!-- 出示证据 -->
+<div class="c3modal" id="evModal">
+  <div class="c3m">
+    <div class="c3mh">
+      <span class="tag">出示</span>
+      <b>把哪一份推过去？</b>
+      <button id="evClose" aria-label="关闭">×</button>
+    </div>
+    <div class="c3evlist" id="evList"></div>
+    <div class="c3mf"><span class="hint" id="evHint">选错了，他会知道你在试探。</span></div>
+  </div>
+</div>
+
+<div class="c3toast" id="c3toast"></div>

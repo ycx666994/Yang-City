@@ -199,6 +199,45 @@ body{
   border-radius:7px;font-size:12px;opacity:0;pointer-events:none;transition:.25s;max-width:88vw;text-align:center}
 .mztoast.on{opacity:1;transform:translate(-50%,0)}
 
+/* ---------------- 视角设置面板 ----------------
+   手感是个人化的：同一个灵敏度，高 DPI 鼠标和笔记本触控板差三倍。
+   所以它必须是可调的，而不是由作者替所有人定死一个数。 */
+.mzaim{position:fixed;right:18px;bottom:18px;z-index:96;width:314px;max-width:calc(100vw - 24px);
+  background:#0b1220;border:1px solid var(--mz-line2);border-radius:10px;
+  box-shadow:0 18px 48px rgba(0,0,0,.6);padding:0 0 12px;
+  opacity:0;transform:translateY(14px) scale(.98);pointer-events:none;transition:.2s}
+.mzaim.on{opacity:1;transform:none;pointer-events:auto}
+.mzaim .ah{display:flex;align-items:center;gap:9px;padding:11px 13px;border-bottom:1px solid var(--mz-line)}
+.mzaim .ah b{font-size:12.5px;letter-spacing:.4px}
+.mzaim .ah span{font-family:var(--mz-mono);font-size:8.5px;letter-spacing:1.5px;color:var(--mz-tx3)}
+.mzaim .ah button{margin-left:auto;background:none;border:none;color:var(--mz-tx3);
+  font-size:17px;line-height:1;cursor:pointer;padding:2px 5px;border-radius:4px;transition:.15s}
+.mzaim .ah button:hover{color:var(--mz-bad);background:rgba(255,94,108,.1)}
+.mzaim .ar{display:grid;grid-template-columns:56px 1fr 52px;align-items:center;gap:9px;
+  padding:9px 13px 0;font-size:11px;color:var(--mz-tx2)}
+.mzaim .ar b{font-family:var(--mz-mono);font-size:10.5px;color:var(--mz-ac2);text-align:right}
+.mzaim .ar.chk{grid-template-columns:1fr auto;padding-top:11px}
+.mzaim input[type=range]{-webkit-appearance:none;appearance:none;height:3px;border-radius:2px;
+  background:var(--mz-line2);outline:none;cursor:pointer}
+.mzaim input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;
+  border-radius:50%;background:var(--mz-ac);border:2px solid #0b1220;
+  box-shadow:0 0 0 1px var(--mz-ac);cursor:grab}
+.mzaim input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;
+  background:var(--mz-ac);border:2px solid #0b1220;cursor:grab}
+.mzaim input[type=checkbox]{appearance:none;-webkit-appearance:none;width:34px;height:18px;
+  border-radius:9px;background:var(--mz-line2);position:relative;cursor:pointer;transition:.18s;margin:0}
+.mzaim input[type=checkbox]::after{content:"";position:absolute;left:2px;top:2px;width:14px;height:14px;
+  border-radius:50%;background:#7d8ea8;transition:.18s}
+.mzaim input[type=checkbox]:checked{background:rgba(78,163,255,.35)}
+.mzaim input[type=checkbox]:checked::after{left:18px;background:var(--mz-ac)}
+.mzaim .af{display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  margin:13px 13px 0;padding-top:11px;border-top:1px solid var(--mz-line);
+  font-size:10px;color:var(--mz-tx3)}
+.mzaim .af b{color:var(--mz-ac2);font-family:var(--mz-mono);font-size:11px}
+.mzaim .af i{font-style:normal;opacity:.72}
+.mzaim .af .mzbtn{margin-left:auto;font-size:10px;padding:4px 9px}
+.mzaim .an{margin:9px 13px 0;font-size:10px;line-height:1.75;color:var(--mz-tx3)}
+
 @media(max-width:760px){
   .mzwrap{padding:0 10px 34px}
   .mzttl b{font-size:15px}
@@ -206,5 +245,6 @@ body{
   .mzmap{right:6px;top:6px;transform:scale(.78);transform-origin:top right}
   .mzmodal{padding:10px}
   .mzqb{padding:13px 14px}
+  .mzaim{left:10px;right:10px;bottom:10px;width:auto}
 }
 </style>

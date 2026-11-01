@@ -88,9 +88,19 @@
   })();
 
   /* ======================================================================
-     2. 八道知识门（H3 的八个判据）
+     2. 题库（H3 的八个判据 · 300+ 道，每次随机抽）
+     ----------------------------------------------------------------------
+     上一版把八道门写死绑八个判据，题目只有八道 —— 玩家走两遍就背下来了，
+     之后这座塔考的是记忆力，不是判断力。
+
+     现在题目在 03b-quiz.js 里（构建时拼进本文件之前），按判据分八类，
+     每次进塔用种子抽 DOOR_N 道，且**保证类别覆盖**：先每类各抽一道，
+     再轮到第二轮。所以你不会连撞三道「分布偏移」，也不会一次都碰不到。
      ====================================================================== */
-  /* 正确项位置打散：0/1/2 各出现，别让「永远选 B」变成通关技巧 */
+  var QUIZ = window.YCQUIZ || { cats: [] };
+  var PASS_N = 6;                      /* 答对这么多道才算通过 */
+
+  /* 下面这个 GATES 数组是题库加载失败时的兜底，保证塔不会变成一座空塔 */
   var GATES = [
     { id: "proxy", name: "代理指标",
       q: "「验证集准确率 92%」这个数字，最不能说明的是哪一项？",
@@ -127,10 +137,22 @@
   ];
 
   /* ======================================================================
-     3. 迷宫生成（递归回溯，保证连通且无环）
+     3. 迷宫生成（递归回溯 → 编织 → 挖厅）
+     ----------------------------------------------------------------------
+     纯递归回溯出来的是「完美迷宫」：任意两点之间只有一条路。
+     完美迷宫在纸面上好看，走起来却无聊 —— 你只要一直摸着左墙就能出去，
+     而且没有分岔的错觉，走错一次立刻就知道自己错了。
+
+     真实的塔不长这样。这里加两步：
+       braid  随机打通约三分之一的死胡同，制造环路。有了环，
+              「我刚才是不是走过这里」这个问题才第一次成立 ——
+              而在完美迷宫里它永远不成立，所以玩家从来不需要记路。
+       hall   挖四个 3×3 的开阔厅。它们既是地标（走进大厅 = 知道自己大致在哪），
+              也是唯一能绕开逮捕者的地方：走廊里它是必中的，大厅里你可以绕。
      ====================================================================== */
-  var COLS = 11, ROWS = 11;            /* 单元格数；网格 = 23 × 23 */
+  var COLS = 15, ROWS = 15;            /* 单元格数；网格 = 31 × 31 */
   var W = COLS * 2 + 1, H = ROWS * 2 + 1;
+  var DOOR_N = 10;                     /* 知识门数量 */
 
   function genMaze(seed) {
     var g = new Uint8Array(W * H);
@@ -162,6 +184,52 @@
     return g;
   }
 
+  /* 编织：打通一部分死胡同，把树变成图 */
+  function braid(g, rnd, rate) {
+    for (var y = 1; y < H - 1; y++) {
+      for (var x = 1; x < W - 1; x++) {
+        var id = y * W + x;
+        if (g[id] !== 0) continue;
+        var walls = [];
+        if (g[id - 1] !== 0) walls.push([-1, 0]);
+        if (g[id + 1] !== 0) walls.push([1, 0]);
+        if (g[id - W] !== 0) walls.push([0, -1]);
+        if (g[id + W] !== 0) walls.push([0, 1]);
+        if (walls.length !== 3) continue;      /* 不是死胡同 */
+        if (rnd() > rate) continue;
+        /* 只能朝「隔壁那格也是通道」的方向打通，否则会挖出 2×2 空场，
+           那种空场在光线投射里看起来像贴图错位。 */
+        var cand = walls.filter(function (d) {
+          var nx = x + d[0] * 2, ny = y + d[1] * 2;
+          if (nx <= 0 || ny <= 0 || nx >= W - 1 || ny >= H - 1) return false;
+          return g[ny * W + nx] === 0;
+        });
+        if (!cand.length) continue;
+        var pick = cand[Math.floor(rnd() * cand.length)];
+        g[(y + pick[1]) * W + (x + pick[0])] = 0;
+      }
+    }
+  }
+
+  /* 挖厅：3×3 的开阔区，落在单元格奇数坐标上 */
+  function carveHalls(g, rnd, n) {
+    var halls = [], tries = 0;
+    while (halls.length < n && tries++ < 400) {
+      var x0 = 1 + Math.floor(rnd() * (COLS - 3)) * 2;
+      var y0 = 1 + Math.floor(rnd() * (ROWS - 3)) * 2;
+      if (x0 + 2 >= W - 1 || y0 + 2 >= H - 1) continue;
+      if (x0 <= 3 && y0 <= 3) continue;                  /* 别盖住出生点 */
+      var clash = halls.some(function (h) {
+        return Math.abs(h.x - x0) < 7 && Math.abs(h.y - y0) < 7;
+      });
+      if (clash) continue;
+      for (var yy = y0; yy < y0 + 3; yy++)
+        for (var xx = x0; xx < x0 + 3; xx++) g[yy * W + xx] = 0;
+      halls.push({ x: x0, y: y0, w: 3, h: 3 });
+    }
+    return halls;
+  }
+
   function bfs(g, sx, sy) {
     var dist = new Int32Array(W * H); dist.fill(-1);
     var prev = new Int32Array(W * H); prev.fill(-1);
@@ -181,8 +249,24 @@
     return { dist: dist, prev: prev };
   }
 
+  function degAt(g, x, y) {
+    var d = 0;
+    if (g[y * W + x - 1] === 0) d++;
+    if (g[y * W + x + 1] === 0) d++;
+    if (g[(y - 1) * W + x] === 0) d++;
+    if (g[(y + 1) * W + x] === 0) d++;
+    return d;
+  }
+
   function buildWorld(seed) {
+    var rnd = mulberry32((seed ^ 0x5bf03635) >>> 0);
     var g = genMaze(seed);
+    /* 跑两遍：第一遍打通之后，有些格子才变成新的死胡同。
+       只跑一遍的话，环路数量取决于遍历顺序，随机性太大。 */
+    braid(g, rnd, 0.55);
+    braid(g, rnd, 0.55);
+    var halls = carveHalls(g, rnd, 4);
+
     var b = bfs(g, 1, 1);
     /* 出口：最远的格子 */
     var far = -1, farI = -1;
@@ -195,21 +279,47 @@
     while (p >= 0) { var px = p % W; path.push([px, (p - px) / W]); p = b.prev[p]; }
     path.reverse();
 
-    /* 八道门：沿路径均匀放，避开首尾各 3 格 */
-    var doors = [];
-    var lo = 3, hi = path.length - 4;
-    for (var k = 1; k <= 8; k++) {
-      var idx = Math.round(lo + (hi - lo) * (k / 9));
-      idx = clamp(idx, 0, path.length - 1);
-      var c = path[idx];
-      if (!c) continue;
-      var gi = c[1] * W + c[0];
-      if (g[gi] !== 0) continue;
-      g[gi] = 2;
-      doors.push({ x: c[0], y: c[1], gate: k - 1, open: false });
+    var inHall = function (x, y) {
+      return halls.some(function (h) {
+        return x >= h.x && x < h.x + h.w && y >= h.y && y < h.y + h.h;
+      });
+    };
+
+    /* 门：优先放在「走廊格」（四个方向只通两个）——
+       大厅里放门没有意义，3 格宽的厅可以直接绕过去。
+       路径两端各留 3 格，别把门贴在出生点和出口上。 */
+    var cands = [];
+    for (var pi = 3; pi <= path.length - 4; pi++) {
+      var c = path[pi];
+      if (!c || g[c[1] * W + c[0]] !== 0) continue;
+      if (inHall(c[0], c[1])) continue;
+      if (degAt(g, c[0], c[1]) !== 2) continue;
+      cands.push(c);
+    }
+    /* 走廊不够就退回「路径上任意非大厅格」，再不够就全收 */
+    if (cands.length < DOOR_N) {
+      cands = path.slice(3, path.length - 3).filter(function (c) {
+        return g[c[1] * W + c[0]] === 0 && !inHall(c[0], c[1]);
+      });
+    }
+    if (cands.length < DOOR_N) {
+      cands = path.slice(3, path.length - 3).filter(function (c) {
+        return g[c[1] * W + c[0]] === 0;
+      });
     }
 
-    /* 陷阱：非路径上的死胡同 */
+    var doors = [];
+    for (var k = 0; k < DOOR_N && cands.length; k++) {
+      var idx = Math.round((cands.length - 1) * (k / Math.max(1, DOOR_N - 1)));
+      var cc = cands[clamp(idx, 0, cands.length - 1)];
+      if (!cc) continue;
+      var gi = cc[1] * W + cc[0];
+      if (g[gi] !== 0) continue;
+      g[gi] = 2;
+      doors.push({ x: cc[0], y: cc[1], gate: doors.length, open: false });
+    }
+
+    /* 陷阱：不在主路径上的死胡同 */
     var onPath = {};
     path.forEach(function (c) { onPath[c[1] * W + c[0]] = 1; });
     var traps = [];
@@ -217,16 +327,12 @@
       for (var x = 1; x < W - 1; x++) {
         var id = y * W + x;
         if (g[id] !== 0 || onPath[id]) continue;
-        var deg = 0;
-        if (g[id - 1] === 0) deg++;
-        if (g[id + 1] === 0) deg++;
-        if (g[id - W] === 0) deg++;
-        if (g[id + W] === 0) deg++;
-        if (deg === 1 && traps.length < 7) traps.push({ x: x, y: y, hit: false });
+        if (degAt(g, x, y) !== 1) continue;
+        if (traps.length < 12) traps.push({ x: x, y: y, hit: false });
       }
     }
 
-    return { g: g, doors: doors, traps: traps, exit: { x: ex, y: ey }, path: path };
+    return { g: g, doors: doors, traps: traps, exit: { x: ex, y: ey }, path: path, halls: halls };
   }
 
   /* ======================================================================
@@ -238,9 +344,75 @@
     px: 1.5, py: 1.5, ang: 0, pitch: 0,
     life: 3, frags: [], answered: {},
     tAcc: 0, running: false, done: false,
-    curDoor: null, inModal: false, t: 0
+    curDoor: null, inModal: false, t: 0,
+    quiz: []                      /* 本轮的题（每次进塔重抽） */
   };
   var keys = {};
+
+  /* ----------------------------------------------------------------------
+     抽题
+     ----------------------------------------------------------------------
+     分层抽样，不是从一个大池子里随机抓 —— 纯随机抽十道，
+     有相当概率一道「聚合掩盖」都抽不到，而那恰恰是最容易被忽略的一类。
+     所以先按类别轮流取，保证八个判据尽量都露面。
+
+     另外：**抽出来之后要重新打乱选项顺序**。
+     题库源码里为了好读，正确项大多写在第二位，直接呈现的话
+     「永远选 B」能拿八成以上的分。打乱之后，同一道题两次遇到
+     选项顺序都不同，背位置这件事就失效了。
+     ---------------------------------------------------------------------- */
+  function shufflePick(it, rnd) {
+    var idx = [0, 1, 2];
+    for (var i = 2; i > 0; i--) {
+      var j = Math.floor(rnd() * (i + 1));
+      var t = idx[i]; idx[i] = idx[j]; idx[j] = t;
+    }
+    return {
+      q: it.q,
+      o: idx.map(function (k) { return it.o[k]; }),
+      a: idx.indexOf(it.a),
+      w: it.w
+    };
+  }
+
+  function drawQuiz(n, seed) {
+    var rnd = mulberry32((seed ^ 0x9e3779b9) >>> 0);
+    var cats = (QUIZ.cats || []).filter(function (c) { return c.items && c.items.length; });
+    if (!cats.length) {
+      /* 题库没加载上：退回兜底八题，塔照样能走 */
+      return GATES.slice(0, n).map(function (g) {
+        return { cat: g.name, q: g.q, o: g.opts, a: g.a, w: g.why };
+      });
+    }
+    var pools = cats.map(function (c) {
+      var a = c.items.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(rnd() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return { name: c.name, arr: a, i: 0 };
+    });
+    /* 类别顺序也打乱，否则第一道门永远是同一类 */
+    for (var i = pools.length - 1; i > 0; i--) {
+      var j = Math.floor(rnd() * (i + 1));
+      var t = pools[i]; pools[i] = pools[j]; pools[j] = t;
+    }
+    var out = [], guard = 0;
+    while (out.length < n && guard++ < 600) {
+      var any = false;
+      for (var k = 0; k < pools.length && out.length < n; k++) {
+        var p = pools[k];
+        if (p.i >= p.arr.length) continue;
+        var it = p.arr[p.i++];
+        var q = shufflePick(it, rnd);
+        q.cat = p.name;
+        out.push(q);
+        any = true;
+      }
+      if (!any) break;
+    }
+    return out;
+  }
 
   /* ----------------------------------------------------------------------
      逮捕者
@@ -285,6 +457,9 @@
       if (world.g[oy * W + ox] === 0) { st.ang = Math.atan2(dirs4[di][1], dirs4[di][0]); break; }
     }
     st.life = 3; st.frags = []; st.answered = {};
+    /* 每次进塔重抽题。种子跟着塔走 —— 同一座塔重进是同一套题，
+       换一座塔就是另一套。 */
+    st.quiz = drawQuiz(DOOR_N, SEED);
     st.tAcc = 0; st.running = true; st.done = false; st.pitch = 0;
     st.curDoor = null; st.inModal = false;
     resetHunt();
@@ -292,7 +467,7 @@
     paintHud(); paintFrags();
     syncLockHint();
     sound.duck(false);
-    msg("塔门在你身后关上。八道知识门，六枚碎片，一条出口。", "");
+    msg("塔门在你身后关上。" + world.doors.length + " 道知识门，答对 " + PASS_N + " 道才走得出去。", "");
   }
 
   /* ======================================================================
@@ -348,7 +523,12 @@
       var sideY = ry < 0 ? (st.py - mapY) : (mapY + 1 - st.py);
       var dX = sideX * ddx, dY = sideY * ddy;
       var side = 0, tile = 1, guard = 0;
-      while (guard++ < 64) {
+      /* 步数上限必须覆盖「斜穿整张地图」：31×31 的对角是 43.8 格，
+         DDA 每格最多走两步，所以要 90 步以上。
+         原来写 64 是 23×23 时代的值，地图一大，斜向光线走不到墙就停，
+         tile 保持初始值 1、dist 变成几十格 —— 整面墙细成一条线，
+         画面看起来就是「一片空」。 */
+      while (guard++ < 128) {
         if (dX < dY) { dX += ddx; mapX += stepX; side = 0; }
         else { dY += ddy; mapY += stepY; side = 1; }
         if (mapX < 0 || mapY < 0 || mapX >= W || mapY >= H) { tile = 1; break; }
@@ -539,6 +719,13 @@
   function drawMini() {
     var S = mini.width / W;
     mctx.clearRect(0, 0, mini.width, mini.height);
+    /* 先铺大厅的底：它是唯一的「大块空地」，玩家靠它认路。
+       31×31 的小地图每格不到 5px，不铺这一层的话，
+       四个大厅和普通走廊在缩略图里长得一模一样。 */
+    world.halls.forEach(function (h) {
+      mctx.fillStyle = "rgba(124,196,255,.13)";
+      mctx.fillRect(h.x * S, h.y * S, h.w * S, h.h * S);
+    });
     for (var y = 0; y < H; y++) {
       for (var x = 0; x < W; x++) {
         var t = world.g[y * W + x];
@@ -703,6 +890,9 @@
     /* 塔内时间只在「真的在走」的时候累加。
        答题时冻结——这是规则，不是优化：否则读题慢的人会被判死刑。 */
     st.tAcc += dt;
+    /* 视角放在这里消费，而不是在 mousemove 里直接改 ——
+       这样一帧之内推了 300px 也是平滑地转过去，不会瞬间跳过去。 */
+    consumeAim(dt);
     var sp = 2.35 * dt, rot = 2.3 * dt;
     var mx = 0, my = 0;
     if (keys.w) { mx += Math.cos(st.ang); my += Math.sin(st.ang); }
@@ -749,7 +939,7 @@
     });
     st.curDoor = near;
     $("#prompt").classList.toggle("on", !!near);
-    if (near) $("#prompt").textContent = "按 E 开启「" + GATES[near.gate].name + "」知识门";
+    if (near) $("#prompt").textContent = "按 E 开启「" + gateOf(near.gate).cat + "」知识门";
 
     /* 出口 */
     var edx = world.exit.x + 0.5 - st.px, edy = world.exit.y + 0.5 - st.py;
@@ -775,12 +965,14 @@
   }
   function paintFrags() {
     var h = "";
-    for (var i = 0; i < 8; i++) {
+    var n = Math.max(world ? world.doors.length : DOOR_N, st.quiz.length);
+    for (var i = 0; i < n; i++) {
       var got = st.frags.indexOf(i) >= 0;
       var miss = st.answered[i] && !got;
       h += '<div class="mzf ' + (got ? "got" : (miss ? "miss" : "")) + '">' + (i + 1) + '</div>';
     }
     $("#frags").innerHTML = h;
+    var ft = $("#fragTotal"); if (ft) ft.textContent = "/" + n;
   }
   var msgTm = null;
   function msg(text, kind) {
@@ -801,8 +993,11 @@
      8. 知识门
      ====================================================================== */
   var curQ = null;
+  function gateOf(i) {
+    return st.quiz[i] || { cat: "知识门", q: "题目缺失", o: ["—", "—", "—"], a: 0, w: "" };
+  }
   function openGate(d) {
-    var g = GATES[d.gate];
+    var g = gateOf(d.gate);
     curQ = { door: d, gate: g };
     st.inModal = true;
     /* 答题必须放开鼠标：指针锁着的时候点不到选项。
@@ -810,9 +1005,9 @@
     unlock();
     sound.duck(true);
     $("#qNo").textContent = "GATE " + ("0" + (d.gate + 1)).slice(-2);
-    $("#qTtl").textContent = g.name;
+    $("#qTtl").textContent = g.cat;
     $("#qText").textContent = g.q;
-    $("#qOpts").innerHTML = g.opts.map(function (o, i) {
+    $("#qOpts").innerHTML = g.o.map(function (o, i) {
       return '<button class="mzo" data-i="' + i + '"><span class="k">' + String.fromCharCode(65 + i) + '</span><span>' + o + '</span></button>';
     }).join("");
     $("#qWhy").className = "mzwhy";
@@ -870,6 +1065,7 @@
 
   function unlock() {
     try { if (document.pointerLockElement) document.exitPointerLock(); } catch (e) { }
+    if (typeof AIM !== "undefined") { AIM.pendX = 0; AIM.pendY = 0; }
   }
 
   /* 被逮捕：强制退出，没有证书。
@@ -886,7 +1082,7 @@
       '<p>逮捕者在第 <b>' + el + ' 秒</b>追上了你。它不看指标，也不读判据——' +
       '它只负责让「走通这座塔」和「证明你懂这座塔」之间保持距离。' +
       '<b>被抓住的人没有证书</b>，只有一条入塔记录。</p>' +
-      '<div class="sc"><span>碎片<b>' + st.frags.length + ' / 8</b></span>' +
+      '<div class="sc"><span>碎片<b>' + st.frags.length + ' / ' + world.doors.length + '</b></span>' +
       '<span>可信度<b>' + st.life + ' / 3</b></span>' +
       '<span>存活<b>' + el + 's</b></span></div>' +
       '<p style="font-size:11px;color:var(--mz-tx3)">下一次：先想清楚要去哪道门，再动。' +
@@ -908,7 +1104,7 @@
       '<h3>可信度归零 · 被弹出塔外</h3>' +
       '<p>踩了三次刷分陷阱。这不是运气问题：陷阱放在死胡同里，' +
       '而<b>每一个死胡同都长得像一条可能的近路</b>——这正是刷分之所以有效的原因。</p>' +
-      '<div class="sc"><span>碎片<b>' + st.frags.length + ' / 8</b></span>' +
+      '<div class="sc"><span>答对<b>' + st.frags.length + ' / ' + world.doors.length + '</b></span>' +
       '<span>用时<b>' + el + 's</b></span></div>' +
       '<button class="mzbtn" id="btnAgain">再进一次</button></div>';
     var b = $("#btnAgain");
@@ -922,14 +1118,15 @@
     $("#vig").className = "mzvig";
     var el = elapsed();
     var n = st.frags.length;
-    var win = n >= 6;
+    var total = Math.max(world.doors.length, st.quiz.length);
+    var win = n >= PASS_N;
     var H2 = [];
     H2.push('<div class="box' + (win ? " win" : "") + '">');
-    H2.push('<h3>' + (win ? "走出指标塔 · 精英证书已签发" : "走到了出口，但碎片不够") + '</h3>');
+    H2.push('<h3>' + (win ? "走出指标塔 · 精英证书已签发" : "抵达出口 · 但挑战失败") + '</h3>');
     H2.push('<p>' + (win
-      ? "你在 " + el + " 秒内集齐了 " + n + " 枚指标碎片，并找到了出口。这座塔的八道门各锁着一个判据——你不是靠运气绕过去的，是靠认出哪一句话在偷换「测量」和「目标」。"
-      : "你走到了出口，但只拿到 " + n + " 枚碎片。出口不为难你，只是不开：<b>走通一座塔，和证明你懂这座塔，是两件事</b>。回指标馆把没答对的那几层再读一遍。") + '</p>');
-    H2.push('<div class="sc"><span>碎片<b>' + n + ' / 8</b></span>' +
+      ? "你在 " + el + " 秒内答对 " + n + " 道知识门，并找到了出口。这座塔的十道门各锁着一个判据——你不是靠运气绕过去的，是靠认出哪一句话在偷换「测量」和「目标」。"
+      : "你走到了出口，但只答对 " + n + " 道（门槛 " + PASS_N + " 道）。<b>出口不为你开：走通一座塔，和证明你懂这座塔，是两件事。</b>没被逮捕只说明你跑得够快，不说明你答得对。") + '</p>');
+    H2.push('<div class="sc"><span>答对<b>' + n + ' / ' + total + '</b></span>' +
       '<span>可信度<b>' + st.life + ' / 3</b></span>' +
       '<span>用时<b>' + el + 's</b></span></div>');
 
@@ -942,10 +1139,10 @@
           play: "指标塔 · 3D 迷宫",
           score: n * 10 + st.life * 5,
           detail: [
-            "穿过 23 × 23 的指标塔，集齐 " + n + " 枚指标碎片",
-            "八道知识门各锁一个判据：代理指标 / 古德哈特 / 刷分 / 偏移",
+            "穿过 31 × 31 的指标塔，答对 " + n + " / " + total + " 道知识门（门槛 " + PASS_N + " 道）",
+            "十道门从八个判据题库中随机抽取：代理指标 / 古德哈特 / 刷分 / 偏移 / 聚合 / 阈值",
             "可信度剩余 " + st.life + " / 3 · 用时 " + el + " 秒",
-            "未踩满三次刷分陷阱"
+            "未踩满三次刷分陷阱，未被逮捕者追上"
           ]
         });
       } catch (e) { }
@@ -989,6 +1186,7 @@
       return;
     }
     if (k === "escape" && st.inModal) { $("#modal").classList.remove("on"); st.inModal = false; return; }
+    if (k === "p") { toggleAim(); e.preventDefault(); return; }
     var m = KMAP[k];
     if (m) { keys[m] = true; e.preventDefault(); }
   });
@@ -1027,7 +1225,49 @@
      锁不上的情况（老浏览器、被策略拦掉、手机）自动退回拖动模式，
      所以下面那段拖动代码要留着。 */
   var locked = false, lockFailed = false;
-  var SENS = 0.0023;
+
+  /* ----------------------------------------------------------------------
+     鼠标视角：按 FPS 的做法重写
+     ----------------------------------------------------------------------
+     上一版只有一行 `st.ang += movementX * 0.0023`。它有三个真实问题：
+
+     1. **锁定那一帧会甩飞。** 浏览器在 pointer lock 刚生效时，会把「鼠标从
+        页面某处跳到画面中心」这段距离当成一次位移报出来，几百像素。
+        乘 0.0023 就是小半圈。用户的第一反应就是「太灵敏」。
+        FPS 的通行做法是给单帧位移设上限，这里叫 MAX_STEP。
+     2. **微调不是不动就是过头。** movementX 是整数，1px 对应 0.0016rad
+        （约 0.09°）。想转 1° 必须精确推 11px，手不可能那么准。
+        做法是亚像素累积：把不足一格的量留在 pending 里，下一帧接着算。
+     3. **手抖被原样放大。** ±1px 的抖动变成视线抖动，看久了晕。
+        做法是一级低通（smooth），把高频抖掉，代价是 20–40ms 延迟。
+        延迟和抖动是同一根滑杆的两端，所以它做成可调的，不是写死。
+     ---------------------------------------------------------------------- */
+  var AIM_KEY = "yc.aim.v1";
+  var AIM = {
+    sens: 1.00,        /* 倍率 0.3 – 3.0 */
+    base: 0.0016,      /* 1.0 倍时每像素多少弧度 */
+    pitchK: 0.62,      /* 俯仰比水平慢，否则上下晃得厉害 */
+    smooth: 0.35,      /* 0 = 原始直出，越大越顺滑 */
+    invertY: false,
+    pendX: 0, pendY: 0
+  };
+  try {
+    var savedAim = JSON.parse(localStorage.getItem(AIM_KEY) || "null");
+    if (savedAim && typeof savedAim === "object") {
+      if (typeof savedAim.sens === "number") AIM.sens = clamp(savedAim.sens, 0.3, 3);
+      if (typeof savedAim.smooth === "number") AIM.smooth = clamp(savedAim.smooth, 0, 0.9);
+      if (typeof savedAim.invertY === "boolean") AIM.invertY = savedAim.invertY;
+    }
+  } catch (e) { }
+  function saveAim() {
+    try {
+      localStorage.setItem(AIM_KEY, JSON.stringify({
+        sens: AIM.sens, smooth: AIM.smooth, invertY: AIM.invertY
+      }));
+    } catch (e) { }
+  }
+
+  var MAX_STEP = 130;   /* 单帧最多认 130px，多出来的直接丢掉 */
 
   function lockNow() {
     if (st.done) return;
@@ -1052,6 +1292,9 @@
   document.addEventListener("pointerlockchange", function () {
     locked = (document.pointerLockElement === cv);
     if (locked) lockFailed = false;
+    /* 锁定/解锁的瞬间丢掉残留，否则解锁前攒下的那点位移
+       会在重新锁上时一次性倒出来，像被人推了一把。 */
+    AIM.pendX = AIM.pendY = 0;
     syncLockHint();
   });
   document.addEventListener("pointerlockerror", function () {
@@ -1063,9 +1306,62 @@
 
   document.addEventListener("mousemove", function (e) {
     if (!locked) return;
-    st.ang += (e.movementX || 0) * SENS;
-    st.pitch = clamp(st.pitch + (e.movementY || 0) * 0.00045, -0.26, 0.26);
+    var mx = clamp(e.movementX || 0, -MAX_STEP, MAX_STEP);
+    var my = clamp(e.movementY || 0, -MAX_STEP, MAX_STEP);
+    AIM.pendX += mx * AIM.base * AIM.sens;
+    /* 默认（非反转）：鼠标往上推 = 抬头。movementY 上推是负数，
+       所以这里乘 -1，pitch 才会变大。 */
+    AIM.pendY += my * AIM.base * AIM.sens * AIM.pitchK * (AIM.invertY ? 1 : -1);
   });
+
+  /* 每帧把累积量的一部分交给视角。smooth=0 时一次交清（等同原始）；
+     越大，留到下一帧的比例越高 —— 这就是低通，代价是手感变「绵」。 */
+  function consumeAim(dt) {
+    if (!AIM.pendX && !AIM.pendY) return;
+    var k = AIM.smooth > 0 ? 1 - Math.pow(AIM.smooth, dt * 60) : 1;
+    var ax = AIM.pendX * k, ay = AIM.pendY * k;
+    AIM.pendX -= ax; AIM.pendY -= ay;
+    st.ang += ax;
+    st.pitch = clamp(st.pitch + ay, -0.26, 0.26);
+    if (Math.abs(AIM.pendX) < 1e-6) AIM.pendX = 0;
+    if (Math.abs(AIM.pendY) < 1e-6) AIM.pendY = 0;
+  }
+
+  /* ---- 视角设置面板 ---- */
+  function aimCmLoop() {
+    /* 360° 需要多少厘米。按 800 DPI 估（1cm ≈ 315px），只作参照。 */
+    var px = (Math.PI * 2) / (AIM.base * AIM.sens);
+    return Math.round(px / 315 * 10) / 10;
+  }
+  function paintAim() {
+    var s = $("#aimSens"), sm = $("#aimSmooth"), cm = $("#aimCm"), iv = $("#aimInv");
+    if (s) s.value = String(AIM.sens);
+    if (sm) sm.value = String(AIM.smooth);
+    if (cm) cm.textContent = aimCmLoop() + " cm";
+    if (iv) iv.checked = AIM.invertY;
+    var sv = $("#aimSensV"); if (sv) sv.textContent = AIM.sens.toFixed(2) + "×";
+    var smv = $("#aimSmoothV"); if (smv) smv.textContent = AIM.smooth === 0 ? "关" : Math.round(AIM.smooth * 100) + "%";
+  }
+  function toggleAim(on) {
+    var p = $("#aimPanel");
+    if (!p) return;
+    p.classList.toggle("on", on === undefined ? !p.classList.contains("on") : !!on);
+    paintAim();
+  }
+  (function bindAim() {
+    var s = $("#aimSens"), sm = $("#aimSmooth"), iv = $("#aimInv");
+    if (s) s.addEventListener("input", function () { AIM.sens = clamp(+s.value, 0.3, 3); saveAim(); paintAim(); });
+    if (sm) sm.addEventListener("input", function () { AIM.smooth = clamp(+sm.value, 0, 0.9); saveAim(); paintAim(); });
+    if (iv) iv.addEventListener("change", function () { AIM.invertY = !!iv.checked; saveAim(); paintAim(); });
+    var b = $("#btnAim"); if (b) b.addEventListener("click", function () { toggleAim(); });
+    var c = $("#aimClose"); if (c) c.addEventListener("click", function () { toggleAim(false); });
+    var r = $("#aimReset");
+    if (r) r.addEventListener("click", function () {
+      AIM.sens = 1; AIM.smooth = 0.35; AIM.invertY = false;
+      saveAim(); paintAim();
+    });
+    paintAim();
+  })();
 
   /* 兜底一：锁不上时，鼠标在画面内横向位置决定转向角速度 ——
      鼠标偏左就持续左转，偏右就持续右转，中间是死区。
@@ -1119,6 +1415,11 @@
         doorsOpen: world.doors.filter(function (d) { return d.open; }).length,
         doorsTotal: world.doors.length,
         traps: world.traps.length,
+        /* 题库规模与通关门槛：线上体检要能一眼看出「题池是不是真的几百道」、
+           「门槛是不是真的 6 道」，而不是只信任本地脚本。 */
+        quizPool: (QUIZ.cats || []).reduce(function (a, c) { return a + (c.items || []).length; }, 0),
+        quizThisRun: st.quiz.length,
+        passNeed: PASS_N,
         seed: SEED,
         grid: W + "x" + H,
         t: Math.round(st.tAcc),
@@ -1138,7 +1439,12 @@
         huntNullN: HUNT.nullN || 0,
         playerOnWall: world.g[Math.floor(st.py) * W + Math.floor(st.px)] !== 0,
         caught: !!$("#endBox .box.caught"),
-        locked: locked
+        locked: locked,
+        /* 站在哪道门前。探针要判断「按 E 没反应」到底是没走到门边，
+           还是走到了但开门逻辑坏了 —— 这两个原因长得一模一样。 */
+        curDoor: st.curDoor ? st.curDoor.gate : -1,
+        inModal: st.inModal,
+        promptOn: !!($("#prompt") && $("#prompt").classList.contains("on"))
       };
     },
     /* 把塔内时钟往前推 —— 和「等这么久」等价，只是快。
@@ -1182,8 +1488,54 @@
       st.pitch = 0;
       return true;
     },
-    answerOf: function (i) { return GATES[i] ? GATES[i].a : -1; },
-    gateCount: function () { return GATES.length; },
+    /* 体检用：转视角。截图时用来避开「正对着一扇门」这种满屏单色的机位。 */
+    look: function (rad) {
+      st.ang += (+rad || 0);
+      AIM.pendX = AIM.pendY = 0;
+      return st.ang;
+    },
+    setPitch: function (v) { st.pitch = clamp(+v || 0, -0.26, 0.26); return st.pitch; },
+    answerOf: function (i) { return gateOf(i).a; },
+    gateCount: function () { return st.quiz.length; },
+    quizCats: function () { return st.quiz.map(function (q) { return q.cat; }); },
+    quizHash: function () {
+      /* 用来验「换一座塔就换一套题」：题目文本的简易指纹 */
+      var s = st.quiz.map(function (q) { return q.q; }).join("|"), h = 0;
+      for (var i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) | 0; }
+      return h;
+    },
+    aim: function () {
+      return {
+        sens: AIM.sens, smooth: AIM.smooth, invertY: AIM.invertY,
+        pend: [AIM.pendX, AIM.pendY], pitch: st.pitch, cm360: aimCmLoop(),
+        maxStep: MAX_STEP
+      };
+    },
+    setAim: function (o) {
+      if (o && typeof o.sens === "number") AIM.sens = clamp(o.sens, 0.3, 3);
+      if (o && typeof o.smooth === "number") AIM.smooth = clamp(o.smooth, 0, 0.9);
+      if (o && typeof o.invertY === "boolean") AIM.invertY = o.invertY;
+      /* 改设置时把没消费完的位移清掉。不清的话，拖完滑块
+         视角会突然被之前攒下的那点位移推一下，像被人碰了手腕。 */
+      AIM.pendX = 0; AIM.pendY = 0;
+      saveAim(); paintAim();
+      return window.YCMaze.aim();
+    },
+    /* 体检用：直接喂一段鼠标位移，等价于真的推了一下鼠标 */
+    feedMouse: function (dx, dy) {
+      var mx = clamp(dx || 0, -MAX_STEP, MAX_STEP);
+      var my = clamp(dy || 0, -MAX_STEP, MAX_STEP);
+      AIM.pendX += mx * AIM.base * AIM.sens;
+      AIM.pendY += my * AIM.base * AIM.sens * AIM.pitchK * (AIM.invertY ? 1 : -1);
+      return [AIM.pendX, AIM.pendY];
+    },
+    world: function () {
+      return {
+        grid: W + "x" + H, doors: world.doors.length, traps: world.traps.length,
+        halls: world.halls.length, pathLen: world.path.length,
+        walkable: world.g.filter(function (v) { return v === 0; }).length
+      };
+    },
     gotoExit: function () {
       /* 出口格本身可走（不是墙），直接站到格心才会触发 finish() 的 0.6 判定 */
       st.px = world.exit.x + 0.5;

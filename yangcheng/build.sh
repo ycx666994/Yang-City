@@ -216,6 +216,10 @@ CAST_CSS='<link rel="stylesheet" href="shared/yc-cast.css">'
   echo "<script>"
   cat shared/yc-cast.js
   echo "</script>"
+  # 剧本数据必须在 04-app.js 之前：后者一载入就读 window.YCCASE
+  echo "<script>"
+  cat src/h2case/03b-script.js
+  echo "</script>"
   echo "<script>"
   cat src/h2case/04-app.js
   echo "</script>"
@@ -243,6 +247,10 @@ CAST_CSS='<link rel="stylesheet" href="shared/yc-cast.css">'
   echo "</script>"
   echo "<script>"
   cat shared/yc-cast.js
+  echo "</script>"
+  # 题库必须在 04-app.js 之前：后者一载入就要读 window.YCQUIZ 抽题
+  echo "<script>"
+  cat src/h3maze/03b-quiz.js
   echo "</script>"
   echo "<script>"
   cat src/h3maze/04-app.js

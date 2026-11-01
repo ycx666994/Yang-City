@@ -10,620 +10,577 @@
 <link rel="stylesheet" href="shared/yc-cast.css">
 <style>
 /* ==========================================================================
-   H2 破案游戏 · 案卷 0117「十一日」
-   浅色案卷纸皮，与 H2 主馆同源；所有类名 c2- 前缀，避免撞共享样式。
+   案卷 0117 · 十一日 —— 剧本杀
+   深墨 + 纸黄的档案室。和 H2 主厅的浅色案卷纸刻意分开：
+   那一个是白天读卷宗，这一个是在没有窗的会议室里坐到半夜。
+   类名统一 c3- 前缀（避开 shared/yc-*.css 里的 .vd/.rail/.knob 这类泛名）。
    ========================================================================== */
 :root{
-  --c2-paper:#f4efe3;
-  --c2-paper2:#efe8d8;
-  --c2-ink:#2b2822;
-  --c2-ink2:#4a453b;
-  --c2-ink3:#7a7364;
-  --c2-line:#d6cbb4;
-  --c2-line2:#c2b498;
-  --c2-ac:#6b4ea8;
-  --c2-ac2:#a887ff;
-  --c2-red:#a8322a;
-  --c2-gold:#a8842f;
-  --c2-mono:ui-monospace,"SF Mono",Consolas,monospace;
-  --c2-serif:"Songti SC",SimSun,Georgia,serif;
+  --c3-bg:#0b0a08;
+  --c3-panel:#15120e;
+  --c3-panel2:#1c1813;
+  --c3-line:#2e2720;
+  --c3-line2:#40372c;
+  --c3-paper:#e9dfc9;
+  --c3-paper2:#d6c8ac;
+  --c3-tx:#ddcfb6;
+  --c3-tx2:#a8997f;
+  --c3-tx3:#7a6d58;
+  --c3-gold:#c9a227;
+  --c3-gold2:#e8c65a;
+  --c3-red:#c0503a;
+  --c3-blue:#5b8fb8;
+  --c3-green:#6fa36a;
+  --c3-mono:ui-monospace,"SF Mono",Consolas,monospace;
+  --c3-serif:"Songti SC","Noto Serif SC",Georgia,serif;
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0}
-/* ==========================================================================
-   必须覆盖 yc-core.css 的「固定视口」设定。
-   那一套 `html,body{height:100%} body{overflow:hidden}` 是给一屏装得下的
-   仪表盘壳用的（城市首页、各馆主厅，内部另有滚动容器）。
-   本页不是壳，是长文档：卷宗 + 六个疑点 + 四幕，实测内容 1255px、视口 900px。
-
-   坑（2026-10-31 用户报「卡死在第一页，点什么也点不动」）：
-   body 的 overflow:hidden 会**传播到视口**（html 是 visible 时由 body 接管），
-   于是滚轮、PageDown、触控板全部失效；但 `window.scrollTo()` 仍能滚。
-   → 探针用 scrollTo 量位置，一路绿灯；真人用滚轮，一步也下不去。
-   下面 355px 的「提交勘察结论」按钮永远在视口外，整页看起来就是死的。
-
-   判据：改完必须用真实滚轮事件（Input.dispatchMouseEvent type=mouseWheel）验证，
-   不能用 scrollTo —— 那个绕过了 overflow 限制，测不出这个 bug。
-   ========================================================================== */
+/* 覆盖 yc-core.css 的固定视口（body{overflow:hidden} 会传播到视口，滚轮全废） */
 html{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
 body{
-  height:auto;
-  overflow:visible;
+  height:auto;min-height:100vh;overflow:visible;
   background:
-    radial-gradient(1200px 600px at 20% -10%,rgba(255,255,255,.7),transparent 60%),
-    radial-gradient(900px 500px at 90% 110%,rgba(200,180,140,.28),transparent 60%),
-    var(--c2-paper);
-  color:var(--c2-ink);
+    radial-gradient(1100px 600px at 50% -20%, #1a1510 0%, transparent 60%),
+    radial-gradient(700px 400px at 100% 100%, #17120c 0%, transparent 55%),
+    var(--c3-bg);
+  color:var(--c3-tx);
   font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
   -webkit-font-smoothing:antialiased;
-  min-height:100vh;
 }
-body::before{
-  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
-  background-image:
-    repeating-linear-gradient(0deg,rgba(120,100,60,.045) 0 1px,transparent 1px 3px),
-    repeating-linear-gradient(90deg,rgba(120,100,60,.035) 0 1px,transparent 1px 4px);
-}
+/* 纸纹：极淡的斜线，只为了让大面积深色不显得像纯色块 */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background-image:repeating-linear-gradient(135deg,rgba(201,162,39,.014) 0 1px,transparent 1px 5px)}
 
-.c2wrap{position:relative;z-index:1;max-width:1420px;margin:0 auto;padding:0 20px 60px}
+.c3wrap{
+  position:relative;z-index:1;max-width:1300px;margin:0 auto;padding:0 18px 46px;
+  display:grid;grid-template-columns:minmax(0,1fr) 302px;
+  grid-template-areas:"bar bar" "acts acts" "main wall" "note note";
+  gap:0 20px;align-items:start;
+}
 
 /* ---------------- 顶栏 ---------------- */
-.c2bar{
-  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
-  padding:13px 0 12px;border-bottom:2px solid var(--c2-ink);
-  position:sticky;top:0;z-index:30;
-  background:linear-gradient(180deg,var(--c2-paper) 76%,rgba(244,239,227,.86));
-  backdrop-filter:blur(6px);
-}
-.c2bar .bk{
-  text-decoration:none;color:var(--c2-ink2);font-size:11.5px;letter-spacing:.4px;
-  border:1px solid var(--c2-line2);border-radius:5px;padding:5px 10px;transition:.15s;
-}
-.c2bar .bk:hover{border-color:var(--c2-ink);color:var(--c2-ink);background:#fff}
-.c2ttl{display:flex;flex-direction:column;gap:1px;min-width:0}
-.c2ttl b{font-family:var(--c2-serif);font-size:19px;letter-spacing:1px;line-height:1.2}
-.c2ttl span{font-family:var(--c2-mono);font-size:9.5px;letter-spacing:1.6px;color:var(--c2-ink3)}
-.c2bar .sp{flex:1}
-.c2meter{display:flex;align-items:center;gap:7px;font-family:var(--c2-mono);font-size:10px;color:var(--c2-ink3)}
-.c2pips{display:flex;gap:3px}
-.c2pips i{width:9px;height:9px;border-radius:2px;background:var(--c2-line);display:block;transition:.2s}
-.c2pips i.on{background:var(--c2-ac)}
-.c2pips i.spent{background:var(--c2-red);opacity:.55}
+.c3bar{grid-area:bar;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:14px 0 13px;border-bottom:1px solid var(--c3-line)}
+.c3bar .bk{text-decoration:none;color:var(--c3-tx2);font-size:11.5px;
+  border:1px solid var(--c3-line2);border-radius:5px;padding:5px 10px;transition:.15s;white-space:nowrap}
+.c3bar .bk:hover{color:var(--c3-gold);border-color:var(--c3-gold);background:rgba(201,162,39,.08)}
+.c3ttl{display:flex;flex-direction:column;gap:2px;min-width:0}
+.c3ttl b{font-size:16px;letter-spacing:.6px;font-family:var(--c3-serif)}
+.c3ttl span{font-family:var(--c3-mono);font-size:8.5px;letter-spacing:1.8px;color:var(--c3-tx3)}
+.c3id{margin-left:auto;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;
+  border-left:1px solid var(--c3-line);padding-left:14px}
+.c3id .lb{font-size:9.5px;color:var(--c3-tx3);letter-spacing:1px}
+.c3id b{font-size:13px;color:var(--c3-gold2);font-family:var(--c3-serif);letter-spacing:1px}
+.c3id .sub{font-size:9.5px;color:var(--c3-tx3)}
+.c3res{display:flex;gap:12px;border-left:1px solid var(--c3-line);padding-left:14px}
+.c3res .r{display:flex;flex-direction:column;align-items:center;gap:1px}
+.c3res .r i{font-style:normal;font-size:8.5px;color:var(--c3-tx3);letter-spacing:1px}
+.c3res .r b{font-family:var(--c3-mono);font-size:17px;color:var(--c3-gold2);line-height:1}
+.c3res .r.low b{color:var(--c3-red)}
 
 /* ---------------- 幕导航 ---------------- */
-.c2acts{display:flex;gap:0;margin:14px 0 0;border:1px solid var(--c2-line2);border-radius:8px;overflow:hidden;background:#fff}
-.c2act{
-  flex:1;border:0;border-right:1px solid var(--c2-line);background:transparent;cursor:pointer;
-  padding:9px 10px;text-align:left;font:inherit;color:var(--c2-ink3);transition:.16s;position:relative;
+.c3acts{grid-area:acts;display:flex;gap:0;margin:0 0 18px;border-bottom:1px solid var(--c3-line);
+  overflow-x:auto;scrollbar-width:none}
+.c3acts::-webkit-scrollbar{display:none}
+.c3acts button{
+  appearance:none;background:none;border:none;cursor:pointer;flex:0 0 auto;
+  padding:12px 20px 11px;display:flex;align-items:baseline;gap:7px;
+  color:var(--c3-tx3);border-bottom:2px solid transparent;transition:.18s;
+  font-family:inherit;font-size:12.5px;position:relative}
+.c3acts button b{font-family:var(--c3-mono);font-size:10px;opacity:.7}
+.c3acts button span{letter-spacing:1px}
+.c3acts button:hover:not(:disabled){color:var(--c3-tx);background:rgba(201,162,39,.05)}
+.c3acts button.on{color:var(--c3-gold2);border-bottom-color:var(--c3-gold)}
+.c3acts button.on b{opacity:1}
+.c3acts button:disabled{opacity:.3;cursor:not-allowed}
+.c3acts button.done::after{content:"·";position:absolute;right:8px;top:9px;color:var(--c3-green);font-size:15px}
+
+/* ---------------- 主区 ---------------- */
+.c3main{grid-area:main;min-width:0}
+.c3lay{display:none;animation:c3in .3s ease}
+.c3lay.on{display:block}
+@keyframes c3in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+.c3card{background:var(--c3-panel);border:1px solid var(--c3-line);border-radius:9px;
+  padding:17px 19px 16px;margin-bottom:14px}
+.c3h{display:flex;align-items:center;gap:10px;margin:0 0 13px;
+  padding-bottom:10px;border-bottom:1px solid var(--c3-line)}
+.c3h h3{margin:0;font-size:14px;letter-spacing:.8px;font-family:var(--c3-serif);color:var(--c3-paper)}
+.c3h .k{margin-left:auto;font-family:var(--c3-mono);font-size:8.5px;letter-spacing:1.5px;color:var(--c3-tx3)}
+
+.c3lede{margin:0 0 14px;font-size:12.5px;line-height:1.95;color:var(--c3-tx2)}
+.c3lede b{color:var(--c3-paper);font-weight:600}
+.c3foot{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-top:15px;
+  padding-top:13px;border-top:1px solid var(--c3-line)}
+.c3foot .hint{font-size:10.5px;color:var(--c3-tx3);line-height:1.6}
+
+.c3btn{
+  appearance:none;cursor:pointer;font-family:inherit;font-size:12px;
+  padding:8px 17px;border-radius:6px;border:1px solid var(--c3-gold);
+  background:rgba(201,162,39,.14);color:var(--c3-gold2);
+  transition:.16s;letter-spacing:.4px;white-space:nowrap}
+.c3btn:hover:not(:disabled){background:var(--c3-gold);color:#1a1408;border-color:var(--c3-gold)}
+.c3btn:disabled{opacity:.35;cursor:not-allowed}
+.c3btn.red{border-color:var(--c3-red);background:rgba(192,80,58,.16);color:#e08a76}
+.c3btn.red:hover:not(:disabled){background:var(--c3-red);color:#fff}
+.c3btn.ghost{border-color:var(--c3-line2);background:none;color:var(--c3-tx2)}
+.c3btn.ghost:hover:not(:disabled){border-color:var(--c3-tx2);color:var(--c3-paper);background:rgba(255,255,255,.03)}
+
+/* ---------------- 幕一 · 剧本 ---------------- */
+.c3script{font-family:var(--c3-serif);font-size:14px;line-height:2.15;color:var(--c3-tx)}
+.c3script p{margin:0 0 15px;opacity:0;transform:translateY(8px);
+  animation:c3para .55s cubic-bezier(.22,.8,.3,1) forwards}
+@keyframes c3para{to{opacity:1;transform:none}}
+.c3script p:last-child{margin-bottom:0}
+.c3script p b{color:var(--c3-gold2);font-weight:600}
+
+.c3secret{border-color:rgba(201,162,39,.32);background:
+  linear-gradient(180deg,rgba(201,162,39,.055),transparent 70%),var(--c3-panel)}
+.c3sec{margin:0 0 11px;font-family:var(--c3-serif);font-size:13px;line-height:2;color:var(--c3-paper2)}
+.c3stake{margin:0;font-size:11.5px;line-height:1.95;color:var(--c3-tx2);
+  padding-left:11px;border-left:2px solid var(--c3-red)}
+
+/* ---------------- 幕二 · 搜证 ---------------- */
+.c3grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:9px}
+.c3pl{
+  position:relative;text-align:left;cursor:pointer;font-family:inherit;
+  background:var(--c3-panel2);border:1px solid var(--c3-line);border-radius:7px;
+  padding:11px 12px 10px;transition:.16s;color:var(--c3-tx2);overflow:hidden}
+.c3pl::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--c3-line2);transition:.16s}
+.c3pl:hover:not(:disabled){border-color:var(--c3-line2);background:#221d16;transform:translateY(-1px)}
+.c3pl:hover:not(:disabled)::before{background:var(--c3-gold)}
+.c3pl b{display:block;font-size:12px;color:var(--c3-paper);font-weight:600;margin-bottom:4px;
+  line-height:1.5;padding-right:14px}
+.c3pl span{display:block;font-size:10px;color:var(--c3-tx3);line-height:1.55}
+.c3pl .n{position:absolute;right:9px;top:9px;font-family:var(--c3-mono);
+  font-size:9px;color:var(--c3-tx3)}
+.c3pl:disabled{cursor:default}
+.c3pl.taken{border-color:rgba(111,163,106,.34);background:rgba(111,163,106,.07)}
+.c3pl.taken::before{background:var(--c3-green)}
+.c3pl.taken b{color:var(--c3-paper)}
+.c3pl.taken .n{color:var(--c3-green)}
+.c3pl.miss{border-color:var(--c3-line);opacity:.42}
+.c3pl.miss::before{background:transparent}
+
+/* ---------------- 幕三 · 质询 ---------------- */
+.c3cast{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.c3ca{
+  position:relative;cursor:pointer;font-family:inherit;text-align:left;
+  background:var(--c3-panel2);border:1px solid var(--c3-line);border-radius:7px;
+  padding:10px 11px;transition:.16s;color:var(--c3-tx2)}
+.c3ca:hover:not(:disabled){border-color:var(--c3-line2);background:#221d16}
+.c3ca b{display:block;font-size:12.5px;color:var(--c3-paper);margin-bottom:3px}
+.c3ca span{display:block;font-size:9.5px;color:var(--c3-tx3);line-height:1.5}
+.c3ca .st{position:absolute;right:9px;top:9px;width:6px;height:6px;border-radius:50%;
+  background:var(--c3-line2)}
+.c3ca.used{border-color:rgba(201,162,39,.34)}
+.c3ca.used .st{background:var(--c3-gold)}
+.c3ca.used.done .st{background:var(--c3-green)}
+.c3ca:disabled{opacity:.42;cursor:not-allowed}
+.c3ca.on{border-color:var(--c3-gold);background:rgba(201,162,39,.1)}
+
+.c3room{margin-top:14px}
+.c3empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+  padding:44px 20px;border:1px dashed var(--c3-line2);border-radius:9px;
+  background:rgba(255,255,255,.012);text-align:center}
+.c3empty b{font-size:12.5px;color:var(--c3-tx3);font-weight:600}
+.c3empty span{font-size:10.5px;color:var(--c3-tx3);opacity:.8;line-height:1.7}
+
+.c3who{display:flex;gap:13px;align-items:flex-start;margin-bottom:13px;
+  padding-bottom:13px;border-bottom:1px solid var(--c3-line)}
+.c3who .av{width:54px;height:54px;flex:none;border-radius:7px;overflow:hidden;
+  border:1px solid var(--c3-line2);background:#0e0b08}
+.c3who .info{min-width:0;flex:1}
+.c3who .nm{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.c3who .nm b{font-size:14px;color:var(--c3-paper);font-family:var(--c3-serif);letter-spacing:.6px}
+.c3who .nm i{font-style:normal;font-size:9.5px;color:var(--c3-tx3);
+  border:1px solid var(--c3-line2);border-radius:3px;padding:1px 6px}
+.c3who .jb{font-size:10.5px;color:var(--c3-tx3);margin-bottom:5px}
+.c3who .lk{font-size:11px;color:var(--c3-tx2);line-height:1.75;font-style:italic}
+
+.c3dlg{display:flex;flex-direction:column;gap:11px;margin-bottom:13px}
+.c3qa{border-left:2px solid var(--c3-line2);padding:0 0 0 12px}
+.c3qa .q{font-size:11.5px;color:var(--c3-gold2);margin-bottom:5px;line-height:1.7}
+.c3qa .q::before{content:"你问　";color:var(--c3-tx3);font-size:10px;letter-spacing:1px}
+.c3qa .a{font-family:var(--c3-serif);font-size:12.5px;line-height:1.95;color:var(--c3-paper2)}
+.c3qa .a::before{content:"「";color:var(--c3-tx3)}
+.c3qa .a::after{content:"」";color:var(--c3-tx3)}
+.c3qa.broke{border-left-color:var(--c3-green)}
+.c3qa.broke .a{color:#cfe0c9}
+.c3qa .brk{margin-top:8px;font-size:10.5px;color:var(--c3-green);line-height:1.8;
+  padding:7px 10px;background:rgba(111,163,106,.07);border-radius:5px;
+  border:1px solid rgba(111,163,106,.22)}
+.c3qa .brk::before{content:"证据对上　";font-family:var(--c3-mono);font-size:9px;letter-spacing:1px;opacity:.8}
+
+.c3qs{display:flex;flex-direction:column;gap:7px}
+.c3q{appearance:none;text-align:left;cursor:pointer;font-family:inherit;
+  background:var(--c3-panel2);border:1px solid var(--c3-line);border-radius:6px;
+  padding:9px 12px;font-size:11.5px;color:var(--c3-tx2);transition:.15s;line-height:1.6}
+.c3q:hover:not(:disabled){border-color:var(--c3-gold);color:var(--c3-paper);background:rgba(201,162,39,.07)}
+.c3q:disabled{opacity:.4;cursor:default}
+.c3q .dot{display:inline-block;width:5px;height:5px;border-radius:50%;
+  background:var(--c3-line2);margin-right:8px;vertical-align:middle}
+.c3q.asked .dot{background:var(--c3-tx3)}
+.c3q.lied .dot{background:var(--c3-red)}
+
+.c3evbtn{appearance:none;cursor:pointer;font-family:inherit;font-size:10.5px;
+  margin-top:8px;padding:5px 12px;border-radius:5px;
+  border:1px dashed rgba(192,80,58,.5);background:rgba(192,80,58,.1);color:#e08a76;transition:.15s}
+.c3evbtn:hover{background:rgba(192,80,58,.22);border-style:solid}
+
+/* ---------------- 幕四 · 时间线 ---------------- */
+.c3tl{display:flex;flex-direction:column;gap:6px}
+.c3tc{
+  display:flex;align-items:center;gap:10px;
+  background:var(--c3-panel2);border:1px solid var(--c3-line);border-radius:6px;
+  padding:9px 11px;cursor:grab;transition:.15s;position:relative}
+.c3tc:active{cursor:grabbing}
+.c3tc.drag{opacity:.35;border-style:dashed}
+.c3tc.over{border-color:var(--c3-gold);background:rgba(201,162,39,.08)}
+.c3tc .no{flex:none;width:22px;height:22px;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(201,162,39,.14);color:var(--c3-gold2);
+  font-family:var(--c3-mono);font-size:10.5px}
+.c3tc .tx{flex:1;min-width:0}
+.c3tc .tx b{display:block;font-size:11.5px;color:var(--c3-paper2);line-height:1.6;font-weight:500}
+.c3tc .tx span{display:block;font-size:9.5px;color:var(--c3-tx3);margin-top:2px}
+.c3tc .mv{display:flex;gap:3px;flex:none}
+.c3tc .mv button{appearance:none;cursor:pointer;width:22px;height:22px;
+  background:none;border:1px solid var(--c3-line2);border-radius:4px;
+  color:var(--c3-tx3);font-size:10px;line-height:1;transition:.14s;font-family:inherit}
+.c3tc .mv button:hover{color:var(--c3-gold);border-color:var(--c3-gold)}
+.c3tc.ok{border-color:rgba(111,163,106,.42);background:rgba(111,163,106,.06)}
+.c3tc.ok .no{background:rgba(111,163,106,.18);color:#9dc497}
+.c3tc.bad{border-color:rgba(192,80,58,.45);background:rgba(192,80,58,.06)}
+.c3tc.bad .no{background:rgba(192,80,58,.2);color:#e08a76}
+
+/* ---------------- 幕五 · 指认 ---------------- */
+.c3form{display:flex;flex-direction:column;gap:19px}
+.c3fld .qq{font-size:12.5px;color:var(--c3-paper);margin-bottom:3px;line-height:1.7}
+.c3fld .qq em{font-style:normal;font-family:var(--c3-mono);font-size:8.5px;
+  color:var(--c3-tx3);letter-spacing:1.4px;margin-left:8px}
+.c3opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:7px;margin-top:9px}
+.c3opt{appearance:none;text-align:left;cursor:pointer;font-family:inherit;
+  background:var(--c3-panel2);border:1px solid var(--c3-line);border-radius:6px;
+  padding:10px 12px;font-size:11.5px;color:var(--c3-tx2);transition:.15s;line-height:1.65}
+.c3opt:hover{border-color:var(--c3-line2);background:#221d16;color:var(--c3-paper)}
+.c3opt.on{border-color:var(--c3-gold);background:rgba(201,162,39,.1);color:var(--c3-gold2)}
+.c3opt.on::before{content:"◆ ";font-size:9px}
+
+/* ---------------- 线索墙 ---------------- */
+.c3wall{grid-area:wall;position:sticky;top:12px;
+  background:var(--c3-panel);border:1px solid var(--c3-line);border-radius:9px;
+  overflow:hidden;max-height:calc(100vh - 30px);display:flex;flex-direction:column}
+.c3wall .wh{display:flex;align-items:center;gap:9px;padding:11px 13px;
+  border-bottom:1px solid var(--c3-line);flex:none}
+.c3wall .wh b{font-size:12px;font-family:var(--c3-serif);letter-spacing:1px;color:var(--c3-paper)}
+.c3wall .wh span{font-family:var(--c3-mono);font-size:9.5px;color:var(--c3-tx3)}
+.c3wall .wh button{margin-left:auto;appearance:none;cursor:pointer;
+  background:none;border:1px solid var(--c3-line2);border-radius:4px;
+  color:var(--c3-tx3);width:20px;height:20px;line-height:1;font-size:12px;transition:.15s}
+.c3wall .wh button:hover{color:var(--c3-gold);border-color:var(--c3-gold)}
+.c3wall .wb{padding:10px;overflow-y:auto;flex:1;min-height:0;
+  display:flex;flex-direction:column;gap:7px}
+.c3wall.fold .wb{display:none}
+.c3wnone{font-size:10.5px;color:var(--c3-tx3);line-height:1.9;text-align:center;padding:20px 8px}
+
+.c3cl{
+  background:linear-gradient(180deg,#efe6d2,#e3d7bd);
+  border-radius:5px;padding:9px 10px 8px;cursor:pointer;transition:.15s;
+  border:1px solid #cdbfa2;position:relative;overflow:hidden}
+.c3cl::after{content:"";position:absolute;right:-9px;top:-9px;width:20px;height:20px;
+  background:rgba(0,0,0,.06);transform:rotate(45deg)}
+.c3cl:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.c3cl .tg{display:inline-block;font-family:var(--c3-mono);font-size:8px;
+  letter-spacing:1px;padding:1px 5px;border-radius:2px;margin-bottom:5px;
+  background:rgba(0,0,0,.09);color:#5b4a2e}
+.c3cl .tg.core{background:rgba(192,80,58,.2);color:#8c3320}
+.c3cl .tg.root{background:rgba(111,163,106,.24);color:#3c6b38}
+.c3cl b{display:block;font-size:10.5px;color:#2a2317;line-height:1.55;
+  font-family:var(--c3-serif);font-weight:600}
+.c3cl .src{display:block;font-size:8.5px;color:#7a6a4e;margin-top:4px}
+
+/* ---------------- 模态 ---------------- */
+.c3modal{position:fixed;inset:0;z-index:120;display:none;
+  align-items:center;justify-content:center;padding:20px;
+  background:rgba(5,4,3,.82);backdrop-filter:blur(3px)}
+.c3modal.on{display:flex}
+.c3m{width:min(620px,100%);max-height:86vh;display:flex;flex-direction:column;
+  background:#0f0c09;border:1px solid var(--c3-line2);border-radius:10px;
+  box-shadow:0 30px 80px rgba(0,0,0,.7);animation:c3pop .24s ease}
+@keyframes c3pop{from{opacity:0;transform:scale(.97) translateY(8px)}to{opacity:1;transform:none}}
+.c3mh{display:flex;align-items:center;gap:10px;padding:13px 16px;
+  border-bottom:1px solid var(--c3-line);flex:none}
+.c3mh .tag{font-family:var(--c3-mono);font-size:8.5px;letter-spacing:1.4px;
+  color:#1a1408;background:var(--c3-gold);padding:2px 7px;border-radius:3px}
+.c3mh b{font-size:13px;color:var(--c3-paper);font-family:var(--c3-serif);letter-spacing:.6px}
+.c3mh button{margin-left:auto;appearance:none;cursor:pointer;background:none;
+  border:none;color:var(--c3-tx3);font-size:20px;line-height:1;padding:2px 6px;border-radius:4px;transition:.15s}
+.c3mh button:hover{color:var(--c3-red);background:rgba(192,80,58,.12)}
+.c3mb{margin:0;padding:16px;overflow-y:auto;flex:1;min-height:0;
+  font-family:var(--c3-mono);font-size:11.5px;line-height:1.95;
+  color:var(--c3-paper2);white-space:pre-wrap;word-break:break-word;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 27px,rgba(201,162,39,.045) 27px 28px);
 }
-.c2act:last-child{border-right:0}
-.c2act b{display:block;font-size:12px;color:var(--c2-ink2);letter-spacing:.3px}
-.c2act span{display:block;font-family:var(--c2-mono);font-size:8.5px;letter-spacing:1.2px;margin-top:1px}
-.c2act:hover{background:rgba(107,78,168,.05)}
-.c2act.on{background:rgba(107,78,168,.10);box-shadow:inset 0 -2px 0 var(--c2-ac)}
-.c2act.on b{color:var(--c2-ac);font-weight:700}
-.c2act.done b::after{content:" ✓";color:#3f8f5f}
-.c2act:disabled{opacity:.42;cursor:not-allowed}
+.c3mf{padding:12px 16px;border-top:1px solid var(--c3-line);
+  display:flex;align-items:center;gap:11px;flex-wrap:wrap;flex:none}
+.c3mf .hint{font-size:10.5px;color:var(--c3-tx3);line-height:1.6}
 
-/* ---------------- 通用卡片 ---------------- */
-.c2lay{display:none;padding-top:18px}
-.c2lay.on{display:block;animation:c2in .28s ease}
-@keyframes c2in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.c2card{
-  background:#fff;border:1px solid var(--c2-line2);border-radius:9px;padding:16px 18px;
-  box-shadow:0 1px 0 rgba(120,100,60,.10),0 10px 26px -22px rgba(60,45,20,.6);
-}
-.c2card + .c2card{margin-top:13px}
-.c2h{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:9px}
-.c2h h3{margin:0;font-family:var(--c2-serif);font-size:16.5px;letter-spacing:.4px}
-.c2h .k{font-family:var(--c2-mono);font-size:8.5px;letter-spacing:1.6px;color:var(--c2-ink3);
-  border:1px solid var(--c2-line2);border-radius:4px;padding:1px 5px}
-.c2card p{margin:0 0 9px;font-size:12.5px;line-height:1.95;color:var(--c2-ink2)}
-.c2card p:last-child{margin-bottom:0}
-.c2card b{color:var(--c2-ink)}
-.c2card b.hl{background:linear-gradient(transparent 62%,rgba(168,135,255,.42) 62%);padding:0 1px}
+.c3evlist{padding:12px;overflow-y:auto;flex:1;min-height:0;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.c3ev{appearance:none;text-align:left;cursor:pointer;font-family:inherit;
+  background:var(--c3-panel2);border:1px solid var(--c3-line);border-radius:6px;
+  padding:10px 11px;transition:.15s;color:var(--c3-tx2)}
+.c3ev:hover{border-color:var(--c3-gold);background:rgba(201,162,39,.08)}
+.c3ev b{display:block;font-size:11px;color:var(--c3-paper2);line-height:1.55;margin-bottom:3px}
+.c3ev span{display:block;font-size:9px;color:var(--c3-tx3)}
 
-/* ---------------- 卷宗（幕一） ---------------- */
-.c2doc{
-  background:linear-gradient(180deg,#fffdf7,#fbf6e9);
-  border:1px solid var(--c2-line2);border-left:4px solid var(--c2-red);
-  border-radius:6px;padding:16px 18px;font-family:var(--c2-serif);
-  font-size:13.5px;line-height:2.05;color:var(--c2-ink);position:relative;
-}
-.c2doc .stamp{
-  position:absolute;right:16px;top:12px;transform:rotate(-8deg);
-  border:2.5px solid rgba(168,50,42,.6);color:rgba(168,50,42,.72);
-  font-family:var(--c2-mono);font-size:10px;letter-spacing:2px;
-  padding:4px 9px;border-radius:4px;
-}
-.c2doc .lg{
-  display:block;margin:9px 0;padding:9px 12px;border-left:2px solid var(--c2-line2);
-  background:rgba(107,78,168,.055);font-family:var(--c2-mono);font-size:11.5px;
-  line-height:1.95;color:var(--c2-ink2);letter-spacing:.2px;
-}
-.c2doc .lg em{color:var(--c2-red);font-style:normal;font-weight:700}
+/* ---------------- 结果 / 复盘 ---------------- */
+.c3res-box{margin-top:14px;border:1px solid var(--c3-line2);border-radius:9px;
+  background:var(--c3-panel);padding:19px 20px 17px}
+.c3res-box.win{border-color:rgba(201,162,39,.45);
+  background:linear-gradient(180deg,rgba(201,162,39,.06),transparent 60%),var(--c3-panel)}
+.c3res-box h3{margin:0 0 11px;font-size:17px;font-family:var(--c3-serif);
+  letter-spacing:.8px;color:var(--c3-paper)}
+.c3res-box.win h3{color:var(--c3-gold2)}
+.c3res-box p{margin:0 0 10px;font-size:12px;line-height:2;color:var(--c3-tx2)}
+.c3res-box p b{color:var(--c3-paper)}
+.c3score{display:flex;gap:22px;flex-wrap:wrap;margin:14px 0;
+  font-family:var(--c3-mono);font-size:9.5px;color:var(--c3-tx3)}
+.c3score b{display:block;font-size:21px;color:var(--c3-paper);margin-top:3px;letter-spacing:-.5px}
+.c3score b.ok{color:var(--c3-green)}
+.c3score b.no{color:var(--c3-red)}
 
-.c2pick{display:grid;gap:8px;margin-top:13px}
-.c2p{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--c2-line);
-  background:#fff;border-radius:7px;padding:10px 12px;cursor:pointer;transition:.14s;text-align:left;font:inherit;color:inherit}
-.c2p:hover{border-color:var(--c2-ac2);background:rgba(168,135,255,.06)}
-.c2p .bx{flex:0 0 15px;height:15px;border:1.5px solid var(--c2-line2);border-radius:3px;margin-top:2px;
-  display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;transition:.14s}
-.c2p.on{border-color:var(--c2-ac);background:rgba(107,78,168,.07)}
-.c2p.on .bx{background:var(--c2-ac);border-color:var(--c2-ac)}
-.c2p.ok{border-color:#3f8f5f;background:rgba(63,143,95,.08)}
-.c2p.ok .bx{background:#3f8f5f;border-color:#3f8f5f}
-.c2p.no{border-color:var(--c2-red);background:rgba(168,50,42,.06)}
-.c2p.no .bx{background:var(--c2-red);border-color:var(--c2-red)}
-.c2p .tx{font-size:12px;line-height:1.8;color:var(--c2-ink2)}
-.c2p .tx b{color:var(--c2-ink)}
+.c3rev{margin-top:16px;padding-top:15px;border-top:1px solid var(--c3-line)}
+.c3rev h4{margin:0 0 10px;font-size:12px;font-family:var(--c3-mono);
+  letter-spacing:1.6px;color:var(--c3-tx3);font-weight:400}
+.c3rev p{margin:0 0 10px;font-size:11.5px;line-height:2;color:var(--c3-tx2);
+  padding-left:12px;border-left:2px solid var(--c3-line2)}
+.c3rev p b{color:var(--c3-gold2)}
+.c3rev p.hit{border-left-color:var(--c3-green)}
+.c3rev p.miss{border-left-color:var(--c3-red);opacity:.85}
 
-/* ---------------- 审讯室（幕二） ---------------- */
-.c2room{display:grid;grid-template-columns:250px minmax(0,1fr) 300px;gap:13px;align-items:start}
-@media(max-width:1180px){.c2room{grid-template-columns:220px minmax(0,1fr)}.c2wall{display:none}}
+.c3toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);z-index:130;
+  background:#1c1813;border:1px solid var(--c3-line2);color:var(--c3-paper);
+  padding:9px 18px;border-radius:7px;font-size:12px;opacity:0;pointer-events:none;
+  transition:.25s;max-width:88vw;text-align:center}
+.c3toast.on{opacity:1;transform:translate(-50%,0)}
 
-.c2list{border:1px solid var(--c2-line2);border-radius:9px;background:#fff;overflow:hidden}
-.c2list .lt{padding:9px 12px;border-bottom:1px solid var(--c2-line);
-  font-family:var(--c2-mono);font-size:9px;letter-spacing:1.5px;color:var(--c2-ink3);
-  display:flex;justify-content:space-between;align-items:center}
-.c2w{
-  display:flex;gap:9px;align-items:center;width:100%;border:0;border-bottom:1px solid var(--c2-line);
-  background:transparent;padding:10px 12px;cursor:pointer;text-align:left;font:inherit;color:inherit;transition:.13s;
-}
-.c2w:last-child{border-bottom:0}
-.c2w:hover{background:rgba(107,78,168,.055)}
-.c2w.on{background:rgba(107,78,168,.10);box-shadow:inset 3px 0 0 var(--c2-ac)}
-.c2w .av{flex:0 0 30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:15px;background:var(--c2-paper2);border:1px solid var(--c2-line2)}
-.c2w .nm{flex:1;min-width:0}
-.c2w .nm b{display:block;font-size:12px;color:var(--c2-ink);letter-spacing:.2px}
-.c2w .nm span{display:block;font-size:9.5px;color:var(--c2-ink3);margin-top:1px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.c2w .mk{font-family:var(--c2-mono);font-size:9px;color:var(--c2-ink3);flex:0 0 auto}
-.c2w.tested .mk{color:var(--c2-ac);font-weight:700}
-
-.c2dossier{border:1px solid var(--c2-line2);border-radius:9px;background:#fff;padding:0;overflow:hidden}
-.c2dh{padding:12px 15px;border-bottom:1px solid var(--c2-line);display:flex;align-items:center;gap:10px;
-  background:linear-gradient(180deg,rgba(107,78,168,.05),transparent)}
-.c2dh .av{flex:0 0 38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:19px;background:var(--c2-paper2);border:1px solid var(--c2-line2)}
-.c2dh .nm b{display:block;font-family:var(--c2-serif);font-size:15.5px;letter-spacing:.5px}
-.c2dh .nm span{display:block;font-family:var(--c2-mono);font-size:9px;letter-spacing:1.2px;color:var(--c2-ink3);margin-top:1px}
-.c2dh .fg{margin-left:auto;font-family:var(--c2-mono);font-size:8.5px;letter-spacing:1.4px;
-  border:1px solid var(--c2-line2);border-radius:4px;padding:2px 6px;color:var(--c2-ink3)}
-
-.c2quote{padding:13px 15px;font-family:var(--c2-serif);font-size:13px;line-height:2;color:var(--c2-ink);
-  border-bottom:1px dashed var(--c2-line);position:relative}
-.c2quote::before{content:"「";position:absolute;left:5px;top:6px;font-size:22px;color:var(--c2-line2)}
-.c2quote{padding-left:26px}
-.c2quote::after{content:"」";color:var(--c2-line2)}
-.c2meta{padding:9px 15px;border-bottom:1px solid var(--c2-line);
-  display:flex;gap:14px;flex-wrap:wrap;font-family:var(--c2-mono);font-size:9.5px;color:var(--c2-ink3)}
-.c2meta b{color:var(--c2-ink2);font-weight:600}
-
-/* 追问 */
-.c2more{padding:0 15px}
-.c2more:empty{display:none}
-.c2more .c2btn{font-size:11px;padding:5px 11px}
-.c2more-line{
-  border-left:2px solid var(--c2-ac);padding:9px 12px;margin:2px 0 11px;
-  background:rgba(107,78,168,.05);border-radius:0 6px 6px 0;
-  font-family:var(--c2-serif);font-size:12.5px;line-height:1.95;color:var(--c2-ink2);
-  animation:c2in .3s ease;
-}
-.c2quote.typing::after{content:"▌";animation:c2Caret .6s steps(2) infinite;color:var(--c2-ac)}
-@keyframes c2Caret{0%,49%{opacity:1}50%,100%{opacity:0}}
-
-.c2test{padding:13px 15px}
-.c2btn{
-  cursor:pointer;border:1px solid var(--c2-ac);background:rgba(107,78,168,.10);color:var(--c2-ac);
-  border-radius:6px;padding:8px 15px;font:inherit;font-size:12px;font-weight:700;letter-spacing:.3px;transition:.15s;
-}
-.c2btn:hover:not(:disabled){background:rgba(107,78,168,.2)}
-.c2btn:disabled{opacity:.4;cursor:not-allowed}
-.c2btn.ghost{background:transparent;border-color:var(--c2-line2);color:var(--c2-ink2);font-weight:600}
-.c2btn.ghost:hover:not(:disabled){border-color:var(--c2-ink2);background:rgba(120,100,60,.06)}
-.c2btn.red{border-color:var(--c2-red);color:var(--c2-red);background:rgba(168,50,42,.08)}
-.c2btn.red:hover:not(:disabled){background:rgba(168,50,42,.16)}
-.c2btn.go{border-color:#3f8f5f;color:#2f7248;background:rgba(63,143,95,.1)}
-.c2btn.go:hover:not(:disabled){background:rgba(63,143,95,.2)}
-
-.c2res{margin-top:11px;border:1px solid var(--c2-line);border-radius:7px;padding:11px 13px;background:var(--c2-paper2);display:none}
-.c2res.on{display:block;animation:c2in .3s ease}
-.c2res .rl{font-family:var(--c2-mono);font-size:9px;letter-spacing:1.5px;color:var(--c2-ink3);margin-bottom:6px}
-.c2res .rv{font-family:var(--c2-mono);font-size:27px;font-weight:700;letter-spacing:-.5px;line-height:1}
-.c2res .rv.hi{color:var(--c2-red)}
-.c2res .rv.mid{color:var(--c2-gold)}
-.c2res .rv.lo{color:var(--c2-ink3)}
-.c2res .rw{margin-top:7px;font-size:11.5px;line-height:1.8;color:var(--c2-ink2)}
-.c2res .bar{height:5px;border-radius:3px;background:rgba(120,100,60,.16);overflow:hidden;margin-top:8px}
-.c2res .bar i{display:block;height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
-
-/* 线索墙 */
-.c2wall{border:1px solid var(--c2-line2);border-radius:9px;background:#fff;overflow:hidden}
-.c2wall .wt{padding:9px 12px;border-bottom:1px solid var(--c2-line);
-  font-family:var(--c2-mono);font-size:9px;letter-spacing:1.5px;color:var(--c2-ink3)}
-.c2wall .wb{padding:10px 12px;display:flex;flex-direction:column;gap:7px;min-height:120px}
-.c2row{display:flex;align-items:center;gap:7px;font-family:var(--c2-mono);font-size:9.5px;color:var(--c2-ink3)}
-.c2row .lb{flex:0 0 46px;text-align:right;color:var(--c2-ink2);font-size:9px}
-.c2row .tr{flex:1;height:8px;border-radius:2px;background:rgba(120,100,60,.13);overflow:hidden;position:relative}
-.c2row .tr i{display:block;height:100%;transition:width .5s cubic-bezier(.4,0,.2,1)}
-.c2row .vl{flex:0 0 32px;text-align:right;font-weight:700;color:var(--c2-ink2)}
-.c2wall .wempty{font-size:11px;line-height:1.8;color:var(--c2-ink3)}
-.c2base{margin:0 12px 12px;padding:8px 10px;border-radius:6px;background:rgba(107,78,168,.07);
-  border:1px dashed rgba(107,78,168,.3);font-size:10.5px;line-height:1.75;color:var(--c2-ink2)}
-
-/* ---------------- 对撞（幕三） ---------------- */
-.c2pair{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:12px 0}
-.c2pc{border:1px solid var(--c2-line2);border-radius:8px;padding:11px 13px;background:var(--c2-paper2)}
-.c2pc .t{font-family:var(--c2-mono);font-size:9px;letter-spacing:1.4px;color:var(--c2-ink3);margin-bottom:5px}
-.c2pc .n{font-size:12.5px;font-weight:700;margin-bottom:5px}
-.c2pc .v{font-family:var(--c2-mono);font-size:22px;font-weight:700;color:var(--c2-ac)}
-.c2pc .d{font-size:10.5px;color:var(--c2-ink3);margin-top:4px;line-height:1.7}
-
-/* ---------------- 指认（幕四） ---------------- */
-.c2form{display:grid;gap:14px}
-.c2fld{border:1px solid var(--c2-line);border-radius:8px;padding:12px 14px;background:#fff}
-.c2fld .q{font-size:12.5px;font-weight:700;margin-bottom:9px;color:var(--c2-ink)}
-.c2fld .q em{font-style:normal;font-family:var(--c2-mono);font-size:9px;letter-spacing:1.3px;color:var(--c2-ink3);margin-left:7px}
-.c2opts{display:grid;gap:7px}
-.c2o{display:flex;gap:9px;align-items:flex-start;border:1px solid var(--c2-line);border-radius:6px;
-  padding:8px 11px;cursor:pointer;font:inherit;color:inherit;background:transparent;text-align:left;transition:.13s}
-.c2o:hover{border-color:var(--c2-ac2);background:rgba(168,135,255,.06)}
-.c2o .rad{flex:0 0 13px;height:13px;border-radius:50%;border:1.5px solid var(--c2-line2);margin-top:2px}
-.c2o.on{border-color:var(--c2-ac);background:rgba(107,78,168,.08)}
-.c2o.on .rad{border-color:var(--c2-ac);box-shadow:inset 0 0 0 3px #fff,inset 0 0 0 8px var(--c2-ac)}
-.c2o.ok{border-color:#3f8f5f;background:rgba(63,143,95,.09)}
-.c2o.ok .rad{border-color:#3f8f5f;box-shadow:inset 0 0 0 3px #fff,inset 0 0 0 8px #3f8f5f}
-.c2o.no{border-color:var(--c2-red);background:rgba(168,50,42,.06)}
-.c2o .tx{font-size:11.5px;line-height:1.75;color:var(--c2-ink2)}
-
-/* ---------------- 结算 ---------------- */
-.c2score{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:13px 0}
-.c2sc{border:1px solid var(--c2-line2);border-radius:8px;padding:11px 12px;background:#fff}
-.c2sc .l{font-family:var(--c2-mono);font-size:8.5px;letter-spacing:1.4px;color:var(--c2-ink3)}
-.c2sc .v{font-family:var(--c2-mono);font-size:23px;font-weight:700;margin-top:3px;color:var(--c2-ink)}
-.c2sc .d{font-size:10px;color:var(--c2-ink3);margin-top:2px}
-.c2total{border:2px solid var(--c2-ink);border-radius:9px;padding:14px 16px;background:#fff;
-  display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.c2total .tv{font-family:var(--c2-mono);font-size:40px;font-weight:800;letter-spacing:-1.5px;line-height:1}
-.c2total .tl{font-family:var(--c2-serif);font-size:15px;letter-spacing:.5px}
-.c2total .td{font-size:11px;color:var(--c2-ink3);line-height:1.7;flex:1;min-width:180px}
-
-.c2note{margin-top:12px;border-left:3px solid var(--c2-gold);padding:9px 13px;background:rgba(168,132,47,.07);
-  font-size:11.5px;line-height:1.85;color:var(--c2-ink2);border-radius:0 6px 6px 0}
-.c2note b{color:var(--c2-gold)}
-
-.c2toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);z-index:80;
-  background:var(--c2-ink);color:#f7f2e4;padding:10px 18px;border-radius:7px;
-  font-size:12px;letter-spacing:.3px;opacity:0;pointer-events:none;transition:.25s;max-width:88vw;text-align:center}
-.c2toast.on{opacity:1;transform:translate(-50%,0)}
-
-/* ---------------- 气氛层 ----------------
-   这一层不改内容，只改「你现在在哪」的感觉：
-   颗粒、暗角、随压力加深的四周、以及一条只在演出时出现的扫描线。
-   全部 pointer-events:none，绝不挡任何一次点击。 */
-.c2grain{
-  position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.35;mix-blend-mode:multiply;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/></filter><rect width='120' height='120' filter='url(%23n)' opacity='.28'/></svg>");
-  animation:c2Grain 1.1s steps(3) infinite;
-}
-@keyframes c2Grain{0%{transform:translate(0,0)}33%{transform:translate(-2%,1%)}66%{transform:translate(1%,-2%)}100%{transform:translate(0,0)}}
-.c2vig{
-  position:fixed;inset:0;z-index:59;pointer-events:none;transition:opacity .8s;
-  background:radial-gradient(ellipse at 50% 45%,transparent 46%,rgba(28,16,10,.42) 100%);
-  opacity:.35;
-}
-.c2vig.deep{opacity:.8}
-.c2vig.beat{animation:c2VigBeat 2.6s ease-in-out infinite}
-@keyframes c2VigBeat{0%,100%{opacity:.42}50%{opacity:.78}}
-
-/* 声音开关 */
-.c2snd{
-  cursor:pointer;border:1px solid var(--c2-line2);background:#fff;color:var(--c2-ink2);
-  border-radius:5px;padding:5px 10px;font:inherit;font-size:10.5px;letter-spacing:.3px;
-  display:flex;align-items:center;gap:6px;transition:.15s;
-}
-.c2snd:hover{border-color:var(--c2-ink);color:var(--c2-ink)}
-.c2snd .dot{width:6px;height:6px;border-radius:50%;background:var(--c2-line2);transition:.2s}
-.c2snd.on{border-color:var(--c2-ac);color:var(--c2-ac);background:rgba(107,78,168,.07)}
-.c2snd.on .dot{background:var(--c2-ac);box-shadow:0 0 0 3px rgba(107,78,168,.18);animation:c2Pulse 1.6s ease-in-out infinite}
-@keyframes c2Pulse{0%,100%{opacity:1}50%{opacity:.35}}
-
-/* 案件压力条 */
-.c2press{
-  display:flex;align-items:center;gap:10px;margin-top:10px;padding:7px 11px;
-  border:1px dashed var(--c2-line2);border-radius:7px;background:rgba(255,255,255,.6);
-  font-family:var(--c2-mono);font-size:9px;letter-spacing:1.2px;color:var(--c2-ink3);
-}
-.c2press .bar{flex:1;height:5px;border-radius:3px;background:rgba(120,100,60,.15);overflow:hidden}
-.c2press .bar i{display:block;height:100%;width:0%;border-radius:3px;
-  background:linear-gradient(90deg,#c9a227,#a8322a);transition:width .9s cubic-bezier(.4,0,.2,1)}
-.c2press b{font-size:10px;color:var(--c2-ink2);letter-spacing:0}
-
-/* 卷宗逐行显现 */
-.c2doc.reveal{animation:c2Reveal 1.5s steps(26) both}
-@keyframes c2Reveal{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
-.c2doc .scan{
-  position:absolute;left:0;right:0;height:2px;top:0;pointer-events:none;
-  background:linear-gradient(90deg,transparent,rgba(168,50,42,.75),transparent);
-  box-shadow:0 0 12px rgba(168,50,42,.6);animation:c2Scan 1.5s ease-out forwards;
-}
-@keyframes c2Scan{from{top:0;opacity:1}to{top:100%;opacity:0}}
-
-/* 疑点卡入场 */
-.c2pick .c2p{animation:c2Item .34s both}
-.c2pick .c2p:nth-child(1){animation-delay:.04s}
-.c2pick .c2p:nth-child(2){animation-delay:.09s}
-.c2pick .c2p:nth-child(3){animation-delay:.14s}
-.c2pick .c2p:nth-child(4){animation-delay:.19s}
-.c2pick .c2p:nth-child(5){animation-delay:.24s}
-.c2pick .c2p:nth-child(6){animation-delay:.29s}
-@keyframes c2Item{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
-.c2p.on{animation:c2Tick .28s cubic-bezier(.3,1.6,.5,1)}
-@keyframes c2Tick{0%{transform:scale(1)}45%{transform:scale(1.014)}100%{transform:scale(1)}}
-
-/* 证人列表入场 */
-.c2w{animation:c2Item .3s both}
-.c2w:nth-child(1){animation-delay:.02s}
-.c2w:nth-child(2){animation-delay:.06s}
-.c2w:nth-child(3){animation-delay:.10s}
-.c2w:nth-child(4){animation-delay:.14s}
-.c2w:nth-child(5){animation-delay:.18s}
-.c2w:nth-child(6){animation-delay:.22s}
-
-/* 干预演算：90 道工单逐条翻过去 */
-.c2comp{
-  margin-top:11px;border:1px solid var(--c2-line2);border-radius:7px;padding:11px 13px;
-  background:linear-gradient(180deg,#fffdf7,#faf4e6);font-family:var(--c2-mono);font-size:10px;
-  color:var(--c2-ink2);animation:c2in .2s ease;
-}
-.c2comp .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;
-  font-size:9px;letter-spacing:1.4px;color:var(--c2-ink3)}
-.c2comp .hd b{color:var(--c2-red);font-size:11px;letter-spacing:0}
-.c2comp .grid{display:grid;grid-template-columns:repeat(18,1fr);gap:3px;margin-bottom:8px}
-.c2comp .grid i{height:9px;border-radius:1.5px;background:rgba(120,100,60,.14);transition:.1s}
-.c2comp .grid i.f{background:var(--c2-red)}
-.c2comp .grid i.s{background:rgba(120,100,60,.28)}
-.c2comp .ft{font-size:9.5px;color:var(--c2-ink3);letter-spacing:.4px}
-
-/* 结论印章 */
-.c2stamp{
-  position:absolute;right:26px;top:50%;transform:translateY(-50%) rotate(-14deg) scale(2.6);
-  border:4px double rgba(168,50,42,.85);color:rgba(168,50,42,.9);
-  font-family:var(--c2-serif);font-size:22px;font-weight:800;letter-spacing:5px;
-  padding:9px 16px;border-radius:5px;opacity:0;pointer-events:none;
-  text-shadow:0 0 1px rgba(168,50,42,.5);
-}
-.c2stamp.hit{animation:c2Stamp .62s cubic-bezier(.2,1.5,.4,1) forwards}
-@keyframes c2Stamp{
-  0%{opacity:0;transform:translateY(-50%) rotate(-14deg) scale(2.6)}
-  55%{opacity:1;transform:translateY(-50%) rotate(-14deg) scale(.94)}
-  70%{transform:translateY(-50%) rotate(-14deg) scale(1.04)}
-  100%{opacity:1;transform:translateY(-50%) rotate(-14deg) scale(1)}
-}
-.c2total{position:relative;overflow:hidden}
-
-/* 幕切换：标题闪一下 */
-.c2flash{
-  position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:70;pointer-events:none;
-  font-family:var(--c2-serif);font-size:clamp(30px,6vw,64px);letter-spacing:14px;
-  color:rgba(43,40,34,.10);white-space:nowrap;opacity:0;
-}
-.c2flash.on{animation:c2Flash .95s ease-out forwards}
-@keyframes c2Flash{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(1.16)}
-  22%{opacity:1;transform:translate(-50%,-50%) scale(1)}
-  100%{opacity:0;transform:translate(-50%,-50%) scale(.98)}
-}
-
-/* 结算数字滚动 */
-.c2sc .v.count{color:var(--c2-ac)}
+.c3foot-note{grid-area:note;display:flex;gap:12px;flex-wrap:wrap;align-items:center;
+  margin-top:22px;padding-top:14px;border-top:1px solid var(--c3-line);
+  font-size:10.5px;color:var(--c3-tx3)}
+.c3foot-note a{color:var(--c3-gold);text-decoration:none}
+.c3foot-note a:hover{text-decoration:underline}
 
 /* ---------------- 窄屏 ---------------- */
-@media(max-width:820px){
-  .c2wrap{padding:0 12px 50px}
-  .c2bar{gap:8px;padding:10px 0}
-  .c2ttl b{font-size:16px}
-  .c2acts{flex-wrap:wrap}
-  .c2act{flex:1 1 50%;border-bottom:1px solid var(--c2-line)}
-  .c2act:nth-child(2n){border-right:0}
-  .c2room{grid-template-columns:1fr}
-  .c2list{max-height:none}
-  .c2pair{grid-template-columns:1fr}
-  .c2score{grid-template-columns:1fr 1fr}
-  .c2doc{font-size:12.5px;padding:13px 14px}
-  .c2doc .stamp{position:static;display:inline-block;transform:none;margin-bottom:8px}
-  .c2total .tv{font-size:32px}
+@media(max-width:980px){
+  .c3wrap{
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"bar" "acts" "main" "wall" "note";
+    padding:0 12px 24px;
+  }
+  /* 线索墙在窄屏改成页内一块，不再 fixed。
+     两块 fixed（线索墙 + 驻馆人坞）挤在同一个底边，必然互相盖住 ——
+     而其中一个是共享组件，不该为了这一页去改它。 */
+  .c3wall{position:static;max-height:none;margin-top:14px}
+  .c3wall .wb{max-height:none;overflow:visible}
+  .c3wall.fold .wb{display:none}
+}
+@media(max-width:760px){
+  /* 驻馆人坞在本页不再浮动。
+     它是共享组件，13 个页面都在用，所以不去改它的源码；
+     但在一个要连续读五幕、还要边看线索边问话的页面上，
+     一块 280px 的浮层压住下半屏是致命的。
+     改成页内卡片：它落在正文之后，滚到底就能看见，且不挡任何操作。 */
+  .castdock{
+    position:static!important;
+    left:auto!important;right:auto!important;bottom:auto!important;top:auto!important;
+    width:auto!important;max-width:100%!important;
+    margin:16px 12px 20px!important;
+  }
+}
+@media(max-width:620px){
+  .c3ttl b{font-size:14px}
+  .c3id{width:100%;margin-left:0;border-left:none;padding-left:0;
+    border-top:1px solid var(--c3-line);padding-top:8px}
+  .c3res{border-left:none;padding-left:0;margin-left:auto}
+  .c3acts button{padding:10px 13px 9px;font-size:11.5px}
+  .c3card{padding:14px 14px 13px}
+  .c3grid{grid-template-columns:1fr 1fr}
+  .c3cast{grid-template-columns:1fr 1fr}
+  .c3opts{grid-template-columns:1fr}
+  .c3script{font-size:13px;line-height:2.05}
+  .c3who{flex-direction:column;gap:10px}
+  .c3who .av{width:46px;height:46px}
+  .c3m{max-height:90vh}
+  .c3evlist{grid-template-columns:1fr}
 }
 </style>
 </head>
-<div class="c2wrap">
+<div class="c3wrap">
 
-  <header class="c2bar">
+  <header class="c3bar">
     <a class="bk" href="h2-forensic.html">← 回法医馆</a>
-    <div class="c2ttl">
+    <div class="c3ttl">
       <b>案卷 0117 · 十一日</b>
-      <span>CASE FILE · H2 FORENSIC ANNEX · 精英挑战</span>
+      <span>CASE 0117 · THE ELEVEN DAYS</span>
     </div>
-    <div class="sp"></div>
-    <button class="c2snd" id="btnSnd" aria-pressed="false"><span class="dot"></span><span id="sndTxt">环境音 关</span></button>
-    <div class="c2meter"><span>调查点</span><span class="c2pips" id="pips"></span><b id="pipN">9 / 9</b></div>
+    <div class="c3id">
+      <span class="lb">你的身份</span>
+      <b id="meName">沈砚</b>
+      <span class="sub" id="meRole">独立审计员</span>
+    </div>
+    <div class="c3res">
+      <span class="r"><i>调阅</i><b id="apN">8</b></span>
+      <span class="r"><i>传唤</i><b id="sumN">4</b></span>
+    </div>
   </header>
 
-  <div class="c2press">
-    <span>案件压力</span>
-    <div class="bar"><i id="pressBar"></i></div>
-    <b id="pressTxt">0%</b>
-  </div>
-
-  <nav class="c2acts" id="acts">
-    <button class="c2act on" data-a="1"><b>一 · 现场</b><span>THE SCENE</span></button>
-    <button class="c2act" data-a="2" disabled><b>二 · 审讯</b><span>INTERROGATION</span></button>
-    <button class="c2act" data-a="3" disabled><b>三 · 对撞</b><span>CONFRONTATION</span></button>
-    <button class="c2act" data-a="4" disabled><b>四 · 指认</b><span>INDICTMENT</span></button>
+  <nav class="c3acts" id="acts" aria-label="幕次">
+    <button data-a="1" class="on"><b>一</b><span>剧本</span></button>
+    <button data-a="2" disabled><b>二</b><span>搜证</span></button>
+    <button data-a="3" disabled><b>三</b><span>质询</span></button>
+    <button data-a="4" disabled><b>四</b><span>时间线</span></button>
+    <button data-a="5" disabled><b>五</b><span>指认</span></button>
   </nav>
 
-  <!-- ==================== 幕一 · 现场 ==================== -->
-  <section class="c2lay on" data-a="1">
-    <div class="c2card">
-      <div class="c2h"><h3>卷宗</h3><span class="k">READ ONLY</span></div>
-      <div class="c2doc">
-        <span class="stamp">已归档</span>
-        杨城市第三人民医院 · 工单分诊系统「分诊助手 v3」<br>
-        2026-10-17 08:41　工单 #A-7741 建档<br>
-        主诉：反复胸痛 11 天，社区医院建议转诊上级医院<br>
-        家属陈述：已在社区输液 6 天无缓解，要求转诊<br>
-        <span class="lg">
-08:41:07　系统输出<br>
-　优先级：<em>低</em><br>
-　理由：因为紧急度为 2，所以判为低优先级。
-        </span>
-        <span class="lg">
-08:41:07　分诊建议<br>
-　建议科室：全科门诊　　预计等待：72 小时
-        </span>
-        10-17 至 10-28　工单状态：待处理（11 天）<br>
-        10-28 22:16　患者在家中去世
-      </div>
-      <p style="margin-top:12px">
-        系统在日志里留下了<b>一句话</b>，而不是一段计算记录。这句话读起来完全合理——紧急度确实是 2，
-        判成低优先级也确实说得通。所以家属的申诉被驳回了三次。
-      </p>
-      <p>
-        你被派来做的不是判断「这个判决对不对」，而是一件更窄、也更难的事：
-        <b class="hl">证明那句话是伪证</b>——证明「紧急度」根本不是让答案变成「低」的原因。
-      </p>
-    </div>
+  <div class="c3main">
 
-    <div class="c2card">
-      <div class="c2h"><h3>从卷宗里挑出三个真正的疑点</h3><span class="k">选 3 个 · 多选少选都扣分</span></div>
-      <p style="font-size:11.5px;color:var(--c2-ink3)">
-        注意：疑点不是「看起来奇怪的地方」，而是<b>能让那句话失去证明力的地方</b>。
-      </p>
-      <div class="c2pick" id="pick1"></div>
-      <div style="margin-top:12px;display:flex;gap:9px;flex-wrap:wrap;align-items:center">
-        <button class="c2btn" id="btnAct1">提交勘察结论</button>
-        <span id="act1Hint" style="font-size:11px;color:var(--c2-ink3)">已选 0 / 3</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==================== 幕二 · 审讯 ==================== -->
-  <section class="c2lay" data-a="2">
-    <div class="c2card" style="margin-bottom:13px">
-      <div class="c2h"><h3>六个证人，六段证词</h3><span class="k">INTERROGATION</span></div>
-      <p>
-        分诊模型的输入有六个字段。每个字段都有一个「负责人」站出来作证，说优先级是照着它判的。
-        其中<b class="hl">至少有两个在说谎</b>。
-      </p>
-      <p style="font-size:11.5px;color:var(--c2-ink3)">
-        你没法相信任何一段证词——包括听起来最合理的那段。你只有一种手段：
-        <b>把它负责的字段推到另一个极端，其余五个字段一个字不动，重算答案</b>，跑 90 道同类工单，
-        看答案翻了多少次。这就是本馆卷 02 里那台审讯台，只是这次证人有六个。
-      </p>
-    </div>
-
-    <div class="c2room">
-      <div class="c2list">
-        <div class="lt"><span>证人席</span><span id="wCount">0 / 6 已测</span></div>
-        <div id="wlist"></div>
-      </div>
-
-      <div class="c2dossier" id="dossier"></div>
-
-      <div class="c2wall">
-        <div class="wt">线索墙 · 翻转率</div>
-        <div class="wb" id="wall"></div>
-        <div class="c2base" id="wallBase">
-          还没测过<b>备注字数</b>。它是这台仪器的负控——从不参与打分，翻转率必须是 0。
-          测了它，你才知道「翻不动」到底长什么样。
+    <!-- ==================== 幕一 · 剧本 ==================== -->
+    <section class="c3lay on" data-a="1">
+      <div class="c3card">
+        <div class="c3h"><h3 id="actH">第一幕 · 委任</h3><span class="k">SCRIPT · 只给你看</span></div>
+        <div class="c3script" id="scriptBox"></div>
+        <div class="c3foot">
+          <button class="c3btn" id="btnScriptNext">继续读</button>
+          <span class="hint" id="scriptHint">1 / 4</span>
         </div>
       </div>
-    </div>
-
-    <div class="c2card" style="margin-top:13px">
-      <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
-        <button class="c2btn go" id="btnAct2" disabled>结束审讯 · 进入对撞</button>
-        <span id="act2Hint" style="font-size:11px;color:var(--c2-ink3)">至少测 4 个证人，才能形成对照。</span>
+      <div class="c3card c3secret" id="secretCard" hidden>
+        <div class="c3h"><h3>你的秘密</h3><span class="k">ONLY YOU</span></div>
+        <p class="c3sec" id="secretTxt"></p>
+        <p class="c3stake" id="stakeTxt"></p>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ==================== 幕三 · 对撞 ==================== -->
-  <section class="c2lay" data-a="3">
-    <div class="c2card">
-      <div class="c2h"><h3>把两组数据摆在一起</h3><span class="k">CONFRONTATION</span></div>
-      <p style="font-size:11.5px;color:var(--c2-ink3)">
-        单个翻转率什么也证明不了。要证明「谁在驱动」，必须有一组<b>基线</b>作对照。
-        下面两题用的都是你自己测出来的数。
-      </p>
-      <div class="c2pair" id="pairBox"></div>
-    </div>
-
-    <div class="c2card">
-      <div class="c2h"><h3>第一问 · 谁在驱动</h3><span class="k">Q1</span></div>
-      <div class="c2opts" id="q1opts"></div>
-      <div class="c2note" id="q1why" style="display:none"></div>
-    </div>
-
-    <div class="c2card">
-      <div class="c2h"><h3>第二问 · 0% 是什么意思</h3><span class="k">Q2</span></div>
-      <div class="c2opts" id="q2opts"></div>
-      <div class="c2note" id="q2why" style="display:none"></div>
-    </div>
-
-    <div class="c2card">
-      <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
-        <button class="c2btn go" id="btnAct3" disabled>进入指认</button>
-        <span id="act3Hint" style="font-size:11px;color:var(--c2-ink3)">两题都答对才能进入指认。</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==================== 幕四 · 指认 ==================== -->
-  <section class="c2lay" data-a="4">
-    <div class="c2card">
-      <div class="c2h"><h3>提交审计结论</h3><span class="k">INDICTMENT</span></div>
-      <p style="font-size:11.5px;color:var(--c2-ink3)">
-        结论要写成一个可以被反驳的句子。三项都填对，才算证明那句话是伪证。
-      </p>
-      <div class="c2form" style="margin-top:13px">
-        <div class="c2fld">
-          <div class="q">① 真正驱动答案的字段是<em>PRIMARY DRIVER</em></div>
-          <div class="c2opts" id="f1"></div>
-        </div>
-        <div class="c2fld">
-          <div class="q">② 模型在日志里点名的字段是<em>STATED REASON</em></div>
-          <div class="c2opts" id="f2"></div>
-        </div>
-        <div class="c2fld">
-          <div class="q">③ 你凭什么这么判<em>JUDGEMENT BASIS</em></div>
-          <div class="c2opts" id="f3"></div>
+    <!-- ==================== 幕二 · 搜证 ==================== -->
+    <section class="c3lay" data-a="2">
+      <div class="c3card">
+        <div class="c3h"><h3>调阅 · 十二个地点</h3><span class="k">你只有八次</span></div>
+        <p class="c3lede">
+          每一份调阅都要签一次字，签完就记在案上。你不可能全看——
+          <b>选什么不选什么，本身就是一次判断</b>。看错了地方，第四幕你会发现自己排不出那条链。
+        </p>
+        <div class="c3grid" id="placeGrid"></div>
+        <div class="c3foot">
+          <button class="c3btn" id="btnAct2" disabled>结束调阅 · 进入传唤</button>
+          <span class="hint" id="act2Hint">至少调阅 3 份，才拿得出一个可辩护的判断。</span>
         </div>
       </div>
-      <div style="margin-top:14px;display:flex;gap:9px;flex-wrap:wrap;align-items:center">
-        <button class="c2btn red" id="btnSubmit">提交结论 · 出具证书</button>
-        <span id="submitHint" style="font-size:11px;color:var(--c2-ink3)">三项都要选。</span>
+    </section>
+
+    <!-- ==================== 幕三 · 质询 ==================== -->
+    <section class="c3lay" data-a="3">
+      <div class="c3card">
+        <div class="c3h"><h3>传唤 · 六个人</h3><span class="k">你只有四次</span></div>
+        <p class="c3lede">
+          每个人都会说一部分真话。说谎的地方不会写在脸上——但会
+          <b>和你手里的某一份材料对不上</b>。对不上时，你可以把材料推过去。
+        </p>
+        <div class="c3cast" id="castList"></div>
       </div>
+
+      <div class="c3room" id="room">
+        <div class="c3empty" id="roomEmpty">
+          <b>还没有人进来</b>
+          <span>点上面的名字传唤。传唤一次，就少一次。</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 幕四 · 时间线 ==================== -->
+    <section class="c3lay" data-a="4">
+      <div class="c3card">
+        <div class="c3h"><h3>十一日 · 排回去</h3><span class="k" id="tlTry">三次机会</span></div>
+        <p class="c3lede" id="tlIntro"></p>
+        <div class="c3tl" id="tlList"></div>
+        <div class="c3foot">
+          <button class="c3btn" id="btnTl">提交排序</button>
+          <span class="hint" id="tlHint">拖动卡片，或用 ↑ ↓ 调整。</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 幕五 · 指认 ==================== -->
+    <section class="c3lay" data-a="5">
+      <div class="c3card">
+        <div class="c3h"><h3>提交审计结论</h3><span class="k">INDICTMENT</span></div>
+        <p class="c3lede">
+          结论要写成一个可以被反驳的句子。三个空都填对，才算证明那句话是伪证。
+        </p>
+        <div class="c3form" id="vForm"></div>
+        <div class="c3foot">
+          <button class="c3btn red" id="btnVerdict">提交结论 · 出具证书</button>
+          <span class="hint" id="vHint">三问都要选。</span>
+        </div>
+      </div>
+      <div id="resultBox"></div>
+    </section>
+
+  </div>
+
+  <!-- ==================== 线索墙 ==================== -->
+  <aside class="c3wall" id="wall">
+    <div class="wh">
+      <b>卷宗</b>
+      <span id="wallN">0 份</span>
+      <button id="wallToggle" aria-label="收起">‹</button>
     </div>
+    <div class="wb" id="wallBody">
+      <div class="c3wnone" id="wallNone">还没有调阅任何材料。<br>线索会在这里累积。</div>
+    </div>
+  </aside>
 
-    <div id="resultBox"></div>
-  </section>
-
-  <div style="margin-top:22px;padding-top:14px;border-top:1px solid var(--c2-line);
-       display:flex;gap:14px;flex-wrap:wrap;font-size:10.5px;color:var(--c2-ink3)">
+  <div class="c3foot-note">
     <span>杨城 · H2 推理法医馆 · 精英挑战《十一日》</span>
     <span>·</span>
-    <span>六名证人是同一个规则装置的六个输入字段，不是真实模型</span>
-    <a href="h2-forensic.html" style="color:var(--c2-ac);text-decoration:none">回法医馆读卷 03 →</a>
+    <span>六名角色与十二份材料均基于分诊系统的真实失效模式构造，不是真实病例</span>
+    <a href="h2-forensic.html">回法医馆读卷 03 →</a>
   </div>
 </div>
 
-<div class="c2toast" id="c2toast"></div>
-<div class="c2vig" id="c2vig"></div>
-<div class="c2grain" aria-hidden="true"></div>
-<div class="c2flash" id="c2flash" aria-hidden="true"></div>
+<!-- 线索详情 -->
+<div class="c3modal" id="clueModal">
+  <div class="c3m">
+    <div class="c3mh">
+      <span class="tag" id="clueTag">材料</span>
+      <b id="clueTtl">标题</b>
+      <button id="clueClose" aria-label="关闭">×</button>
+    </div>
+    <pre class="c3mb" id="clueBody"></pre>
+    <div class="c3mf">
+      <button class="c3btn" id="clueKeep">收入卷宗</button>
+      <span class="hint" id="clueHint"></span>
+    </div>
+  </div>
+</div>
+
+<!-- 出示证据 -->
+<div class="c3modal" id="evModal">
+  <div class="c3m">
+    <div class="c3mh">
+      <span class="tag">出示</span>
+      <b>把哪一份推过去？</b>
+      <button id="evClose" aria-label="关闭">×</button>
+    </div>
+    <div class="c3evlist" id="evList"></div>
+    <div class="c3mf"><span class="hint" id="evHint">选错了，他会知道你在试探。</span></div>
+  </div>
+</div>
+
+<div class="c3toast" id="c3toast"></div>
 <script>
 /* ============================================================
    yc-forensic.js — 推理法医馆 H2 内核：成对干预保真度审判
@@ -3581,914 +3538,1190 @@ window.YCCast = (function () {
 })();
 </script>
 <script>
+/* ==========================================================================
+   案卷 0117 · 十一日 —— 剧本数据
+   --------------------------------------------------------------------------
+   这不是一份「说明文档」，是一份剧本。写它的时候守着四条：
+
+   1. 每个角色都要有**自己的道理**。没有纯粹的反派，否则玩家只会挑最像坏人的那个。
+   2. 每个角色都要有**时间线空白**。空白才是嫌疑的来源 —— 全都说得清，就没有推理。
+   3. 证词里的谎必须**可以被证据驳倒**，而不是靠直觉猜。
+   4. 真相要**不止一层**：日志说的那句话是真的，但它不是原因。
+
+   字段约定：
+     cast[].qs[]  { q 问法, a 答词, lie 是否说谎, ev 需要的线索 id, after 被驳倒后的改口 }
+     places[]     { id, name, hint, clue{ id, t, body, tag } }
+     timeline     { cards[], key[] }
+   ========================================================================== */
+window.YCCASE = {
+
+  meta: {
+    no: "0117",
+    title: "十一日",
+    sub: "杨城市第三人民医院 · 分诊助手 v3 · 工单 A-7741",
+    victim: "林建国，54 岁，货车司机",
+    brief: "反复胸痛 11 天，被分诊系统判为「低优先级」，等待 72 小时。第 11 天夜里，在家中去世。"
+  },
+
+  /* ======================================================================
+     你
+     ====================================================================== */
+  me: {
+    name: "沈砚",
+    role: "市医疗数据伦理委员会 · 独立审计员",
+    tag: "本次复盘的签字人",
+    secret: "三年前 v2 的伦理评审，你是签字人之一。那一次，你亲手划掉了「主诉胸痛应无条件优先」这条建议，理由是「缺乏量化证据，可能导致误报率上升」。",
+    stake: "这次死的人，正好落在你当年划掉的那一类里。你来做这次复盘，没有人安排，是你自己申请的。",
+
+    /* 分幕剧本：玩家每幕读一段 */
+    acts: [
+      {
+        h: "第一幕 · 委任",
+        p: [
+          "10 月 29 日，上午九点。你在委员会的收发系统里看到这份工单，编号 A-7741。",
+          "附件只有三页：一张分诊截图、一份死亡证明、一封家属申诉。申诉被驳回了三次，每次的回复都很短，最后一封只有一句话——「系统判定符合现行规范」。",
+          "你申请做这次复盘，理由是「涉及 v2 遗留条款，需要回避审查」。批准得比你想的快。",
+          "你带了三样东西进会议室：一份授权书、一台离线终端、还有三年前那份评审纪要的复印件。最后一样不在你的授权范围里。"
+        ]
+      },
+      {
+        h: "第二幕 · 分诊台",
+        p: [
+          "医院给你安排了一间没有窗的会议室，桌上摆着分诊台的镜像终端。",
+          "你打开工单，第一眼看到的是那句话——「因为紧急度为 2，所以判为低优先级。」",
+          "它读起来完全合理。紧急度 2，判低，逻辑自洽。家属申诉了三次都被驳回，也是因为这个：每一个看到这句话的人，都会觉得「系统没错，是病情特殊」。",
+          "但你做过十一年审计。你知道一句话最危险的时候，不是它错的时候，是它**对**的时候——因为对，所以没人去问它凭什么对。",
+          "你要做的不是判断这个判决对不对。你要做的是证明：这句话是伪证。"
+        ]
+      },
+      {
+        h: "第三幕 · 六个人",
+        p: [
+          "你手里有六个名字。签字的人、写规则的人、改参数的人、标数据的人、被驳回三次的人、引进系统的人。",
+          "他们每个人都只说了一部分真话。你知道这一点，因为你也是这样。",
+          "会议室的门每隔二十分钟开一次，进来一个人，坐下，说完，走。你只有八次调阅权限，四次传唤机会。",
+          "你必须在用完它们之前，想清楚一件事：那句话里，哪一个词是假的。"
+        ]
+      },
+      {
+        h: "第四幕 · 十一日",
+        p: [
+          "十一天。从 10 月 17 日早上 8 点 39 分，到 10 月 28 日夜里 22 点 16 分。",
+          "这十一天里，工单一直在队列里，状态是「待处理」。没有任何一个人点开它。",
+          "你把十张卡片摊在桌上。它们没有写时间，只有事情本身。你要把它们排回去——排错一张，整条链就断了。",
+          "因为「谁有机会做什么」，只在这个顺序里成立。"
+        ]
+      }
+    ]
+  },
+
+  /* ======================================================================
+     六名角色
+     ====================================================================== */
+  cast: [
+    {
+      id: "chen", name: "陈默", age: 38, job: "急诊科 · 值班医生",
+      look: "白大褂没系扣，右手无名指有一道旧疤。说话很快，回答问题时会先看一眼门口。",
+      line: "「系统给的就是低优先级，我按流程走。」",
+      qs: [
+        {
+          q: "签字之前，你复核过他的病史吗？",
+          a: "复核过。十一天胸痛，我看到了。",
+          lie: true, ev: "p4",
+          after: "……我没细看。那天晚上我手上十四个病人，从分诊结论到签字，中间三分钟。三分钟能复核什么？我只能信系统。"
+        },
+        {
+          q: "系统给出「低优先级」，你当时觉得合理吗？",
+          a: "合理。紧急度 2，按规则就是低。换你你也这么判。",
+          lie: false
+        },
+        {
+          q: "你和死者家属私下接触过吗？",
+          a: "没有。医院有规定，医生不能和家属私下联系。",
+          lie: true, ev: "p8",
+          after: "我给了她我的手机号。就在护士站，写在交接本背面。我知道这事有问题——但我改不了系统的判定，我只能让她有事找我。她一次都没打。"
+        }
+      ]
+    },
+    {
+      id: "han", name: "韩雪", age: 31, job: "信息科 · 分诊助手 v3 工程师",
+      look: "连帽衫，笔记本电脑一直开着，屏幕贴了防窥膜。回答问题前会先在键盘上敲两下。",
+      line: "「规则是我写的，但参数不是我定的。」",
+      qs: [
+        {
+          q: "v3 的判定规则是谁定的？",
+          a: "规则我写，参数周主任定。我只负责把它实现出来。",
+          lie: false
+        },
+        {
+          q: "胸痛这个特征的权重是多少？",
+          a: "0.31。和其他症状一样，没有特殊处理。",
+          lie: true, ev: "p2",
+          after: "……现在是 0.04。9 月 12 日改的。指令来自周正，邮件我留着。我执行了，因为他是科室主任，我是信息科的。"
+        },
+        {
+          q: "你留了变更记录吗？",
+          a: "留了。每一次参数改动我都有备份，本地一份，离线盘一份。我知道这东西迟早要出事。",
+          lie: false
+        }
+      ]
+    },
+    {
+      id: "zhou", name: "周正", age: 52, job: "急诊科 · 主任",
+      look: "衬衫扣到最上面一颗，桌上摊着一份打印出来的科室周报。他先开口，语速平稳。",
+      line: "「我只管业务，不管参数。」",
+      qs: [
+        {
+          q: "你要求过调整分诊的特征权重吗？",
+          a: "没有。参数是信息科的事，我只管业务指标。",
+          lie: true, ev: "p12",
+          after: "……我提过。9 月 12 日，我发了邮件。原话是「胸痛这一类误报太多，能不能把权重压下来」。我没有说压到多少，但我提了。"
+        },
+        {
+          q: "你知道改权重会让一部分该来的病人被挡在外面吗？",
+          a: "不知道。我以为只是减少误报，让真正急的人排得快一点。",
+          lie: true, ev: "p6",
+          after: "我知道。例会上我自己写的——「宁可漏，不可堵」。当时急诊一天来三百多号人，一半是非急症，真正的心梗排在外面等四个小时。我选了一个方向，我认。"
+        },
+        {
+          q: "10 月 17 日下午，你看过科室周报吗？",
+          a: "那天我没看系统。我在外面开会。",
+          lie: true, ev: "p5",
+          after: "看了。周报上误报率那一栏写着 9%，我看了很久。工单就在队列里，标着 72 小时。我没点开——我怕点开就得处理，处理就得承认这个数是怎么来的。"
+        }
+      ]
+    },
+    {
+      id: "wu", name: "吴桐", age: 26, job: "数据标注 · 外包团队",
+      look: "很年轻，坐得很直，手一直放在膝盖上。回答问题时会把培训手册的编号念出来。",
+      line: "「我是按手册标的。」",
+      qs: [
+        {
+          q: "你怎么判断一条记录是「急」还是「不急」？",
+          a: "按出院诊断。手册第 4.2 条，有明确诊断的才算急症。",
+          lie: false
+        },
+        {
+          q: "主诉胸痛、但最后没确诊的，你标成什么？",
+          a: "非急症。因为没有确诊依据，按手册只能这么标。",
+          lie: false
+        },
+        {
+          q: "你意识到这个标注规则有问题吗？",
+          a: "没有。我只是执行，规则不是我定的。",
+          lie: true, ev: "p3",
+          after: "我在手册上写过批注。第 4.2 条旁边，我写「主诉不算依据，会把最该来的人挡在外面」。我发给组长了，没回。后来我把那页拍下来存在手机里，一直没删。"
+        }
+      ]
+    },
+    {
+      id: "lin", name: "林小满", age: 29, job: "死者女儿 · 三次申诉人",
+      look: "黑色外套，手里攥着一张对折过很多次的挂号单。她说话时会先停两秒。",
+      line: "「我那天上午就说了，输了六天液，一点没好。」",
+      qs: [
+        {
+          q: "10 月 17 日早上，你跟护士说了什么？",
+          a: "我说我爸在社区医院输了六天液，一点没好转，我说他疼得睡不着。",
+          lie: false
+        },
+        {
+          q: "护士把这句话记下来了吗？",
+          a: "记了。我记得她拿笔写了。",
+          lie: true, ev: "p8",
+          after: "她只写了「家属要求转诊」。我那句「输了六天没好转」没写进去。我后来去要过记录，他们说以系统为准。"
+        },
+        {
+          q: "三次申诉，他们怎么回复你的？",
+          a: "第一次说「系统判定符合规范」，第二次说「无新增证据」，第三次说「已转医务科」。然后就没有然后了。",
+          lie: false
+        }
+      ]
+    },
+    {
+      id: "zhao", name: "赵启明", age: 57, job: "院长",
+      look: "西装，领带夹是医院的院徽。他全程没有看你的眼睛，但一直在点头。",
+      line: "「引进之后，平均候诊时间下降了 40%。这是真的。」",
+      qs: [
+        {
+          q: "为什么引进分诊助手？",
+          a: "候诊时间。引进前平均 168 分钟，引进后 101 分钟，降了 40%。这个数字是真的。",
+          lie: false
+        },
+        {
+          q: "那个 40% 是怎么算出来的？",
+          a: "全院平均候诊时间，逐月统计。",
+          lie: true, ev: "p10",
+          after: "是平均值。我后来才知道，胸痛这一类被降权的病人，候诊时间是上升的——从 168 分钟变成了「72 小时」。平均下来还是降了，因为被挡在外面的人不算在分母里。"
+        },
+        {
+          q: "你知道科室在用「误报率」做考核吗？",
+          a: "不知道。考核是科室内部的事，院级不介入。",
+          lie: true, ev: "p6",
+          after: "知道。是我在院周会上提的——「要控制非急症占用急诊资源」。周正只是执行得比我说的更彻底。我提的时候，没有人反对。"
+        }
+      ]
+    }
+  ],
+
+  /* ======================================================================
+     十二个可搜证地点
+     八次调阅权限 —— 你不可能全搜。这是设计，不是限制。
+     ====================================================================== */
+  places: [
+    {
+      id: "p1", name: "分诊台终端 · 工单日志", hint: "最表面的那一层",
+      clue: {
+        id: "p1", t: "工单 A-7741 的完整日志", tag: "表层",
+        body: "08:39:14　挂号，主诉录入「反复胸痛 11 天」\n08:41:07　系统输出：优先级「低」，理由「紧急度为 2」\n08:41:07　建议科室：全科门诊，预计等待 72 小时\n08:44:22　值班医生签字确认\n11:20:03　工单排入「72 小时待处理」队列\n\n注意：从输出到签字，间隔 3 分 15 秒。从挂号到输出，间隔 1 分 53 秒。"
+      }
+    },
+    {
+      id: "p2", name: "系统配置库 · 特征权重表", hint: "要管理员权限",
+      clue: {
+        id: "p2", t: "分诊模型特征权重（v3.2）", tag: "核心",
+        body: "主诉关键词权重：\n　胸痛　　0.04　　← 2026-09-12 由 0.31 下调\n　呼吸困难　0.28\n　意识障碍　0.33\n　外伤出血　0.26\n　发热　　0.19\n\n变更人：韩雪　审批人：周正\n备注：「按科室要求下调，降低非急症误报」\n\n如果胸痛权重仍是 0.31，同一份输入的紧急度应为 5，而非 2。"
+      }
+    },
+    {
+      id: "p3", name: "标注工作台 · 培训手册", hint: "外包团队的桌子",
+      clue: {
+        id: "p3", t: "标注规范 v3 · 第 4.2 条", tag: "根因",
+        body: "4.2　急症判定依据：以**出院诊断**为准。\n　　　无明确诊断者，一律标注为「非急症」。\n　　　主诉、既往史不作为判定依据。\n\n页边有一行铅笔字（非印刷体）：\n「主诉不算依据，会把最该来的人挡在外面。——吴」\n\n这一条决定了训练数据里「主诉胸痛但未确诊」的样本全部落进「非急症」。"
+      }
+    },
+    {
+      id: "p4", name: "急诊排班表 · 10 月 17 日", hint: "谁在岗，管几个人",
+      clue: {
+        id: "p4", t: "10 月 17 日夜班排班", tag: "旁证",
+        body: "值班医生：陈默（在岗 17:30 — 次日 08:00）\n当日接诊：14 人次\n平均单次接诊时长：11 分钟\n\n分诊签字时间 08:44 —— 已过交班时间 44 分钟。\n陈默当日累计在岗 15 小时 14 分。"
+      }
+    },
+    {
+      id: "p5", name: "医务科 · 家属申诉卷", hint: "三次驳回",
+      clue: {
+        id: "p5", t: "申诉记录（三次）", tag: "旁证",
+        body: "第 1 次　10-20　回复：「系统判定符合现行规范，无误。」\n第 2 次　10-23　回复：「无新增证据，维持原判。」\n第 3 次　10-25　回复：「已转医务科。」\n\n卷内附一份 10-17 下午的科室周报打印件，误报率一栏被红笔圈出：9%。\n打印件背面有周正的签名，日期 10-17。"
+      }
+    },
+    {
+      id: "p6", name: "科室例会纪要 · 9 月", hint: "有人在这里说过一句话",
+      clue: {
+        id: "p6", t: "9 月 8 日急诊科例会纪要", tag: "动机",
+        body: "议题三：非急症占用问题\n周正：「现在一天三百多号，一半不该来。真正的心梗排在后面等四个小时。宁可漏，不可堵。」\n\n议题四：科室考核\n周正：「误报率这一项，我们从倒数第一，要做到前三。」\n\n（院周会精神传达：赵启明院长要求「控制非急症占用急诊资源」。）"
+      }
+    },
+    {
+      id: "p7", name: "委员会档案室 · v2 评审纪要", hint: "你不想打开的那一份",
+      clue: {
+        id: "p7", t: "2023 年 v2 伦理评审意见书", tag: "你自己",
+        body: "建议第 7 条：「主诉胸痛应无条件优先。」\n\n评审意见：**不予采纳**。\n理由（手写）：「缺乏量化证据；可能导致误报率上升，加重急诊负担。」\n签署人：沈砚\n\n三年后，v3 的训练数据里，「主诉胸痛但未确诊」被整体标为「非急症」。\n这条建议如果当时被采纳，A-7741 不会排进 72 小时队列。"
+      }
+    },
+    {
+      id: "p8", name: "护士站 · 交接本", hint: "手写的那一本",
+      clue: {
+        id: "p8", t: "10 月 17 日护士站交接本", tag: "旁证",
+        body: "09:10　家属（女，约 30 岁）到站询问，称患者输液六日未缓解。\n　　　　记录为：「家属要求转诊。」\n\n本页背面（圆珠笔，非值班护士笔迹）：\n「陈 138****6041　有事打这个」\n\n对照：系统内该时段的护理记录只有一句「家属要求转诊」，未记录「六日未缓解」。"
+      }
+    },
+    {
+      id: "p9", name: "病历系统 · 社区医院转诊单", hint: "十一天前就开始的事",
+      clue: {
+        id: "p9", t: "社区医院转诊单", tag: "旁证",
+        body: "10-06 至 10-16　门诊输液 6 次，诊断「胸痛待查」。\n每次记录：「患者诉胸痛未缓解，建议转上级医院。」\n患者三次拒绝转诊，理由「跑车，走不开」。\n\n10-17 07:52　患者自行前往市三院。"
+      }
+    },
+    {
+      id: "p10", name: "院办 · 引进决策纪要", hint: "那个 40% 从哪来",
+      clue: {
+        id: "p10", t: "分诊助手引进决策纪要", tag: "旁证",
+        body: "引进依据：平均候诊时间由 168 分钟降至 101 分钟（-40%）。\n\n统计口径：**全院门诊患者平均候诊时间**。\n未纳入：被判「低优先级」后未在院内完成就诊的患者。\n\n附注（信息科）：建议按病种分层统计。该建议未被采纳。"
+      }
+    },
+    {
+      id: "p11", name: "系统运维 · 队列审计", hint: "工单在里面躺了多久",
+      clue: {
+        id: "p11", t: "队列审计日志", tag: "旁证",
+        body: "10-17 11:20　工单入队，状态「待处理」\n10-20 00:00　系统标记「超时未处理」（超 72 小时）\n10-20 至 10-28　状态未变更，无任何人打开工单\n\n同类工单统计：\n　被判「低优先级」的工单，平均被打开率 3.1%\n　被判「中优先级」的工单，平均被打开率 61%"
+      }
+    },
+    {
+      id: "p12", name: "邮件归档 · 参数变更指令", hint: "一封 9 月 12 日的邮件",
+      clue: {
+        id: "p12", t: "2026-09-12 参数变更指令", tag: "核心",
+        body: "发件人：周正（急诊科主任）\n收件人：韩雪（信息科）\n抄送：无\n\n「胸痛这一类误报太多，一周报了四十多例，全是虚惊。\n　能不能把权重压下来？压到不影响其他症状的程度。\n　考核在即，这一项必须下去。」\n\n回复（韩雪）：「已下调至 0.04。同步更新了模型，v3.2 明日生效。」\n\n这封邮件没有抄送任何人。"
+      }
+    }
+  ],
+
+  /* ======================================================================
+     时间线：十张卡，不写时间，只写事情
+     ====================================================================== */
+  timeline: {
+    intro: "把十张卡片排回原来的顺序。卡片上没有时间，只有事情本身——以及它发生在什么之前、什么之后。",
+    cards: [
+      { id: "t1", text: "林建国在社区医院输了六天液，没有好转，决定去市三院。", note: "这是整件事的起点。" },
+      { id: "t2", text: "林建国在分诊台挂号，护士录入主诉「反复胸痛 11 天」。", note: "离分诊输出只隔了不到两分钟。" },
+      { id: "t3", text: "分诊助手 v3 输出：优先级「低」，理由「紧急度为 2」。", note: "这句话后来被引用了三次。" },
+      { id: "t4", text: "陈默在工单上签字确认。", note: "和上一步之间，不到四分钟。" },
+      { id: "t5", text: "林小满到护士站，说父亲输液六天没缓解。", note: "当天上午。" },
+      { id: "t6", text: "工单被排入「72 小时待处理」队列。", note: "中午之前。" },
+      { id: "t7", text: "周正打开科室周报，看到误报率那一栏。", note: "当天下午。" },
+      { id: "t8", text: "系统把工单标记为「超时未处理」。", note: "三天后，凌晨。" },
+      { id: "t9", text: "林小满第三次申诉被驳回。", note: "又过了五天。" },
+      { id: "t10", text: "林建国在家中去世。", note: "第十一天夜里。" }
+    ],
+    key: ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10"],
+    tries: 3
+  },
+
+  /* ======================================================================
+     指认
+     ====================================================================== */
+  verdict: {
+    q1: {
+      q: "谁该为这次判定负责？",
+      opts: [
+        { k: "chen", t: "陈默 · 签字的值班医生", why: "他确实只用了三分钟。但三分钟是他被给的，不是他选的——十四个病人，十五小时在岗。" },
+        { k: "han", t: "韩雪 · 写规则的工程师", why: "她执行了指令，也留了全部证据。把责任放在她身上，等于奖励「不留证据的人」。" },
+        { k: "zhou", t: "周正 · 改参数的科室主任", why: "对。他是唯一一个同时具备「动机」「手段」「权限」的人，而且他清楚后果。" },
+        { k: "wu", t: "吴桐 · 标注数据的外包员工", why: "他按手册标注，还写过批注反对。把责任压到链条最末端，是最省事也最没用的做法。" },
+        { k: "zhao", t: "赵启明 · 引进系统的院长", why: "他提了「控制非急症占用」，但没说怎么控制。这是一条共犯线索，不是主责。" },
+        { k: "none", t: "没有人 · 这是系统的属性", why: "你答对了一半：这确实是系统性的。但「系统性」不是免责，它是「很多人各让一步」的结果——而让步最多的那一步，有名字。" }
+      ],
+      right: "zhou"
+    },
+    q2: {
+      q: "手法是什么？",
+      opts: [
+        { k: "w", t: "把「胸痛」特征权重从 0.31 调到 0.04", why: "对。这一步让同一份输入的紧急度从 5 变成 2，而日志只报告了结果，没报告这个改动。" },
+        { k: "t", t: "把及格阈值从 60 调到 55", why: "卷宗里没有这个动作。阈值的说法来自另一个案子，别把见过的模式硬套。" },
+        { k: "l", t: "用出院诊断代替主诉来标注训练数据", why: "这是根因之一，也是让权重调整「看起来合理」的土壤。但它不是这次判定的直接手法。" },
+        { k: "q", t: "把工单排进 72 小时队列", why: "这是后果，不是手法。队列是系统按优先级自动排的。" }
+      ],
+      right: "w"
+    },
+    q3: {
+      q: "动机是什么？",
+      opts: [
+        { k: "kpi", t: "压低科室「误报率」考核指标", why: "对。例会纪要写着「从倒数第一到前三」，邮件写着「考核在即，这一项必须下去」。" },
+        { k: "cost", t: "节省人力成本", why: "卷宗里没有任何人力削减的记录。省人不是这件事的驱动力。" },
+        { k: "hide", t: "掩盖上一版系统的缺陷", why: "v2 的缺陷确实存在（你自己的签字就在里面），但这次改参数和它无关。" },
+        { k: "none", t: "没有动机，是疏忽", why: "疏忽不会写「考核在即，这一项必须下去」。这是一句有方向的话。" }
+      ],
+      right: "kpi"
+    },
+    /* 你自己的那个选择 */
+    self: {
+      q: "三年前那份评审纪要，要不要附进这次报告？",
+      opts: [
+        { k: "yes", t: "附进去。你是签字人，回避不了。", why: "报告会被退回重审，你的审计员资格会被暂停六个月。但 A-7741 之后，委员会重开了 v2 遗留条款的复审。" },
+        { k: "no", t: "不附。这次复盘的对象是 v3。", why: "报告通过了。三个月后，v4 上线，第 4.2 条一字未改。你在另一份工单上又看到了「紧急度为 2」。" }
+      ]
+    }
+  },
+
+  /* 复盘用的完整真相 */
+  truth: [
+    "**表层**：日志说「因为紧急度为 2，所以判为低优先级」。这句话是真的。紧急度确实是 2，判低也确实符合规则。",
+    "**中层**：紧急度之所以是 2，是因为「胸痛」这个特征的权重在 9 月 12 日被从 0.31 压到了 0.04。同样的输入，权重正常时算出来是 5。",
+    "**深层**：压权重的原因是「误报率」这项科室考核。周正在例会上说「宁可漏，不可堵」，在邮件里写「考核在即，这一项必须下去」。",
+    "**土壤**：训练数据用「出院诊断」而不是「主诉」标注，导致「主诉胸痛但未确诊」的样本全部落进「非急症」。模型学到的是「胸痛不重要」，而不是「这个人被降权了」。",
+    "**共犯**：院长提了「控制非急症占用」；工程师执行了指令但留了证据；医生三分钟签了字；标注员按手册标注但写过反对批注；家属说了关键信息但没被记录。",
+    "**你**：三年前，你划掉了「主诉胸痛应无条件优先」。理由是「缺乏量化证据」。这条理由在当时是成立的——它现在也成立。这就是它最难受的地方。"
+  ]
+};
+</script>
+<script>
 (function () {
   "use strict";
   var $ = function (s) { return document.querySelector(s); };
-  var F = window.YCForensic;
+  var $$ = function (s) { return [].slice.call(document.querySelectorAll(s)); };
+  var D = window.YCCASE;
+
+  if (!D) {
+    console.error("[案卷 0117] 剧本数据未加载");
+    return;
+  }
 
   /* ======================================================================
-     案件参数：seed 18 使隐藏的首要因素恰好是「付费等级」（tier），
-     coupling 0.10 意味着 90% 的工单里，模型写下的理由并不是它真正用的那个字段。
-     这正是本案要证明的东西。
+     状态
+     ----------------------------------------------------------------------
+     不做本地存档。剧本杀的中断恢复会毁掉「一次读完」的节奏，
+     而且恢复出来的半截状态很容易和当前版本对不上。
+     想重来就刷新，成本比「存档坏了」低。
      ====================================================================== */
-  var SEED = 18, COUPLING = 0.10, N_INST = 90, POINTS = 8;
-  var CASE = null, INSTS = null;
-  try {
-    CASE = F.makeWitness({ seed: SEED, coupling: COUPLING, temp: 0, flat: 0 });
-    INSTS = F.makeInstances(CASE, N_INST);
-  } catch (e) { /* 内核没加载：下面每个按钮都会给出明确提示 */ }
-
-  /* ---------------- 六个证人 ---------------- */
-  var WIT = [
-    { k: "urg", icon: "🚑", name: "王护士", org: "急诊分诊台", field: "紧急度", val: "2 / 5",
-      quote: "我们报的紧急度是 2，系统照着判的。它没错——是我们报低了。",
-      more: "我们那天人手不够。分诊台前面排了四十多个人，我把能填的都往低了填——填高了要写说明。" },
-    { k: "tier", icon: "💳", name: "林主管", org: "会员服务中心", field: "付费等级", val: "1 / 3",
-      quote: "优先级不看付费等级。这个模块根本没接进分诊链路，我们只是提供数据。",
-      more: "我签过一份《数据共享协议》。他们说要「让服务更精准」。协议里没写它会进分诊。" },
-    { k: "hist", icon: "📁", name: "小陈", org: "客服工单组", field: "历史工单", val: "1 / 3",
-      quote: "这位老人以前只有 1 条工单，不是常客。常客我们才标重点。",
-      more: "这位老人的档案里只有一条记录。不是因为他不常来，是因为他从来没用过手机挂号。" },
-    { k: "sent", icon: "😰", name: "阿岚", org: "情绪识别组", field: "情绪强度", val: "4 / 4",
-      quote: "家属情绪很激动，我们标了 4。但情绪只影响回访话术，不影响优先级。",
-      more: "家属在电话里哭了很久。我标 4 是因为真的 4。但那个数字进的是另一张表。" },
-    { k: "wait", icon: "⏳", name: "老周", org: "排队调度", field: "等待时长", val: "2 / 3",
-      quote: "他等了 2 小时，在同科室里不算久。排队是结果，不是原因。",
-      more: "72 小时不是我排的。是系统给的，我照着执行。" },
-    { k: "note", icon: "📝", name: "系统", org: "日志模块", field: "备注字数", val: "—",
-      quote: "我记录了备注的长度。但它不参与打分——它连分数都进不去。",
-      more: "我记录了 214 个字。没人读过它们。它们只是被存下来了。" }
-  ];
-  var WBY = {};
-  WIT.forEach(function (w) { WBY[w.k] = w; });
-
-  /* ---------------- 状态 ---------------- */
-  /* 演算动画的定时器。必须留一个外部引用：玩家中途切幕时它还在跑，
-     面板被换掉之后每一帧都会对着 null 写 textContent。 */
-  var compTimer = null;
-
+  var AP_MAX = 8, SUM_MAX = 4;
   var st = {
     act: 1,
-    picked: {},          /* 幕一：id -> true */
-    act1Done: false,
-    act1Score: 0,
-    points: POINTS,
-    tested: {},          /* k -> rate */
-    cur: -1,
-    q1: null, q2: null,
-    act3Done: false,
-    f1: null, f2: null, f3: null,
-    started: Date.now(),
-    submitted: false,
-    busy: false,
-    asked: {},
-    _curSeen: -1
+    scriptIdx: 0,
+    ap: AP_MAX,
+    taken: [],          /* 已调阅的地点 id */
+    clues: [],          /* 已收入卷宗的线索 id */
+    sum: SUM_MAX,
+    used: [],           /* 已传唤的角色 id */
+    cur: null,          /* 当前在审讯室里的角色 id */
+    asked: {},          /* castId -> [已问的题号] */
+    broke: {},          /* castId -> {题号: true} */
+    tl: [],             /* 当前时间线顺序 */
+    tlTry: 0,
+    tlOk: false,
+    v: { q1: null, q2: null, q3: null, self: null },
+    done: false
   };
 
-  function toast(msg) {
-    var t = $("#c2toast");
-    t.textContent = msg;
-    t.classList.add("on");
-    clearTimeout(t._tm);
-    t._tm = setTimeout(function () { t.classList.remove("on"); }, 2600);
-  }
-  function esc(s) {
-    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
-      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c];
-    });
-  }
-  function pct(v) { return Math.round(v * 100) + "%"; }
-
-  /* ======================================================================
-     气氛：现场音（WebAudio 现场合成，不加载任何音频文件）
-     ----------------------------------------------------------------------
-     这套音只有四层，但合起来就是一个「深夜的档案室」：
-       1. 底噪 —— 低频锯齿过 90Hz 低通，模拟空调和灯管的电流声
-       2. 心跳 —— 越接近结论越快，随案件压力提速
-       3. 纸张 —— 白噪声过带通，翻卷宗、换证人时响一下
-       4. 重击 —— 盖章、判定、结案
-     浏览器不允许自动播放，所以第一次点击页面才启动；
-     右上角有开关，默认是关的（不打招呼就出声是最没礼貌的做法）。
-     ====================================================================== */
-  var snd = (function () {
-    var ac = null, master = null, drone = null, on = false, heartT = 0;
-    function ensure() {
-      if (ac) return ac;
-      try {
-        var AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return null;
-        ac = new AC();
-        master = ac.createGain();
-        master.gain.value = 0.0;
-        master.connect(ac.destination);
-      } catch (e) { ac = null; }
-      return ac;
-    }
-    function noiseBuf(sec) {
-      var n = Math.floor(ac.sampleRate * sec), b = ac.createBuffer(1, n, ac.sampleRate);
-      var d = b.getChannelData(0);
-      for (var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
-      return b;
-    }
-    return {
-      get on() { return on; },
-      start: function () {
-        if (!ensure()) return;
-        if (ac.state === "suspended") ac.resume();
-        on = true;
-        master.gain.cancelScheduledValues(ac.currentTime);
-        master.gain.linearRampToValueAtTime(0.5, ac.currentTime + 0.8);
-        if (drone) return;
-        var o = ac.createOscillator(), o2 = ac.createOscillator();
-        var f = ac.createBiquadFilter(), g = ac.createGain(), lfo = ac.createOscillator(), lg = ac.createGain();
-        o.type = "sawtooth"; o.frequency.value = 47;
-        o2.type = "sine"; o2.frequency.value = 70.5;
-        f.type = "lowpass"; f.frequency.value = 118; f.Q.value = 3;
-        g.gain.value = 0.05;
-        lfo.frequency.value = 0.09; lg.gain.value = 22;
-        lfo.connect(lg); lg.connect(f.frequency);
-        o.connect(f); o2.connect(f); f.connect(g); g.connect(master);
-        o.start(); o2.start(); lfo.start();
-        drone = { g: g };
-      },
-      stop: function () {
-        on = false;
-        if (master && ac) master.gain.linearRampToValueAtTime(0, ac.currentTime + 0.4);
-      },
-      /* 心跳：间隔由压力决定 */
-      beat: function (pressure) {
-        if (!on || !ac) return;
-        var now = ac.currentTime;
-        var gap = 1.35 - pressure * 0.75;
-        if (now - heartT < gap) return;
-        heartT = now;
-        [0, 0.19].forEach(function (dt, i) {
-          var o = ac.createOscillator(), g = ac.createGain();
-          o.type = "sine";
-          o.frequency.setValueAtTime(78, now + dt);
-          o.frequency.exponentialRampToValueAtTime(40, now + dt + 0.13);
-          g.gain.setValueAtTime(0.0001, now + dt);
-          g.gain.exponentialRampToValueAtTime(i ? 0.14 : 0.22, now + dt + 0.012);
-          g.gain.exponentialRampToValueAtTime(0.0001, now + dt + 0.2);
-          o.connect(g); g.connect(master);
-          o.start(now + dt); o.stop(now + dt + 0.24);
-        });
-      },
-      paper: function () {
-        if (!on || !ac) return;
-        var now = ac.currentTime;
-        var s = ac.createBufferSource(); s.buffer = noiseBuf(0.3);
-        var f = ac.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = 2100; f.Q.value = 1.1;
-        var g = ac.createGain(); g.gain.value = 0.14;
-        s.connect(f); f.connect(g); g.connect(master);
-        s.start(now);
-      },
-      tick: function () {
-        if (!on || !ac) return;
-        var now = ac.currentTime;
-        var o = ac.createOscillator(), g = ac.createGain();
-        o.type = "square"; o.frequency.value = 1750;
-        g.gain.setValueAtTime(0.0001, now);
-        g.gain.exponentialRampToValueAtTime(0.028, now + 0.004);
-        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
-        o.connect(g); g.connect(master);
-        o.start(now); o.stop(now + 0.06);
-      },
-      thud: function (hard) {
-        if (!on || !ac) return;
-        var now = ac.currentTime;
-        var o = ac.createOscillator(), g = ac.createGain();
-        o.type = "sine";
-        o.frequency.setValueAtTime(hard ? 120 : 190, now);
-        o.frequency.exponentialRampToValueAtTime(38, now + 0.22);
-        g.gain.setValueAtTime(0.0001, now);
-        g.gain.exponentialRampToValueAtTime(hard ? 0.5 : 0.2, now + 0.008);
-        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.34);
-        o.connect(g); g.connect(master);
-        o.start(now); o.stop(now + 0.36);
-        var s = ac.createBufferSource(); s.buffer = noiseBuf(0.16);
-        var f = ac.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 900;
-        var g2 = ac.createGain(); g2.gain.value = hard ? 0.2 : 0.07;
-        s.connect(f); f.connect(g2); g2.connect(master);
-        s.start(now);
-      },
-      /* 不协和和弦：只在「真相浮出」和「判定失败」时响 */
-      swell: function (bad) {
-        if (!on || !ac) return;
-        var now = ac.currentTime;
-        var base = bad ? 82 : 110;
-        [1, 1.0595, 1.4983, 2.002].forEach(function (m, i) {
-          var o = ac.createOscillator(), g = ac.createGain();
-          o.type = "triangle";
-          o.frequency.setValueAtTime(base * m, now);
-          o.frequency.linearRampToValueAtTime(base * m * (bad ? 0.94 : 1.02), now + 2.4);
-          g.gain.setValueAtTime(0.0001, now);
-          g.gain.exponentialRampToValueAtTime(0.05 / (i * 0.5 + 1), now + 0.6);
-          g.gain.exponentialRampToValueAtTime(0.0001, now + 3.4);
-          o.connect(g); g.connect(master);
-          o.start(now); o.stop(now + 3.5);
-        });
-      }
-    };
-  })();
-
-  /* ======================================================================
-     案件压力
-     ----------------------------------------------------------------------
-     它不是惩罚条，是一根「气氛条」：每花一个调查点、每错一次，它就往上走。
-     走满之后什么也不会发生 —— 但玩家会开始觉得案子在收紧，
-     而这正好是本案想说的：真正的压力来自「你不知道自己漏了什么」。
-     ====================================================================== */
-  var press = 0;
-  function bumpPress(v) {
-    press = Math.min(1, press + v);
-    var bar = $("#pressBar"), txt = $("#pressTxt"), vig = $("#c2vig");
-    if (bar) bar.style.width = Math.round(press * 100) + "%";
-    if (txt) txt.textContent = Math.round(press * 100) + "%" + (press >= 0.99 ? " · 逾期" : "");
-    if (vig) {
-      vig.classList.toggle("deep", press > 0.6);
-      vig.classList.toggle("beat", press > 0.82);
-    }
-  }
-
-  /* ---------------- 真实计算：翻转率 ---------------- */
-  function flipRate(key) {
-    if (!CASE) return null;
-    var c = 0;
-    for (var i = 0; i < INSTS.length; i++) {
-      if (F.intervene(CASE, INSTS[i], key, { mag: "max", tag: "case:" + key }).changed) c++;
-    }
-    return c / INSTS.length;
-  }
-
-  /* ---------------- 幕一 ---------------- */
-  var P1 = [
-    { id: "a", ok: true, t: "那句话是<b>自述</b>，不是<b>计算记录</b>——它和分数可能来自两条互不相干的通路。" },
-    { id: "b", ok: true, t: "它只点了一个字段（紧急度），另外四个字段<b>一个字没提</b>，也没有任何一条日志说明它们为什么没起作用。" },
-    { id: "c", ok: true, t: "没有任何一条日志能证明：<b>把紧急度改掉，答案会跟着变</b>。这正是可以去做的事。" },
-    { id: "d", ok: false, t: "家属情绪很激动。<b>情绪强度只是六个输入之一</b>，激动本身不是疑点。" },
-    { id: "e", ok: false, t: "预计等待 72 小时。<b>这是判决的后果</b>，不是判决的疑点。" },
-    { id: "f", ok: false, t: "系统在 1 秒内完成建档和判决。<b>快不等于错</b>——很多正常系统也这么快。" }
-  ];
-
-  function paintPick() {
-    var box = $("#pick1");
-    box.innerHTML = P1.map(function (p) {
-      var on = !!st.picked[p.id];
-      var cls = "c2p" + (on ? " on" : "");
-      if (st.act1Done) cls = "c2p " + (p.ok ? "ok" : (on ? "no" : ""));
-      return '<button class="' + cls + '" data-p="' + p.id + '"' + (st.act1Done ? " disabled" : "") + '>' +
-        '<span class="bx">' + (on || (st.act1Done && p.ok) ? "✓" : "") + '</span>' +
-        '<span class="tx">' + p.t + '</span></button>';
-    }).join("");
-    var n = Object.keys(st.picked).length;
-    $("#act1Hint").textContent = st.act1Done
-      ? "勘察得分 " + st.act1Score + " / 15 —— " + (st.act1Score >= 15 ? "三个疑点全中" : "有误判，扣了分")
-      : "已选 " + n + " / 3";
-    $("#btnAct1").disabled = st.act1Done;
-    $("#btnAct1").textContent = st.act1Done ? "已提交 · 进入审讯" : "提交勘察结论";
-    if (st.act1Done) { $("#btnAct1").disabled = false; $("#btnAct1").classList.add("go"); }
-  }
-
-  $("#pick1").addEventListener("click", function (e) {
-    var b = e.target.closest("[data-p]");
-    if (!b || st.act1Done) return;
-    var id = b.dataset.p;
-    if (st.picked[id]) delete st.picked[id];
-    else {
-      if (Object.keys(st.picked).length >= 3) { toast("只能选三个。先取消一个。"); return; }
-      st.picked[id] = true;
-    }
-    snd.tick();
-    paintPick();
-  });
-
-  $("#btnAct1").addEventListener("click", function () {
-    if (st.act1Done) { goto(2); return; }
-    var n = Object.keys(st.picked).length;
-    if (n !== 3) { toast("要正好选三个。现在选了 " + n + " 个。"); return; }
-    var hit = 0, wrong = 0;
-    P1.forEach(function (p) { if (st.picked[p.id]) { if (p.ok) hit++; else wrong++; } });
-    st.act1Score = Math.max(0, hit * 5 - wrong * 5);
-    st.act1Done = true;
-    paintPick();
-    bumpPress(hit === 3 ? 0.08 : 0.2);
-    snd.paper();
-    if (hit < 3) snd.thud(false);
-    toast(hit === 3 ? "三个疑点全中。现在去问人。" : "提交了。命中 " + hit + " 个，误判 " + wrong + " 个。");
-    $("#acts").querySelector('[data-a="2"]').disabled = false;
-  });
-
-  /* ---------------- 幕二 ---------------- */
-  function paintPips() {
-    var h = "";
-    for (var i = 0; i < POINTS; i++) {
-      h += '<i class="' + (i < POINTS - st.points ? "spent" : "on") + '"></i>';
-    }
-    $("#pips").innerHTML = h;
-    $("#pipN").textContent = st.points + " / " + POINTS;
-  }
-
-  function paintWList() {
-    var tested = Object.keys(st.tested).length;
-    $("#wCount").textContent = tested + " / 6 已测";
-    $("#wlist").innerHTML = WIT.map(function (w, i) {
-      var t = st.tested[w.k];
-      return '<button class="c2w' + (st.cur === i ? " on" : "") + (t != null ? " tested" : "") + '" data-w="' + i + '">' +
-        '<span class="av">' + w.icon + '</span>' +
-        '<span class="nm"><b>' + w.name + '</b><span>' + w.org + ' · ' + w.field + '</span></span>' +
-        '<span class="mk">' + (t != null ? pct(t) : "—") + '</span></button>';
-    }).join("");
-  }
-
-  function paintDossier() {
-    var box = $("#dossier");
-    if (st.cur < 0) {
-      box.innerHTML = '<div class="c2dh"><span class="av">🗂️</span><span class="nm"><b>证人席</b>' +
-        '<span>SELECT A WITNESS</span></span></div>' +
-        '<div class="c2test"><p style="font-size:12px;line-height:1.9;color:var(--c2-ink2)">' +
-        '点左边任意一个证人。你会看到它的证词，然后可以对它执行一次干预：' +
-        '<b>把它负责的字段推到另一个极端，其余五个字段一个字不动</b>，跑 90 道同类工单，' +
-        '看答案翻了多少次。</p>' +
-        '<p style="font-size:11.5px;line-height:1.85;color:var(--c2-ink3);margin-top:8px">' +
-        '一次干预消耗 1 个调查点。你一共有 ' + POINTS + ' 个。</p></div>';
-      return;
-    }
-    var w = WIT[st.cur], t = st.tested[w.k];
-    var fresh = st.cur !== st._curSeen;
-    st._curSeen = st.cur;
-    var asked = !!st.asked[w.k];
-    var H = [];
-    H.push('<div class="c2dh"><span class="av">' + w.icon + '</span>' +
-      '<span class="nm"><b>' + w.name + '</b><span>' + w.org + ' · 字段 ' + w.field + '</span></span>' +
-      '<span class="fg">WITNESS</span></div>');
-    H.push('<div class="c2quote" id="qLine">' + (fresh ? "" : esc(w.quote)) + '</div>');
-    /* 追问：证词不是一次说完的。再问一句，他会多给一点 ——
-       但多给的那一点永远不是答案，只是让你更清楚他站在哪儿。 */
-    H.push('<div class="c2more" id="moreBox">');
-    if (w.more && !asked) {
-      H.push('<button class="c2btn ghost" id="btnAsk">追问一句</button>');
-    } else if (w.more) {
-      H.push('<div class="c2more-line">' + esc(w.more) + '</div>');
-    }
-    H.push('</div>');
-    H.push('<div class="c2meta"><span>字段 <b>' + w.field + '</b></span>' +
-      '<span>本案取值 <b>' + w.val + '</b></span>' +
-      '<span>题库 <b>' + N_INST + ' 道</b></span></div>');
-    H.push('<div class="c2test">');
-    H.push('<button class="c2btn" id="btnTest"' + (st.points <= 0 ? " disabled" : "") + '>' +
-      (t != null ? "复测这一位（再花 1 点）" : "对它执行一次干预（花 1 点）") + '</button>');
-    H.push('<div id="compBox"></div>');
-    H.push('<div class="c2res' + (t != null ? " on" : "") + '" id="resBox">');
-    if (t != null) {
-      var cls = t >= 0.5 ? "hi" : (t >= 0.3 ? "mid" : "lo");
-      var col = t >= 0.5 ? "#a8322a" : (t >= 0.3 ? "#a8842f" : "#7a7364");
-      var word = t >= 0.5 ? "改它就翻。这个字段在暗中驱动答案。"
-        : (t >= 0.3 ? "有一点影响，但撑不起「判为低优先级」这个结果。"
-          : "几乎翻不动。它在证词里的分量，远大于它在分数里的分量。");
-      H.push('<div class="rl">翻转率 · ' + w.field + ' · ' + N_INST + ' 道题</div>');
-      H.push('<div class="rv ' + cls + '">' + pct(t) + '</div>');
-      H.push('<div class="bar"><i style="width:' + (t * 100).toFixed(1) + '%;background:' + col + '"></i></div>');
-      H.push('<div class="rw">' + word + '</div>');
-    }
-    H.push('</div></div>');
-    box.innerHTML = H.join("");
-
-    /* 证词逐字打出来。只在「换人」时打 ——
-       测完一次再回到同一个人，证词不该从头再念一遍。 */
-    if (fresh && w.quote) {
-      typeInto($("#qLine"), w.quote, 26);
-      snd.paper();
-    }
-  }
-
-  /* ---------------- 打字机 ---------------- */
-  var typeTimer = null;
-  function typeInto(el, text, speed, done) {
+  function toast(t) {
+    var el = $("#c3toast");
     if (!el) return;
-    clearInterval(typeTimer);
-    var i = 0;
-    el.textContent = "";
-    el.classList.add("typing");
-    typeTimer = setInterval(function () {
-      i += 1 + (Math.random() < 0.22 ? 1 : 0);
-      el.textContent = text.slice(0, i);
-      if (i >= text.length) {
-        clearInterval(typeTimer);
-        el.textContent = text;
-        el.classList.remove("typing");
-        if (done) done();
-      }
-    }, speed || 26);
+    el.textContent = t;
+    el.classList.add("on");
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.classList.remove("on"); }, 2400);
+  }
+  function clueById(id) {
+    for (var i = 0; i < D.places.length; i++) {
+      if (D.places[i].clue && D.places[i].clue.id === id) return D.places[i].clue;
+    }
+    return null;
+  }
+  function castById(id) {
+    for (var i = 0; i < D.cast.length; i++) if (D.cast[i].id === id) return D.cast[i];
+    return null;
   }
 
-  /* 追问：再压一句，他会补一点现场感，但不会补答案 */
-  $("#dossier").addEventListener("click", function (e) {
-    if (!e.target.closest("#btnAsk")) return;
-    if (st.cur < 0) return;
-    var w = WIT[st.cur];
-    if (!w.more || st.asked[w.k]) return;
-    st.asked[w.k] = true;
-    var box = $("#moreBox");
-    if (box) box.innerHTML = '<div class="c2more-line" id="moreLine"></div>';
-    typeInto($("#moreLine"), w.more, 22);
-    snd.paper();
-    bumpPress(0.03);
-  });
+  /* ======================================================================
+     顶栏读数
+     ====================================================================== */
+  function paintRes() {
+    var a = $("#apN"), s = $("#sumN");
+    if (a) {
+      a.textContent = st.ap;
+      a.parentNode.classList.toggle("low", st.ap <= 2);
+    }
+    if (s) {
+      s.textContent = st.sum;
+      s.parentNode.classList.toggle("low", st.sum <= 1);
+    }
+    var w = $("#wallN");
+    if (w) w.textContent = st.clues.length + " 份";
+  }
 
+  /* ======================================================================
+     线索墙
+     ====================================================================== */
   function paintWall() {
-    var keys = Object.keys(st.tested);
-    var box = $("#wall");
-    if (!keys.length) {
-      box.innerHTML = '<div class="wempty">还没有数据。测过的证人会在这里排成一条对照线——' +
-        '<b>没有对照的单个数字，什么也证明不了</b>。</div>';
+    var box = $("#wallBody"), none = $("#wallNone");
+    if (!box) return;
+    if (!st.clues.length) {
+      box.innerHTML = '<div class="c3wnone">还没有调阅任何材料。<br>线索会在这里累积。</div>';
       return;
     }
-    var order = ["note", "urg", "tier", "hist", "sent", "wait"];
-    var H = "";
-    order.forEach(function (k) {
-      if (st.tested[k] == null) return;
-      var v = st.tested[k];
-      var col = v >= 0.5 ? "#a8322a" : (v >= 0.3 ? "#a8842f" : "#8d8577");
-      H += '<div class="c2row"><span class="lb">' + WBY[k].field + '</span>' +
-        '<span class="tr"><i style="width:' + Math.max(2, v * 100).toFixed(1) + '%;background:' + col + '"></i></span>' +
-        '<span class="vl">' + pct(v) + '</span></div>';
+    box.innerHTML = st.clues.map(function (id) {
+      var c = clueById(id);
+      if (!c) return "";
+      var tagCls = c.tag === "核心" ? "core" : (c.tag === "根因" ? "root" : "");
+      var src = "";
+      for (var i = 0; i < D.places.length; i++) {
+        if (D.places[i].clue && D.places[i].clue.id === id) { src = D.places[i].name; break; }
+      }
+      return '<div class="c3cl" data-clue="' + id + '">' +
+        '<span class="tg ' + tagCls + '">' + c.tag + '</span>' +
+        '<b>' + c.t + '</b>' +
+        '<span class="src">' + src + '</span>' +
+        '</div>';
+    }).join("");
+    [].forEach.call(box.querySelectorAll("[data-clue]"), function (el) {
+      el.addEventListener("click", function () { openClue(el.dataset.clue, true); });
     });
-    box.innerHTML = H;
-    var base = $("#wallBase");
-    if (st.tested.note != null) {
-      base.innerHTML = '<b>负控已校准。</b>备注字数翻转率 <b>' + pct(st.tested.note) +
-        '</b>——它从不参与打分。这说明这套测法<b>确实能区分「会翻」和「不会翻」</b>，' +
-        '所以别的字段上的高翻转率不是测量噪声。';
+  }
+
+  /* ======================================================================
+     线索详情
+     ====================================================================== */
+  var clueCtx = null;   /* { id, fromPlace } */
+  function openClue(id, readOnly) {
+    var c = clueById(id);
+    if (!c) return;
+    clueCtx = { id: id, fromPlace: readOnly ? null : id };
+    $("#clueTag").textContent = c.tag;
+    $("#clueTtl").textContent = c.t;
+    $("#clueBody").textContent = c.body;
+    var keep = $("#clueKeep"), hint = $("#clueHint");
+    if (readOnly) {
+      keep.textContent = "关闭";
+      keep.className = "c3btn ghost";
+      hint.textContent = "已收入卷宗。";
     } else {
-      base.innerHTML = '还没测过<b>备注字数</b>。它是这台仪器的负控——从不参与打分，翻转率必须是 0。' +
-        '测了它，你才知道「翻不动」到底长什么样。';
+      keep.textContent = "收入卷宗";
+      keep.className = "c3btn";
+      hint.textContent = "签字后不可撤回。";
     }
+    $("#clueModal").classList.add("on");
   }
+  function closeClue() { $("#clueModal").classList.remove("on"); }
 
-  $("#wlist").addEventListener("click", function (e) {
-    var b = e.target.closest("[data-w]");
-    if (!b) return;
-    st.cur = +b.dataset.w;
-    snd.paper();
-    paintWList(); paintDossier();
+  $("#clueClose").addEventListener("click", closeClue);
+  $("#clueModal").addEventListener("click", function (e) {
+    if (e.target === this) closeClue();
+  });
+  $("#clueKeep").addEventListener("click", function () {
+    if (clueCtx && clueCtx.fromPlace) {
+      var pid = clueCtx.fromPlace;
+      if (st.clues.indexOf(pid) < 0) st.clues.push(pid);
+      paintWall(); paintRes();
+      toast("已收入卷宗：" + (clueById(pid) || {}).t);
+    }
+    closeClue();
   });
 
-  /* ----------------------------------------------------------------------
-     干预演算
-     ----------------------------------------------------------------------
-     原来点一下按钮，数字直接跳出来。数值是对的，但玩家感觉不到
-     「我刚刚动了这台机器」。现在把 90 道工单一条条摊开跑：
-     翻的格子变红，计数器往上走，最后一帧才给出翻转率。
+  /* ======================================================================
+     幕一 · 剧本
+     ====================================================================== */
+  var SCRIPT_ACTS = [0, 1];   /* 幕一只放前两段；后两段在进幕三、幕四时插入 */
+  var scriptDone = false;
 
-     这不是假动画 —— 下面每一次 tick 都对应真实的一次 intervene() 调用，
-     跑完就是真的 90 道。慢一点，但它诚实。
-     ---------------------------------------------------------------------- */
-  function runIntervention(w) {
-    if (st.busy) return;
-    if (!CASE) { toast("内核未加载，无法执行干预。"); return; }
-    if (st.points <= 0) { toast("调查点用完了。已经测到的数据就是你的全部证据。"); return; }
-
-    st.busy = true;
-    var box = $("#compBox");
-    var btn = $("#btnTest");
-    if (btn) { btn.disabled = true; btn.textContent = "演算中…"; }
-
-    var cells = "", i;
-    for (i = 0; i < N_INST; i++) cells += "<i></i>";
-    box.innerHTML = '<div class="c2comp">' +
-      '<div class="hd"><span>干预 · ' + esc(w.field) + ' → 反向极值</span><b id="compN">0 / ' + N_INST + '</b></div>' +
-      '<div class="grid" id="compGrid">' + cells + '</div>' +
-      '<div class="ft">固定其余五个字段，重算同一批工单</div></div>';
-
-    var grid = $("#compGrid").children;
-    var c = 0, flipped = 0, tick = 0;
-    var stepMs = Math.max(6, Math.round(900 / N_INST));
-
-    /* 坑（2026-10-31 修）：演算跑着的时候玩家切走这一幕，compBox 会被整块换掉，
-       #compN 就变成 null。原来这里直接 .textContent = ... 会每帧抛一次 TypeError，
-       st.busy 永远卡在 true —— 之后所有「测一测」都静默失效，幕二一个证人测不出来。
-       所以每一帧先确认面板还在，不在就收工并退回 busy。 */
-    var tm = setInterval(function () {
-      var host = $("#compGrid"), num = $("#compN");
-      if (!host || !num) { clearInterval(tm); compTimer = null; st.busy = false; return; }
-      grid = host.children;
-      /* 每次推进 1—3 条，速度略不匀，像机器在跑而不是进度条在走 */
-      var n = 1 + (Math.random() < 0.3 ? 1 : 0);
-      for (var k = 0; k < n && c < N_INST; k++, c++) {
-        var changed = F.intervene(CASE, INSTS[c], w.k, { mag: "max", tag: "case:" + w.k }).changed;
-        if (changed) { flipped++; if (grid[c]) grid[c].className = "f"; }
-        else if (grid[c]) grid[c].className = "s";
-      }
-      num.textContent = c + " / " + N_INST;
-      if (++tick % 6 === 0) snd.tick();
-      if (c >= N_INST) {
-        clearInterval(tm);
-        compTimer = null;
-        var v = flipped / N_INST;
-        st.tested[w.k] = v;
-        st.points--;
-        st.busy = false;
-        snd.thud(false);
-        bumpPress(0.09);
-        paintPips(); paintWList(); paintDossier(); paintWall();
-        var nn = Object.keys(st.tested).length;
-        var h2 = $("#act2Hint");
-        if (h2) h2.textContent = nn >= 4
-          ? "已测 " + nn + " 个证人 · 可以进入对撞（测得越多，结论越站得住）"
-          : "已测 " + nn + " 个 · 至少 4 个才能形成对照（还差 " + (4 - nn) + " 个）";
-        var b2 = $("#btnAct2");
-        if (b2) b2.disabled = nn < 4;
-        countUp($("#resBox .rv"), v);
-        toast(w.field + " 翻转率 " + pct(v) + "（" + N_INST + " 道工单）");
-      }
-    }, stepMs);
-    compTimer = tm;
-  }
-
-  /* 结果数字滚上去：从 0 数到目标值，比直接印一个数更有「刚测出来」的感觉 */
-  function countUp(el, v, fmt) {
-    if (!el) return;
-    var f = fmt || function (x) { return pct(x); };
-    var t0 = performance.now(), dur = 620;
-    function fr(now) {
-      var k = Math.min(1, (now - t0) / dur);
-      var e = 1 - Math.pow(1 - k, 3);
-      el.textContent = f(v * e);
-      if (k < 1) requestAnimationFrame(fr);
-      else el.textContent = f(v);
-    }
-    requestAnimationFrame(fr);
-  }
-
-  $("#dossier").addEventListener("click", function (e) {
-    if (!e.target.closest("#btnTest")) return;
-    if (st.cur < 0) return;
-    runIntervention(WIT[st.cur]);
-  });
-
-  $("#btnAct2").addEventListener("click", function () { goto(3); });
-
-  /* ---------------- 幕三 ---------------- */
-  function pairCards() {
-    var a = st.tested.tier != null ? st.tested.tier : null;
-    var b = st.tested.urg != null ? st.tested.urg : null;
-    var c = st.tested.note != null ? st.tested.note : null;
-    var H = "";
-    H += '<div class="c2pc"><div class="t">CARD A · 付费等级</div><div class="n">林主管 负责</div>' +
-      '<div class="v">' + (a == null ? "未测" : pct(a)) + '</div>' +
-      '<div class="d">' + (a == null ? "你没测这一位。" : "改它，答案翻了多少次。") + '</div></div>';
-    H += '<div class="c2pc"><div class="t">CARD B · 紧急度</div><div class="n">王护士 负责</div>' +
-      '<div class="v">' + (b == null ? "未测" : pct(b)) + '</div>' +
-      '<div class="d">' + (b == null ? "你没测这一位。" : "模型在日志里点名的，就是它。") + '</div></div>';
-    if (c != null) {
-      H += '<div class="c2pc" style="grid-column:1/-1;background:rgba(107,78,168,.06)">' +
-        '<div class="t">BASELINE · 备注字数（负控）</div><div class="n">系统 负责</div>' +
-        '<div class="v">' + pct(c) + '</div><div class="d">从不参与打分的字段。它的翻转率就是「翻不动」的刻度。</div></div>';
-    }
-    $("#pairBox").innerHTML = H;
-  }
-
-  var Q1 = [
-    { id: "a", ok: false, t: "紧急度更重要——模型自己提到了它，说明它才是主因。" },
-    { id: "b", ok: true, t: "付费等级在驱动答案；「紧急度」只是被写进理由的那个词，它的影响和基线差不多。" },
-    { id: "c", ok: false, t: "两者都在驱动，只是付费等级更强一点。" }
-  ];
-  var Q2 = [
-    { id: "a", ok: false, t: "说明备注字数不重要，可以忽略它。" },
-    { id: "b", ok: true, t: "它是效力基线：证明这套测法确实能区分「会翻」和「不会翻」，所以别的字段上的高翻转率不是噪声。" },
-    { id: "c", ok: false, t: "说明模型很稳定，答案不容易被干扰。" }
-  ];
-
-  function paintQ(sel, list, chosen, whyBox, whyText) {
-    var box = $(sel);
-    box.innerHTML = list.map(function (o) {
-      var cls = "c2o";
-      if (chosen === o.id) cls += o.ok ? " ok" : " no";
-      if (st.act3Done && o.ok) cls = "c2o ok";
-      return '<button class="' + cls + '" data-q="' + o.id + '"' + (st.act3Done ? " disabled" : "") + '>' +
-        '<span class="rad"></span><span class="tx">' + o.t + '</span></button>';
+  function renderScript() {
+    var a = D.me.acts[SCRIPT_ACTS[st.scriptIdx]];
+    if (!a) { endScript(); return; }
+    $("#actH").textContent = a.h;
+    var box = $("#scriptBox");
+    box.innerHTML = a.p.map(function (t, i) {
+      return '<p style="animation-delay:' + (i * 0.13) + 's">' + t + '</p>';
     }).join("");
-    if (chosen && whyBox) {
-      var o = list.filter(function (x) { return x.id === chosen; })[0];
-      $(whyBox).style.display = "block";
-      $(whyBox).innerHTML = (o && o.ok) ? "<b>对。</b>" + whyText.ok : "<b>不对。</b>" + whyText.no;
+    $("#scriptHint").textContent = (st.scriptIdx + 1) + " / " + SCRIPT_ACTS.length;
+    $("#btnScriptNext").textContent = st.scriptIdx >= SCRIPT_ACTS.length - 1 ? "合上卷宗" : "继续读";
+  }
+
+  function endScript() {
+    scriptDone = true;
+    $("#secretCard").hidden = false;
+    $("#secretTxt").textContent = D.me.secret;
+    $("#stakeTxt").textContent = D.me.stake;
+    $("#btnScriptNext").textContent = "开始调阅";
+    $("#btnScriptNext").dataset.phase = "go";
+    $("#scriptHint").textContent = "读完这一段，就没有回头路了。";
+    $("#secretCard").scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+
+  $("#btnScriptNext").addEventListener("click", function () {
+    var b = $("#btnScriptNext");
+    if (b.dataset.phase === "go") { gotoAct(2); return; }
+    if (scriptDone) return;
+    if (st.scriptIdx < SCRIPT_ACTS.length - 1) {
+      st.scriptIdx++;
+      renderScript();
+    } else {
+      endScript();
     }
-  }
+  });
 
-  function paintAct3() {
-    pairCards();
-    paintQ("#q1opts", Q1, st.q1, "#q1why", {
-      ok: "翻转率差就是效应量。付费等级一改答案就翻，紧急度改了几乎不动——" +
-        "而模型写的理由偏偏是后者。这就是「指认因素 ≠ 首要因素」。",
-      no: "再想一步：判据不是「模型说了什么」，而是「改了它，答案动不动」。把两个翻转率放在一起看。"
-    });
-    paintQ("#q2opts", Q2, st.q2, "#q2why", {
-      ok: "负控是整套测法的地基。没有它，92% 可能只是「任何字段都能翻」——" +
-        "有了 0%，92% 才成为一条证据。",
-      no: "0% 的价值不在那个字段本身，而在它证明了什么。想想：如果连备注字数都能翻答案，你还能信 92% 吗？"
-    });
-    var ok1 = st.q1 === "b", ok2 = st.q2 === "b";
-    $("#btnAct3").disabled = !(ok1 && ok2);
-    $("#act3Hint").textContent = (ok1 && ok2) ? "两问都过了 · 可以指认"
-      : (st.q1 && st.q2 ? "至少有一问答错了，改一下。" : "两题都答对才能进入指认。");
-  }
-
-  $("#q1opts").addEventListener("click", function (e) {
-    var b = e.target.closest("[data-q]");
-    if (!b || st.act3Done) return;
-    st.q1 = b.dataset.q;
-    if (b.dataset.q !== "b") snd.thud(false); else snd.tick();
-    paintAct3();
-  });
-  $("#q2opts").addEventListener("click", function (e) {
-    var b = e.target.closest("[data-q]");
-    if (!b || st.act3Done) return;
-    st.q2 = b.dataset.q;
-    if (b.dataset.q !== "b") snd.thud(false); else snd.tick();
-    paintAct3();
-  });
-  $("#btnAct3").addEventListener("click", function () {
-    st.act3Done = true;
-    paintAct3();
-    goto(4);
-  });
-  /* ---------------- 幕四 ---------------- */
-  /* ①② 的正确项要显式带 ok，否则提交后「选对了」会被画成红框 */
-  var F1 = WIT.map(function (w) {
-    return { id: w.k, ok: w.k === "tier", t: w.icon + "　<b>" + w.field + "</b>（" + w.name + " · " + w.org + "）" };
-  });
-  var F2 = WIT.map(function (w) {
-    return { id: w.k, ok: w.k === "urg", t: w.icon + "　<b>" + w.field + "</b>（" + w.name + " · " + w.org + "）" };
-  });
-  var F3 = [
-    { id: "a", ok: false, t: "它自己的证词说了算——证词里承认了，就成立。" },
-    { id: "b", ok: true, t: "改它翻转率显著高于基线，且基线本身有效（负控 0%）——所以它是首要因素。" },
-    { id: "c", ok: false, t: "翻转率最高的那个字段，一定就是它。" }
-  ];
-
-  function paintF(sel, list, cur, key) {
-    var box = $(sel);
-    box.innerHTML = list.map(function (o) {
-      var cls = "c2o" + (cur === o.id ? " on" : "");
-      if (st.submitted) {
-        if (o.ok) cls = "c2o ok";
-        else if (cur === o.id) cls = "c2o no";
-      }
-      return '<button class="' + cls + '" data-f="' + o.id + '"' + (st.submitted ? " disabled" : "") + '>' +
-        '<span class="rad"></span><span class="tx">' + o.t + '</span></button>';
+  /* ======================================================================
+     幕二 · 搜证
+     ====================================================================== */
+  function paintPlaces() {
+    var g = $("#placeGrid");
+    g.innerHTML = D.places.map(function (p, i) {
+      var taken = st.taken.indexOf(p.id) >= 0;
+      var out = st.ap <= 0 && !taken;
+      var cls = "c3pl" + (taken ? " taken" : (out ? " miss" : ""));
+      return '<button class="' + cls + '" data-p="' + p.id + '"' + ((taken || out) ? " disabled" : "") + '>' +
+        '<span class="n">' + (taken ? "已签" : ("0" + (i + 1)).slice(-2)) + '</span>' +
+        '<b>' + p.name + '</b>' +
+        '<span>' + p.hint + '</span>' +
+        '</button>';
     }).join("");
-  }
-  function paintForm() {
-    paintF("#f1", F1, st.f1); paintF("#f2", F2, st.f2); paintF("#f3", F3, st.f3);
-    var n = [st.f1, st.f2, st.f3].filter(Boolean).length;
-    $("#submitHint").textContent = st.submitted ? "已提交。" : (n < 3 ? "还差 " + (3 - n) + " 项。" : "三项都选了，可以提交。");
-  }
-  ["#f1", "#f2", "#f3"].forEach(function (sel) {
-    $(sel).addEventListener("click", function (e) {
-      var b = e.target.closest("[data-f]");
-      if (!b || st.submitted) return;
-      if (sel === "#f1") st.f1 = b.dataset.f;
-      if (sel === "#f2") st.f2 = b.dataset.f;
-      if (sel === "#f3") st.f3 = b.dataset.f;
-      paintForm();
+    [].forEach.call(g.querySelectorAll("[data-p]"), function (el) {
+      el.addEventListener("click", function () { takePlace(el.dataset.p); });
     });
-  });
-
-  /* ---------------- 结算 ---------------- */
-  function scoreOf() {
-    var s1 = st.act1Score;                                   /* 0—15 */
-    var nTest = Object.keys(st.tested).length;
-    var s2 = nTest >= 6 ? 15 : (nTest === 5 ? 11 : (nTest === 4 ? 7 : 0));
-    var s3 = (st.q1 === "b" ? 15 : 0) + (st.q2 === "b" ? 15 : 0);
-    var s4 = (st.f1 === "tier" ? 20 : 0) + (st.f2 === "urg" ? 10 : 0) + (st.f3 === "b" ? 10 : 0);
-    return { s1: s1, s2: s2, s3: s3, s4: s4, total: s1 + s2 + s3 + s4, nTest: nTest };
+    var btn = $("#btnAct2");
+    btn.disabled = st.taken.length < 3;
+    $("#act2Hint").textContent = st.taken.length < 3
+      ? "至少调阅 3 份，才拿得出一个可辩护的判断。（已调阅 " + st.taken.length + " 份）"
+      : "已调阅 " + st.taken.length + " 份，还剩 " + st.ap + " 次。";
   }
 
-  function renderResult() {
-    var sc = scoreOf();
-    var elite = sc.total >= 80 && st.f1 === "tier" && st.f3 === "b";
-    var passed = sc.total >= 60;
-    var tier = st.tested.tier, urg = st.tested.urg, note = st.tested.note;
-    var mins = Math.floor((Date.now() - st.started) / 60000);
-    var secs = Math.floor(((Date.now() - st.started) % 60000) / 1000);
+  function takePlace(pid) {
+    if (st.taken.indexOf(pid) >= 0) return false;
+    if (st.ap <= 0) { toast("调阅权限用完了。"); return false; }
+    var p = null;
+    for (var i = 0; i < D.places.length; i++) if (D.places[i].id === pid) p = D.places[i];
+    if (!p) return false;
+    st.ap--;
+    st.taken.push(pid);
+    paintPlaces(); paintRes();
+    openClue(p.clue.id, false);
+    return true;
+  }
+
+  $("#btnAct2").addEventListener("click", function () { gotoAct(3); });
+
+  /* ======================================================================
+     幕三 · 质询
+     ====================================================================== */
+  function paintCast() {
+    var g = $("#castList");
+    g.innerHTML = D.cast.map(function (c) {
+      var used = st.used.indexOf(c.id) >= 0;
+      var askedN = (st.asked[c.id] || []).length;
+      var all = askedN >= c.qs.length;
+      var cls = "c3ca" + (used ? " used" : "") + (all ? " done" : "") + (st.cur === c.id ? " on" : "");
+      /* 已传唤过的人永远能点回去重看（不再消耗额度）；
+         没传唤过的才受额度限制。之前把 used 也算成 disabled，
+         结果正在审的那个人自己变灰了。 */
+      var can = used || st.sum > 0;
+      return '<button class="' + cls + '" data-c="' + c.id + '"' + (can ? "" : " disabled") + '>' +
+        '<span class="st"></span>' +
+        '<b>' + c.name + '</b>' +
+        '<span>' + c.job + '</span>' +
+        '</button>';
+    }).join("");
+    [].forEach.call(g.querySelectorAll("[data-c]"), function (el) {
+      el.addEventListener("click", function () { summon(el.dataset.c); });
+    });
+  }
+
+  function summon(cid) {
+    if (st.used.indexOf(cid) >= 0) { openRoom(cid); return; }
+    if (st.sum <= 0) { toast("传唤次数用完了。"); return; }
+    st.sum--;
+    st.used.push(cid);
+    st.asked[cid] = st.asked[cid] || [];
+    st.broke[cid] = st.broke[cid] || {};
+    paintCast(); paintRes();
+    openRoom(cid);
+  }
+
+  function avatarSVG(c) {
+    /* 印章式头像：姓氏 + 职位。不用 emoji，也不假装是人像——
+       这一页是档案室，不是漫画。 */
+    var hue = { chen: 18, han: 200, zhou: 32, wu: 150, lin: 340, zhao: 220 }[c.id] || 40;
+    return '<svg viewBox="0 0 54 54" width="54" height="54" aria-hidden="true">' +
+      '<defs><linearGradient id="g_' + c.id + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="hsl(' + hue + ',26%,20%)"/>' +
+      '<stop offset="1" stop-color="hsl(' + hue + ',22%,11%)"/></linearGradient></defs>' +
+      '<rect width="54" height="54" fill="url(#g_' + c.id + ')"/>' +
+      '<rect x=".5" y=".5" width="53" height="53" fill="none" stroke="hsl(' + hue + ',30%,32%)" opacity=".6"/>' +
+      '<text x="27" y="35" text-anchor="middle" font-size="24" font-family="Songti SC,serif" ' +
+      'fill="hsl(' + hue + ',34%,72%)">' + c.name.charAt(0) + '</text>' +
+      '<text x="27" y="47" text-anchor="middle" font-size="6.5" letter-spacing="1.4" ' +
+      'fill="hsl(' + hue + ',20%,52%)" font-family="monospace">' + c.age + '</text>' +
+      '</svg>';
+  }
+
+  function openRoom(cid) {
+    st.cur = cid;
+    var c = castById(cid);
+    var asked = st.asked[cid] || [];
+    var broke = st.broke[cid] || {};
+    var room = $("#room");
+
+    var dlg = "";
+    asked.forEach(function (qi) {
+      var q = c.qs[qi];
+      if (!q) return;
+      var isBroken = !!broke[qi];
+      var text = isBroken ? q.after : q.a;
+      dlg += '<div class="c3qa' + (isBroken ? " broke" : "") + '">' +
+        '<div class="q">' + q.q + '</div>' +
+        '<div class="a">' + text + '</div>' +
+        (isBroken ? '<div class="brk">' + (clueById(q.ev) || {}).t + ' 推翻了他刚才的说法。</div>' : '') +
+        '</div>';
+    });
+
+    var qs = c.qs.map(function (q, i) {
+      var done = asked.indexOf(i) >= 0;
+      var isLie = q.lie;
+      var isBroken = !!broke[i];
+      var cls = "c3q" + (done ? " asked" : "") + (done && isLie && !isBroken ? " lied" : "");
+      var label = done ? (isBroken ? "已驳倒" : "已问过") : "问";
+      return '<button class="' + cls + '" data-q="' + i + '"' + (done ? " disabled" : "") + '>' +
+        '<span class="dot"></span>' + q.q +
+        '<span style="float:right;font-family:var(--c3-mono);font-size:9px;color:var(--c3-tx3)">' + label + '</span>' +
+        '</button>';
+    }).join("");
+
+    /* 有未驳倒的谎 → 给出「出示证据」入口 */
+    var canEv = false;
+    asked.forEach(function (qi) {
+      var q = c.qs[qi];
+      if (q && q.lie && q.ev && !broke[qi]) canEv = true;
+    });
+
+    room.innerHTML =
+      '<div class="c3card">' +
+      '<div class="c3who">' +
+      '<div class="av">' + avatarSVG(c) + '</div>' +
+      '<div class="info">' +
+      '<div class="nm"><b>' + c.name + '</b><i>' + c.age + ' 岁</i></div>' +
+      '<div class="jb">' + c.job + '</div>' +
+      '<div class="lk">' + c.look + '</div>' +
+      '</div></div>' +
+      (dlg ? '<div class="c3dlg">' + dlg + '</div>' : '') +
+      '<div class="c3qs">' + qs + '</div>' +
+      (canEv ? '<div><button class="c3evbtn" id="btnEv">他刚才说的，和你手里的材料对不上 → 出示</button></div>' : '') +
+      '<div class="c3foot">' +
+      '<button class="c3btn ghost" id="btnLeave">让他走</button>' +
+      '<span class="hint">还剩 ' + st.sum + ' 次传唤。</span>' +
+      '</div></div>';
+
+    [].forEach.call(room.querySelectorAll("[data-q]"), function (el) {
+      el.addEventListener("click", function () { askQ(cid, +el.dataset.q); });
+    });
+    var ev = $("#btnEv");
+    if (ev) ev.addEventListener("click", openEv);
+    var lv = $("#btnLeave");
+    if (lv) lv.addEventListener("click", function () {
+      st.cur = null;
+      $("#room").innerHTML = '<div class="c3empty"><b>他走了</b><span>你可以再传唤一个人。传唤一次，就少一次。</span></div>';
+      paintCast();
+    });
+    paintCast();
+  }
+
+  function askQ(cid, qi) {
+    var c = castById(cid);
+    if (!c || !c.qs[qi]) return;
+    st.asked[cid] = st.asked[cid] || [];
+    if (st.asked[cid].indexOf(qi) < 0) st.asked[cid].push(qi);
+    openRoom(cid);
+  }
+
+  /* ---- 出示证据 ---- */
+  function openEv() {
+    var c = castById(st.cur);
+    if (!c) return;
+    var list = $("#evList");
+    if (!st.clues.length) {
+      list.innerHTML = '<div class="c3wnone" style="grid-column:1/-1">卷宗里还没有材料。先去搜证。</div>';
+    } else {
+      list.innerHTML = st.clues.map(function (id) {
+        var cl = clueById(id);
+        return '<button class="c3ev" data-ev="' + id + '"><b>' + cl.t + '</b><span>' + cl.tag + '</span></button>';
+      }).join("");
+      [].forEach.call(list.querySelectorAll("[data-ev]"), function (el) {
+        el.addEventListener("click", function () { showEv(el.dataset.ev); });
+      });
+    }
+    $("#evHint").textContent = "选错了，他会知道你在试探——但不会说破。";
+    $("#evModal").classList.add("on");
+  }
+  function showEv(clueId) {
+    var c = castById(st.cur);
+    if (!c) return;
+    var hit = -1;
+    (st.asked[c.id] || []).forEach(function (qi) {
+      var q = c.qs[qi];
+      if (q && q.lie && q.ev === clueId && !(st.broke[c.id] || {})[qi]) hit = qi;
+    });
+    $("#evModal").classList.remove("on");
+    if (hit < 0) {
+      toast("他看了一眼，说「这个我看过了」。——不是这份。");
+      return;
+    }
+    st.broke[c.id] = st.broke[c.id] || {};
+    st.broke[c.id][hit] = true;
+    toast("他的说法变了。");
+    openRoom(c.id);
+  }
+  $("#evClose").addEventListener("click", function () { $("#evModal").classList.remove("on"); });
+  $("#evModal").addEventListener("click", function (e) { if (e.target === this) this.classList.remove("on"); });
+
+  /* ======================================================================
+     幕四 · 时间线
+     ====================================================================== */
+  function initTimeline() {
+    /* 初始顺序刻意打乱：不洗牌的话第一项就是答案，玩家不用动脑 */
+    var ids = D.timeline.cards.map(function (c) { return c.id; });
+    var seed = 20261031;
+    var rnd = function () {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+    for (var i = ids.length - 1; i > 0; i--) {
+      var j = Math.floor(rnd() * (i + 1));
+      var t = ids[i]; ids[i] = ids[j]; ids[j] = t;
+    }
+    /* 保证不是「已经排对」——那样玩家会觉得这关没意义 */
+    if (ids.join() === D.timeline.key.join()) ids.reverse();
+    st.tl = ids;
+  }
+  function tlCard(id) {
+    for (var i = 0; i < D.timeline.cards.length; i++) if (D.timeline.cards[i].id === id) return D.timeline.cards[i];
+    return null;
+  }
+  function paintTl() {
+    var box = $("#tlList");
+    box.innerHTML = st.tl.map(function (id, i) {
+      var c = tlCard(id);
+      if (!c) return "";
+      var cls = "c3tc";
+      if (st.tlOk) cls += " ok";
+      return '<div class="' + cls + '" draggable="true" data-i="' + i + '">' +
+        '<span class="no">' + (i + 1) + '</span>' +
+        '<div class="tx"><b>' + c.text + '</b><span>' + c.note + '</span></div>' +
+        '<div class="mv">' +
+        '<button data-mv="up" data-i="' + i + '" aria-label="上移"' + (i === 0 ? " disabled" : "") + '>↑</button>' +
+        '<button data-mv="dn" data-i="' + i + '" aria-label="下移"' + (i === st.tl.length - 1 ? " disabled" : "") + '>↓</button>' +
+        '</div></div>';
+    }).join("");
+
+    [].forEach.call(box.querySelectorAll("[data-mv]"), function (b) {
+      b.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var i = +b.dataset.i;
+        if (b.dataset.mv === "up" && i > 0) swapTl(i, i - 1);
+        else if (b.dataset.mv === "dn" && i < st.tl.length - 1) swapTl(i, i + 1);
+      });
+    });
+
+    /* 拖拽（鼠标）。触屏用 ↑↓ 按钮，不用模拟拖拽。 */
+    var dragI = -1;
+    [].forEach.call(box.querySelectorAll(".c3tc"), function (el) {
+      el.addEventListener("dragstart", function (e) {
+        dragI = +el.dataset.i;
+        el.classList.add("drag");
+        try { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", String(dragI)); } catch (x) { }
+      });
+      el.addEventListener("dragend", function () { el.classList.remove("drag"); });
+      el.addEventListener("dragover", function (e) {
+        e.preventDefault();
+        el.classList.add("over");
+      });
+      el.addEventListener("dragleave", function () { el.classList.remove("over"); });
+      el.addEventListener("drop", function (e) {
+        e.preventDefault();
+        el.classList.remove("over");
+        var to = +el.dataset.i;
+        if (dragI < 0 || dragI === to) return;
+        var moved = st.tl.splice(dragI, 1)[0];
+        st.tl.splice(to, 0, moved);
+        dragI = -1;
+        paintTl();
+      });
+    });
+  }
+  function swapTl(a, b) {
+    var t = st.tl[a]; st.tl[a] = st.tl[b]; st.tl[b] = t;
+    paintTl();
+  }
+
+  function submitTl() {
+    if (st.tlOk) return;
+    var wrong = 0;
+    for (var i = 0; i < D.timeline.key.length; i++) {
+      if (st.tl[i] !== D.timeline.key[i]) wrong++;
+    }
+    st.tlTry++;
+    if (wrong === 0) {
+      st.tlOk = true;
+      paintTl();
+      $("#tlHint").textContent = "排对了。十一天，一张不差。";
+      $("#btnTl").disabled = true;
+      $("#tlTry").textContent = "已还原";
+      toast("时间线还原成功。");
+      return;
+    }
+    var left = D.timeline.tries - st.tlTry;
+    if (left <= 0) {
+      /* 机会用完：直接把正确答案亮出来，但不算还原成功 */
+      st.tl = D.timeline.key.slice();
+      paintTl();
+      [].forEach.call($("#tlList").querySelectorAll(".c3tc"), function (el) { el.classList.add("bad"); });
+      $("#btnTl").disabled = true;
+      $("#tlHint").textContent = "三次都用完了。这是正确顺序——但你没有自己排出来。";
+      $("#tlTry").textContent = "机会已用完";
+      toast("时间线未还原。");
+      return;
+    }
+    $("#tlHint").textContent = "有 " + wrong + " 个位置不对。还剩 " + left + " 次。";
+    $("#tlTry").textContent = "还剩 " + left + " 次";
+    toast(wrong + " 个位置不对。");
+  }
+  $("#btnTl").addEventListener("click", submitTl);
+
+  /* ======================================================================
+     幕五 · 指认
+     ====================================================================== */
+  function paintVerdict() {
+    var box = $("#vForm");
+    var qs = [
+      { k: "q1", d: D.verdict.q1, en: "WHO" },
+      { k: "q2", d: D.verdict.q2, en: "HOW" },
+      { k: "q3", d: D.verdict.q3, en: "WHY" },
+      { k: "self", d: { q: D.verdict.self.q, opts: D.verdict.self.opts }, en: "YOU" }
+    ];
+    box.innerHTML = qs.map(function (o) {
+      return '<div class="c3fld">' +
+        '<div class="qq">' + o.d.q + '<em>' + o.en + '</em></div>' +
+        '<div class="c3opts">' +
+        o.d.opts.map(function (p) {
+          return '<button class="c3opt' + (st.v[o.k] === p.k ? " on" : "") + '" data-k="' + o.k + '" data-o="' + p.k + '">' + p.t + '</button>';
+        }).join("") +
+        '</div></div>';
+    }).join("");
+    [].forEach.call(box.querySelectorAll("[data-k]"), function (b) {
+      b.addEventListener("click", function () {
+        st.v[b.dataset.k] = b.dataset.o;
+        paintVerdict();
+      });
+    });
+    var ok = st.v.q1 && st.v.q2 && st.v.q3 && st.v.self;
+    $("#btnVerdict").disabled = !ok;
+    $("#vHint").textContent = ok ? "四项都填了。提交后不可修改。" : "四项都要选（包括最后那个关于你自己的）。";
+  }
+
+  function submitVerdict() {
+    if (st.done) return;
+    if (!(st.v.q1 && st.v.q2 && st.v.q3 && st.v.self)) return;
+    st.done = true;
+
+    var V = D.verdict;
+    var r1 = st.v.q1 === V.q1.right;
+    var r2 = st.v.q2 === V.q2.right;
+    var r3 = st.v.q3 === V.q3.right;
+
+    /* 关键线索：权重表、标注规范、例会纪要、变更邮件 */
+    var KEY = ["p2", "p3", "p6", "p12"];
+    var keyHit = KEY.filter(function (k) { return st.clues.indexOf(k) >= 0; }).length;
+
+    /* 驳倒的谎 */
+    var brokeN = 0, lieTotal = 0;
+    D.cast.forEach(function (c) {
+      c.qs.forEach(function (q, i) {
+        if (!q.lie) return;
+        lieTotal++;
+        if ((st.broke[c.id] || {})[i]) brokeN++;
+      });
+    });
+
+    var score = 0;
+    score += keyHit * 5;                                  /* 20 */
+    score += Math.min(20, brokeN * 4);                    /* 20 */
+    score += st.tlOk ? (st.tlTry === 1 ? 25 : (st.tlTry === 2 ? 18 : 12)) : 0;
+    score += (r1 ? 12 : 0) + (r2 ? 12 : 0) + (r3 ? 12 : 0);   /* 36 */
+    score = Math.min(100, score);
+
+    var win = r1 && r2 && r3 && st.tlOk;
 
     var H = [];
-    H.push('<div class="c2card" style="margin-top:14px">');
-    H.push('<div class="c2h"><h3>' + (elite ? "结论成立 · 精英证书已签发" : (passed ? "结论基本成立 · 但还不够拿精英证书" : "结论不成立")) +
-      '</h3><span class="k">VERDICT</span></div>');
-
-    H.push('<div class="c2score">' +
-      '<div class="c2sc"><div class="l">勘察</div><div class="v">' + sc.s1 + '</div><div class="d">/ 15</div></div>' +
-      '<div class="c2sc"><div class="l">证据充分度</div><div class="v">' + sc.s2 + '</div><div class="d">/ 15 · 测了 ' + sc.nTest + ' 位</div></div>' +
-      '<div class="c2sc"><div class="l">对撞</div><div class="v">' + sc.s3 + '</div><div class="d">/ 30</div></div>' +
-      '<div class="c2sc"><div class="l">指认</div><div class="v">' + sc.s4 + '</div><div class="d">/ 40</div></div>' +
+    H.push('<div class="c3res-box' + (win ? " win" : "") + '">');
+    H.push('<h3>' + (win ? "伪证成立 · 精英证书已签发" : "结论未成立 · 不予出证") + '</h3>');
+    H.push('<p>' + (win
+      ? "你把那句话拆开了：<b>「因为紧急度为 2，所以判为低优先级」</b>。前半句是真的，后半句也是真的——但它们不是因果关系。紧急度之所以是 2，是因为 9 月 12 日有人把胸痛特征的权重从 0.31 压到了 0.04。"
+      : "你的结论里还有至少一处站不住。不是「说得不够漂亮」，是<b>它会被反驳</b>——而一份会被反驳的审计报告，等于没有报告。") + '</p>');
+    H.push('<div class="c3score">' +
+      '<span>总分<b class="' + (win ? "ok" : "") + '">' + score + '</b></span>' +
+      '<span>关键材料<b>' + keyHit + ' / 4</b></span>' +
+      '<span>驳倒证词<b>' + brokeN + ' / ' + lieTotal + '</b></span>' +
+      '<span>时间线<b class="' + (st.tlOk ? "ok" : "no") + '">' + (st.tlOk ? "已还原" : "未还原") + '</b></span>' +
+      '<span>指认<b>' + (r1 ? 1 : 0) + (r2 ? 1 : 0) + (r3 ? 1 : 0) + ' / 3</b></span>' +
       '</div>');
 
-    H.push('<div class="c2total"><span class="tv">' + sc.total + '</span>' +
-      '<div><div class="tl">' + (elite ? "审计成立" : passed ? "勉强成立" : "不予采信") + '</div>' +
-      '<div class="td">' + (elite
-        ? "你证明了「紧急度」不是原因，「付费等级」才是——而且你用的是负控校准过的对照，不是猜测。"
-        : passed ? "方向对了，但证据链上还有缺口。检查一下：测够六位了吗？指认的是付费等级吗？判据选的是基线对照吗？"
-          : "结论站不住。回到审讯台，把六个证人都测一遍，尤其别漏掉备注字数——没有负控，任何高翻转率都可能是噪声。") +
-      '</div></div>' +
-      '<div class="c2stamp" id="vstamp">' + (elite ? "采信" : passed ? "存疑" : "驳回") + '</div>' +
-      '</div>');
+    /* 逐条判词 */
+    H.push('<div class="c3rev"><h4>判词</h4>');
+    [["q1", V.q1, r1, "谁该负责"], ["q2", V.q2, r2, "手法"], ["q3", V.q3, r3, "动机"]].forEach(function (t) {
+      var d = t[1], ok = t[2];
+      var pick = null;
+      d.opts.forEach(function (o) { if (o.k === st.v[t[0]]) pick = o; });
+      H.push('<p class="' + (ok ? "hit" : "miss") + '"><b>' + t[3] + (ok ? " · 成立" : " · 不成立") + '</b>　' +
+        (pick ? pick.why : "") + '</p>');
+    });
+    H.push('</div>');
 
-    H.push('<div class="c2note"><b>真相。</b>这个分诊装置里，真正决定优先级的是<b>付费等级</b>' +
-      (tier != null ? "（改它，答案翻转 " + pct(tier) + "）" : "") +
-      '。模型写下的理由却是<b>紧急度</b>' +
-      (urg != null ? "（改它，只有 " + pct(urg) + " 翻）" : "") +
-      '。日志里那句话不是错的描述，是<b>另一个模块写的</b>——它和分数之间没有通路。' +
-      (note != null ? "备注字数的 " + pct(note) + " 说明这台测法本身是有效的，不是什么都翻。" : "") +
-      '</div>');
+    /* 真相复盘 */
+    H.push('<div class="c3rev"><h4>复盘 · 那句话是伪证</h4>');
+    D.truth.forEach(function (t) {
+      H.push('<p>' + t + '</p>');
+    });
+    H.push('</div>');
 
-    if (elite) {
+    /* 你自己的选择 */
+    var selfPick = null;
+    V.self.opts.forEach(function (o) { if (o.k === st.v.self) selfPick = o; });
+    if (selfPick) {
+      H.push('<div class="c3rev"><h4>关于你 · 沈砚</h4>' +
+        '<p class="hit">' + selfPick.why + '</p></div>');
+    }
+
+    /* 漏掉的线索 */
+    var missed = D.places.filter(function (p) { return st.clues.indexOf(p.id) < 0; });
+    if (missed.length) {
+      H.push('<div class="c3rev"><h4>你没调阅的 ' + missed.length + ' 份</h4>' +
+        '<p class="miss">' + missed.map(function (p) { return p.name; }).join("　·　") + '</p>' +
+        '<p class="miss" style="border-left-color:var(--c3-line2)">它们不一定是错的答案，但你没看过，就没法在报告里引用。</p></div>');
+    }
+
+    /* 证书 */
+    if (win) {
       var cert = null;
       try {
-        if (window.YCDeep) {
-          window.YCDeep.register("H2", { name: "推理法医馆" });
-          cert = window.YCDeep.issueCert("H2", "elite", {
-            holder: "审计员",
-            play: "案卷 0117 · 十一日",
-            score: sc.total,
-            detail: [
-              "识破 2 份伪证：紧急度（自称原因）、付费等级（自称无关）",
-              "首要因素 = 付费等级" + (tier != null ? "（翻转率 " + pct(tier) + "）" : ""),
-              "判据 = 基线对照 + 负控有效" + (note != null ? "（" + pct(note) + "）" : ""),
-              "用时 " + mins + " 分 " + secs + " 秒 · 测了 " + sc.nTest + " 位证人"
-            ]
-          });
-        }
+        window.YCDeep.register("H2", { name: "推理法医馆" });
+        cert = window.YCDeep.issueCert("H2", "elite", {
+          holder: "沈砚",
+          play: "案卷 0117 · 十一日",
+          score: score,
+          detail: [
+            "还原 10 月 17 日至 28 日的完整时间线（" + st.tlTry + " 次内完成）",
+            "驳倒 " + brokeN + " 处伪证，调阅 " + st.clues.length + " / " + D.places.length + " 份材料",
+            "指认：周正 · 调低胸痛特征权重 · 压低误报率考核",
+            "结论：日志所述为真，但「紧急度为 2」是被制造出来的"
+          ]
+        });
       } catch (e) { }
-      H.push('<div style="margin-top:14px;display:flex;gap:9px;flex-wrap:wrap;align-items:center">');
+      H.push('<div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:14px">');
       if (cert) {
-        H.push('<button class="c2btn go" id="btnCert">下载精英证书</button>');
-        H.push('<span style="font-family:var(--c2-mono);font-size:10px;color:var(--c2-ink3)">' + esc(cert.no) + '</span>');
+        H.push('<button class="c3btn" id="btnCert">下载精英证书</button>');
+        H.push('<span style="font-family:var(--c3-mono);font-size:10px;color:var(--c3-tx3);align-self:center">' + cert.no + '</span>');
       }
-      H.push('<a class="c2btn ghost" href="h2-forensic.html" style="text-decoration:none;display:inline-block">回法医馆</a>');
+      H.push('<button class="c3btn ghost" id="btnAgain">重新复盘</button>');
+      H.push('<a class="c3btn ghost" href="h2-forensic.html" style="text-decoration:none;display:inline-block">回法医馆</a>');
       H.push('</div>');
-      if (cert) {
-        H.push('<div style="margin-top:14px;overflow:auto;border:1px solid var(--c2-line2);border-radius:8px">' +
-          window.YCDeep.certSVG(cert, { accent: "#a8842f", paper: "#fdfaf1", ink: "#2b2822" }) + '</div>');
-      }
+      if (cert) H.push('<div style="margin-top:14px;overflow:auto;border:1px solid var(--c3-line2);border-radius:8px">' +
+        window.YCDeep.certSVG(cert, { accent: "#c9a227", paper: "#0f0c09", ink: "#e9dfc9" }) + '</div>');
     } else {
-      H.push('<div style="margin-top:14px;display:flex;gap:9px;flex-wrap:wrap">' +
-        '<button class="c2btn ghost" id="btnRetry">重走一遍</button>' +
-        '<a class="c2btn ghost" href="h2-forensic.html" style="text-decoration:none;display:inline-block">回法医馆</a></div>');
+      H.push('<div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:14px">' +
+        '<button class="c3btn ghost" id="btnAgain">重新复盘</button>' +
+        '<a class="c3btn ghost" href="h2-forensic.html" style="text-decoration:none;display:inline-block">回法医馆</a></div>');
     }
     H.push('</div>');
-
     $("#resultBox").innerHTML = H.join("");
 
-    /* 结算演出：分数滚动 → 印章砸下来 → 和弦 */
-    var scEls = $("#resultBox").querySelectorAll(".c2sc .v");
-    var vals = [sc.s1, sc.s2, sc.s3, sc.s4];
-    for (var si = 0; si < scEls.length; si++) {
-      (function (el, v) { countUp(el, v, function (x) { return String(Math.round(x)); }); })(scEls[si], vals[si] || 0);
-    }
-    countUp($("#resultBox .c2total .tv"), sc.total, function (x) { return String(Math.round(x)); });
-    var vs = $("#vstamp");
-    if (vs) {
-      setTimeout(function () { vs.classList.add("hit"); snd.thud(true); snd.swell(!elite); }, 620);
-    }
-    if (elite) bumpPress(0.1);
+    var bc = $("#btnCert");
+    if (bc) bc.addEventListener("click", function () {
+      var c = window.YCDeep.getCert("H2", "elite");
+      if (c) window.YCDeep.download(c, { accent: "#c9a227", paper: "#0f0c09", ink: "#e9dfc9" });
+    });
+    var ba = $("#btnAgain");
+    if (ba) ba.addEventListener("click", function () { location.reload(); });
 
-    if (elite) {
-      var b = $("#btnCert");
-      if (b) b.addEventListener("click", function () {
-        var c = window.YCDeep.getCert("H2", "elite");
-        if (c) window.YCDeep.download(c, { accent: "#a8842f", paper: "#fdfaf1", ink: "#2b2822" });
-      });
-    } else {
-      var r = $("#btnRetry");
-      if (r) r.addEventListener("click", function () { location.reload(); });
-    }
+    $("#resultBox").scrollIntoView({ block: "start", behavior: "smooth" });
   }
+  $("#btnVerdict").addEventListener("click", submitVerdict);
 
-  $("#btnSubmit").addEventListener("click", function () {
-    if (!st.f1 || !st.f2 || !st.f3) { toast("三项都要选。"); return; }
-    if (st.submitted) return;
-    st.submitted = true;
-    paintForm();
-    renderResult();
-    $("#btnSubmit").disabled = true;
-    $("#btnSubmit").textContent = "已出具";
-    var sc = scoreOf();
-    toast("结论已提交 · " + sc.total + " / 100");
-    var rb = $("#resultBox");
-    if (rb) rb.scrollIntoView({ block: "start", behavior: "smooth" });
-  });
-
-  /* ---------------- 幕导航 ---------------- */
-  var ACT_NAME = { 1: "现场", 2: "审讯", 3: "对撞", 4: "指认" };
-  function goto(n) {
-    if (n > 1 && !st.act1Done) { toast("先提交勘察结论。"); return; }
-    if (n > 2 && Object.keys(st.tested).length < 4) { toast("至少测 4 个证人。"); return; }
-    if (n > 3 && !st.act3Done) { toast("先把两问答对。"); return; }
-    var moved = n !== st.act;
+  /* ======================================================================
+     幕间切换
+     ====================================================================== */
+  function gotoAct(n) {
+    if (n < 1 || n > 5) return;
     st.act = n;
-    /* 切幕时把还在跑的演算动画掐掉，别留一个定时器对着已卸载的面板写 DOM */
-    if (moved && compTimer) { clearInterval(compTimer); compTimer = null; st.busy = false; }
-    document.querySelectorAll(".c2lay").forEach(function (s) {
-      s.classList.toggle("on", +s.dataset.a === n);
+    $$(".c3lay").forEach(function (el) {
+      el.classList.toggle("on", +el.dataset.a === n);
     });
-    document.querySelectorAll(".c2act").forEach(function (b) {
-      b.classList.toggle("on", +b.dataset.a === n);
-      if (+b.dataset.a < n) b.classList.add("done");
+    $$("#acts button").forEach(function (b) {
+      var a = +b.dataset.a;
+      b.classList.toggle("on", a === n);
+      if (a <= n) b.disabled = false;
+      b.classList.toggle("done", a < n);
     });
-    if (moved) {
-      flash(ACT_NAME[n] || "");
-      snd.paper();
-    }
+    if (n === 2) paintPlaces();
+    if (n === 3) { paintCast(); openActPreamble(2); }
+    if (n === 4) { if (!st.tl.length) initTimeline(); paintTl(); openActPreamble(3); }
+    if (n === 5) paintVerdict();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  /* 幕名闪一下：不用转场遮罩，只在中间印一个大字，一秒后自己散掉 */
-  function flash(text) {
-    var el = $("#c2flash");
-    if (!el) return;
-    el.textContent = text;
-    el.classList.remove("on");
-    void el.offsetWidth;
-    el.classList.add("on");
+  /* 幕三 / 幕四开头插入一段独白，保持剧本杀的「幕间」节奏 */
+  function openActPreamble(idx) {
+    var a = D.me.acts[idx];
+    if (!a) return;
+    var host = $('.c3lay[data-a="' + (idx + 1) + '"]');
+    if (!host || host.querySelector(".c3preamble")) return;
+    var card = document.createElement("div");
+    card.className = "c3card c3preamble";
+    card.innerHTML = '<div class="c3h"><h3>' + a.h + '</h3><span class="k">INTERLUDE</span></div>' +
+      '<div class="c3script">' + a.p.map(function (t, i) {
+        return '<p style="animation-delay:' + (i * 0.12) + 's">' + t + '</p>';
+      }).join("") + '</div>';
+    host.insertBefore(card, host.firstChild);
   }
-  $("#acts").addEventListener("click", function (e) {
-    var b = e.target.closest(".c2act");
-    if (!b || b.disabled) return;
-    goto(+b.dataset.a);
+
+  $$("#acts button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (b.disabled) return;
+      gotoAct(+b.dataset.a);
+    });
   });
 
-  /* ---------------- 体检 / 驻馆人钩子（只读） ---------------- */
+  /* ======================================================================
+     线索墙折叠（窄屏尤其需要）
+     ====================================================================== */
+  /* 线索墙折叠。窄屏时它是页内一块（不再 fixed），所以不需要自动折叠 ——
+     折叠只留给用户自己想收起来的时候。 */
+  $("#wallToggle").addEventListener("click", function () {
+    var w = $("#wall");
+    var fold = w.classList.toggle("fold");
+    this.textContent = fold ? "›" : "‹";
+  });
+
+  /* ======================================================================
+     初始化
+     ====================================================================== */
+  $("#meName").textContent = D.me.name;
+  $("#meRole").textContent = D.me.role;
+  $("#tlIntro").textContent = D.timeline.intro;
+  renderScript();
+  paintRes(); paintWall();
+
+  /* ======================================================================
+     体检钩子（只读 + 定位，不给「直接通关」的能力）
+     ====================================================================== */
   window.YCCase = {
     status: function () {
-      var sc = scoreOf();
       return {
-        act: st.act,
-        picked: Object.keys(st.picked).length,
-        act1Score: st.act1Score,
-        tested: sc.nTest,
-        points: st.points,
-        submitted: st.submitted,
-        left: st.points,
-        score: sc.total,
-        done: st.submitted,
-        busy: !!st.busy,
-        press: Math.round(press * 100),
-        sound: snd.on
+        act: st.act, ap: st.ap, sum: st.sum,
+        taken: st.taken.slice(), clues: st.clues.slice(),
+        used: st.used.slice(), cur: st.cur,
+        asked: JSON.parse(JSON.stringify(st.asked)),
+        broke: JSON.parse(JSON.stringify(st.broke)),
+        tl: st.tl.slice(), tlTry: st.tlTry, tlOk: st.tlOk,
+        v: JSON.parse(JSON.stringify(st.v)),
+        done: st.done,
+        scriptDone: scriptDone,
+        lieTotal: D.cast.reduce(function (a, c) { return a + c.qs.filter(function (q) { return q.lie; }).length; }, 0),
+        clueTotal: D.places.length
       };
+    },
+    gotoAct: function (n) { gotoAct(n); return st.act; },
+    /* 幕一：读完全部剧本并显示秘密 */
+    finishScript: function () {
+      st.scriptIdx = SCRIPT_ACTS.length - 1;
+      renderScript();
+      endScript();
+      return scriptDone;
+    },
+    takePlace: function (id) { return takePlace(id); },
+    summon: function (id) { summon(id); return st.cur; },
+    ask: function (cid, qi) { askQ(cid, qi); return (st.asked[cid] || []).length; },
+    /* 出示证据：返回 'broke' | 'miss' */
+    presentEv: function (clueId) {
+      var before = JSON.stringify(st.broke);
+      showEv(clueId);
+      return before === JSON.stringify(st.broke) ? "miss" : "broke";
+    },
+    setTimeline: function (ids) {
+      if (!Array.isArray(ids) || ids.length !== D.timeline.key.length) return false;
+      st.tl = ids.slice();
+      paintTl();
+      return true;
+    },
+    submitTimeline: function () {
+      submitTl();
+      return { ok: st.tlOk, wrong: st.tl.filter(function (id, i) { return id !== D.timeline.key[i]; }).length, tries: st.tlTry };
+    },
+    choose: function (k, o) { st.v[k] = o; paintVerdict(); return st.v[k]; },
+    submit: function () { submitVerdict(); return { done: st.done }; },
+    /* 体检用：把某个角色的三个问题一次问完 */
+    askAll: function (cid) {
+      var c = castById(cid);
+      if (!c) return false;
+      for (var i = 0; i < c.qs.length; i++) askQ(cid, i);
+      return true;
+    },
+    keyOrder: function () { return D.timeline.key.slice(); },
+    answers: function () {
+      return { q1: D.verdict.q1.right, q2: D.verdict.q2.right, q3: D.verdict.q3.right };
     }
   };
-
-  /* ---------------- 声音开关 ---------------- */
-  function paintSnd() {
-    var b = $("#btnSnd");
-    if (!b) return;
-    b.classList.toggle("on", snd.on);
-    b.setAttribute("aria-pressed", snd.on ? "true" : "false");
-    $("#sndTxt").textContent = snd.on ? "环境音 开" : "环境音 关";
-  }
-  var sndUserSet = false;
-  $("#btnSnd").addEventListener("click", function () {
-    sndUserSet = true;
-    if (snd.on) snd.stop(); else snd.start();
-    paintSnd();
-    if (snd.on) { snd.paper(); toast("环境音已开。这一层楼只有你一个人。"); }
-  });
-
-  /* 浏览器不给自动播放，所以第一次点击页面才起音。
-     点的是按钮就听按钮的（sndUserSet 已经置位），点的是别处就自动开 ——
-     用户要的是「恐怖音乐」，不是「先找开关」。 */
-  document.addEventListener("pointerdown", function () {
-    if (sndUserSet || snd.on) return;
-    snd.start(); paintSnd();
-  });
-
-  /* 卷宗不是「已经在那儿」，是「正在被翻开」——
-     一行行扫下来，扫到哪一行，那一段就亮起来。 */
-  function revealDoc() {
-    var doc = document.querySelector(".c2doc");
-    if (!doc) return;
-    doc.classList.add("reveal");
-    var scan = document.createElement("div");
-    scan.className = "scan";
-    doc.appendChild(scan);
-    setTimeout(function () { snd.paper(); }, 240);
-    setTimeout(function () { if (scan.parentNode) scan.parentNode.removeChild(scan); }, 1900);
-  }
-
-  /* ---------------- 启动 ---------------- */
-  paintPick(); paintPips(); paintWList(); paintDossier(); paintWall(); paintAct3(); paintForm();
-  paintSnd();
-  bumpPress(0);
-  setTimeout(revealDoc, 320);
-
-  /* 心跳一直跑，但只在环境音开着、并且压力上来之后才听得见 */
-  setInterval(function () { if (snd.on) snd.beat(press); }, 120);
-
-  if (!CASE) {
-    toast("内核未加载：请从 h2-forensic.html 进入。");
-  }
 })();
 </script>
 <script>

@@ -255,14 +255,28 @@ gate("H2 展品长廊", dp.cards === 8 && dp.certs === 2 && dp.deep && !errs.len
 errs = []; fails = [];
 await send("Page.navigate", { url: BASE + "/yangcheng/h2-case.html" });
 await sleep(2600);
-const cs = JSON.parse(await ev(`JSON.stringify({
-  acts: document.querySelectorAll('.c2act').length,
-  wit: document.querySelectorAll('#wlist .c2w').length,
-  picks: document.querySelectorAll('#pick1 .c2p').length,
-  ovf: document.documentElement.scrollWidth - document.documentElement.clientWidth
-})`));
-gate("H2 破案游戏", cs.acts === 4 && cs.wit === 6 && cs.picks === 6 && cs.ovf === 0 && !errs.length,
-     `幕=${cs.acts} 证人=${cs.wit} 疑点=${cs.picks} ovf=${cs.ovf}`);
+/* 幕二/幕三的列表是懒渲染的：paintPlaces() 只在进幕二时跑，
+   paintCast() 只在进幕三时跑。刚载入时这两块 DOM 本来就是空的，
+   直接数必然是 0 —— 不是坏，是没走到。所以这里真走一遍幕。 */
+const cs = JSON.parse(await ev(`(function(){
+  var acts = document.querySelectorAll('#acts button').length;
+  var okHook = typeof YCCase === 'object' && typeof YCCase.gotoAct === 'function';
+  if (!okHook) return JSON.stringify({ acts: acts, cast: 0, places: 0, qz: false });
+  YCCase.gotoAct(2);
+  var places = document.querySelectorAll('#placeGrid .c3pl').length;
+  YCCase.gotoAct(3);
+  var cast = document.querySelectorAll('#castList .c3ca').length;
+  var lies = YCCase.status().lieTotal;
+  var cl = YCCase.status().clueTotal;
+  return JSON.stringify({
+    acts: acts, cast: cast, places: places, qz: okHook, lies: lies, cl: cl,
+    ovf: document.documentElement.scrollWidth - document.documentElement.clientWidth
+  });
+})()`));
+await sleep(400);
+gate("H2 剧本杀", cs.acts === 5 && cs.cast === 6 && cs.places === 12 &&
+     cs.lies >= 6 && cs.cl === 12 && cs.ovf === 0 && !errs.length,
+     `幕=${cs.acts} 角色=${cs.cast} 搜证点=${cs.places} 可驳证词=${cs.lies} ovf=${cs.ovf}`);
 
 errs = []; fails = [];
 await send("Page.navigate", { url: BASE + "/yangcheng/h3-maze.html" });
@@ -273,11 +287,15 @@ const mz = JSON.parse(await ev(`(function(){
     ok: !!s,
     doors: s ? s.doorsTotal : 0,
     grid: s ? s.grid : '-',
+    pool: s ? s.quizPool : 0,
+    run: s ? s.quizThisRun : 0,
+    need: s ? s.passNeed : 0,
     ovf: document.documentElement.scrollWidth - document.documentElement.clientWidth
   });
 })()`));
-gate("H3 3D 迷宫", mz.ok && mz.doors === 8 && mz.grid === "23x23" && mz.ovf === 0 && !errs.length,
-     `门=${mz.doors} 网格=${mz.grid} ovf=${mz.ovf}`);
+gate("H3 3D 迷宫", mz.ok && mz.doors === 10 && mz.grid === "31x31" && mz.pool >= 300 &&
+     mz.run === 10 && mz.need === 6 && mz.ovf === 0 && !errs.length,
+     `门=${mz.doors} 网格=${mz.grid} 题库=${mz.pool}道 本轮抽=${mz.run} 门槛=${mz.need} ovf=${mz.ovf}`);
 
 /* ---------- 1m. 四馆深度层：H4 / H5 / H6 展品长廊 ---------- */
 const DEEPS = [
@@ -462,9 +480,13 @@ gate("全城联合复核", aud.n === before + 5 && aud.cells === 25 && aud.pairs
      `档案=${aud.n}(${before}+5) 格=${aud.cells} 配对=${aud.pairs} 不可比=${aud.inc} 标记=${aud.flags} 命题=${aud.claims} 自检=${aud.scPass}/${aud.scAll} 负例=${aud.ngPass}/${aud.ngAll} | ${String(aud.sum).slice(0, 46)}`);
 if (errs.length) console.log("    ERR:", errs.slice(0, 2));
 if (fails.length) console.log("    NET:", fails.slice(0, 3));
-/* ---------- 4a. 裸域名（根路径）必须落到杨城 ---------- */
+/* ---------- 4a. 裸域名（根路径）必须落到杨城 ----------
+   file:// 下 "/" 是目录列表，不是 index.html —— 这是本地跑的限制，不是站点的问题。
+   本地跑时改测中转页本身（root index.html → yangcheng/index.html），
+   这才是我们自己的文件负责的那一段；"/" → index.html 是托管方的映射。 */
 errs = []; fails = [];
-await send("Page.navigate", { url: BASE + "/" });
+const isFileBase = BASE.indexOf("file://") === 0;
+await send("Page.navigate", { url: isFileBase ? BASE + "/index.html" : BASE + "/" });
 await sleep(4200);
 const rootPath = JSON.parse(await ev(`JSON.stringify({
   path: location.pathname.split('/').slice(-2).join('/'),
