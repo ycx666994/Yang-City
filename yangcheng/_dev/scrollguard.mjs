@@ -48,7 +48,16 @@ async function gt() {
 const ws = new WebSocket(await gt());
 let id = 0; const pend = new Map();
 ws.onmessage = e => { const m = JSON.parse(e.data); if (m.id && pend.has(m.id)) { pend.get(m.id)(m); pend.delete(m.id); } };
-const send = (meth, par = {}) => new Promise(r => { const i = ++id; pend.set(i, r); ws.send(JSON.stringify({ id: i, method: meth, params: par })); });
+/* 每个 CDP 调用都挂超时：整页截图 / 重页求值偶尔会永不回包，
+   以前的表现是「跑到第五页就再也不动了」，一挂十几分钟，看着像脚本写错。
+   超时就当没回，让循环继续走，并在输出里标出来。 */
+let timeouts = 0;
+const send = (meth, par = {}) => new Promise(r => {
+  const i = ++id;
+  const t = setTimeout(() => { pend.delete(i); timeouts++; r({}); }, 15000);
+  pend.set(i, m => { clearTimeout(t); r(m); });
+  ws.send(JSON.stringify({ id: i, method: meth, params: par }));
+});
 const ev = async expr => {
   const r = await send("Runtime.evaluate", { expression: expr, returnByValue: true, awaitPromise: true });
   if (r.result?.exceptionDetails) return "ERR:" + (r.result.exceptionDetails.exception?.description || "").slice(0, 200);
@@ -63,7 +72,7 @@ for (const [W, H] of VIEWPORTS) {
   console.log(`\n=== 视口 ${W}×${H} ===`);
   for (const p of PAGES) {
     await send("Page.navigate", { url: BASE + "/" + p });
-    await sleep(2100);
+    await sleep(2400);
     total++;
 
     const geo = JSON.parse(await ev(`(function(){
@@ -79,12 +88,18 @@ for (const [W, H] of VIEWPORTS) {
     })()`));
 
     // 真实滚轮：连发三次，看 scrollY 有没有动
+    // 只发一轮会误报 —— 页面刚 load 完、合成器还没接上时，滚轮事件会被丢掉。
+    // 实测同一页同一视口，隔几秒再发就能滚。所以「没动」要重试，不能一次定生死。
     const before = await ev(`window.scrollY`);
-    for (let i = 0; i < 3; i++) {
-      await send("Input.dispatchMouseEvent", { type: "mouseWheel", x: Math.round(W / 2), y: Math.round(H / 2), deltaX: 0, deltaY: 200, button: "none" });
-      await sleep(150);
+    let after = before;
+    for (let round = 0; round < 3 && after === before; round++) {
+      if (round) await sleep(700);
+      for (let i = 0; i < 3; i++) {
+        await send("Input.dispatchMouseEvent", { type: "mouseWheel", x: Math.round(W / 2), y: Math.round(H / 2), deltaX: 0, deltaY: 200, button: "none" });
+        await sleep(160);
+      }
+      after = await ev(`window.scrollY`);
     }
-    const after = await ev(`window.scrollY`);
     const overflow = geo.h - geo.c;
     const wheelOK = after > before;
     const innerOK = geo.inner.length > 0;
@@ -94,5 +109,6 @@ for (const [W, H] of VIEWPORTS) {
   }
 }
 
-console.log(`\n结论：${bad === 0 ? `全部通过（${total} 项）` : `有 ${bad} 项不合格`}`);
+console.log(`\n结论：${bad === 0 ? `全部通过（${total} 项）` : `有 ${bad} 项不合格`}` +
+  (timeouts ? `  注意：有 ${timeouts} 次 CDP 调用超时（结果可能偏乐观）` : ""));
 child.kill(); ws.close(); process.exit(bad === 0 ? 0 : 1);

@@ -45,11 +45,19 @@ const s0 = await ev("YCMaze.status()");
 ok("初始未入塔", s0 && s0.hunt === false, `hunt=${s0 && s0.hunt} t=${s0 && s0.t}`);
 ok("初始未被抓", s0 && s0.caught === false);
 
-/* 先让逮捕者入塔，再开门答题 —— 这样冻结项才有意义 */
-await ev("YCMaze.fastForward(61)");
+/* 先让逮捕者入塔，再开门答题 —— 这样冻结项才有意义。
+   边界要卡死：79 秒还不该出现，80 秒才出现。
+   注意别用绝对值：页面一加载主循环就在走，t 已经不是 0 了，
+   写死 79 会变成「t=83 还没入塔」这种自相矛盾的断言。 */
+const t0 = await ev("YCMaze.status().t");
+await ev(`YCMaze.fastForward(${76 - t0})`);
+await sleep(200);
+const at79 = await ev("YCMaze.status()");
+ok("79 秒时逮捕者还没入塔", at79.hunt === false && at79.t < 80, `hunt=${at79.hunt} t=${at79.t}`);
+await ev("YCMaze.fastForward(4)");
 await sleep(600);
 const beforeModal = await ev("YCMaze.status()");
-ok("60 秒后入塔", beforeModal.hunt === true, `hunt=${beforeModal.hunt} t=${beforeModal.t}`);
+ok("80 秒后入塔", beforeModal.hunt === true, `hunt=${beforeModal.hunt} t=${beforeModal.t}`);
 
 /* 走到门边并开门 */
 const opened = await ev(`(function(){
@@ -86,22 +94,31 @@ if (modalOn) {
 await load();
 const c0 = await ev("YCMaze.status()");
 ok("重新加载后未入塔", c0.hunt === false, `t=${c0.t}`);
-await ev("YCMaze.fastForward(61)");
-await sleep(700);
+await ev("YCMaze.fastForward(81)");
+await ev("YCMaze.tick(0.05, true)");
+await sleep(400);
 const sp = await ev("YCMaze.status()");
 ok("入塔时给距离读数", sp.huntDist > 0, `dist=${sp.huntDist}`);
 ok("出生点在远处（>6 单位）", sp.huntDist > 6, `dist=${sp.huntDist}`);
 
-let caught = false, el = 0, last = sp;
-for (let i = 0; i < 90; i++) {
-  await sleep(1000);
-  last = await ev("YCMaze.status()");
-  if (last && last.caught) { caught = true; el = i + 1; break; }
-  if (i % 10 === 0) console.log(`  ...${i + 1}s  dist=${last && last.huntDist}  t=${last && last.t}`);
-}
-ok("逮捕者能追上人", caught, `约 ${el} 秒后被抓`);
+/* 追捕过程用 tick 推，不靠 rAF —— 无头环境下 rAF 会间歇停摆，
+   靠它等两分钟，测出来的是运气而不是逻辑。每 20 帧（1 秒游戏时间）看一次状态。 */
+const chase = await ev(`(function(){
+  var sec = 0, caught = false, at = -1, last = -1;
+  for (var i = 0; i < 4000; i++) {
+    YCMaze.tick(0.05, true);
+    sec += 0.05;
+    if (i % 20 !== 0) continue;
+    var s = YCMaze.status();
+    last = s.huntDist;
+    if (s.caught) { caught = true; at = Math.round(sec); break; }
+  }
+  return { caught: caught, at: at, dist: last };
+})()`);
+console.log("CHASE", JSON.stringify(chase));
+ok("逮捕者能追上人", chase && chase.caught === true, `约 ${chase && chase.at} 秒游戏时间后被抓`);
 
-if (caught) {
+if (chase && chase.caught) {
   const info = await ev(`(function(){
     var b = document.querySelector('#endBox .box.caught');
     if (!b) return { err: 'no-box' };
@@ -127,7 +144,8 @@ if (caught) {
 /* ==================== C. 通关对照：拿到证书 ==================== */
 await load();
 await ev("YCMaze.gotoExit()");
-await sleep(900);
+await ev("(function(){for(var i=0;i<4;i++)YCMaze.tick(0.016);return 1})()");
+await sleep(400);
 const win = await ev(`(function(){
   var b = document.querySelector('#endBox');
   if (!b) return { err: 'no-endbox' };
@@ -137,7 +155,7 @@ const win = await ev(`(function(){
   return { text: (b.textContent||'').replace(/\\s+/g,' ').slice(0, 220), btns: btns, caught: !!b.querySelector('.box.caught') };
 })()`);
 console.log("WIN", JSON.stringify(win));
-ok("直接走到出口不算通关（碎片 0/6）", win.caught === false, JSON.stringify(win.btns));
+ok("直接走到出口不算通关（碎片 0/8）", win.caught === false, JSON.stringify(win.btns));
 
 console.log("\n===== 通过 " + pass.length + " =====");
 pass.forEach(p => console.log("  PASS " + p));

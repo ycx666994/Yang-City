@@ -98,7 +98,11 @@
      再轮到第二轮。所以你不会连撞三道「分布偏移」，也不会一次都碰不到。
      ====================================================================== */
   var QUIZ = window.YCQUIZ || { cats: [] };
-  var PASS_N = 6;                      /* 答对这么多道才算通过 */
+  /* 八道门全部答对，出口才会出现。
+     上一版是「答对 6 道就算过」——玩家可以绕开两道门直接去出口，
+     于是「走通」和「读懂」之间还留着一条缝。现在没有缝了：
+     八道门必须全部拿到，出口才会在迷宫的某个随机角落亮起来。 */
+  var PASS_N = 8;
 
   /* 下面这个 GATES 数组是题库加载失败时的兜底，保证塔不会变成一座空塔 */
   var GATES = [
@@ -150,9 +154,9 @@
        hall   挖四个 3×3 的开阔厅。它们既是地标（走进大厅 = 知道自己大致在哪），
               也是唯一能绕开逮捕者的地方：走廊里它是必中的，大厅里你可以绕。
      ====================================================================== */
-  var COLS = 15, ROWS = 15;            /* 单元格数；网格 = 31 × 31 */
+  var COLS = 20, ROWS = 20;            /* 单元格数；网格 = 41 × 41 */
   var W = COLS * 2 + 1, H = ROWS * 2 + 1;
-  var DOOR_N = 10;                     /* 知识门数量 */
+  var DOOR_N = 8;                      /* 知识门数量：八道同时存在，不分先后 */
 
   function genMaze(seed) {
     var g = new Uint8Array(W * H);
@@ -242,7 +246,9 @@
         var nx = nb[i][0], ny = nb[i][1];
         if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
         var ni = ny * W + nx;
-        if (g[ni] !== 0 || dist[ni] >= 0) continue;
+        /* 0 = 走廊，3 = 已点亮的出口。出口格是能走进去的（solid() 也放行），
+           这里必须一致 —— 否则 BFS 会把它当成墙，算出来「出口不可达 / -1 步」。 */
+        if ((g[ni] !== 0 && g[ni] !== 3) || dist[ni] >= 0) continue;
         dist[ni] = dist[cur] + 1; prev[ni] = cur; q.push(ni);
       }
     }
@@ -258,6 +264,16 @@
     return d;
   }
 
+  /* 把 [-π, π] 切成 DOOR_N 个扇区，返回 0..DOOR_N-1。
+     门靠这个散开：一个扇区一道，八个方向各一道。 */
+  function sectorOf(ang) {
+    var t = (ang + Math.PI) / (2 * Math.PI) * DOOR_N;
+    var s = Math.floor(t);
+    if (s < 0) s = 0;
+    if (s > DOOR_N - 1) s = DOOR_N - 1;
+    return s;
+  }
+
   function buildWorld(seed) {
     var rnd = mulberry32((seed ^ 0x5bf03635) >>> 0);
     var g = genMaze(seed);
@@ -265,16 +281,17 @@
        只跑一遍的话，环路数量取决于遍历顺序，随机性太大。 */
     braid(g, rnd, 0.55);
     braid(g, rnd, 0.55);
-    var halls = carveHalls(g, rnd, 4);
+    var halls = carveHalls(g, rnd, 5);
 
     var b = bfs(g, 1, 1);
-    /* 出口：最远的格子 */
+
+    /* 出口不在这里定。八道门全部答对之后才随机亮起来（revealExit）。
+       上一版把出口钉在最远格，于是「门」变成了路上的关卡 ——
+       你必须按顺序一扇一扇过，走的是同一条道。 */
     var far = -1, farI = -1;
     for (var i = 0; i < b.dist.length; i++) if (b.dist[i] > far) { far = b.dist[i]; farI = i; }
-    var ex = farI % W, ey = (farI - ex) / W;
-    g[farI] = 3;
 
-    /* 解路径 */
+    /* 解路径只留给探针看「塔有多绕」，不再承担玩法 */
     var path = [], p = farI;
     while (p >= 0) { var px = p % W; path.push([px, (p - px) / W]); p = b.prev[p]; }
     path.reverse();
@@ -285,54 +302,85 @@
       });
     };
 
-    /* 门：优先放在「走廊格」（四个方向只通两个）——
-       大厅里放门没有意义，3 格宽的厅可以直接绕过去。
-       路径两端各留 3 格，别把门贴在出生点和出口上。 */
+    /* 门：按「绕地图中心的方位角」分八个扇区，一个扇区一道。
+       上一版是沿解路径等距摆 —— 那条路是一条连续的走廊，
+       八道门自然全挤在同一片区域，进门就看见一片蓝。
+       按方位分扇区之后，门必然散在四面八方，而且得绕路才拿得到：
+       它们不在同一条道上，也不分先后。 */
     var cands = [];
-    for (var pi = 3; pi <= path.length - 4; pi++) {
-      var c = path[pi];
-      if (!c || g[c[1] * W + c[0]] !== 0) continue;
-      if (inHall(c[0], c[1])) continue;
-      if (degAt(g, c[0], c[1]) !== 2) continue;
-      cands.push(c);
+    for (var y2 = 1; y2 < H - 1; y2++) {
+      for (var x2 = 1; x2 < W - 1; x2++) {
+        var id2 = y2 * W + x2;
+        if (g[id2] !== 0) continue;
+        if (b.dist[id2] < 10) continue;            /* 离出生点太近，一进门就撞见 */
+        if (inHall(x2, y2)) continue;              /* 3 格宽的厅里放门等于没放 */
+        if (degAt(g, x2, y2) !== 2) continue;      /* 只放走廊，不放岔口 */
+        cands.push({
+          x: x2, y: y2, d: b.dist[id2],
+          s: sectorOf(Math.atan2(y2 - (H - 1) / 2, x2 - (W - 1) / 2))
+        });
+      }
     }
-    /* 走廊不够就退回「路径上任意非大厅格」，再不够就全收 */
+    /* 走廊不够（编织得太密）就退回「任何可走格」，保证八道门一定存在 */
     if (cands.length < DOOR_N) {
-      cands = path.slice(3, path.length - 3).filter(function (c) {
-        return g[c[1] * W + c[0]] === 0 && !inHall(c[0], c[1]);
-      });
-    }
-    if (cands.length < DOOR_N) {
-      cands = path.slice(3, path.length - 3).filter(function (c) {
-        return g[c[1] * W + c[0]] === 0;
-      });
+      for (var y3 = 1; y3 < H - 1; y3++) {
+        for (var x3 = 1; x3 < W - 1; x3++) {
+          var id3 = y3 * W + x3;
+          if (g[id3] !== 0 || b.dist[id3] < 10) continue;
+          cands.push({
+            x: x3, y: y3, d: b.dist[id3],
+            s: sectorOf(Math.atan2(y3 - (H - 1) / 2, x3 - (W - 1) / 2))
+          });
+        }
+      }
     }
 
-    var doors = [];
-    for (var k = 0; k < DOOR_N && cands.length; k++) {
-      var idx = Math.round((cands.length - 1) * (k / Math.max(1, DOOR_N - 1)));
-      var cc = cands[clamp(idx, 0, cands.length - 1)];
-      if (!cc) continue;
-      var gi = cc[1] * W + cc[0];
-      if (g[gi] !== 0) continue;
-      g[gi] = 2;
-      doors.push({ x: cc[0], y: cc[1], gate: doors.length, open: false });
+    var doors = [], taken = [];
+    var farFrom = function (c) {
+      var m = 1e9;
+      for (var i = 0; i < taken.length; i++) m = Math.min(m, Math.hypot(c.x - taken[i].x, c.y - taken[i].y));
+      return m;
+    };
+    for (var s = 0; s < DOOR_N; s++) {
+      var best = null, bestScore = -1e9;
+      for (var ci = 0; ci < cands.length; ci++) {
+        var c = cands[ci];
+        if (c.used) continue;
+        /* 扇区不对就重罚，但不完全排除 —— 某个扇区实在没有走廊时，
+           宁可稍微偏一点，也不要少一道门。 */
+        var off = Math.min(Math.abs(c.s - s), DOOR_N - Math.abs(c.s - s));
+        var sep = taken.length ? farFrom(c) : 99;
+        var score = -off * 26 + Math.min(sep, 14) * 1.6 + c.d * 0.35;
+        if (score > bestScore) { bestScore = score; best = c; }
+      }
+      if (!best) break;
+      best.used = true;
+      taken.push(best);
+      g[best.y * W + best.x] = 2;
+      doors.push({ x: best.x, y: best.y, gate: doors.length, open: false });
     }
 
-    /* 陷阱：不在主路径上的死胡同 */
+    /* 陷阱：不在主路径上的死胡同。
+       另外**门旁边的死胡同也不放** —— 陷阱踩上才知道，若一道门唯一的近路上
+       埋着一个，玩家每次去开那道门都得白掉一格可信度，那是惩罚而不是难度。 */
     var onPath = {};
     path.forEach(function (c) { onPath[c[1] * W + c[0]] = 1; });
+    var nextToDoor = function (id) {
+      return g[id - 1] === 2 || g[id + 1] === 2 || g[id - W] === 2 || g[id + W] === 2;
+    };
     var traps = [];
     for (var y = 1; y < H - 1; y++) {
       for (var x = 1; x < W - 1; x++) {
         var id = y * W + x;
         if (g[id] !== 0 || onPath[id]) continue;
         if (degAt(g, x, y) !== 1) continue;
+        if (nextToDoor(id)) continue;
         if (traps.length < 12) traps.push({ x: x, y: y, hit: false });
       }
     }
 
-    return { g: g, doors: doors, traps: traps, exit: { x: ex, y: ey }, path: path, halls: halls };
+    /* exit 先留 null：八道门全开之后由 revealExit() 随机点亮 */
+    return { g: g, doors: doors, traps: traps, exit: null, path: path, halls: halls, far: { x: farI % W, y: Math.floor(farI / W) } };
   }
 
   /* ======================================================================
@@ -417,17 +465,23 @@
   /* ----------------------------------------------------------------------
      逮捕者
      ----------------------------------------------------------------------
-     进塔 60 秒后入塔。速度 1.95，玩家 2.35 —— 大约是玩家的 83%。
+     进塔 80 秒后入塔。速度 1.62，玩家 2.35 —— 大约是玩家的 69%。
      再慢就没有压力（玩家停下来答一道题，它追不上），再快就没有活路
-     （窄走廊里无法绕开）。83% 意味着：只要不停下来磨蹭，你永远甩得掉；
+     （窄走廊里无法绕开）。69% 意味着：只要你不停下来磨蹭，你永远甩得掉；
      但只要你连答错两道门、或者绕两次远路，它就会贴上来。
+     比上一版（60 秒 / 83%）慢了一档 —— 因为现在迷宫更大、还要在八道门
+     都开之后再横穿一次去找出口，留给玩家的余量必须补回来。
 
      它走格子中心，不做连续寻路 —— 走廊宽度只有一格，贴着中心走
      永远不会卡墙，也不会出现「卡在拐角抖动」这种一眼假的追兵。
      ---------------------------------------------------------------------- */
   var HUNT = {
-    at: 60,            /* 入塔时间（秒，只算塔内时间，答题冻结） */
-    speed: 1.95,
+    /* 80 秒入塔。玩家速度 2.35，它 1.62（约 69%）——
+       上一版是 60 秒 / 1.95（83%），走廊里一旦被盯上基本没有翻盘余地。
+       现在它仍然比玩家慢、比玩家笨，但你走错路照样会被追上：
+       减速不等于没威胁，只是把「一次失误就死」改成「两次失误才死」。 */
+    at: 80,            /* 入塔时间（秒，只算塔内时间，答题冻结） */
+    speed: 1.62,
     x: 1.5, y: 1.5,
     on: false,
     cell: -1,          /* 当前目标格，换格时重算 */
@@ -447,6 +501,9 @@
   function reset(seed) {
     SEED = seed || (20261031 + Math.floor(Math.random() * 9999));
     world = buildWorld(SEED);
+    /* 出口位置用「跟塔走」的种子，同一座塔重进是同一个出口。
+       探针要能复现，玩家重进也不会觉得塔在耍他。 */
+    exitRnd = mulberry32((SEED ^ 0x2545f491) >>> 0);
     st.px = 1.5; st.py = 1.5;
     /* 起始朝向必须面向唯一开口。原来写死 45°，出生点是个死胡同，
        第一帧就是一面 0.5 距离的墙铺满屏幕，看着像渲染坏了。 */
@@ -458,8 +515,11 @@
     }
     st.life = 3; st.frags = []; st.answered = {};
     /* 每次进塔重抽题。种子跟着塔走 —— 同一座塔重进是同一套题，
-       换一座塔就是另一套。 */
-    st.quiz = drawQuiz(DOOR_N, SEED);
+       换一座塔就是另一套。
+       多抽一批备用题：答错时那道门不会作废，而是换一道新题重问，
+       所以「八道全对」永远是可达到的，只是错一次掉一格可信度。 */
+    st.quiz = drawQuiz(DOOR_N + 16, SEED);
+    st.spare = st.quiz.splice(DOOR_N);
     st.tAcc = 0; st.running = true; st.done = false; st.pitch = 0;
     st.curDoor = null; st.inModal = false;
     resetHunt();
@@ -467,7 +527,44 @@
     paintHud(); paintFrags();
     syncLockHint();
     sound.duck(false);
-    msg("塔门在你身后关上。" + world.doors.length + " 道知识门，答对 " + PASS_N + " 道才走得出去。", "");
+    msg("塔门在你身后关上。八道知识门同时开着，不分先后——" +
+        "八道全部答对，出口才会在塔里某个地方亮起来。", "");
+  }
+
+  /* ----------------------------------------------------------------------
+     出口点亮
+     ----------------------------------------------------------------------
+     八道门全部答对的那一刻，出口才出现，而且位置是随机的：
+     从「离当前位置足够远」的可走格里抽一个。
+     为什么不能固定在最远格：固定位置等于告诉玩家「一直往那边走」，
+     而随机的出口意味着你必须先清完八道门，再重新规划路线 ——
+     这也是逮捕者开始生效之后的第二段压力。
+     ---------------------------------------------------------------------- */
+  var exitRnd = mulberry32(1);
+
+  function revealExit() {
+    if (world.exit) return false;
+    var b = bfs(world.g, Math.floor(st.px), Math.floor(st.py));
+    var maxD = 0, i;
+    for (i = 0; i < b.dist.length; i++) if (b.dist[i] > maxD) maxD = b.dist[i];
+    var pool = [];
+    for (var y = 1; y < H - 1; y++) {
+      for (var x = 1; x < W - 1; x++) {
+        var id = y * W + x;
+        if (world.g[id] !== 0) continue;
+        /* 至少要走掉一半路程 —— 门口亮出口等于白送 */
+        if (b.dist[id] < Math.max(24, maxD * 0.55)) continue;
+        pool.push({ x: x, y: y });
+      }
+    }
+    if (!pool.length) pool = [world.far];
+    var pick = pool[Math.floor(exitRnd() * pool.length)];
+    world.exit = { x: pick.x, y: pick.y };
+    world.g[pick.y * W + pick.x] = 3;
+    var d = b.dist[pick.y * W + pick.x];
+    msg("八道门全开。出口在塔的另一个方向亮起来了 —— 距离你 " +
+        Math.round(d * 0.5) + " 米。别直着走，塔不是直的。", "good");
+    return true;
   }
 
   /* ======================================================================
@@ -523,12 +620,12 @@
       var sideY = ry < 0 ? (st.py - mapY) : (mapY + 1 - st.py);
       var dX = sideX * ddx, dY = sideY * ddy;
       var side = 0, tile = 1, guard = 0;
-      /* 步数上限必须覆盖「斜穿整张地图」：31×31 的对角是 43.8 格，
-         DDA 每格最多走两步，所以要 90 步以上。
-         原来写 64 是 23×23 时代的值，地图一大，斜向光线走不到墙就停，
-         tile 保持初始值 1、dist 变成几十格 —— 整面墙细成一条线，
-         画面看起来就是「一片空」。 */
-      while (guard++ < 128) {
+      /* 步数上限必须覆盖「斜穿整张地图」：41×41 的对角是 57.4 格，
+         DDA 每格最多走两步，所以要 115 步以上，取 1.5 倍余量 = 192。
+         这条上限跟着地图尺寸走，改地图必须同步改它 ——
+         走不到墙时 tile 停在初始值 1、dist 变成几十格，整面墙细成一条线，
+         画面看起来就是「一片空」，而且不报任何错。 */
+      while (guard++ < 192) {
         if (dX < dY) { dX += ddx; mapX += stepX; side = 0; }
         else { dY += ddy; mapY += stepY; side = 1; }
         if (mapX < 0 || mapY < 0 || mapX >= W || mapY >= H) { tile = 1; break; }
@@ -610,7 +707,7 @@
       if (d.open) return;
       items.push({ x: d.x + 0.5, y: d.y + 0.5, col: "#7cc4ff", ch: "▮" });
     });
-    items.push({ x: world.exit.x + 0.5, y: world.exit.y + 0.5, col: "#3ecf8e", ch: "◆" });
+    if (world.exit) items.push({ x: world.exit.x + 0.5, y: world.exit.y + 0.5, col: "#3ecf8e", ch: "◆" });
     items.forEach(function (it) {
       var dx = it.x - st.px, dy = it.y - st.py;
       var dist = Math.sqrt(dx * dx + dy * dy);
@@ -720,8 +817,8 @@
     var S = mini.width / W;
     mctx.clearRect(0, 0, mini.width, mini.height);
     /* 先铺大厅的底：它是唯一的「大块空地」，玩家靠它认路。
-       31×31 的小地图每格不到 5px，不铺这一层的话，
-       四个大厅和普通走廊在缩略图里长得一模一样。 */
+       41×41 缩进 150px 的小地图，每格只剩 3.6px，不铺这一层的话，
+       几个大厅和普通走廊在缩略图里长得一模一样。 */
     world.halls.forEach(function (h) {
       mctx.fillStyle = "rgba(124,196,255,.13)";
       mctx.fillRect(h.x * S, h.y * S, h.w * S, h.h * S);
@@ -941,9 +1038,11 @@
     $("#prompt").classList.toggle("on", !!near);
     if (near) $("#prompt").textContent = "按 E 开启「" + gateOf(near.gate).cat + "」知识门";
 
-    /* 出口 */
-    var edx = world.exit.x + 0.5 - st.px, edy = world.exit.y + 0.5 - st.py;
-    if (Math.hypot(edx, edy) < 0.6) { finish(); return; }
+    /* 出口：八道门全开之前它根本不存在 */
+    if (world.exit) {
+      var edx = world.exit.x + 0.5 - st.px, edy = world.exit.y + 0.5 - st.py;
+      if (Math.hypot(edx, edy) < 0.6) { finish(); return; }
+    }
 
     /* 逮捕者 */
     huntStep(dt);
@@ -996,15 +1095,14 @@
   function gateOf(i) {
     return st.quiz[i] || { cat: "知识门", q: "题目缺失", o: ["—", "—", "—"], a: 0, w: "" };
   }
-  function openGate(d) {
+  /* 把题面画进模态框。答错换题时也走这里 ——
+     之前整段逻辑塞在 openGate 里，换题就得复制一遍，迟早不一致。 */
+  function renderQ(d) {
     var g = gateOf(d.gate);
-    curQ = { door: d, gate: g };
+    curQ = { door: d, gate: g, retry: false };
     st.inModal = true;
-    /* 答题必须放开鼠标：指针锁着的时候点不到选项。
-       时间也在这里停 —— 塔不动，它也不动。 */
-    unlock();
-    sound.duck(true);
-    $("#qNo").textContent = "GATE " + ("0" + (d.gate + 1)).slice(-2);
+    $("#qNo").textContent = "GATE " + ("0" + (d.gate + 1)).slice(-2) +
+      " · 已开 " + st.frags.length + "/" + DOOR_N;
     $("#qTtl").textContent = g.cat;
     $("#qText").textContent = g.q;
     $("#qOpts").innerHTML = g.o.map(function (o, i) {
@@ -1016,6 +1114,13 @@
     $("#qGo").textContent = "继续探索";
     $("#qHint").textContent = "选一个答案。";
     $("#modal").classList.add("on");
+  }
+  function openGate(d) {
+    /* 答题必须放开鼠标：指针锁着的时候点不到选项。
+       时间也在这里停 —— 塔不动，它也不动。 */
+    unlock();
+    sound.duck(true);
+    renderQ(d);
   }
 
   $("#qOpts").addEventListener("click", function (e) {
@@ -1034,26 +1139,59 @@
       paintFrags(); paintHud();
       $("#qWhy").className = "mzwhy on";
       $("#qWhy").innerHTML = "<b style='color:#3ecf8e'>对。</b>" + g.why;
-      $("#qHint").textContent = "拿到第 " + st.frags.length + " 枚指标碎片。";
+      $("#qHint").textContent = "第 " + st.frags.length + " / " + DOOR_N + " 道门开了。";
+      $("#qGo").textContent = "开门，继续";
     } else {
+      /* 答错不再「门照样开、只是没碎片」—— 那样八道门里错一道就永远凑不齐，
+         玩家会当场算出来自己已经输了，然后乱走。现在改成：
+         这道门不开，换一道新题重问，代价是掉一格可信度。
+         「八道全对」始终可达，但错一次是真的要付钱。 */
+      st.life--;
+      paintHud();
+      curQ.retry = true;
       $("#qWhy").className = "mzwhy on";
       $("#qWhy").innerHTML = "<b style='color:#ff5e6c'>不对。</b>" + g.why;
-      $("#qHint").textContent = "这一枚拿不到了，门还是会开——但碎片不够就走不出去。";
+      if (st.life <= 0) {
+        $("#qHint").textContent = "可信度耗尽。塔把你弹了出去。";
+        $("#qGo").textContent = "离开指标塔";
+      } else {
+        $("#qHint").textContent = "这道门不为你开。换一道题再试 —— 可信度 -1（剩 " + st.life + " / 3）。";
+        $("#qGo").textContent = "换一道题再试";
+      }
     }
     $("#qGo").disabled = false;
-    $("#qGo").textContent = "开门，继续";
   });
 
   $("#qGo").addEventListener("click", function () {
     if (!curQ) return;
+    /* 答错且还有可信度：换一道备用题重问同一道门 */
+    if (curQ.retry) {
+      if (st.life <= 0) {
+        $("#modal").classList.remove("on");
+        st.inModal = false; curQ = null;
+        lose();
+        return;
+      }
+      var door = curQ.door;
+      var nq = st.spare.shift();
+      if (nq) st.quiz[door.gate] = nq;
+      renderQ(door);
+      return;
+    }
     curQ.door.open = true;
     world.g[curQ.door.y * W + curQ.door.x] = 0;
     $("#modal").classList.remove("on");
     st.inModal = false;
     sound.duck(false);
-    msg("门开了。左边是走廊，右边也是走廊——塔不打算让你轻易记住方向。", "");
     curQ = null;
     keys = {};
+    /* 八道全开 → 出口随机点亮。这一刻之后才是真正的「找出口」段落。 */
+    var opened = world.doors.filter(function (d) { return d.open; }).length;
+    if (opened >= world.doors.length) {
+      revealExit();
+    } else {
+      msg("门开了（" + opened + " / " + world.doors.length + "）。左边是走廊，右边也是走廊——塔不打算让你记住方向。", "");
+    }
     /* 这一下点击本身就是手势，可以合法地把指针重新锁回去 */
     lockNow();
   });
@@ -1124,7 +1262,8 @@
     H2.push('<div class="box' + (win ? " win" : "") + '">');
     H2.push('<h3>' + (win ? "走出指标塔 · 精英证书已签发" : "抵达出口 · 但挑战失败") + '</h3>');
     H2.push('<p>' + (win
-      ? "你在 " + el + " 秒内答对 " + n + " 道知识门，并找到了出口。这座塔的十道门各锁着一个判据——你不是靠运气绕过去的，是靠认出哪一句话在偷换「测量」和「目标」。"
+      ? "你在 " + el + " 秒内答对全部 " + n + " 道知识门，并在出口亮起之后重新找到了它。" +
+        "这座塔的八道门各锁着一个判据——你不是靠运气绕过去的，是靠认出哪一句话在偷换「测量」和「目标」。"
       : "你走到了出口，但只答对 " + n + " 道（门槛 " + PASS_N + " 道）。<b>出口不为你开：走通一座塔，和证明你懂这座塔，是两件事。</b>没被逮捕只说明你跑得够快，不说明你答得对。") + '</p>');
     H2.push('<div class="sc"><span>答对<b>' + n + ' / ' + total + '</b></span>' +
       '<span>可信度<b>' + st.life + ' / 3</b></span>' +
@@ -1139,8 +1278,8 @@
           play: "指标塔 · 3D 迷宫",
           score: n * 10 + st.life * 5,
           detail: [
-            "穿过 31 × 31 的指标塔，答对 " + n + " / " + total + " 道知识门（门槛 " + PASS_N + " 道）",
-            "十道门从八个判据题库中随机抽取：代理指标 / 古德哈特 / 刷分 / 偏移 / 聚合 / 阈值",
+            "穿过 41 × 41 的指标塔，答对 " + n + " / " + total + " 道知识门（八道门全部答对，出口才出现）",
+            "八道门从八个判据题库中随机抽取：代理指标 / 古德哈特 / 刷分 / 偏移 / 聚合 / 阈值 / 相关 / 可优化性",
             "可信度剩余 " + st.life + " / 3 · 用时 " + el + " 秒",
             "未踩满三次刷分陷阱，未被逮捕者追上"
           ]
@@ -1416,10 +1555,23 @@
         doorsTotal: world.doors.length,
         traps: world.traps.length,
         /* 题库规模与通关门槛：线上体检要能一眼看出「题池是不是真的几百道」、
-           「门槛是不是真的 6 道」，而不是只信任本地脚本。 */
+           「门槛是不是真的八道全过」，而不是只信任本地脚本。 */
         quizPool: (QUIZ.cats || []).reduce(function (a, c) { return a + (c.items || []).length; }, 0),
         quizThisRun: st.quiz.length,
         passNeed: PASS_N,
+        /* 出口：八道门全开之前是 null。exitSteps 是「从当前位置走到出口要几步」，
+           用来验「出口真的在远处」而不是贴在脚边。 */
+        exitReady: !!world.exit,
+        exitSteps: (function () {
+          if (!world.exit) return -1;
+          var eb = bfs(world.g, Math.floor(st.px), Math.floor(st.py));
+          return eb.dist[world.exit.y * W + world.exit.x];
+        })(),
+        huntAt: HUNT.at,
+        huntSpeed: HUNT.speed,
+        /* 八道门离出生点有多远 / 各在哪个方位扇区 ——
+           用来验「门是不是散在四面八方」，而不是全挤在一片。 */
+        doorSectors: world.doors.map(function (d) { return sectorOf(Math.atan2(d.y - (H - 1) / 2, d.x - (W - 1) / 2)); }),
         seed: SEED,
         grid: W + "x" + H,
         t: Math.round(st.tAcc),
@@ -1448,21 +1600,40 @@
       };
     },
     /* 把塔内时钟往前推 —— 和「等这么久」等价，只是快。
-       体检要用它验「60 秒后入塔」，不然每跑一次要真等一分钟。 */
+       体检要用它验「80 秒后入塔」，不然每跑一次要真等一分二十秒。 */
     fastForward: function (sec) { st.tAcc += Math.max(0, +sec || 0); return st.tAcc; },
     gotoDoor: function (i) {
       var d = world.doors[i];
       if (!d) return false;
-      var nb = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+      var nb = [[0, 1], [0, -1], [1, 0], [-1, 0]], fallback = null;
       for (var k = 0; k < nb.length; k++) {
         var nx = d.x + nb[k][0], ny = d.y + nb[k][1];
         if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
         if (world.g[ny * W + nx] !== 0) continue;
-        st.px = nx + 0.5; st.py = ny + 0.5;
-        st.ang = Math.atan2((d.y + 0.5) - st.py, (d.x + 0.5) - st.px);
-        return true;
+        /* 别把玩家瞬移到陷阱格上：那会白扣一格可信度，
+           探针读到的 life 就跟「答错扣一格」混在一起，分不清是谁扣的。 */
+        var trapped = world.traps.some(function (tp) { return tp.x === nx && tp.y === ny && !tp.hit; });
+        if (trapped) { if (!fallback) fallback = [nx, ny]; continue; }
+        fallback = [nx, ny]; break;
       }
-      return false;
+      if (!fallback) return false;
+      st.px = fallback[0] + 0.5; st.py = fallback[1] + 0.5;
+      st.ang = Math.atan2((d.y + 0.5) - st.py, (d.x + 0.5) - st.px);
+      /* curDoor 平时是主循环每帧算的。无头环境下 requestAnimationFrame 会
+         间歇性停摆，于是「站在门前」和「按 E 有反应」之间会断掉 ——
+         探针就会报「按 E 没反应」，其实只是那一帧没跑。
+         定位这件事本身是确定的，直接在这里给出结论。 */
+      st.curDoor = d;
+      return true;
+    },
+    /* 体检用：手动推一帧。无头环境的 rAF 不可靠，
+       要测「走位 → 每帧更新」这类逻辑，就由探针自己喂帧。
+       silent = 只跑逻辑不重绘：模拟一两分钟追捕时能省掉上千次渲染。 */
+    tick: function (dt, silent) {
+      var d = clamp(+dt || 1 / 60, 0.001, 0.05);
+      step(d);
+      if (!silent) { render(); drawMini(); }
+      return Math.round(st.tAcc * 100) / 100;
     },
     dbgNext: function (x, y) {
       var cx = x == null ? Math.floor(HUNT.x) : x;
@@ -1536,11 +1707,43 @@
         walkable: world.g.filter(function (v) { return v === 0; }).length
       };
     },
+    /* 体检用：站到出口格上。出口还没亮就先点亮，探针不该因为
+       「还没开完八门」而空指针；但这条路径不构成通关捷径 ——
+       finish() 仍然要求 frags >= PASS_N，八门没开完走过去也拿不到证书。 */
     gotoExit: function () {
-      /* 出口格本身可走（不是墙），直接站到格心才会触发 finish() 的 0.6 判定 */
+      if (!world.exit) revealExit();
+      if (!world.exit) return false;
       st.px = world.exit.x + 0.5;
       st.py = world.exit.y + 0.5;
       return true;
+    },
+    /* 体检用：换一座塔（换种子）。用来验「换塔换门位、换塔换出口」。 */
+    newTower: function (seed) { reset(+seed || undefined); return SEED; },
+    /* 体检用：读八道门的坐标与所在扇区，验「八门分散在八个方向」。 */
+    doorList: function () {
+      return world.doors.map(function (d) {
+        return {
+          x: d.x, y: d.y, gate: d.gate, open: d.open,
+          sector: sectorOf(Math.atan2(d.y - (H - 1) / 2, d.x - (W - 1) / 2))
+        };
+      });
+    },
+    /* 体检用：读当前门上的题干，验「题目本身不为空、不是同一道」。 */
+    quizText: function (i) { return (st.quiz[i] || {}).q || ""; },
+    /* 体检用：把八道门直接打开（不答题），用来验「出口是否随机出现」 */
+    forceAllGates: function () {
+      world.doors.forEach(function (d) { d.open = true; world.g[d.y * W + d.x] = 0; });
+      st.frags = world.doors.map(function (d) { return d.gate; });
+      paintFrags(); paintHud();
+      return revealExit();
+    },
+    exitInfo: function () {
+      if (!world.exit) return null;
+      var b = bfs(world.g, Math.floor(st.px), Math.floor(st.py));
+      return {
+        x: world.exit.x, y: world.exit.y,
+        steps: b.dist[world.exit.y * W + world.exit.x]
+      };
     }
   };
 })();

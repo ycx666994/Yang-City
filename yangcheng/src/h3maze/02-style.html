@@ -56,7 +56,13 @@ body{
 .mzlife i.gone{background:rgba(255,94,108,.18);border-color:rgba(255,94,108,.5)}
 
 /* ---------------- 视口 ---------------- */
-.mzstage{position:relative;margin-top:14px;border:1px solid var(--mz-line2);border-radius:10px;
+/* 这一页是一台仪器，不是长文档：一屏装得下就别让人滚。
+   做法是给舞台一个「跟着视口高度走」的宽度上限（画布 960:520 ≈ 1.846），
+   宽度仍然 100%，所以等比缩放、不会把 3D 画面拉变形。
+   1440×900 实测整页正好一屏（898 / 900），矮屏自动缩，高屏最多 1148。 */
+.mzstage{position:relative;margin:14px auto 0;width:100%;
+  max-width:min(100%, calc((100vh - 302px) * 1.846));
+  border:1px solid var(--mz-line2);border-radius:10px;
   overflow:hidden;background:#04070d;box-shadow:0 0 0 1px rgba(0,0,0,.6),0 22px 60px -30px rgba(78,163,255,.35)}
 #mzcv{display:block;width:100%;height:auto;image-rendering:pixelated}
 

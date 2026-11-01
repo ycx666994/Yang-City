@@ -70,13 +70,14 @@ await sleep(300);
 
 let best = null, bestN = 0;
 for (let k = 0; k < 8; k++) {
-  await ev(`(function(){ YCMaze.look(${(Math.PI / 4).toFixed(6)}); return 1 })()`);
+  /* 转完自己喂两帧：无头环境的 rAF 会间歇停摆，只 look 不重绘会拍到空画面 */
+  await ev(`(function(){ YCMaze.look(${(Math.PI / 4).toFixed(6)}); for(var i=0;i<2;i++)YCMaze.tick(0.016); return 1 })()`);
   await sleep(320);
   const b = await jpeg(72);
   if (b && b.length > bestN) { bestN = b.length; best = k; }
 }
 /* 回到最饱满的那个角度 */
-await ev(`(function(){ YCMaze.look(${((best + 1) * Math.PI / 4).toFixed(6)}); return 1 })()`);
+await ev(`(function(){ YCMaze.look(${((best + 1) * Math.PI / 4).toFixed(6)}); for(var i=0;i<3;i++)YCMaze.tick(0.016); return 1 })()`);
 await sleep(420);
 const mzBuf = await jpeg(86);
 writeFileSync(join(OUT, "07-maze.jpg"), mzBuf);

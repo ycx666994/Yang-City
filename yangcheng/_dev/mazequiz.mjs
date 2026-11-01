@@ -59,10 +59,10 @@ const q1 = await ev(`(function(){
   return { n: YCMaze.gateCount(), cats: YCMaze.quizCats(), hash: YCMaze.quizHash(), doors: s.doorsTotal };
 })()`);
 console.log("DRAW", JSON.stringify(q1));
-ok("每轮抽 10 道", q1 && q1.n === 10, `n=${q1 && q1.n}`);
+ok("每轮抽 8 道", q1 && q1.n === 8, `n=${q1 && q1.n}`);
 ok("门数与题数一致", q1 && q1.doors === q1.n, `doors=${q1 && q1.doors} n=${q1 && q1.n}`);
 const uniqCats = q1 ? [...new Set(q1.cats)].length : 0;
-ok("十个判据至少覆盖 6 类", uniqCats >= 6, `覆盖 ${uniqCats} 类: ${JSON.stringify(q1 && q1.cats)}`);
+ok("八道门至少覆盖 6 类判据", uniqCats >= 6, `覆盖 ${uniqCats} 类: ${JSON.stringify(q1 && q1.cats)}`);
 
 /* 换一座塔必须换一套题 */
 await ev("document.getElementById('btnRestart').click()");
@@ -92,13 +92,13 @@ ok("40 座塔覆盖到全部 8 个判据", dist && dist.cats === 8, `覆盖 ${di
 const w = await ev(`JSON.stringify(YCMaze.world())`);
 console.log("WORLD", w);
 const W2 = JSON.parse(w || "{}");
-ok("网格扩到 31×31", W2.grid === "31x31", W2.grid);
-ok("知识门 10 道", W2.doors === 10, `doors=${W2.doors}`);
-ok("大厅 4 个", W2.halls === 4, `halls=${W2.halls}`);
+ok("网格扩到 41×41", W2.grid === "41x41", W2.grid);
+ok("知识门 8 道", W2.doors === 8, `doors=${W2.doors}`);
+ok("大厅 5 个", W2.halls === 5, `halls=${W2.halls}`);
 ok("陷阱存在", W2.traps > 0, `traps=${W2.traps}`);
 /* 完美迷宫的通道数 = 单元格数 × 2 - 1；多出来的就是环路挖出来的 */
-ok("存在环路（通道数 > 完美迷宫）", W2.walkable > (15 * 15 * 2 - 1),
-  `walkable=${W2.walkable} 完美迷宫=${15 * 15 * 2 - 1}`);
+ok("存在环路（通道数 > 完美迷宫）", W2.walkable > (20 * 20 * 2 - 1),
+  `walkable=${W2.walkable} 完美迷宫=${20 * 20 * 2 - 1}`);
 
 /* ==================== C. 鼠标手感 ==================== */
 const aim0 = await ev("JSON.stringify(YCMaze.aim())");
@@ -157,7 +157,7 @@ ok("给出「转一圈多少厘米」的参照", uiRes && /cm/.test(uiRes.cm || 
 ok("设置写进 localStorage", uiRes && /1\.5/.test(uiRes.saved || ""), uiRes && uiRes.saved);
 await ev("document.getElementById('aimPanel').classList.remove('on')");
 
-/* ==================== D. 通关门槛：答对 6 道 ==================== */
+/* ==================== D. 通关门槛：八道全对 ==================== */
 /* 走真实路径：瞬移到门旁 → 按 E 开门 → 点正确项 → 继续 */
 async function answerDoors(n) {
   const got = await ev(`(function(){
@@ -168,9 +168,11 @@ async function answerDoors(n) {
   for (let i = 0; i < n && i < got.total; i++) {
     const moved = await ev(`YCMaze.gotoDoor(${i})`);
     if (!moved) continue;
-    await sleep(260);
+    /* gotoDoor 会顺手把 curDoor 定下来，不必等主循环那一帧 ——
+       无头环境的 rAF 会间歇停摆，等帧就是等运气。 */
+    await ev("YCMaze.tick(0.016)");
     await ev(`document.dispatchEvent(new KeyboardEvent('keydown',{key:'e',bubbles:true}))`);
-    await sleep(260);
+    await sleep(160);
     const opened = await ev(`(function(){var m=document.getElementById('modal');return !!(m&&m.classList.contains('on'))})()`);
     if (!opened) { await sleep(400); continue; }
     const ai = await ev(`YCMaze.answerOf(${i})`);
@@ -184,14 +186,17 @@ async function answerDoors(n) {
 }
 
 await load();
-const a6 = await answerDoors(6);
+const a8 = await answerDoors(8);
 await sleep(300);
-const after6 = await ev("YCMaze.status()");
-console.log("AFTER6", JSON.stringify({ frags: after6 && after6.frags.length, answered: Object.keys(after6 && after6.answered || {}).length }));
-ok("答对 6 道后碎片 = 6", after6 && after6.frags.length === 6, `frags=${after6 && after6.frags.length}（走过 ${a6} 道门）`);
+const after8 = await ev("YCMaze.status()");
+console.log("AFTER8", JSON.stringify({ frags: after8 && after8.frags.length, answered: Object.keys(after8 && after8.answered || {}).length, open: after8 && after8.doorsOpen, exit: after8 && after8.exitReady }));
+ok("答对 8 道后碎片 = 8", after8 && after8.frags.length === 8, `frags=${after8 && after8.frags.length}（走过 ${a8} 道门）`);
+ok("八道全开 → 出口才亮", after8 && after8.exitReady === true);
 
 await ev("YCMaze.gotoExit()");
-await sleep(1000);
+/* 到没到出口是主循环判的，自己喂帧 */
+await ev("(function(){for(var i=0;i<4;i++)YCMaze.tick(0.016);return 1})()");
+await sleep(400);
 const winBox = await ev(`(function(){
   var b = document.querySelector('#endBox');
   if (!b) return { err: 'no-endbox' };
@@ -203,19 +208,22 @@ const winBox = await ev(`(function(){
            btns: btns, win: !!b.querySelector('.box.win') };
 })()`);
 console.log("WIN", JSON.stringify(winBox));
-ok("答对 6 道 → 通过", winBox && winBox.win === true, winBox && winBox.title);
+ok("八道全对 + 走到出口 → 通过", winBox && winBox.win === true, winBox && winBox.title);
 ok("通过时发精英证书", winBox && (winBox.btns || []).some(t => /证书/.test(t)), JSON.stringify(winBox && winBox.btns));
 
 const shot1 = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
-if (shot1.result?.data) writeFileSync(join(OUT, "maze-pass6.png"), Buffer.from(shot1.result.data, "base64"));
+if (shot1.result?.data) writeFileSync(join(OUT, "maze-pass8.png"), Buffer.from(shot1.result.data, "base64"));
 
-/* ==================== E. 门槛对照：只答对 5 道 ==================== */
+/* ==================== E. 门槛对照：只答对 7 道 ==================== */
 await load();
-await answerDoors(5);
+await answerDoors(7);
 await sleep(300);
-const after5 = await ev("YCMaze.status()");
+const after7 = await ev("YCMaze.status()");
+/* 七道的时候出口根本不存在。gotoExit 会先把它点亮（否则探针没法定位），
+   但 finish() 仍要求 frags >= 8 —— 走过去也只能拿到「失败」。 */
 await ev("YCMaze.gotoExit()");
-await sleep(1000);
+await ev("(function(){for(var i=0;i<4;i++)YCMaze.tick(0.016);return 1})()");
+await sleep(400);
 const loseBox = await ev(`(function(){
   var b = document.querySelector('#endBox');
   if (!b) return { err: 'no-endbox' };
@@ -226,13 +234,13 @@ const loseBox = await ev(`(function(){
            text: (b.textContent||'').replace(/\\s+/g,' ').slice(0,220),
            btns: btns, win: !!b.querySelector('.box.win') };
 })()`);
-console.log("LOSE5", JSON.stringify({ frags: after5 && after5.frags.length, box: loseBox }));
-ok("答对 5 道 → 到出口也失败", loseBox && loseBox.win === false && /失败/.test(loseBox.title || ""), loseBox && loseBox.title);
+console.log("LOSE7", JSON.stringify({ frags: after7 && after7.frags.length, box: loseBox }));
+ok("答对 7 道 → 到出口也失败", loseBox && loseBox.win === false && /失败/.test(loseBox.title || ""), loseBox && loseBox.title);
 ok("失败时明确写「没被逮捕也算失败」", /不说明你答得对|挑战失败|没被逮捕/.test(loseBox && loseBox.text || ""));
 ok("失败时不给证书按钮", !(loseBox && loseBox.btns || []).some(t => /证书/.test(t)), JSON.stringify(loseBox && loseBox.btns));
 
 const shot2 = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
-if (shot2.result?.data) writeFileSync(join(OUT, "maze-fail5.png"), Buffer.from(shot2.result.data, "base64"));
+if (shot2.result?.data) writeFileSync(join(OUT, "maze-fail7.png"), Buffer.from(shot2.result.data, "base64"));
 
 console.log("\n===== 通过 " + pass.length + " =====");
 pass.forEach(p => console.log("  PASS " + p));

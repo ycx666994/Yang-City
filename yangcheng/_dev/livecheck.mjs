@@ -290,12 +290,13 @@ const mz = JSON.parse(await ev(`(function(){
     pool: s ? s.quizPool : 0,
     run: s ? s.quizThisRun : 0,
     need: s ? s.passNeed : 0,
+    exit: s ? s.exitReady : null,
     ovf: document.documentElement.scrollWidth - document.documentElement.clientWidth
   });
 })()`));
-gate("H3 3D 迷宫", mz.ok && mz.doors === 10 && mz.grid === "31x31" && mz.pool >= 300 &&
-     mz.run === 10 && mz.need === 6 && mz.ovf === 0 && !errs.length,
-     `门=${mz.doors} 网格=${mz.grid} 题库=${mz.pool}道 本轮抽=${mz.run} 门槛=${mz.need} ovf=${mz.ovf}`);
+gate("H3 3D 迷宫", mz.ok && mz.doors === 8 && mz.grid === "41x41" && mz.pool >= 300 &&
+     mz.run === 8 && mz.need === 8 && mz.exit === false && mz.ovf === 0 && !errs.length,
+     `门=${mz.doors} 网格=${mz.grid} 题库=${mz.pool}道 本轮抽=${mz.run} 门槛=${mz.need} 出口已亮=${mz.exit} ovf=${mz.ovf}`);
 
 /* ---------- 1m. 四馆深度层：H4 / H5 / H6 展品长廊 ---------- */
 const DEEPS = [
