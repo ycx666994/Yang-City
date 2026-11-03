@@ -54,6 +54,13 @@ body{
 .mzttl span{font-family:var(--mz-mono);font-size:9px;letter-spacing:1.8px;color:var(--mz-tx3)}
 .mzbar .sp{flex:1}
 
+/* 全屏按钮：跟 .bk 同一套视觉，但它是按钮不是链接 */
+.mzfs{font-family:var(--mz-mono);font-size:10.5px;letter-spacing:.8px;cursor:pointer;
+  color:var(--mz-tx2);background:transparent;border:1px solid var(--mz-line2);
+  border-radius:5px;padding:5px 10px;transition:.15s}
+.mzfs:hover{color:var(--mz-ac);border-color:var(--mz-ac);background:rgba(78,163,255,.08)}
+.mzfs:focus-visible{outline:1px solid var(--mz-ac);outline-offset:2px}
+
 .mzhud{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-family:var(--mz-mono);font-size:10px}
 .mzhud .h{display:flex;align-items:center;gap:5px;color:var(--mz-tx3);letter-spacing:.6px}
 .mzhud .h b{color:var(--mz-tx);font-size:13px;letter-spacing:0}
@@ -82,9 +89,18 @@ body{
 .mzcross::before{left:6px;top:0;width:2px;height:14px}
 .mzcross::after{left:0;top:6px;width:14px;height:2px}
 
+/* ---------------- 小地图：只追踪，不画地形 ----------------
+   这里是设计上的关键取舍：一旦把墙、门画上去，迷宫就不再是迷宫 ——
+   玩家会盯着缩略图找路，3D 画面退化成装饰。
+   所以这一块只画「你和追捕者的位置 + 走过的轨迹」，地形完全不透露。
+   底纹给一层极淡的坐标网格，只用来读「走了多远、朝哪个方向」。 */
 .mzmap{position:absolute;right:10px;top:10px;border:1px solid var(--mz-line2);border-radius:6px;
-  background:rgba(6,10,18,.82);backdrop-filter:blur(4px);padding:4px}
-#mzmini{display:block}
+  background:rgba(4,7,13,.88);backdrop-filter:blur(4px);padding:4px 4px 3px}
+.mzmaplb{display:flex;align-items:baseline;gap:5px;padding:1px 2px 4px;
+  font-family:var(--mz-mono);font-size:8px;letter-spacing:1.2px;color:var(--mz-tx3)}
+.mzmaplb b{color:var(--mz-ac2);font-weight:400;letter-spacing:1.6px}
+.mzmaplb span{opacity:.6}
+#mzmini{display:block;border-radius:3px}
 
 .mzprompt{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);
   background:rgba(10,16,28,.92);border:1px solid var(--mz-ac);border-radius:7px;
@@ -257,10 +273,46 @@ body{
   .mzwrap{padding:0 10px 34px}
   .mzttl b{font-size:15px}
   .mzpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px)}
-  .mzmap{right:6px;top:6px;transform:scale(.78);transform-origin:top right}
+  .mzmap{right:6px;top:6px;transform:scale(.62);transform-origin:top right}
   .mzmodal{padding:10px}
   .mzqb{padding:13px 14px}
   .mzaim{left:10px;right:10px;bottom:10px;width:auto}
+}
+
+/* ---------------- 全屏 ----------------
+   全屏的对象是整个 .mzwrap，不是画布 —— 顶栏那四个读数（可信度 / 答对 /
+   用时 / 追捕距离）在迷宫里是必须一直看得见的，切到全屏反而把它们藏起来
+   等于把仪表拆了。
+   画布尺寸由 stage 宽度决定：stage 取「视口宽」与「按可用高度反推的宽」
+   里较小的那个，画布 width:100% 跟着它走，高度按 960:520 自动算。
+   反过来（给画布 max-height 让浏览器自己缩）不行 —— 替换元素在
+   width:auto 时用的是固有宽度 960，全屏反而比非全屏更小。
+
+   `.mzfsim` 是同一套规则的「演练开关」：无头浏览器里 Fullscreen API
+   不一定真的生效，体检就没法验布局。加这个类等于把页面按全屏排版一遍，
+   但不动真正的全屏状态 —— 布局这件事因此可以被真测，而不是靠肉眼。 */
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim){
+  display:flex;flex-direction:column;
+  width:100vw;height:100vh;height:100dvh;
+  max-width:none;margin:0;padding:0;
+  overflow:hidden;background:#02040a;
+}
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzbar{flex:0 0 auto;padding:8px 16px 7px}
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzbar .bk,
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzttl span,
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzfrag,
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzctl,
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzfoot,
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzaim{display:none}
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzstage{
+  flex:0 1 auto;
+  width:min(100vw, calc((100vh - 70px) * 1.846));
+  width:min(100vw, calc((100dvh - 70px) * 1.846));
+  max-width:none;margin:auto;   /* 上下黑边均分，画面垂直居中 */
+  border-radius:0;border-left:0;border-right:0;
+}
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) #mzcv{
+  width:100%;height:auto;max-width:none;max-height:none;
 }
 </style>
 </head>
@@ -279,19 +331,23 @@ body{
       <span class="h">用时 <b id="clock">00:00</b></span>
       <span class="h hunt" id="huntHud">追捕 <b id="huntN">—</b></span>
     </div>
+    <button class="mzfs" id="fsBtn" type="button" aria-label="全屏">⛶ 全屏</button>
   </header>
 
   <div class="mzstage">
     <canvas id="mzcv" width="960" height="520"></canvas>
     <div class="mzoverlay">
       <div class="mzcross"></div>
-      <div class="mzmap"><canvas id="mzmini" width="150" height="150"></canvas></div>
+      <div class="mzmap">
+        <div class="mzmaplb"><b>追踪</b><span>无地形</span></div>
+        <canvas id="mzmini" width="150" height="150"></canvas>
+      </div>
       <div class="mzprompt" id="prompt">按 E 开启知识门</div>
       <div class="mzmsg" id="msg"></div>
       <div class="mzvig" id="vig"></div>
       <div class="mzlock" id="lockHint">
         <b>点击画面锁定鼠标</b>
-        <span>移动鼠标转身 · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动 · <kbd>E</kbd> 开门 · <kbd>P</kbd> 调视角 · <kbd>Esc</kbd> 释放鼠标</span>
+        <span>移动鼠标转身 · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动 · <kbd>E</kbd> 开门 · <kbd>P</kbd> 调视角 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 释放鼠标</span>
       </div>
     </div>
   </div>
@@ -331,7 +387,7 @@ body{
 
   <div class="mzend" id="endBox"></div>
 
-  <div style="margin-top:20px;padding-top:13px;border-top:1px solid var(--mz-line);
+  <div class="mzfoot" style="margin-top:20px;padding-top:13px;border-top:1px solid var(--mz-line);
        font-size:10.5px;color:var(--mz-tx3);line-height:1.9">
     这座塔的每一道门都锁着一个 H3 的判据。答错不是惩罚，是提示：回指标馆把那一层再读一遍。
     <a href="h3-metrics.html" style="color:var(--mz-ac);text-decoration:none">回指标馆 →</a>
@@ -4591,7 +4647,8 @@ window.YCQUIZ = { cats: [
     life: 3, frags: [], answered: {},
     tAcc: 0, running: false, done: false,
     curDoor: null, inModal: false, t: 0,
-    quiz: []                      /* 本轮的题（每次进塔重抽） */
+    quiz: [],                     /* 本轮的题（每次进塔重抽） */
+    trail: [], trailT: 0          /* 小地图上的足迹（不画地形，只剩这条线） */
   };
   var keys = {};
 
@@ -4684,13 +4741,15 @@ window.YCQUIZ = { cats: [
     on: false,
     cell: -1,          /* 当前目标格，换格时重算 */
     tx: 1.5, ty: 1.5,  /* 目标点（下一个格心） */
-    dist: 99
+    dist: 99,
+    trail: [], trailT: 0
   };
 
   function resetHunt() {
     HUNT.on = false; HUNT.x = 1.5; HUNT.y = 1.5;
     HUNT.tx = 1.5; HUNT.ty = 1.5; HUNT.cell = -1; HUNT.dist = 99;
     HUNT.nullN = 0;
+    HUNT.trail = []; HUNT.trailT = 0;
     var el = $("#vig"); if (el) el.className = "mzvig";
     var hd = $("#huntHud"); if (hd) hd.className = "h hunt";
     var hn = $("#huntN"); if (hn) hn.textContent = "—";
@@ -4720,6 +4779,7 @@ window.YCQUIZ = { cats: [
     st.spare = st.quiz.splice(DOOR_N);
     st.tAcc = 0; st.running = true; st.done = false; st.pitch = 0;
     st.curDoor = null; st.inModal = false;
+    st.trail = [{ x: st.px, y: st.py }]; st.trailT = 0;
     resetHunt();
     $("#endBox").innerHTML = "";
     paintHud(); paintFrags();
@@ -4898,31 +4958,115 @@ window.YCQUIZ = { cats: [
     ctx.fillRect(0, 0, CW, CH);
   }
 
-  function drawBillboards(horizon) {
-    var cosA = Math.cos(st.ang), sinA = Math.sin(st.ang);
-    var items = [];
+  /* ---------------- 门与出口的光 ----------------
+     上一版只有 12 格以内、且正好在视野里才看得见 —— 等于「走到门口才知道
+     门在哪」。门散在八个方向、塔又扩到 41×41，那基本就是瞎摸。
+     现在光穿过墙照出来：可见距离拉到 34 格，远处也不归零，
+     保证任何一个方向的门在视野里都有一团认得出的光。
+     视野外的门画不到屏幕上，就在左右边缘留一道柔光 ——
+     它只说「那边有东西」，不告诉你是门还是出口，也不告诉你要走几步。
+     这是有意的：光给方向，不给路线。 */
+  var LIGHT_REACH = 34;
+  var lastEdge = { l: 0, r: 0, el: 0, er: 0 };   /* 体检要读的中间量 */
+
+  function collectLights() {
+    var out = [];
     world.doors.forEach(function (d) {
       if (d.open) return;
-      items.push({ x: d.x + 0.5, y: d.y + 0.5, col: "#7cc4ff", ch: "▮" });
+      out.push({ x: d.x + 0.5, y: d.y + 0.5, rgb: "124,196,255", core: "#d6ecff", exit: false });
     });
-    if (world.exit) items.push({ x: world.exit.x + 0.5, y: world.exit.y + 0.5, col: "#3ecf8e", ch: "◆" });
-    items.forEach(function (it) {
+    if (world.exit) {
+      out.push({ x: world.exit.x + 0.5, y: world.exit.y + 0.5, rgb: "62,207,142", core: "#c9ffe6", exit: true });
+    }
+    return out;
+  }
+
+  function drawEdgeGlow(e) {
+    function band(side, v, rgb) {
+      if (v <= 0.012) return;
+      var a = clamp(v, 0, 0.46);
+      var x0 = side < 0 ? 0 : CW, x1 = side < 0 ? 30 : CW - 30;
+      var g = ctx.createLinearGradient(x0, 0, x1, 0);
+      g.addColorStop(0, "rgba(" + rgb + "," + a.toFixed(3) + ")");
+      g.addColorStop(1, "rgba(" + rgb + ",0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(Math.min(x0, x1), 0, 30, CH);
+    }
+    band(-1, e.l, "124,196,255"); band(1, e.r, "124,196,255");
+    band(-1, e.el, "62,207,142"); band(1, e.er, "62,207,142");
+  }
+
+  function drawBillboards(horizon) {
+    var half = FOV / 2;
+    var edge = { l: 0, r: 0, el: 0, er: 0 };      /* 门(蓝) / 出口(绿) 在左右边缘的累积强度 */
+    var inView = [];
+
+    collectLights().forEach(function (it) {
       var dx = it.x - st.px, dy = it.y - st.py;
-      var dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist > 12 || dist < 0.3) return;
+      var dist = Math.hypot(dx, dy);
+      if (dist > LIGHT_REACH || dist < 0.3) return;
       var rel = Math.atan2(dy, dx) - st.ang;
       while (rel > Math.PI) rel -= Math.PI * 2;
       while (rel < -Math.PI) rel += Math.PI * 2;
-      if (Math.abs(rel) > FOV / 2 * 1.1) return;
-      var sx = CW / 2 + (rel / (FOV / 2)) * (CW / 2);
-      var sy = horizon - (CH / dist) * 0.12;
-      var r = clamp(34 / dist, 3, 16);
-      ctx.globalAlpha = clamp(1 - dist / 13, 0.15, 0.9);
-      ctx.fillStyle = it.col;
-      ctx.beginPath();
-      ctx.arc(sx, sy, r, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalAlpha = 1;
+      var near = clamp(1 - dist / LIGHT_REACH, 0, 1);
+
+      if (Math.abs(rel) > half * 1.02) {
+        /* 视野外：只累积边缘强度。多个门在同一侧会叠亮 ——
+           这本身是有用的信息：那一侧门多。
+           再乘一个角度权重：刚出视野的那一段最亮（玩家差一点点就看见），
+           转到背后时降到 55%（还留着，因为「后面有东西」更需要提醒）。
+           没有这个权重，边缘光就只在「有 / 无」之间跳，转视角时会闪。 */
+        var over = Math.abs(rel) - half;
+        var angK = 1 - 0.45 * clamp(over / (Math.PI - half), 0, 1);
+        var w = Math.pow(near, 1.5) * 0.5 * angK;
+        if (rel > 0) { if (it.exit) edge.er += w; else edge.r += w; }
+        else { if (it.exit) edge.el += w; else edge.l += w; }
+        return;
+      }
+      it.rel = rel; it.dist = dist; it.near = near;
+      inView.push(it);
+    });
+
+    drawEdgeGlow(edge);
+    edge.n = inView.length;
+    lastEdge = edge;
+
+    inView.forEach(function (it) {
+      var sx = CW / 2 + (it.rel / half) * (CW / 2);
+      /* 光团中心略高于地平线：门是嵌在墙里的，不是地上的标记 */
+      var sy = horizon - (CH / it.dist) * 0.10;
+      /* 半径不能按 1/dist 走：真按透视缩，18 格外的门只剩 9px，
+         在 960 宽的画布上根本认不出来。改成 (dist+6) 的倒数，
+         远处保底 14px、近处最多 240px —— 牺牲一点真实感换「看得见」。 */
+      var r = clamp(560 / (it.dist + 6), 14, CH * 0.6);
+      var a = 0.26 + 0.66 * Math.pow(it.near, 0.8);
+
+      /* 先铺一层大而淡的雾晕：光穿过走廊时本来就该在墙上弥散开。
+         只画一个边缘锐利的圆，看起来像贴在墙上的贴纸，不像光。 */
+      var g0 = ctx.createRadialGradient(sx, sy, 0, sx, sy, r * 2.4);
+      g0.addColorStop(0, "rgba(" + it.rgb + "," + (a * 0.17).toFixed(3) + ")");
+      g0.addColorStop(0.5, "rgba(" + it.rgb + "," + (a * 0.06).toFixed(3) + ")");
+      g0.addColorStop(1, "rgba(" + it.rgb + ",0)");
+      ctx.fillStyle = g0;
+      ctx.beginPath(); ctx.arc(sx, sy, r * 2.4, 0, Math.PI * 2); ctx.fill();
+
+      var g = ctx.createRadialGradient(sx, sy, 0, sx, sy, r);
+      g.addColorStop(0, "rgba(" + it.rgb + "," + a.toFixed(3) + ")");
+      g.addColorStop(0.34, "rgba(" + it.rgb + "," + (a * 0.38).toFixed(3) + ")");
+      g.addColorStop(1, "rgba(" + it.rgb + ",0)");
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI * 2); ctx.fill();
+
+      /* 核心：近了才给实心亮点。远了只留一团光晕，
+         否则 30 格外的门会变成一个扎眼的小圆点，像 HUD 而不像光。 */
+      if (it.dist < 14) {
+        ctx.globalAlpha = clamp(1.2 - it.dist / 13, 0.3, 0.95);
+        ctx.fillStyle = it.core;
+        ctx.beginPath();
+        ctx.arc(sx, sy, clamp(26 / it.dist, 1.6, 6.5), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
     });
   }
 
@@ -5009,51 +5153,84 @@ window.YCQUIZ = { cats: [
     ctx.restore();
   }
 
-  /* ---------------- 小地图 ---------------- */
+  /* ---------------- 小地图：只追踪，不画地形 ----------------
+     这是刻意的信息剥夺，不是省事。
+     缩略图一旦画出墙和门，玩家就会盯着它找路 —— 3D 画面退化成装饰，
+     迷宫也就不成立了（谁还愿意在 41×41 里摸黑走，直接看缩略图更快）。
+     保留的是「你在哪、追捕者在哪、各自走过什么路」：被追的时候这几样
+     是救命的，但它们不会替你把路走完。
+     底纹只给一层极淡的坐标网格 —— 不透露形状，但能读出走了多远。 */
   var mini = $("#mzmini"), mctx = mini.getContext("2d");
-  function drawMini() {
-    var S = mini.width / W;
-    mctx.clearRect(0, 0, mini.width, mini.height);
-    /* 先铺大厅的底：它是唯一的「大块空地」，玩家靠它认路。
-       41×41 缩进 150px 的小地图，每格只剩 3.6px，不铺这一层的话，
-       几个大厅和普通走廊在缩略图里长得一模一样。 */
-    world.halls.forEach(function (h) {
-      mctx.fillStyle = "rgba(124,196,255,.13)";
-      mctx.fillRect(h.x * S, h.y * S, h.w * S, h.h * S);
-    });
-    for (var y = 0; y < H; y++) {
-      for (var x = 0; x < W; x++) {
-        var t = world.g[y * W + x];
-        if (t === 0) continue;
-        mctx.fillStyle = t === 2 ? "#2f7fc4" : (t === 3 ? "#3ecf8e" : "rgba(90,120,165,.42)");
-        mctx.fillRect(x * S, y * S, S, S);
-      }
+  var MS = mini.width / W;                 /* 一格几像素 */
+  var TRAIL_MAX = 110;                     /* 轨迹最多留多少个点 */
+
+  function drawTrail(c, arr, rgb) {
+    if (!arr || arr.length < 2) return;
+    var n = arr.length;
+    var step = Math.max(1, Math.ceil(n / 6));
+    c.lineWidth = 1.2;
+    c.lineCap = "round";
+    c.lineJoin = "round";
+    for (var i = step; i < n; i += step) {
+      var k = i / n;                       /* 越靠后越新，也就越亮 */
+      c.strokeStyle = "rgba(" + rgb + "," + (0.08 + 0.62 * k * k).toFixed(3) + ")";
+      c.beginPath();
+      c.moveTo(arr[i - step].x * MS, arr[i - step].y * MS);
+      var end = Math.min(i, n - 1);
+      for (var j = i - step + 1; j <= end; j++) c.lineTo(arr[j].x * MS, arr[j].y * MS);
+      c.stroke();
     }
-    world.traps.forEach(function (tp) {
-      if (tp.hit) return;
-      mctx.fillStyle = "rgba(255,94,108,.6)";
-      mctx.fillRect(tp.x * S + S * 0.2, tp.y * S + S * 0.2, S * 0.6, S * 0.6);
-    });
-    /* 玩家 */
-    mctx.fillStyle = "#7cc4ff";
+  }
+
+  function drawMini() {
+    var w = mini.width, h = mini.height;
+    mctx.clearRect(0, 0, w, h);
+    mctx.fillStyle = "#050a12";
+    mctx.fillRect(0, 0, w, h);
+
+    /* 坐标网格：每 5 格一条。它是尺度参照，不是地形。 */
+    mctx.strokeStyle = "rgba(78,163,255,.11)";
+    mctx.lineWidth = 1;
     mctx.beginPath();
-    mctx.arc(st.px * S, st.py * S, Math.max(2, S * 0.45), 0, Math.PI * 2);
-    mctx.fill();
-    mctx.strokeStyle = "rgba(124,196,255,.8)";
-    mctx.lineWidth = 1.2;
-    mctx.beginPath();
-    mctx.moveTo(st.px * S, st.py * S);
-    mctx.lineTo((st.px + Math.cos(st.ang) * 1.4) * S, (st.py + Math.sin(st.ang) * 1.4) * S);
+    for (var gx = 5; gx < W; gx += 5) { mctx.moveTo(gx * MS + .5, 0); mctx.lineTo(gx * MS + .5, h); }
+    for (var gy = 5; gy < H; gy += 5) { mctx.moveTo(0, gy * MS + .5); mctx.lineTo(w, gy * MS + .5); }
     mctx.stroke();
-    /* 逮捕者：小地图上必须看得见，否则玩家只会觉得「莫名其妙就死了」 */
+    /* 外框 = 塔的边界。这个可以给：它只说「塔有多大」，不说里面长什么样。 */
+    mctx.strokeStyle = "rgba(78,163,255,.28)";
+    mctx.strokeRect(.5, .5, w - 1, h - 1);
+
+    drawTrail(mctx, st.trail, "124,196,255");
+    if (HUNT.on) drawTrail(mctx, HUNT.trail, "255,47,66");
+
+    /* 玩家：亮点 + 一根朝向短线。画三角形在 3.6px/格 的尺度上只会糊成一团。 */
+    var px = st.px * MS, py = st.py * MS;
+    mctx.save();
+    mctx.shadowColor = "rgba(124,196,255,.9)";
+    mctx.shadowBlur = 7;
+    mctx.fillStyle = "#a8d8ff";
+    mctx.beginPath(); mctx.arc(px, py, 2.6, 0, Math.PI * 2); mctx.fill();
+    mctx.restore();
+    mctx.strokeStyle = "rgba(168,216,255,.9)";
+    mctx.lineWidth = 1.4;
+    mctx.beginPath();
+    mctx.moveTo(px, py);
+    mctx.lineTo(px + Math.cos(st.ang) * MS * 2.6, py + Math.sin(st.ang) * MS * 2.6);
+    mctx.stroke();
+
+    /* 逮捕者：必须看得见，否则玩家只会觉得「莫名其妙就死了」。
+       脉冲环跟着心跳走 —— 离得越近跳得越快，和画面暗角同一个节奏。 */
     if (HUNT.on) {
-      mctx.fillStyle = "#ff2f42";
+      var hx = HUNT.x * MS, hy = HUNT.y * MS;
+      mctx.save();
       mctx.shadowColor = "#ff2f42";
-      mctx.shadowBlur = 6;
-      mctx.beginPath();
-      mctx.arc(HUNT.x * S, HUNT.y * S, Math.max(2, S * 0.5), 0, Math.PI * 2);
-      mctx.fill();
-      mctx.shadowBlur = 0;
+      mctx.shadowBlur = 9;
+      mctx.fillStyle = "#ff5060";
+      mctx.beginPath(); mctx.arc(hx, hy, 2.8, 0, Math.PI * 2); mctx.fill();
+      mctx.restore();
+      var pl = (Math.sin(performance.now() / (HUNT.dist < 5 ? 210 : 420)) + 1) / 2;
+      mctx.strokeStyle = "rgba(255,47,66," + (0.14 + 0.42 * pl).toFixed(3) + ")";
+      mctx.lineWidth = 1;
+      mctx.beginPath(); mctx.arc(hx, hy, 4 + pl * 3, 0, Math.PI * 2); mctx.stroke();
     }
   }
 
@@ -5137,6 +5314,16 @@ window.YCQUIZ = { cats: [
       HUNT.phase = (HUNT.phase || 0) + s * 3.1;
     }
     HUNT.dist = Math.hypot(HUNT.x - st.px, HUNT.y - st.py);
+    /* 它的足迹也记 —— 被追时能看出「它从哪个方向绕过来」，
+       这是小地图去掉地形之后仍然值得保留的那部分信息。 */
+    if (st.tAcc - (HUNT.trailT || 0) > 0.12) {
+      HUNT.trailT = st.tAcc;
+      var hlt = HUNT.trail[HUNT.trail.length - 1];
+      if (!hlt || Math.hypot(HUNT.x - hlt.x, HUNT.y - hlt.y) > 0.3) {
+        HUNT.trail.push({ x: HUNT.x, y: HUNT.y });
+        if (HUNT.trail.length > TRAIL_MAX) HUNT.trail.shift();
+      }
+    }
     if (HUNT.dist < 0.55) { caught(); return; }
     paintHunt();
   }
@@ -5159,6 +5346,7 @@ window.YCQUIZ = { cats: [
     }
     HUNT.tx = HUNT.x; HUNT.ty = HUNT.y;
     HUNT.dist = Math.hypot(HUNT.x - st.px, HUNT.y - st.py);
+    HUNT.trail = [{ x: HUNT.x, y: HUNT.y }]; HUNT.trailT = st.tAcc;
     msg("塔门又开了一次。有人进来了——它不看指标，它只看你。", "bad");
     var hd = $("#huntHud"); if (hd) hd.className = "h hunt live";
     var hn = $("#huntN"); if (hn) hn.textContent = "已入塔";
@@ -5200,6 +5388,18 @@ window.YCQUIZ = { cats: [
     }
     if (keys.q) st.ang -= rot;
     if (keys.r) st.ang += rot;
+
+    /* 足迹采样。0.12 秒一个点，41×41 的塔里留 110 个够画半座塔的路 ——
+       再多也读不出来，只是把小地图涂成一片。
+       位移小于 0.3 格不记：站在原地点头不该在轨迹上堆出一坨。 */
+    if (st.tAcc - st.trailT > 0.12) {
+      st.trailT = st.tAcc;
+      var lt = st.trail[st.trail.length - 1];
+      if (!lt || Math.hypot(st.px - lt.x, st.py - lt.y) > 0.3) {
+        st.trail.push({ x: st.px, y: st.py });
+        if (st.trail.length > TRAIL_MAX) st.trail.shift();
+      }
+    }
 
     /* 兜底转向：指针没锁住时，鼠标在画面里的横向位置直接决定转向角速度。
        锁住之后这段自动失效（锁定时 clientX 不再变化，本来也算不出偏移）。 */
@@ -5515,9 +5715,52 @@ window.YCQUIZ = { cats: [
   /* ======================================================================
      10. 输入
      ====================================================================== */
+  /* ---------------- 全屏 ----------------
+     全屏的对象是整个 .mzwrap 而不是画布：顶栏那四个读数在迷宫里必须一直
+     看得见，全屏反而把仪表藏起来是本末倒置。所以全屏 = 顶栏留着、
+     画面放大、底下的说明书和虚拟按键收起。
+     requestFullscreen 只能由用户手势触发，所以只挂在按钮和按键上；
+     Esc 交给浏览器（它同时会释放指针锁定，正好是玩家想要的两件事）。 */
+  function fsEl() {
+    return document.fullscreenElement || document.webkitFullscreenElement || null;
+  }
+  function toggleFs() {
+    var wrap = document.querySelector(".mzwrap");
+    if (!wrap) return;
+    if (fsEl()) {
+      var ex = document.exitFullscreen || document.webkitExitFullscreen;
+      if (ex) ex.call(document);
+      return;
+    }
+    var rq = wrap.requestFullscreen || wrap.webkitRequestFullscreen;
+    if (!rq) { msg("这个浏览器不支持网页全屏，可以按 F11。", "warn"); return; }
+    var p = rq.call(wrap);
+    if (p && p.catch) {
+      p.catch(function () { msg("浏览器拒绝了全屏请求，可以按 F11。", "warn"); });
+    }
+  }
+  function syncFsBtn() {
+    var b = $("#fsBtn");
+    if (!b) return;
+    var on = !!fsEl();
+    b.textContent = on ? "⛶ 退出全屏" : "⛶ 全屏";
+    b.setAttribute("aria-label", on ? "退出全屏" : "全屏");
+  }
+  document.addEventListener("fullscreenchange", function () {
+    syncFsBtn();
+    /* 全屏切换会改画布的显示尺寸。立刻重绘一次，别等下一帧 ——
+       无头环境和后台标签页里 rAF 可能停摆，等帧就是一块空白。 */
+    if (world) { try { render(); drawMini(); } catch (e) {} }
+  });
+  document.addEventListener("webkitfullscreenchange", syncFsBtn);
+  var fsBtnEl = $("#fsBtn");
+  if (fsBtnEl) fsBtnEl.addEventListener("click", function (e) { e.preventDefault(); toggleFs(); });
+  syncFsBtn();
+
   var KMAP = { w: "w", a: "a", s: "s", d: "d", q: "q", r: "r", arrowup: "w", arrowdown: "s", arrowleft: "q", arrowright: "r" };
   document.addEventListener("keydown", function (e) {
     var k = e.key.toLowerCase();
+    if (k === "f" && !e.ctrlKey && !e.metaKey && !e.altKey) { toggleFs(); e.preventDefault(); return; }
     if (k === "e") {
       if (st.curDoor && !st.inModal) openGate(st.curDoor);
       return;
@@ -5800,6 +6043,69 @@ window.YCQUIZ = { cats: [
     /* 把塔内时钟往前推 —— 和「等这么久」等价，只是快。
        体检要用它验「80 秒后入塔」，不然每跑一次要真等一分二十秒。 */
     fastForward: function (sec) { st.tAcc += Math.max(0, +sec || 0); return st.tAcc; },
+    /* 小地图现在只该有「追踪」，不该有地形。
+       wallInk 统计「明显亮于网格底纹的像素占比」：画了墙会到 30% 以上，
+       只画轨迹与两个点时不到 4%。这条断言就是用来守住「不透露地形」的。 */
+    miniInfo: function () {
+      var d = mctx.getImageData(0, 0, mini.width, mini.height).data;
+      var tot = mini.width * mini.height, heavy = 0;
+      for (var i = 0; i < d.length; i += 4) {
+        if (d[i] > 30 && d[i + 1] > 45 && d[i + 2] > 65) heavy++;
+      }
+      return {
+        wallInk: heavy / tot,
+        trail: st.trail.length,
+        huntTrail: HUNT.trail.length,
+        max: TRAIL_MAX,
+        grid: W + "x" + H
+      };
+    },
+    /* 门与出口的光：reach 是可见距离（格），steps 是每盏灯离玩家几步。
+       用来验「远处的门也在照亮范围内」，而不是只有贴脸才看得见。
+       注意 BFS 只把 0 和 3 当可走 —— 门格本身是 2，走不进去。
+       所以门要取「四个邻格里最近的那一步 + 1」，否则读出来恒为 -1，
+       看着像「所有门都不可达」。 */
+    lightInfo: function () {
+      var items = collectLights();
+      var b = bfs(world.g, Math.floor(st.px), Math.floor(st.py));
+      var nb = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+      return {
+        reach: LIGHT_REACH,
+        count: items.length,
+        steps: items.map(function (it) {
+          var cx = Math.floor(it.x), cy = Math.floor(it.y);
+          var best = b.dist[cy * W + cx];
+          if (best < 0) {
+            for (var k = 0; k < 4; k++) {
+              var nx = cx + nb[k][0], ny = cy + nb[k][1];
+              if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+              var v = b.dist[ny * W + nx];
+              if (v >= 0 && (best < 0 || v < best)) best = v;
+            }
+            if (best >= 0) best += 1;
+          }
+          return best;
+        })
+      };
+    },
+    /* 上一次渲染算出来的「视野外柔光强度」。左右各两组：门(蓝) / 出口(绿)。
+       屏幕像素对比在无头环境里不稳，直接读中间量更可靠。 */
+    edgeState: function () {
+      return {
+        l: lastEdge.l, r: lastEdge.r, el: lastEdge.el, er: lastEdge.er,
+        ang: st.ang, n: lastEdge.n
+      };
+    },
+    fsState: function () {
+      var btn = $("#fsBtn");
+      return {
+        supported: !!(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen),
+        on: !!fsEl(),
+        label: btn ? (btn.textContent || "").trim() : "",
+        wrap: !!document.querySelector(".mzwrap")
+      };
+    },
+    toggleFullscreen: function () { toggleFs(); },
     gotoDoor: function (i) {
       var d = world.doors[i];
       if (!d) return false;

@@ -13,19 +13,23 @@
       <span class="h">用时 <b id="clock">00:00</b></span>
       <span class="h hunt" id="huntHud">追捕 <b id="huntN">—</b></span>
     </div>
+    <button class="mzfs" id="fsBtn" type="button" aria-label="全屏">⛶ 全屏</button>
   </header>
 
   <div class="mzstage">
     <canvas id="mzcv" width="960" height="520"></canvas>
     <div class="mzoverlay">
       <div class="mzcross"></div>
-      <div class="mzmap"><canvas id="mzmini" width="150" height="150"></canvas></div>
+      <div class="mzmap">
+        <div class="mzmaplb"><b>追踪</b><span>无地形</span></div>
+        <canvas id="mzmini" width="150" height="150"></canvas>
+      </div>
       <div class="mzprompt" id="prompt">按 E 开启知识门</div>
       <div class="mzmsg" id="msg"></div>
       <div class="mzvig" id="vig"></div>
       <div class="mzlock" id="lockHint">
         <b>点击画面锁定鼠标</b>
-        <span>移动鼠标转身 · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动 · <kbd>E</kbd> 开门 · <kbd>P</kbd> 调视角 · <kbd>Esc</kbd> 释放鼠标</span>
+        <span>移动鼠标转身 · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动 · <kbd>E</kbd> 开门 · <kbd>P</kbd> 调视角 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 释放鼠标</span>
       </div>
     </div>
   </div>
@@ -65,7 +69,7 @@
 
   <div class="mzend" id="endBox"></div>
 
-  <div style="margin-top:20px;padding-top:13px;border-top:1px solid var(--mz-line);
+  <div class="mzfoot" style="margin-top:20px;padding-top:13px;border-top:1px solid var(--mz-line);
        font-size:10.5px;color:var(--mz-tx3);line-height:1.9">
     这座塔的每一道门都锁着一个 H3 的判据。答错不是惩罚，是提示：回指标馆把那一层再读一遍。
     <a href="h3-metrics.html" style="color:var(--mz-ac);text-decoration:none">回指标馆 →</a>

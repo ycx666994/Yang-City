@@ -45,6 +45,13 @@ body{
 .mzttl span{font-family:var(--mz-mono);font-size:9px;letter-spacing:1.8px;color:var(--mz-tx3)}
 .mzbar .sp{flex:1}
 
+/* 全屏按钮：跟 .bk 同一套视觉，但它是按钮不是链接 */
+.mzfs{font-family:var(--mz-mono);font-size:10.5px;letter-spacing:.8px;cursor:pointer;
+  color:var(--mz-tx2);background:transparent;border:1px solid var(--mz-line2);
+  border-radius:5px;padding:5px 10px;transition:.15s}
+.mzfs:hover{color:var(--mz-ac);border-color:var(--mz-ac);background:rgba(78,163,255,.08)}
+.mzfs:focus-visible{outline:1px solid var(--mz-ac);outline-offset:2px}
+
 .mzhud{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-family:var(--mz-mono);font-size:10px}
 .mzhud .h{display:flex;align-items:center;gap:5px;color:var(--mz-tx3);letter-spacing:.6px}
 .mzhud .h b{color:var(--mz-tx);font-size:13px;letter-spacing:0}
@@ -73,9 +80,18 @@ body{
 .mzcross::before{left:6px;top:0;width:2px;height:14px}
 .mzcross::after{left:0;top:6px;width:14px;height:2px}
 
+/* ---------------- 小地图：只追踪，不画地形 ----------------
+   这里是设计上的关键取舍：一旦把墙、门画上去，迷宫就不再是迷宫 ——
+   玩家会盯着缩略图找路，3D 画面退化成装饰。
+   所以这一块只画「你和追捕者的位置 + 走过的轨迹」，地形完全不透露。
+   底纹给一层极淡的坐标网格，只用来读「走了多远、朝哪个方向」。 */
 .mzmap{position:absolute;right:10px;top:10px;border:1px solid var(--mz-line2);border-radius:6px;
-  background:rgba(6,10,18,.82);backdrop-filter:blur(4px);padding:4px}
-#mzmini{display:block}
+  background:rgba(4,7,13,.88);backdrop-filter:blur(4px);padding:4px 4px 3px}
+.mzmaplb{display:flex;align-items:baseline;gap:5px;padding:1px 2px 4px;
+  font-family:var(--mz-mono);font-size:8px;letter-spacing:1.2px;color:var(--mz-tx3)}
+.mzmaplb b{color:var(--mz-ac2);font-weight:400;letter-spacing:1.6px}
+.mzmaplb span{opacity:.6}
+#mzmini{display:block;border-radius:3px}
 
 .mzprompt{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);
   background:rgba(10,16,28,.92);border:1px solid var(--mz-ac);border-radius:7px;
@@ -248,9 +264,45 @@ body{
   .mzwrap{padding:0 10px 34px}
   .mzttl b{font-size:15px}
   .mzpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px)}
-  .mzmap{right:6px;top:6px;transform:scale(.78);transform-origin:top right}
+  .mzmap{right:6px;top:6px;transform:scale(.62);transform-origin:top right}
   .mzmodal{padding:10px}
   .mzqb{padding:13px 14px}
   .mzaim{left:10px;right:10px;bottom:10px;width:auto}
+}
+
+/* ---------------- 全屏 ----------------
+   全屏的对象是整个 .mzwrap，不是画布 —— 顶栏那四个读数（可信度 / 答对 /
+   用时 / 追捕距离）在迷宫里是必须一直看得见的，切到全屏反而把它们藏起来
+   等于把仪表拆了。
+   画布尺寸由 stage 宽度决定：stage 取「视口宽」与「按可用高度反推的宽」
+   里较小的那个，画布 width:100% 跟着它走，高度按 960:520 自动算。
+   反过来（给画布 max-height 让浏览器自己缩）不行 —— 替换元素在
+   width:auto 时用的是固有宽度 960，全屏反而比非全屏更小。
+
+   `.mzfsim` 是同一套规则的「演练开关」：无头浏览器里 Fullscreen API
+   不一定真的生效，体检就没法验布局。加这个类等于把页面按全屏排版一遍，
+   但不动真正的全屏状态 —— 布局这件事因此可以被真测，而不是靠肉眼。 */
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim){
+  display:flex;flex-direction:column;
+  width:100vw;height:100vh;height:100dvh;
+  max-width:none;margin:0;padding:0;
+  overflow:hidden;background:#02040a;
+}
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzbar{flex:0 0 auto;padding:8px 16px 7px}
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzbar .bk,
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzttl span,
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzfrag,
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzctl,
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzfoot,
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzaim{display:none}
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) .mzstage{
+  flex:0 1 auto;
+  width:min(100vw, calc((100vh - 70px) * 1.846));
+  width:min(100vw, calc((100dvh - 70px) * 1.846));
+  max-width:none;margin:auto;   /* 上下黑边均分，画面垂直居中 */
+  border-radius:0;border-left:0;border-right:0;
+}
+:is(.mzwrap:fullscreen, .mzwrap.mzfsim) #mzcv{
+  width:100%;height:auto;max-width:none;max-height:none;
 }
 </style>
