@@ -203,6 +203,8 @@ node h2script.mjs     # 剧本杀：五幕全流程 48 项（秘密延后揭示�
 node mazequiz.mjs     # 迷宫 + 题库 32 项（复杂度、鼠标手感、随机出题、八道门槛）
 node mazev2.mjs       # 迷宫 v2：门位八扇区、八门同时开、随机出口、追捕者 80s / 1.62
 node mazev3.mjs       # 迷宫 v3：全屏排版、小地图无地形（像素级）、门光可见距离与边缘柔光
+node mazev4.mjs       # 迷宫 v4：全屏下按 E 真能答题（DOM 从属 + 真全屏）、陷阱已拆、
+                      #          五次答错出局、答错后门挪走且不断路、暴走 15s 同速 + 音效
 node mazecaught.mjs   # 追捕：入塔时机、答题冻结、被抓无证书
 node h5fcplay.mjs     # 坍塌预报台：三轮真实点击插旗 → 100 分
 ```
@@ -224,7 +226,8 @@ YC_BASE="file:///D:/wobdy%E6%B5%B7%E5%A4%96/2026-10-18-18-15-27/trust-lab" node 
 这个守卫只认**真实滚轮事件**，13 页 × 3 种视口全过才算通过。
 
 最近一次实测：`livecheck` 28/28、`h2script` 48/48、`mazequiz` 32/32、`mazecaught` 16/16、
-`mazev2` 24/24、`mazev3` 31/31、`allpages` 13/13、`scrollguard` 39/39、`entrycheck` 5/5，全部通过。
+`mazev2` 25/25、`mazev3` 33/33、`mazev4` 39/39、`allpages` 13/13、`scrollguard` 39/39、
+`entrycheck` 5/5，全部通过。
 
 探针里踩过的坑都写在代码注释里（比如「BFS 该从谁出发」「隐藏元素量尺寸恒为 0」
 「写死条数的断言迟早误报」），因为这些都是真踩过的，不是假设的。

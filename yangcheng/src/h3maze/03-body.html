@@ -38,7 +38,7 @@
     <span class="lb">知识门</span>
     <div id="frags" style="display:flex;gap:6px"></div>
     <span style="font-size:10.5px;color:var(--mz-tx3);margin-left:6px" id="fragTip">
-      八道门<b>同时存在、不分先后</b>，你可以按任意顺序去答。<b>八道全部答对</b>，出口才会在塔里某个随机位置亮起来——然后你还得走到它那里。答错一道，门不开，换一道题重问，可信度 −1。
+      八道门<b>同时存在、不分先后</b>，你可以按任意顺序去答。<b>八道全部答对</b>，出口才会在塔里某个随机位置亮起来——然后你还得走到它那里。答错一道：门不开、题换掉、<b>那道门挪到塔里别处</b>，追捕者还会<b>暴走 15 秒</b>。五次答错，塔把你弹出去。
     </span>
   </div>
 
@@ -56,10 +56,12 @@
     </div>
     <div class="mztips">
       <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动 · <b style="color:var(--mz-ac2)">移动鼠标转身</b> · <kbd>E</kbd> 开门 ·
-      <kbd>P</kbd> 调视角 · <kbd>Esc</kbd> 释放鼠标。<br>
-      红色的地面是<b style="color:var(--mz-bad)">刷分陷阱</b>——踩上去扣一点可信度。
+      <kbd>P</kbd> 调视角 · <kbd>F</kbd> 全屏 · <kbd>Esc</kbd> 释放鼠标。<br>
       <b style="color:var(--mz-bad)">进塔 80 秒后会有一个逮捕者</b>：它比你慢一点，但它不会停。
       答题时塔是静止的，它也是。<br>
+      答错一道门：那道门<b style="color:var(--mz-ac2)">挪到塔里别处</b>、题也换掉；
+      如果逮捕者已经入塔，它会<b style="color:var(--mz-bad)">暴走 15 秒</b>，速度和你不相上下。
+      <b style="color:var(--mz-bad)">五次答错</b>，塔直接把你弹出去。<br>
       灰色块是<b style="color:var(--mz-ac2)">大厅</b>：走廊里它必中，大厅里你能绕开它。
       蓝色的门散在八个方向上，不在同一条道上。
     </div>
@@ -74,9 +76,12 @@
     这座塔的每一道门都锁着一个 H3 的判据。答错不是惩罚，是提示：回指标馆把那一层再读一遍。
     <a href="h3-metrics.html" style="color:var(--mz-ac);text-decoration:none">回指标馆 →</a>
   </div>
-</div>
 
-<div class="mzmodal" id="modal">
+  <!-- 弹窗 / 提示条 / 视角面板必须放在 .mzwrap **里面**。
+       全屏的对象是 .mzwrap，浏览器只渲染它的子树 —— 放在外面的话，
+       全屏时按 E 仍然会把 inModal 置真（人立刻动不了），但弹窗不在画面上，
+       表现就是「按 E 没反应，而且走不动了」。这是必须一起搬的三块。 -->
+  <div class="mzmodal" id="modal">
   <div class="mzq">
     <div class="mzqh">
       <span class="n" id="qNo">GATE 01</span>
@@ -120,4 +125,5 @@
     <button class="mzbtn ghost" id="aimReset">恢复默认</button>
   </div>
   <p class="an">调到「推一下鼠标刚好转半圈」就对了。平滑越高越顺，但会有延迟感；射击手感要 0，探索要 30–50%。</p>
+</div>
 </div>

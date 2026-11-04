@@ -24,7 +24,7 @@
      因为玩家会下意识地用耳朵测距，而不是一直盯着小地图。
      ====================================================================== */
   var sound = (function () {
-    var ac = null, master = null, lastBeat = 0, drone = null;
+    var ac = null, master = null, lastBeat = 0, drone = null, rage = null;
     function ensure() {
       if (ac) return ac;
       try {
@@ -83,7 +83,61 @@
           o.start(now); o.stop(now + 2.3);
         });
       },
-      duck: function (on) { if (master) master.gain.value = on ? 0.08 : 0.34; }
+      duck: function (on) { if (master) master.gain.value = on ? 0.08 : 0.34; },
+
+      /* ---------------- 暴走 ----------------
+         答错之后逮捕者与你同速 15 秒。这 15 秒必须「听起来就不对」，
+         否则玩家只会觉得「怎么突然追上来了」，而不是「它上来了」。
+
+         做法是一段不协和音簇：55 / 58.27 / 77.78 Hz —— 三个数故意不成
+         整数比，放在一起会持续打拍子，像有什么东西在喘。上面叠一层
+         低通，截止频率在这 15 秒里从 420 爬到 1400Hz：越听越亮，
+         等于用耳朵播放「它在靠近」，和实际距离无关，但方向是对的。
+         再来一声 sting（锯齿从高处砸下来），那是开门那一下。
+
+         结束时不硬切 —— 硬切像关电视。淡出 1.1 秒，比红框先消失，
+         留给玩家「它慢下来了」的那口气。 */
+      rageOn: function () {
+        if (!ensure()) return;
+        if (rage) return;                    /* 已经响着了，别叠第二层 */
+        var now = ac.currentTime;
+        var g = ac.createGain(), f = ac.createBiquadFilter();
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(0.30, now + 0.45);
+        f.type = "lowpass";
+        f.frequency.setValueAtTime(420, now);
+        f.frequency.linearRampToValueAtTime(1400, now + RAGE_SEC);
+        f.Q.value = 6;
+        g.connect(f); f.connect(master);
+        var oscs = [55, 58.27, 77.78].map(function (hz, i) {
+          var o = ac.createOscillator();
+          o.type = i === 2 ? "square" : "sawtooth";
+          o.frequency.setValueAtTime(hz, now);
+          /* 缓慢失谐漂移：两个音互相打拍子，听着像在喘 */
+          o.frequency.linearRampToValueAtTime(hz * (1 + (i - 1) * 0.012), now + RAGE_SEC);
+          o.connect(g);
+          o.start(now);
+          return o;
+        });
+        rage = { g: g, f: f, oscs: oscs };
+        sound.sting();
+      },
+      rageOff: function () {
+        if (!rage) return;
+        var now = ac.currentTime, r = rage;
+        rage = null;
+        try {
+          r.g.gain.cancelScheduledValues(now);
+          r.g.gain.setValueAtTime(Math.max(0.0001, r.g.gain.value), now);
+          r.g.gain.exponentialRampToValueAtTime(0.0001, now + 1.1);
+        } catch (e) { }
+        setTimeout(function () {
+          r.oscs.forEach(function (o) { try { o.stop(); } catch (e) { } });
+          try { r.g.disconnect(); r.f.disconnect(); } catch (e) { }
+        }, 1300);
+      },
+      /* 体检用：不读音频（无头环境没有声音），只读「它以为自己在响」 */
+      ragePlaying: function () { return !!rage; }
     };
   })();
 
@@ -157,6 +211,20 @@
   var COLS = 20, ROWS = 20;            /* 单元格数；网格 = 41 × 41 */
   var W = COLS * 2 + 1, H = ROWS * 2 + 1;
   var DOOR_N = 8;                      /* 知识门数量：八道同时存在，不分先后 */
+
+  /* ----------------------------------------------------------------------
+     三个和「答错」有关的数
+     ----------------------------------------------------------------------
+     LIFE_MAX     五次答错才出局。上一版是三次，但那时答错只扣一格；
+                  现在一次答错要付三份代价（扣格 + 门挪走 + 追捕者暴走），
+                  还按三次算等于「一次失误吃掉三分之一条命」，太薄。
+     PLAYER_SPEED 玩家速度。暴走时逮捕者提到这个数 —— 同速意味着
+                  走廊里再也拉不开距离，只能靠大厅绕。
+     RAGE_SEC     暴走持续 15 秒（塔内时间，答题时同样冻结）。
+     ---------------------------------------------------------------------- */
+  var LIFE_MAX = 5;
+  var PLAYER_SPEED = 2.35;
+  var RAGE_SEC = 15;
 
   function genMaze(seed) {
     var g = new Uint8Array(W * H);
@@ -360,27 +428,14 @@
       doors.push({ x: best.x, y: best.y, gate: doors.length, open: false });
     }
 
-    /* 陷阱：不在主路径上的死胡同。
-       另外**门旁边的死胡同也不放** —— 陷阱踩上才知道，若一道门唯一的近路上
-       埋着一个，玩家每次去开那道门都得白掉一格可信度，那是惩罚而不是难度。 */
-    var onPath = {};
-    path.forEach(function (c) { onPath[c[1] * W + c[0]] = 1; });
-    var nextToDoor = function (id) {
-      return g[id - 1] === 2 || g[id + 1] === 2 || g[id - W] === 2 || g[id + W] === 2;
-    };
-    var traps = [];
-    for (var y = 1; y < H - 1; y++) {
-      for (var x = 1; x < W - 1; x++) {
-        var id = y * W + x;
-        if (g[id] !== 0 || onPath[id]) continue;
-        if (degAt(g, x, y) !== 1) continue;
-        if (nextToDoor(id)) continue;
-        if (traps.length < 12) traps.push({ x: x, y: y, hit: false });
-      }
-    }
+    /* 陷阱已经整条拆掉了（用户要求）。
+       它原本是「不在主路径上的死胡同」，踩上去扣一格可信度。
+       拆掉的理由不只是「多余」：踩上才知道的雷，和「门挪走 + 追捕者暴走」
+       这种可见、可预期、可应对的代价，是两种东西 —— 前者是抽奖，后者是规则。
+       所以现在塔里唯一的惩罚来源是答错，而答错是玩家自己做的选择。 */
 
     /* exit 先留 null：八道门全开之后由 revealExit() 随机点亮 */
-    return { g: g, doors: doors, traps: traps, exit: null, path: path, halls: halls, far: { x: farI % W, y: Math.floor(farI / W) } };
+    return { g: g, doors: doors, exit: null, path: path, halls: halls, far: { x: farI % W, y: Math.floor(farI / W) } };
   }
 
   /* ======================================================================
@@ -390,7 +445,7 @@
   var world = null;
   var st = {
     px: 1.5, py: 1.5, ang: 0, pitch: 0,
-    life: 3, frags: [], answered: {},
+    life: 5, frags: [], answered: {},
     tAcc: 0, running: false, done: false,
     curDoor: null, inModal: false, t: 0,
     quiz: [],                     /* 本轮的题（每次进塔重抽） */
@@ -480,9 +535,14 @@
     /* 80 秒入塔。玩家速度 2.35，它 1.62（约 69%）——
        上一版是 60 秒 / 1.95（83%），走廊里一旦被盯上基本没有翻盘余地。
        现在它仍然比玩家慢、比玩家笨，但你走错路照样会被追上：
-       减速不等于没威胁，只是把「一次失误就死」改成「两次失误才死」。 */
+       减速不等于没威胁，只是把「一次失误就死」改成「两次失误才死」。
+
+       唯一的例外是**暴走**：答错一道门之后，它会有 15 秒把速度提到
+       和玩家一模一样（2.35）。同速意味着走廊里再也拉不开距离 ——
+       想甩掉它只能进大厅绕，或者靠它转弯时多走的那两步。 */
     at: 80,            /* 入塔时间（秒，只算塔内时间，答题冻结） */
     speed: 1.62,
+    rage: 0,           /* 暴走剩余秒数，0 = 正常速度 */
     x: 1.5, y: 1.5,
     on: false,
     cell: -1,          /* 当前目标格，换格时重算 */
@@ -495,8 +555,11 @@
     HUNT.on = false; HUNT.x = 1.5; HUNT.y = 1.5;
     HUNT.tx = 1.5; HUNT.ty = 1.5; HUNT.cell = -1; HUNT.dist = 99;
     HUNT.nullN = 0;
+    HUNT.rage = 0;
     HUNT.trail = []; HUNT.trailT = 0;
+    sound.rageOff();
     var el = $("#vig"); if (el) el.className = "mzvig";
+    var stg = $(".mzstage"); if (stg) stg.classList.remove("rage");
     var hd = $("#huntHud"); if (hd) hd.className = "h hunt";
     var hn = $("#huntN"); if (hn) hn.textContent = "—";
   }
@@ -516,7 +579,7 @@
       var ox = 1 + dirs4[di][0], oy = 1 + dirs4[di][1];
       if (world.g[oy * W + ox] === 0) { st.ang = Math.atan2(dirs4[di][1], dirs4[di][0]); break; }
     }
-    st.life = 3; st.frags = []; st.answered = {};
+    st.life = LIFE_MAX; st.frags = []; st.answered = {};
     /* 每次进塔重抽题。种子跟着塔走 —— 同一座塔重进是同一套题，
        换一座塔就是另一套。
        多抽一批备用题：答错时那道门不会作废，而是换一道新题重问，
@@ -1035,6 +1098,17 @@
       if (st.tAcc >= HUNT.at) spawnHunt();
       return;
     }
+    /* 暴走倒计时跟着塔内时间走（dt 已经由 step 按冻结规则给过）——
+       答题时 dt 不进 step，所以暴走也会跟着停。规则一致，不用另设一套时钟。 */
+    if (HUNT.rage > 0) {
+      HUNT.rage = Math.max(0, HUNT.rage - dt);
+      if (HUNT.rage === 0) {
+        sound.rageOff();
+        paintHunt();
+        msg("它慢下来了。趁现在拉开距离。", "good");
+      }
+    }
+    var spd = HUNT.rage > 0 ? PLAYER_SPEED : HUNT.speed;
     var cx = Math.floor(HUNT.x), cy = Math.floor(HUNT.y);
     /* 目标点：先走到本格中心，再走向下一格中心。
        不这么写会在拐角切角穿墙 —— 走廊只有一格宽，切角必然穿墙。 */
@@ -1052,7 +1126,7 @@
     var dx = HUNT.tx - HUNT.x, dy = HUNT.ty - HUNT.y;
     var d = Math.hypot(dx, dy);
     if (d > 1e-4) {
-      var s = Math.min(HUNT.speed * dt, d);
+      var s = Math.min(spd * dt, d);
       HUNT.x += (dx / d) * s;
       HUNT.y += (dy / d) * s;
       /* 步态相位跟着真实位移走，不是跟着时间走 ——
@@ -1100,18 +1174,28 @@
   }
 
   function paintHunt() {
-    var hd = $("#huntHud"), hn = $("#huntN"), vg = $("#vig");
+    var hd = $("#huntHud"), hn = $("#huntN"), vg = $("#vig"), stg = $(".mzstage");
     if (!hd) return;
+    var rage = HUNT.on && HUNT.rage > 0;
+    if (stg) stg.classList.toggle("rage", rage);
     if (!HUNT.on) { hd.className = "h hunt"; hn.textContent = "—"; if (vg) vg.className = "mzvig"; return; }
     var d = HUNT.dist;
-    hn.textContent = d > 12 ? "很远" : (d > 6 ? d.toFixed(0) + " 格" : d.toFixed(1) + " 格");
+    /* 暴走时读数直接变成倒计时：这时玩家要知道的不是「它多远」，
+       而是「还要熬几秒」。距离有红框和小地图在说。 */
+    if (rage) hn.textContent = "暴走 " + Math.ceil(HUNT.rage) + "s";
+    else hn.textContent = d > 12 ? "很远" : (d > 6 ? d.toFixed(0) + " 格" : d.toFixed(1) + " 格");
     var near = d < 3.2;
-    hd.className = "h hunt live" + (near ? " near" : "");
+    hd.className = "h hunt live" + (near ? " near" : "") + (rage ? " rage" : "");
     if (vg) {
-      vg.className = "mzvig on" + (d < 4 ? " beat" : "");
-      vg.style.opacity = String(clamp(1 - d / 9, 0, 1) * 0.9);
+      /* 距离近用 .beat（满幅红是应该的）；暴走用 .rage（更轻的一套呼吸）。
+         注意 keyframes 会盖掉 inline 的 opacity —— 只改那个数是没用的。 */
+      vg.className = "mzvig on" + (d < 4 ? " beat" : "") + (rage ? " rage" : "");
+      var vop = rage ? clamp(1 - d / 9, 0.3, 0.7) : clamp(1 - d / 9, 0, 1);
+      vg.style.opacity = String(vop * 0.9);
     }
-    sound.beat(d);
+    /* 暴走时心跳也提速：同一套 beat，只是把「距离」压小，
+       间隔从 0.5s 左右掉到 0.34s —— 耳朵比眼睛更早发现不对。 */
+    sound.beat(rage ? d * 0.4 : d);
   }
 
   function step(dt) {
@@ -1122,7 +1206,7 @@
     /* 视角放在这里消费，而不是在 mousemove 里直接改 ——
        这样一帧之内推了 300px 也是平滑地转过去，不会瞬间跳过去。 */
     consumeAim(dt);
-    var sp = 2.35 * dt, rot = 2.3 * dt;
+    var sp = PLAYER_SPEED * dt, rot = 2.3 * dt;
     var mx = 0, my = 0;
     if (keys.w) { mx += Math.cos(st.ang); my += Math.sin(st.ang); }
     if (keys.s) { mx -= Math.cos(st.ang); my -= Math.sin(st.ang); }
@@ -1154,18 +1238,9 @@
       if (Math.abs(off) > 0.14) st.ang += (off - Math.sign(off) * 0.14) * 3.6 * dt;
     }
 
-    /* 陷阱 */
-    world.traps.forEach(function (tp) {
-      if (tp.hit) return;
-      if (Math.abs(st.px - (tp.x + 0.5)) < 0.5 && Math.abs(st.py - (tp.y + 0.5)) < 0.5) {
-        tp.hit = true;
-        st.life--;
-        paintHud();
-        msg("踩到刷分陷阱：这个格子在训练集里出现过 400 次。可信度 −1。", "bad");
-        if (st.life <= 0) lose();
-      }
-    });
-    if (!st.running) return;
+    /* 陷阱那一段已经拆掉：塔里不再有「踩上才知道」的扣分点。
+       惩罚全部来自答错（门挪走 / 追捕者暴走 / 五次出局），
+       而答错是玩家看得见、自己做的选择。 */
 
     /* 门 */
     var near = null, best = 1.55;
@@ -1202,7 +1277,7 @@
      ====================================================================== */
   function paintHud() {
     var h = "";
-    for (var i = 0; i < 3; i++) h += '<i class="' + (i < st.life ? "on" : "gone") + '"></i>';
+    for (var i = 0; i < LIFE_MAX; i++) h += '<i class="' + (i < st.life ? "on" : "gone") + '"></i>';
     $("#life").innerHTML = h;
     $("#fragN").textContent = st.frags.length;
   }
@@ -1239,11 +1314,11 @@
   function gateOf(i) {
     return st.quiz[i] || { cat: "知识门", q: "题目缺失", o: ["—", "—", "—"], a: 0, w: "" };
   }
-  /* 把题面画进模态框。答错换题时也走这里 ——
-     之前整段逻辑塞在 openGate 里，换题就得复制一遍，迟早不一致。 */
+  /* 把题面画进模态框。开一道门只走这一条路，
+     答对/答错都在同一个地方收尾，避免两套逻辑慢慢跑偏。 */
   function renderQ(d) {
     var g = gateOf(d.gate);
-    curQ = { door: d, gate: g, retry: false };
+    curQ = { door: d, gate: g, out: false };
     st.inModal = true;
     $("#qNo").textContent = "GATE " + ("0" + (d.gate + 1)).slice(-2) +
       " · 已开 " + st.frags.length + "/" + DOOR_N;
@@ -1267,6 +1342,124 @@
     renderQ(d);
   }
 
+  /* ----------------------------------------------------------------------
+     答错之后：那道门挪走
+     ----------------------------------------------------------------------
+     上一版是「门留在原地，换一道题重问」。那等于让玩家在同一道门前
+     无限重掷骰子 —— 答错的代价只有一格可信度，门根本不用重新找。
+     现在门会走：你答错的那一刻它从原位置消失，出现在塔里另一个地方，
+     题也换掉。你还得重新找到它、重新读题。
+
+     三条硬约束，缺一条就会变成 bug：
+     1. 旧格必须变回**实墙**。若还原成走廊，等于白送一条通路 ——
+        玩家没答对，墙上却多了一个洞。
+     2. 新位置必须是走廊直段（degAt === 2），离玩家 ≥ 8 步。
+        否则门会挪到脚边，等于没挪；挪进大厅则等于没放门。
+     3. 挪完必须整座塔仍然连通：其余七道门还得走得到，已点亮的出口
+        也还得走得到。41×41 是编织迷宫，堵一格通常没事 ——
+        但「通常」不是保证，所以这里真的用 BFS 验一遍，不行就换下一格。
+     ---------------------------------------------------------------------- */
+  function neighborReachable(b, o) {
+    var nb = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    for (var k = 0; k < 4; k++) {
+      var nx = o.x + nb[k][0], ny = o.y + nb[k][1];
+      if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+      if (b.dist[ny * W + nx] >= 0) return true;
+    }
+    return false;
+  }
+
+  function teleportDoor(d) {
+    if (!d || d.open) return false;
+    var px = Math.floor(st.px), py = Math.floor(st.py);
+    var oldIdx = d.y * W + d.x;
+    world.g[oldIdx] = 1;                       /* 旧格：实墙，不是走廊 */
+    var base = bfs(world.g, px, py);
+    var before = 0, i;
+    for (i = 0; i < base.dist.length; i++) if (base.dist[i] >= 0) before++;
+
+    var inHall = function (x, y) {
+      return world.halls.some(function (h) {
+        return x >= h.x && x < h.x + h.w && y >= h.y && y < h.y + h.h;
+      });
+    };
+    var sepOf = function (x, y) {
+      var m = 1e9;
+      for (var k = 0; k < world.doors.length; k++) {
+        var o = world.doors[k];
+        if (o === d || o.open) continue;
+        m = Math.min(m, Math.hypot(o.x - x, o.y - y));
+      }
+      return m;
+    };
+    var gather = function (minSteps, minSep, strict) {
+      var arr = [];
+      for (var y = 1; y < H - 1; y++) {
+        for (var x = 1; x < W - 1; x++) {
+          var id = y * W + x;
+          if (world.g[id] !== 0) continue;
+          if (base.dist[id] < minSteps) continue;
+          if (strict && inHall(x, y)) continue;
+          if (strict && degAt(world.g, x, y) !== 2) continue;
+          if (sepOf(x, y) < minSep) continue;
+          arr.push({ x: x, y: y });
+        }
+      }
+      return arr;
+    };
+    /* 条件逐级放宽：先按理想条件找，实在没有就退一步。
+       退到底也不许「挪不动」以外的结果 —— 断路比不挪严重得多。 */
+    var cands = gather(8, 6, true);
+    if (!cands.length) cands = gather(6, 3, false);
+    if (!cands.length) cands = gather(1, 0, false);
+    if (!cands.length) { world.g[oldIdx] = 2; return false; }
+
+    /* 打散顺序：不然每次答错门都往同一个角落跑，玩家第二次就摸清了 */
+    for (i = cands.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = cands[i]; cands[i] = cands[j]; cands[j] = t;
+    }
+
+    for (var ci = 0; ci < cands.length && ci < 80; ci++) {
+      var c = cands[ci], nid = c.y * W + c.x;
+      world.g[nid] = 2;
+      var chk = bfs(world.g, px, py);
+      var after = 0;
+      for (i = 0; i < chk.dist.length; i++) if (chk.dist[i] >= 0) after++;
+      /* 少 1 格是门自己占掉的那格；再多就是断路了 */
+      var okReach = after >= before - 2;
+      var okDoors = true;
+      for (var q = 0; q < world.doors.length; q++) {
+        var o = world.doors[q];
+        if (o === d || o.open) continue;
+        if (!neighborReachable(chk, o)) { okDoors = false; break; }
+      }
+      var okExit = !world.exit || chk.dist[world.exit.y * W + world.exit.x] >= 0;
+      if (okReach && okDoors && okExit) {
+        d.x = c.x; d.y = c.y;
+        st.curDoor = null;
+        var pr = $("#prompt"); if (pr) pr.classList.remove("on");
+        return true;
+      }
+      world.g[nid] = 0;                        /* 这一格不行，撤回再试 */
+    }
+    world.g[oldIdx] = 2;                       /* 一处都不行：原地不动 */
+    return false;
+  }
+
+  /* 答错之后逮捕者暴走：速度提到和玩家一样（2.35），持续 15 秒。
+     它本来比你慢 31%，一旦同速，走廊里就再也拉不开距离 —— 只能进大厅绕，
+     或者赌它转弯时多走的那两步。所以暴走不是「随机惩罚」，
+     它把「往哪跑」变成了一道题。
+     它还没入塔的时候不暴走：那时门挪走已经是全部代价。 */
+  function rageHunt() {
+    if (!HUNT.on) return false;
+    HUNT.rage = RAGE_SEC;
+    sound.rageOn();
+    paintHunt();
+    return true;
+  }
+
   $("#qOpts").addEventListener("click", function (e) {
     var b = e.target.closest("[data-i]");
     if (!b || !curQ || b.disabled) return;
@@ -1282,25 +1475,44 @@
       st.frags.push(curQ.door.gate);
       paintFrags(); paintHud();
       $("#qWhy").className = "mzwhy on";
-      $("#qWhy").innerHTML = "<b style='color:#3ecf8e'>对。</b>" + g.why;
+      $("#qWhy").innerHTML = "<b style='color:#3ecf8e'>对。</b>" + (g.w || "");
       $("#qHint").textContent = "第 " + st.frags.length + " / " + DOOR_N + " 道门开了。";
       $("#qGo").textContent = "开门，继续";
     } else {
-      /* 答错不再「门照样开、只是没碎片」—— 那样八道门里错一道就永远凑不齐，
-         玩家会当场算出来自己已经输了，然后乱走。现在改成：
-         这道门不开，换一道新题重问，代价是掉一格可信度。
-         「八道全对」始终可达，但错一次是真的要付钱。 */
+      /* 答错的三份代价，一次付清：
+         ① 可信度 −1；② 这道门挪到塔里别处、题也换掉；
+         ③ 逮捕者已经入塔的话，暴走 15 秒（速度提到和你一样）。
+         第五次答错不再有代价 —— 直接出局。 */
       st.life--;
       paintHud();
-      curQ.retry = true;
+      curQ.wrong = true;
+      curQ.out = false;
+      var left = st.life;
+      var moved = false, raged = false;
+      if (left > 0) {
+        moved = teleportDoor(curQ.door);
+        if (moved) {
+          var nq = st.spare.shift();
+          if (nq) st.quiz[curQ.door.gate] = nq;
+        }
+        raged = rageHunt();
+      }
       $("#qWhy").className = "mzwhy on";
-      $("#qWhy").innerHTML = "<b style='color:#ff5e6c'>不对。</b>" + g.why;
-      if (st.life <= 0) {
-        $("#qHint").textContent = "可信度耗尽。塔把你弹了出去。";
+      $("#qWhy").innerHTML = "<b style='color:#ff5e6c'>不对。</b>" + (g.w || "");
+      if (left <= 0) {
+        curQ.out = true;
+        $("#qHint").innerHTML = "<b>第五次答错。</b>塔不再给你第六次机会。";
         $("#qGo").textContent = "离开指标塔";
       } else {
-        $("#qHint").textContent = "这道门不为你开。换一道题再试 —— 可信度 -1（剩 " + st.life + " / 3）。";
-        $("#qGo").textContent = "换一道题再试";
+        curQ.out = false;
+        var parts = [];
+        parts.push(moved
+          ? "这道门不为你开 —— <b>它已经挪到塔里别处去了</b>，题也换了。"
+          : "这道门不为你开。");
+        if (raged) parts.push("<b style='color:#ff2f6c'>逮捕者暴走 15 秒</b>，速度和你一样快。");
+        parts.push("可信度剩 " + left + " / " + LIFE_MAX + "。");
+        $("#qHint").innerHTML = parts.join(" ");
+        $("#qGo").textContent = moved ? "记住它挪走了，继续" : "继续";
       }
     }
     $("#qGo").disabled = false;
@@ -1308,18 +1520,23 @@
 
   $("#qGo").addEventListener("click", function () {
     if (!curQ) return;
-    /* 答错且还有可信度：换一道备用题重问同一道门 */
-    if (curQ.retry) {
-      if (st.life <= 0) {
-        $("#modal").classList.remove("on");
-        st.inModal = false; curQ = null;
-        lose();
-        return;
-      }
-      var door = curQ.door;
-      var nq = st.spare.shift();
-      if (nq) st.quiz[door.gate] = nq;
-      renderQ(door);
+    /* 第五次答错：没有「再试一次」，直接出局。
+       必须排在 wrong 之前 —— 那一次 wrong 也是 true，顺序反了就变成「关窗了事」。 */
+    if (curQ.out) {
+      $("#modal").classList.remove("on");
+      st.inModal = false; curQ = null;
+      lose();
+      return;
+    }
+    /* 答错（还有可信度）：只是关掉弹窗。**绝不能走下面那段开门逻辑** ——
+       门没答对，它已经被挪到别处了，这里再 open 一次等于白送。 */
+    if (curQ.wrong) {
+      $("#modal").classList.remove("on");
+      st.inModal = false;
+      sound.duck(false);
+      curQ = null;
+      keys = {};
+      lockNow();
       return;
     }
     curQ.door.open = true;
@@ -1355,17 +1572,19 @@
      被抓住就是被抓住，塔不记分数，只记时长。 */
   function caught() {
     if (st.done) return;
-    st.running = false; st.done = true; HUNT.on = false;
+    st.running = false; st.done = true; HUNT.on = false; HUNT.rage = 0;
     unlock();
+    sound.rageOff();
     var el = elapsed();
     $("#vig").className = "mzvig";
+    var stg = $(".mzstage"); if (stg) stg.classList.remove("rage");
     $("#endBox").innerHTML = '<div class="box caught">' +
       '<h3>被逮捕 · 强制退出</h3>' +
       '<p>逮捕者在第 <b>' + el + ' 秒</b>追上了你。它不看指标，也不读判据——' +
       '它只负责让「走通这座塔」和「证明你懂这座塔」之间保持距离。' +
       '<b>被抓住的人没有证书</b>，只有一条入塔记录。</p>' +
       '<div class="sc"><span>碎片<b>' + st.frags.length + ' / ' + world.doors.length + '</b></span>' +
-      '<span>可信度<b>' + st.life + ' / 3</b></span>' +
+      '<span>可信度<b>' + st.life + ' / ' + LIFE_MAX + '</b></span>' +
       '<span>存活<b>' + el + 's</b></span></div>' +
       '<p style="font-size:11px;color:var(--mz-tx3)">下一次：先想清楚要去哪道门，再动。' +
       '在走廊里犹豫的每一秒，都是它的。</p>' +
@@ -1378,14 +1597,19 @@
   }
 
   function lose() {
-    st.running = false; st.done = true;
+    st.running = false; st.done = true; HUNT.rage = 0;
     unlock();
+    sound.rageOff();
     $("#vig").className = "mzvig";
+    var stg = $(".mzstage"); if (stg) stg.classList.remove("rage");
     var el = elapsed();
     $("#endBox").innerHTML = '<div class="box">' +
-      '<h3>可信度归零 · 被弹出塔外</h3>' +
-      '<p>踩了三次刷分陷阱。这不是运气问题：陷阱放在死胡同里，' +
-      '而<b>每一个死胡同都长得像一条可能的近路</b>——这正是刷分之所以有效的原因。</p>' +
+      '<h3>五次答错 · 被弹出塔外</h3>' +
+      '<p>你在同一座塔里答错了五次。塔不记分数，只记一件事：' +
+      '<b>每一次答错都不是「再掷一次骰子」</b>——那道门会挪走、题会换掉，' +
+      '逮捕者会暴走十五秒。五次之后，它不再给你第六次。</p>' +
+      '<p style="font-size:11px;color:var(--mz-tx3)">这座塔考的不是记性：' +
+      '答错的每一道，都对应 H3 里的一个判据。回去把那一条读一遍，比在这里多走十圈有用。</p>' +
       '<div class="sc"><span>答对<b>' + st.frags.length + ' / ' + world.doors.length + '</b></span>' +
       '<span>用时<b>' + el + 's</b></span></div>' +
       '<button class="mzbtn" id="btnAgain">再进一次</button></div>';
@@ -1397,7 +1621,9 @@
     if (st.done) return;
     st.running = false; st.done = true;
     unlock();
+    sound.rageOff();
     $("#vig").className = "mzvig";
+    var stg0 = $(".mzstage"); if (stg0) stg0.classList.remove("rage");
     var el = elapsed();
     var n = st.frags.length;
     var total = Math.max(world.doors.length, st.quiz.length);
@@ -1410,7 +1636,7 @@
         "这座塔的八道门各锁着一个判据——你不是靠运气绕过去的，是靠认出哪一句话在偷换「测量」和「目标」。"
       : "你走到了出口，但只答对 " + n + " 道（门槛 " + PASS_N + " 道）。<b>出口不为你开：走通一座塔，和证明你懂这座塔，是两件事。</b>没被逮捕只说明你跑得够快，不说明你答得对。") + '</p>');
     H2.push('<div class="sc"><span>答对<b>' + n + ' / ' + total + '</b></span>' +
-      '<span>可信度<b>' + st.life + ' / 3</b></span>' +
+      '<span>可信度<b>' + st.life + ' / ' + LIFE_MAX + '</b></span>' +
       '<span>用时<b>' + el + 's</b></span></div>');
 
     if (win && window.YCDeep) {
@@ -1424,8 +1650,8 @@
           detail: [
             "穿过 41 × 41 的指标塔，答对 " + n + " / " + total + " 道知识门（八道门全部答对，出口才出现）",
             "八道门从八个判据题库中随机抽取：代理指标 / 古德哈特 / 刷分 / 偏移 / 聚合 / 阈值 / 相关 / 可优化性",
-            "可信度剩余 " + st.life + " / 3 · 用时 " + el + " 秒",
-            "未踩满三次刷分陷阱，未被逮捕者追上"
+            "可信度剩余 " + st.life + " / " + LIFE_MAX + " · 用时 " + el + " 秒",
+            "五次答错之前走通全塔：没被逮捕者追上，也没让任何一道门挪到第二次"
           ]
         });
       } catch (e) { }
@@ -1740,7 +1966,7 @@
         done: st.done, running: st.running,
         doorsOpen: world.doors.filter(function (d) { return d.open; }).length,
         doorsTotal: world.doors.length,
-        traps: world.traps.length,
+        traps: 0,   /* 陷阱已拆除，恒为 0 —— 体检断言它就等于 0 */
         /* 题库规模与通关门槛：线上体检要能一眼看出「题池是不是真的几百道」、
            「门槛是不是真的八道全过」，而不是只信任本地脚本。 */
         quizPool: (QUIZ.cats || []).reduce(function (a, c) { return a + (c.items || []).length; }, 0),
@@ -1756,6 +1982,13 @@
         })(),
         huntAt: HUNT.at,
         huntSpeed: HUNT.speed,
+        /* 暴走：剩余秒数 + 当前实际速度。体检要能验「答错之后它真的变快了、
+           而且 15 秒后真的恢复」，而不是只看代码里写了个乘法。 */
+        huntRage: Math.round(HUNT.rage * 100) / 100,
+        huntSpeedNow: HUNT.rage > 0 ? PLAYER_SPEED : HUNT.speed,
+        rageSec: RAGE_SEC,
+        lifeMax: LIFE_MAX,
+        playerSpeed: PLAYER_SPEED,
         /* 八道门离出生点有多远 / 各在哪个方位扇区 ——
            用来验「门是不是散在四面八方」，而不是全挤在一片。 */
         doorSectors: world.doors.map(function (d) { return sectorOf(Math.atan2(d.y - (H - 1) / 2, d.x - (W - 1) / 2)); }),
@@ -1852,6 +2085,18 @@
       };
     },
     toggleFullscreen: function () { toggleFs(); },
+    /* 体检用：从玩家当前位置走到某一格要几步（-1 = 走不到，-2 = 出界）。
+       门格本身是实心的，判「这道门还够得着吗」要取它的四邻，
+       所以这个函数按格给答案，由调用方决定怎么用。 */
+    stepTo: function (x, y) {
+      if (x < 0 || y < 0 || x >= W || y >= H) return -2;
+      var b = bfs(world.g, Math.floor(st.px), Math.floor(st.py));
+      return b.dist[y * W + x];
+    },
+    /* 体检用：暴走音效是否「在响」。
+       无头环境没有声卡，验不了波形；但能验「该响的时候它以为自己响着」——
+       这条断言挡的是「忘记调用 rageOn / 忘记 rageOff」这类 bug。 */
+    audio: function () { return { rage: sound.ragePlaying() }; },
     gotoDoor: function (i) {
       var d = world.doors[i];
       if (!d) return false;
@@ -1860,10 +2105,8 @@
         var nx = d.x + nb[k][0], ny = d.y + nb[k][1];
         if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
         if (world.g[ny * W + nx] !== 0) continue;
-        /* 别把玩家瞬移到陷阱格上：那会白扣一格可信度，
-           探针读到的 life 就跟「答错扣一格」混在一起，分不清是谁扣的。 */
-        var trapped = world.traps.some(function (tp) { return tp.x === nx && tp.y === ny && !tp.hit; });
-        if (trapped) { if (!fallback) fallback = [nx, ny]; continue; }
+        /* 别把玩家瞬移到门旁边以外的地方：门格本身是 2（实心），
+           只能站到它四邻里的走廊格上。 */
         fallback = [nx, ny]; break;
       }
       if (!fallback) return false;
@@ -1952,7 +2195,7 @@
     },
     world: function () {
       return {
-        grid: W + "x" + H, doors: world.doors.length, traps: world.traps.length,
+        grid: W + "x" + H, doors: world.doors.length, traps: 0,
         halls: world.halls.length, pathLen: world.path.length,
         walkable: world.g.filter(function (v) { return v === 0; }).length
       };

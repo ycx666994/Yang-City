@@ -113,22 +113,31 @@ async function clickWrong(i) {
 }
 
 await openDoor(0);
+const qBefore = await ev("YCMaze.quizText(0)");
+const dBefore = JSON.parse(await ev("JSON.stringify(YCMaze.doorList())"))[0];
 const w1 = await clickWrong(0);
 const afterWrong = JSON.parse(await ev("JSON.stringify(YCMaze.status())"));
-console.log("WRONG", JSON.stringify({ btn: w1, life: afterWrong.life, frags: afterWrong.frags.length, open: afterWrong.doorsOpen }));
-ok("答错时按钮变成「换一道题再试」", w1 && /换一道题/.test(w1.txt), w1 && w1.txt);
-ok("答错扣一格可信度", afterWrong.life === 2, `life=${afterWrong.life}`);
+const dAfter = JSON.parse(await ev("JSON.stringify(YCMaze.doorList())"))[0];
+console.log("WRONG", JSON.stringify({ btn: w1, life: afterWrong.life, frags: afterWrong.frags.length,
+  open: afterWrong.doorsOpen, from: [dBefore.x, dBefore.y], to: [dAfter.x, dAfter.y] }));
+/* 规则改过（v4）：答错不再「原地换一道题重问」，而是
+   门挪走 + 题换掉 + 追捕者暴走。所以这里验的是「挪走」，不是「重问」。 */
+ok("答错时按钮说明门已挪走", w1 && /挪/.test(w1.txt), w1 && w1.txt);
+ok("答错扣一格可信度（上限 5）", afterWrong.life === 4, `life=${afterWrong.life} / ${afterWrong.lifeMax}`);
 ok("答错时门没有开", afterWrong.doorsOpen === 0, `open=${afterWrong.doorsOpen}`);
+ok("答错之后那道门换了位置",
+  dBefore.x !== dAfter.x || dBefore.y !== dAfter.y,
+  `(${dBefore.x},${dBefore.y}) → (${dAfter.x},${dAfter.y})`);
 
-const qBefore = await ev("YCMaze.quizText(0)");
 await ev("document.getElementById('qGo').click()");
 await sleep(400);
 const qAfter = await ev("YCMaze.quizText(0)");
-const stillOpen = await ev(`(function(){var m=document.getElementById('modal');return !!(m&&m.classList.contains('on'))})()`);
-ok("换题后弹窗还在（同一道门重问）", stillOpen === true);
-ok("换的是一道新题", qBefore !== qAfter, `前=${String(qBefore).slice(0, 14)}… 后=${String(qAfter).slice(0, 14)}…`);
+const closed = await ev(`(function(){var m=document.getElementById('modal');return !(m&&m.classList.contains('on'))})()`);
+ok("答错后弹窗关掉（不再原地重问）", closed === true);
+ok("门上的题换了一道", qBefore !== qAfter, `前=${String(qBefore).slice(0, 14)}… 后=${String(qAfter).slice(0, 14)}…`);
 
-/* 把这道理答对，门应该开 */
+/* 回到挪走之后的位置，把这道理答对，门应该开 */
+await openDoor(0);
 const ai2 = await ev("YCMaze.answerOf(0)");
 await ev(`(function(){var b=document.querySelectorAll('#qOpts .mzo')[${ai2}];if(b)b.click();return 1})()`);
 await sleep(200);

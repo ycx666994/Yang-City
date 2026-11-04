@@ -95,7 +95,7 @@ const W2 = JSON.parse(w || "{}");
 ok("网格扩到 41×41", W2.grid === "41x41", W2.grid);
 ok("知识门 8 道", W2.doors === 8, `doors=${W2.doors}`);
 ok("大厅 5 个", W2.halls === 5, `halls=${W2.halls}`);
-ok("陷阱存在", W2.traps > 0, `traps=${W2.traps}`);
+ok("陷阱已拆除（塔里没有暗雷）", W2.traps === 0, `traps=${W2.traps}`);
 /* 完美迷宫的通道数 = 单元格数 × 2 - 1；多出来的就是环路挖出来的 */
 ok("存在环路（通道数 > 完美迷宫）", W2.walkable > (20 * 20 * 2 - 1),
   `walkable=${W2.walkable} 完美迷宫=${20 * 20 * 2 - 1}`);
