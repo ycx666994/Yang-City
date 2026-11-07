@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ycx666994.github.io/Yang-City/sitemap.xml

@@ -124,6 +124,15 @@ a{text-decoration:none}
   .cm-legend{display:none}
   .cm-brand em{display:none}
   .cm-clock{display:none}
+  .cm-top{gap:8px;padding:0 12px}
+  .cm-btn{padding:7px 10px;font-size:12px}
+}
+@media (max-width:560px){
+  /* 四项入口在窄屏挤不下：只留证据厅，旧馆与鸟瞰收进副行以外的最小字号 */
+  .cm-top{gap:5px;padding:0 9px}
+  .cm-btn{padding:6px 7px;font-size:11px;letter-spacing:0}
+  .cm-brand b{font-size:19px;letter-spacing:3px}
+  .cm-opt{display:none}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>

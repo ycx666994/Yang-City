@@ -2,6 +2,17 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../favicon.svg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="杨城 · AI 认知失效证据城市">
+<meta property="og:title" content="杨城 · AI 认知失效证据城市">
+<meta property="og:description" content="一座让每个关于 AI 的判断都能接受实验的城市。六馆、一套证据协议。">
+<meta property="og:image" content="https://ycx666994.github.io/Yang-City/docs/screens/01-city.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="杨城 · AI 认知失效证据城市">
+<meta name="twitter:description" content="一座让每个关于 AI 的判断都能接受实验的城市。六馆、一套证据协议。">
+<meta name="twitter:image" content="https://ycx666994.github.io/Yang-City/docs/screens/01-city.jpg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>杨城 · AI 认知失效证据城市</title>
 <meta name="description" content="一座让每个关于 AI 的判断都能接受实验的城市。六馆、一套证据协议。">
@@ -9,8 +20,8 @@
 <link rel="stylesheet" href="shared/yc-cast.css">
 <style>
 /* 首页把空间留给城市，地图才展开分类。白天是浅色玻璃，夜晚沿用同一布局。 */
-:root{--yc-ink:#163346;--yc-muted:#42647a;--yc-panel:rgba(244,250,253,.86);--yc-line:rgba(35,87,115,.23);--yc-accent:#176887;--yc-shadow:0 12px 32px rgba(29,62,80,.13);--yc-bg:#b8dcef}
-:root[data-city-theme="night"]{--yc-ink:#e8f5ff;--yc-muted:#afcbdc;--yc-panel:rgba(13,28,47,.86);--yc-line:rgba(145,206,234,.28);--yc-accent:#8be8ff;--yc-shadow:0 12px 32px rgba(0,0,0,.26);--yc-bg:#071320}
+:root{--yc-ink:#163346;--yc-muted:#42647a;--yc-panel:rgba(244,250,253,.9);--yc-sub:rgba(23,104,135,.07);--yc-line:rgba(35,87,115,.23);--yc-accent:#176887;--yc-shadow:0 12px 32px rgba(29,62,80,.13);--yc-bg:#b8dcef}
+:root[data-city-theme="night"]{--yc-ink:#e8f5ff;--yc-muted:#afcbdc;--yc-panel:rgba(13,28,47,.9);--yc-sub:rgba(20,42,66,.55);--yc-line:rgba(145,206,234,.28);--yc-accent:#8be8ff;--yc-shadow:0 12px 32px rgba(0,0,0,.26);--yc-bg:#071320}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;overflow:hidden}
 body{background:var(--yc-bg);color:var(--yc-ink);font-family:"Segoe UI","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
@@ -62,12 +73,12 @@ body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-
 @media(max-width:760px){.topbar{top:10px;left:12px;right:12px;gap:10px;flex-wrap:wrap}.brand{font-size:21px}.clock{padding:7px 9px;gap:6px}#clkTime{font-size:18px}#clkPhase{font-size:9px}.topnav{gap:4px}.topnav a{padding:7px 8px;font-size:10px}.topnav a:last-child{display:none}.hudleft,.phaseNote{display:none}.nodes{right:12px;top:74px;width:226px}.nodes:not([open]){width:135px}#nodeList{max-height:34vh}.time-control{left:12px;bottom:55px;width:208px}.cta{right:12px;bottom:62px}.maphint{display:none}.mapbtn{padding:10px 12px}.mbt b{font-size:12px}.mbt i{display:none}.new-hall{font-size:10px}.botbar{padding:7px 12px;gap:7px;font-size:9px}.botbar .right{max-width:46%;text-align:right}.map-tools{right:12px;bottom:57px}.map-tools span{display:none}.card{left:12px;bottom:102px;width:min(304px,calc(100vw - 24px));max-height:calc(100vh - 186px)}body.card-open .nodes{visibility:hidden}}
 @media(max-width:480px){.topnav{margin-left:0;flex:1;justify-content:flex-end}.topnav a{font-size:9px;padding:7px 6px}.brand{font-size:19px}.clock{gap:5px}#clkPhase{max-width:86px;white-space:normal;font-size:8px}.topbar{gap:7px}.time-control{width:178px}.time-actions{flex-wrap:wrap}.time-control summary{font-size:11px}.nodes{top:96px}}
 /* 区域视角 HUD（district.html?zone=） */
-.district-hud{position:fixed;z-index:22;left:18px;top:96px;width:316px;padding:15px 17px 16px;background:rgba(13,28,47,.9);border:1px solid rgba(145,206,234,.3);border-top:3px solid var(--yc-accent,#8be8ff);box-shadow:0 14px 40px rgba(0,0,0,.3);backdrop-filter:blur(5px)}
+.district-hud{position:fixed;z-index:22;left:18px;top:96px;width:316px;padding:15px 17px 16px;background:var(--yc-panel);border:1px solid var(--yc-line);border-top:3px solid var(--yc-accent,#8be8ff);box-shadow:var(--yc-shadow);backdrop-filter:blur(5px)}
 .district-hud h2{margin:0 0 2px;font-size:22px;letter-spacing:2px}
 .dh-en{font-size:10px;letter-spacing:3px;color:var(--yc-muted);margin-bottom:9px}
 .dh-desc{margin:0 0 11px;font-size:12px;line-height:1.85;color:var(--yc-muted)}
 .dh-museums{display:grid;gap:7px;margin-bottom:12px}
-.dh-museums a{display:block;padding:9px 11px;border:1px solid var(--yc-line);background:rgba(20,42,66,.55);font-size:12.5px;color:var(--yc-ink);transition:.18s}
+.dh-museums a{display:block;padding:9px 11px;border:1px solid var(--yc-line);background:var(--yc-sub);font-size:12.5px;color:var(--yc-ink);transition:.18s}
 .dh-museums a:hover{border-color:var(--yc-accent);box-shadow:0 0 12px -2px var(--yc-accent)}
 .dh-nav{display:flex;gap:8px}
 .dh-nav a{flex:1;text-align:center;padding:8px 6px;border:1px solid var(--yc-line);font-size:11.5px;color:var(--yc-muted)}

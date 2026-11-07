@@ -13,6 +13,10 @@ yangcheng/_dev/*.png
 *.tmp
 *.log
 
+# Python 构建脚本的编译缓存
+__pycache__/
+*.pyc
+
 # 无头浏览器的临时用户目录
 _edgeprof*/
 .ycprof/

@@ -2,6 +2,17 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../favicon.svg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="杨城 · AI 认知失效证据城市">
+<meta property="og:title" content="杨城 · 17 区导览总图">
+<meta property="og:description" content="虚构未来 AI 城市杨城的平面区域总图：17 个风格街区，点击进入三维街区，点击馆标直接参观。">
+<meta property="og:image" content="https://ycx666994.github.io/Yang-City/docs/screens/01-city.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="杨城 · 17 区导览总图">
+<meta name="twitter:description" content="虚构未来 AI 城市杨城的平面区域总图：17 个风格街区，点击进入三维街区，点击馆标直接参观。">
+<meta name="twitter:image" content="https://ycx666994.github.io/Yang-City/docs/screens/01-city.jpg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>杨城 · 17 区导览总图</title>
 <meta name="description" content="虚构未来 AI 城市杨城的平面区域总图：17 个风格街区，点击进入三维街区，点击馆标直接参观。">
@@ -131,6 +142,15 @@ a{text-decoration:none}
   .cm-legend{display:none}
   .cm-brand em{display:none}
   .cm-clock{display:none}
+  .cm-top{gap:8px;padding:0 12px}
+  .cm-btn{padding:7px 10px;font-size:12px}
+}
+@media (max-width:560px){
+  /* 四项入口在窄屏挤不下：只留证据厅，旧馆与鸟瞰收进副行以外的最小字号 */
+  .cm-top{gap:5px;padding:0 9px}
+  .cm-btn{padding:6px 7px;font-size:11px;letter-spacing:0}
+  .cm-brand b{font-size:19px;letter-spacing:3px}
+  .cm-opt{display:none}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
@@ -140,6 +160,8 @@ a{text-decoration:none}
   <div class="cm-brand"><b>杨城</b><em>YANG CITY · 17 区导览总图</em></div>
   <div class="cm-spacer"></div>
   <span class="cm-clock" id="cmClock" datetime="">--:--</span>
+  <a class="cm-btn" href="evidence.html" title="跨馆证据比对与联合复核">公共证据厅</a>
+  <a class="cm-btn cm-opt" href="../h1-lab.html" title="最早的八件展品 · Trust Lab">旧馆</a>
   <button class="cm-btn" id="cmRandom" type="button" title="随机高亮一个区域（快捷键 R）">随机漫游</button>
   <a class="cm-btn" href="map.html" title="三维全城鸟瞰">全城鸟瞰 3D</a>
 </header>
