@@ -1,0 +1,8 @@
+<div class="muwrap" id="museumApp">
+  <canvas id="museumCv" tabindex="0" aria-label="杨城博物馆三维大厅，可选择导游并进入独立展厅"></canvas>
+  <div class="museumBoot" id="museumBoot"><div>正在开启大厅<i></i></div></div>
+  <header class="museumTop"><div class="museumBrand"><b id="museumName">杨城博物馆</b><span id="museumQuestion">在这里，判断接受证据检验。</span></div><div class="museumClock" id="museumClock">北京时间 UTC+8</div><nav aria-label="大厅出口"><button id="museumFull" type="button">全屏</button><a href="map.html">回城市</a></nav></header>
+  <aside class="museumStage" aria-label="大厅参观与展厅入口"><section class="museumGuide"><h2>选择导游，也可以自己参观</h2><p id="museumGuideIntro">导游会先在大厅介绍参观方式。每一间展厅是独立学习页面；退出后回大厅再选下一间。</p><div class="guideCards" id="museumGuideCards"></div><div class="guideActions"><button class="primary" id="museumGuideStart" type="button">选择这位导游</button><button id="museumGuideNone" type="button">自由参观</button></div></section><section class="museumRooms"><h2>展厅入口 · 请选择一间</h2><div class="museumRoomList" id="museumRoomList"></div><p class="museumHint">每次只进入一间展厅。页面中不提供其他展厅切换；点击“回大厅”后再选择下一间。</p></section></aside>
+  <footer class="museumBottom" id="museumBottom">大厅为独立三维场景；展厅保留原学习内容与实验交互。</footer>
+  <section class="museumContent" id="museumContent" hidden aria-label="当前展厅内容"><header><strong id="museumContentTitle">展厅</strong><span id="museumContentGuide">原版展厅内容 · 实验逻辑保留</span><button class="museumBack" id="museumBack" type="button">退出展厅 · 回大厅</button></header><iframe id="museumFrame" title="独立展厅内容" allow="fullscreen"></iframe></section>
+</div>

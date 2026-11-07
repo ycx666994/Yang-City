@@ -1506,6 +1506,7 @@ body{
     makeId: makeId
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -1965,6 +1966,7 @@ body{
   root.YCDome = API;
   if (typeof module !== "undefined" && module.exports) module.exports = API;
 })(typeof window !== "undefined" ? window : globalThis);
+
 </script>
 <script>
 /* ==========================================================================
@@ -2407,6 +2409,7 @@ body{
     checksum: fnv
   };
 });
+
 </script>
 <script>
 /* ============================================================
@@ -2940,6 +2943,7 @@ body{
     raw: function (cfg, mood, detail) { return figure(cfg, mood, detail || 2); }
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -3234,6 +3238,7 @@ body{
     }
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -3568,6 +3573,7 @@ window.YCCast = (function () {
   }
 
   function autoMount(hall) {
+    if (new URLSearchParams(location.search).get("museumEmbed") === "1") return;
     var spec = SPECS[hall];
     if (!spec) return;
     /* 一页只挂一馆；若页面已挂过别的馆，先拆 */
@@ -3584,6 +3590,8 @@ window.YCCast = (function () {
   }
 
   function mount(hall) {
+    // 新馆已由3D导游讲解；内嵌工作台不得再挂旧人物浮层遮挡操作。
+    if (new URLSearchParams(location.search).get("museumEmbed") === "1") return null;
     var spec = SPECS[hall];
     if (!spec || !spec.cast.length) return null;
     DOCK_HALL = hall;
@@ -4514,6 +4522,7 @@ window.YCCast = (function () {
     emit: function (hall, ev, data) { dispatch(hall, ev, data); }
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -5174,6 +5183,7 @@ window.YCCast = (function () {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
 })();
+
 </script>
 <script>
 /* H6 复算清单 · 展品长廊 + 两级证书
@@ -5409,6 +5419,7 @@ window.YCCast = (function () {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -5706,6 +5717,8 @@ window.YCCast = (function () {
     }
   });
 })();
+
 </script>
+<script src="shared/yc-museum-embed.js"></script>
 </body>
 </html>

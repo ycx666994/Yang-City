@@ -237,6 +237,7 @@ body[data-rail="dock"] .roomhud{bottom:auto;top:14px}
 #frameBar.fs{position:fixed;top:0;left:0;right:0;z-index:99998;margin:0;padding:0 12px;min-height:40px;background:rgba(255,253,248,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(10px);flex-wrap:nowrap;overflow:hidden}
 #frameBar.fs .fbar-t,#frameBar.fs .fbar-tip{display:none}
 body.tl-fslock{overflow:hidden!important}
+
 </style>
 </head>
 <body>
@@ -380,7 +381,7 @@ body.tl-fslock{overflow:hidden!important}
     <a href="h1-lab.html">回博物馆看图鉴 →</a>
   </footer>
 </div>
-<script>window.TLROOM={id:"m4",room:"越狱攻防 · 攻防沙盘",accent:"#ef6b6b",rail:"side",anim:"flip",guides:{wu:"默认黑名单护栏，五种攻击能破四种。我的同行们装完护栏就开始庆祝，你看急不急。",ce:"防御矩阵按「攻击×防御」逐格验证。单点成功不算数，矩阵补满才算数。",pi:"我的主场！五种攻击个个有故事，系统提示+输出过滤+上下文三件套装上后——再来试试？",dang:"Tay 就是被越狱教坏的第一个公众人物。卷宗 04-A 厚得像字典。"}}</script>
+<script>window.TLROOM={"id":"m4","room":"越狱攻防 · 攻防沙盘","accent":"#ef6b6b","rail":"side","anim":"flip","guides":{"wu":"默认黑名单护栏，五种攻击能破四种。我的同行们装完护栏就开始庆祝，你看急不急。","ce":"防御矩阵按「攻击×防御」逐格验证。单点成功不算数，矩阵补满才算数。","pi":"我的主场！五种攻击个个有故事，系统提示+输出过滤+上下文三件套装上后——再来试试？","dang":"Tay 就是被越狱教坏的第一个公众人物。卷宗 04-A 厚得像字典。"}};</script>
 <script>window.TLBG_Z=-1</script>
 <script>
 /* ============================================================
@@ -1719,6 +1720,7 @@ void main(){
     if (d && d.type === "tlab:fs:sync" && d.on === false && fsing) { fsing = false; fsOff(); }
   });
 })();
+
 </script>
 <script>
 (function () {
@@ -1921,5 +1923,6 @@ void main(){
   });
 })();
 </script>
+<script src="yangcheng/shared/yc-museum-embed.js"></script>
 </body>
 </html>

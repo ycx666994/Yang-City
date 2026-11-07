@@ -987,6 +987,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
   if (typeof module !== "undefined" && module.exports) module.exports = API;
   root.YCForensic = API;
 })(typeof window !== "undefined" ? window : globalThis);
+
 </script>
 <script>
 /* ==========================================================================
@@ -1429,6 +1430,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
     checksum: fnv
   };
 });
+
 </script>
 <script>
 /* ============================================================
@@ -1962,6 +1964,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
     raw: function (cfg, mood, detail) { return figure(cfg, mood, detail || 2); }
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -2256,6 +2259,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
     }
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -2590,6 +2594,7 @@ window.YCCast = (function () {
   }
 
   function autoMount(hall) {
+    if (new URLSearchParams(location.search).get("museumEmbed") === "1") return;
     var spec = SPECS[hall];
     if (!spec) return;
     /* 一页只挂一馆；若页面已挂过别的馆，先拆 */
@@ -2606,6 +2611,8 @@ window.YCCast = (function () {
   }
 
   function mount(hall) {
+    // 新馆已由3D导游讲解；内嵌工作台不得再挂旧人物浮层遮挡操作。
+    if (new URLSearchParams(location.search).get("museumEmbed") === "1") return null;
     var spec = SPECS[hall];
     if (!spec || !spec.cast.length) return null;
     DOCK_HALL = hall;
@@ -3536,6 +3543,7 @@ window.YCCast = (function () {
     emit: function (hall, ev, data) { dispatch(hall, ev, data); }
   };
 })();
+
 </script>
 <script>
 /* ==========================================================================
@@ -3931,6 +3939,7 @@ window.YCCASE = {
     "**你**：三年前，你划掉了「主诉胸痛应无条件优先」。理由是「缺乏量化证据」。这条理由在当时是成立的——它现在也成立。这就是它最难受的地方。"
   ]
 };
+
 </script>
 <script>
 (function () {
@@ -4723,6 +4732,7 @@ window.YCCASE = {
     }
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -5005,6 +5015,8 @@ window.YCCASE = {
     }
   });
 })();
+
 </script>
+<script src="shared/yc-museum-embed.js"></script>
 </body>
 </html>

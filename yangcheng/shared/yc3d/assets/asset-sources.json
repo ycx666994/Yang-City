@@ -1,0 +1,109 @@
+{
+  "verified_on": "2026-11-05",
+  "scope": "已集成本地 GLTFLoader、骨骼克隆与动画装配；HTTP 按需加载 GLB，file 协议按需加载构建生成的 base64 字节包。尚未提交或部署。",
+  "size_unit": "MB 使用十进制 1000000 字节；三个模型均超过优先的单个 2 MB 目标。",
+  "quality_boundary": "三个有头脸的现成风格化人物已在 H3 大厅运行和截图核验，非写实或专属定制导游；Jay 与馆长共用。r150 对部分高编号 UV 及可选材质扩展降级，尚未达到定制未来博物馆人物美术标准。",
+  "license_obligations": {
+    "CC-BY-4.0": "允许商用和再分发，须署名、提供许可链接并标明修改，不得暗示作者背书。",
+    "CC0-1.0": "允许商用、修改、再分发，无强制署名要求；建议保留来源。",
+    "MIT": "分发时保留版权声明和许可文本。"
+  },
+  "models": [
+    {
+      "file": "jay.glb",
+      "name": "Jay",
+      "author_credit": "Blender Foundation / Blender Studio",
+      "model_page_publisher": "Demeter Dzadik（页面发布者，不等同于唯一建模作者）",
+      "conversion_credit": "Mesh2Motion 官方再绑定及 GLB 导出版本；本次未改动下载字节。",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "model_license_source_url": "https://studio.blender.org/characters/jay/v1/",
+      "conversion_license_source_url": "https://github.com/Mesh2Motion/mesh2motion-app/blob/4f1316296660f2b9827ff46b4db10fb241ec2147/src/lib/RigConfig.ts",
+      "download_url": "https://raw.githubusercontent.com/Mesh2Motion/mesh2motion-app/4f1316296660f2b9827ff46b4db10fb241ec2147/static/assets/human/variations/jay.glb",
+      "bytes": 4878520,
+      "sha256": "f002e80b0fe6e32d2286f96ffb77d96d72926d605e04e39cdded7bd71b17395b",
+      "triangles": 44213,
+      "joints": 66,
+      "embedded_animations": [],
+      "separate_animation_files": ["animations/idle-subtle.glb", "animations/greeting.glb", "animations/idle-talking.glb", "animations/head-nod.glb", "animations/walk.glb", "animations/walk-female.glb"],
+      "appearance": "男性，夸张卡通头脸，帽子、红色百叶墨镜、夹克、短裤、项链与运动鞋；眼睛被墨镜遮挡。不是无脸人台。",
+      "compatibility_note": "骨骼名称与六个 Mesh2Motion 动画全部匹配；包含 r150 未实现的可选 KHR_materials_anisotropy，r150 材质效果可能降级。"
+    },
+    {
+      "file": "sintel.glb",
+      "name": "Sintel",
+      "author_credit": "Blender Foundation / Blender Studio",
+      "model_page_publisher": "Beau Gerbrands（页面发布者，不等同于唯一建模作者）",
+      "conversion_credit": "Mesh2Motion 官方再绑定及 GLB 导出版本；本次未改动下载字节。",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "model_license_source_url": "https://studio.blender.org/characters/5d41a32b8307e9cd1023fa78/v2/",
+      "conversion_license_source_url": "https://github.com/Mesh2Motion/mesh2motion-app/blob/4f1316296660f2b9827ff46b4db10fb241ec2147/src/lib/RigConfig.ts",
+      "download_url": "https://raw.githubusercontent.com/Mesh2Motion/mesh2motion-app/4f1316296660f2b9827ff46b4db10fb241ec2147/static/assets/human/variations/sintel.glb",
+      "bytes": 3190672,
+      "sha256": "73ac4766d3c7abe0401d70fcbb566541e2524ac1196507c5360b5e5b6a13d18e",
+      "triangles": 41306,
+      "joints": 66,
+      "embedded_animations": [],
+      "separate_animation_files": ["animations/idle-subtle.glb", "animations/greeting.glb", "animations/idle-talking.glb", "animations/head-nod.glb", "animations/walk.glb", "animations/walk-female.glb"],
+      "appearance": "女性，红发、可辨认五官和独立眼球、奇幻冒险服装；与 Jay 及 Sophia 不是换色复用。",
+      "compatibility_note": "六个 Mesh2Motion 动画的目标骨骼名称全部匹配。"
+    },
+    {
+      "file": "sophia-ccby-20260507.glb",
+      "name": "Sophia（固定 CC-BY 历史版本）",
+      "author_credit": "GDQuest and contributors；按同期 LICENSE 署名 GDQuest",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "model_license_source_url": "https://github.com/gdquest-demos/godot-4-3d-character-sophia/blob/94f95ef5fa278059c41a1a86d41708cc46bcace9/LICENSE",
+      "license_local_file": "LICENSE-Sophia-CC-BY-4.0",
+      "download_url": "https://raw.githubusercontent.com/gdquest-demos/godot-4-3d-character-sophia/94f95ef5fa278059c41a1a86d41708cc46bcace9/sophia/model/sophia.glb",
+      "source_commit": "94f95ef5fa278059c41a1a86d41708cc46bcace9",
+      "bytes": 2635436,
+      "sha256": "0f46e5b6621ee0c9889d8caa9a010264575f4bdf5800b10d89023b40ce9b95d2",
+      "triangles": 19086,
+      "joints": 93,
+      "embedded_animations": ["EdgeGrab", "Fall", "Idle", "Jump", "Run", "RunTiltL", "RunTiltR", "WallSlide"],
+      "appearance": "女性，蓝发双髻、动漫五官，眼睛和嘴部有独立材质；精细风格化角色。",
+      "changes_by_this_download": "无；文件与历史 Git blob 完全一致。",
+      "critical_license_boundary": "仅此固定历史版本的同期 LICENSE 明确为 CC-BY 4.0。2026-05-08 起原仓库改为 CC-BY-NC-SA 4.0，不得将当前版本当作同等授权替换。Mesh2Motion 对 Sophia 的 CC-SA 4.0 标注与当前原仓库冲突，因此未下载或使用其 sophia.glb。CC-BY 4.0 说明已授予的自由在遵守条款时不可撤销；这不是对未来或所有 Sophia 版本的许可保证。",
+      "compatibility_note": "使用自己的内嵌八段动画；93 骨骼与 Mesh2Motion 66 骨骼动画名称不匹配，不能直接复用，重定向留给 main。"
+    }
+  ],
+  "separate_animations": {
+    "author_credit": "Mesh2Motion and contributors；Idle_Talking 与 Walk 的官方 manifest 标为 quaternius",
+    "license": "CC0-1.0",
+    "license_source_url": "https://github.com/Mesh2Motion/mesh2motion-assets/blob/8e0d29bb1b5a68ca2b1f86a401841a0191abac56/LICENSE",
+    "manifest_source_url": "https://github.com/Mesh2Motion/mesh2motion-app/blob/4f1316296660f2b9827ff46b4db10fb241ec2147/static/assets/manifest.json",
+    "download_url_prefix": "https://raw.githubusercontent.com/Mesh2Motion/mesh2motion-app/4f1316296660f2b9827ff46b4db10fb241ec2147/static/assets/human/animations/",
+    "required_extension": "EXT_meshopt_compression",
+    "decoder_validation": "六个文件各有四个压缩 bufferViews，均已在 Node 中用 three r150 原版 MeshoptDecoder 实际成功解码。",
+    "clips": [
+      {"file": "animations/idle-subtle.glb", "clip": "Idle_Subtle", "bytes": 60452, "duration_seconds": 2.541667, "manifest_loop": false},
+      {"file": "animations/greeting.glb", "clip": "Greeting", "bytes": 73732, "duration_seconds": 4.75, "manifest_loop": false},
+      {"file": "animations/idle-talking.glb", "clip": "Idle_Talking", "bytes": 69128, "duration_seconds": 3.625, "manifest_loop": true},
+      {"file": "animations/head-nod.glb", "clip": "Head Nod", "bytes": 56684, "duration_seconds": 0.791667, "manifest_loop": false},
+      {"file": "animations/walk.glb", "clip": "Walk", "bytes": 62696, "duration_seconds": 1.625, "manifest_loop": true},
+      {"file": "animations/walk-female.glb", "clip": "Walk_Female", "bytes": 64940, "duration_seconds": 1.333333, "manifest_loop": false}
+    ]
+  },
+  "loaders": {
+    "directory_relative_to_assets": "../vendor/three-r150/",
+    "three_source_commit": "9b274fef1d2b9ba0fc47410d06593e1f34f4df0e",
+    "three_source_tag": "r150",
+    "license": "MIT",
+    "source_url_prefix": "https://raw.githubusercontent.com/mrdoob/three.js/r150/",
+    "files": ["examples/jsm/loaders/GLTFLoader.js", "examples/jsm/utils/SkeletonUtils.js", "examples/jsm/utils/BufferGeometryUtils.js", "examples/jsm/libs/meshopt_decoder.module.js", "LICENSE", "LICENSE-Meshoptimizer"],
+    "meshoptimizer_license_source_url": "https://github.com/zeux/meshoptimizer/blob/v0.18/LICENSE.md",
+    "notes": "四个 JS 都是 r150 官方原版，已核对 Git blob 哈希。BufferGeometryUtils 是 GLTFLoader 必要相对导入依赖。MeshoptDecoder 内嵌 WASM，不需额外 WASM 下载。ESM 的裸模块 three 解析、MeshoptDecoder 绑定、动画装配、缩放和适配留给 main；现有 three.min.js 不会自动提供 ESM 模块。"
+  },
+  "validation": {
+    "models_git_blob_match": true,
+    "loaders_git_blob_match": true,
+    "glb_v2_header_and_length_valid": true,
+    "model_textures_and_buffers_embedded": true,
+    "museum_runtime_visual_test_performed": true,
+    "base64_js_created": true,
+    "user_visual_acceptance": false
+  }
+}

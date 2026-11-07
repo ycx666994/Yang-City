@@ -1,59 +1,94 @@
-<canvas id="cityCv" aria-label="杨城城市天际线，随北京时间变化"></canvas>
-<div class="vignette"></div>
+<canvas id="cityCv" aria-label="虚构杨城三维场景，光照随UTC+8时间变化"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+
+<div class="boot" id="cityBoot" role="status">
+  <div class="boot-in">
+    <div class="boot-mark">杨城</div>
+    <div class="boot-sub">六馆 · 城际交通 · 一江穿城</div>
+    <div class="boot-bar"><i id="bootBar"></i></div>
+    <div class="boot-log" id="bootLog">正在加载城市</div>
+  </div>
+</div>
 
 <header class="topbar">
-  <div class="brand">杨城 <em>YANGCHENG · EVIDENCE CITY</em></div>
-  <div class="clock">
-    <span id="clkTime">--:--:--</span>
-    <span id="clkPhase">北京时间</span>
+  <div class="brand">杨城 <em>虚构未来城市</em></div>
+  <div class="clock" id="cityClock">
+    <span class="clock-source" id="clockSource">实时</span>
+    <time id="clkTime">--:--:--</time>
+    <span id="clkPhase">北京时间 UTC+8</span>
+    <span class="real-clock" id="realClock" hidden></span>
   </div>
-  <nav class="topnav">
-    <a href="map.html">杨城地图</a>
+  <nav class="topnav" aria-label="业务入口">
+    <a id="navMap" href="map.html">城市地图</a>
     <a href="evidence.html">公共证据厅</a>
-    <a href="../h1-lab.html">Trust Lab</a>
+    <a href="h1-museum.html">能力与边界馆</a>
   </nav>
 </header>
 
-<aside class="hudleft" aria-label="城市读数">
-  <div class="ht">城市读数 / CITY STATUS</div>
-  <div class="hudrow"><span>可用馆</span><b id="cAvail">2<small>/6</small></b></div>
-  <div class="hudrow"><span>档案总数</span><b id="cRec">0</b></div>
+<details class="hudleft">
+  <summary>城市档案 <span id="cRec">0</span></summary>
+  <div class="hudrow"><span>可用馆</span><b id="cAvail">6<small>/6</small></b></div>
   <div class="hudrow"><span>可回放</span><b id="cReplay">0</b></div>
   <div class="hudrow"><span>已复核</span><b id="cReview">0</b></div>
-</aside>
+  <div class="hudmini" id="hudMini">六馆 · 多片区 AI 企业 · 医疗/教育/水务/交通/物流设施</div>
+</details>
 
-<div class="phaseNote" id="phaseNote"></div>
+<details class="nodes" id="cityNodes">
+  <summary id="nodesTitle">六馆入口</summary>
+  <div class="node-filters" id="nodeFilters" role="group" aria-label="地图节点分类" hidden>
+    <button type="button" data-filter="halls" aria-pressed="true">六馆</button>
+    <button type="button" data-filter="giants" aria-pressed="false">AI企业</button>
+    <button type="button" data-filter="infra" aria-pressed="false">基础设施</button>
+  </div>
+  <div id="nodeList"></div>
+  <p class="nodes-f" id="nodesFoot">点击建筑查看；馆内入口保持可用。</p>
+</details>
 
-<aside class="duty" id="duty" aria-label="今日值守的驻馆人">
-  <div class="duty-h">今日值守 / ON DUTY</div>
-  <div id="dutyList"></div>
-  <div class="duty-f" id="dutyFoot"></div>
-</aside>
+<div class="phaseNote" id="phaseNote" aria-live="polite"></div>
+<details class="time-control" id="timeControl">
+  <summary>时间与阴影</summary>
+  <label for="timeHour">时间演练 <output id="timeValue">--</output></label>
+  <input id="timeHour" type="range" min="0" max="23.75" step="0.25" aria-label="演练小时，UTC+8">
+  <div class="time-actions">
+    <button type="button" id="timeReset">恢复北京时间</button>
+    <label><input id="shadowToggle" type="checkbox" checked> 建筑阴影</label>
+  </div>
+  <p>默认跟随北京时间。URL time 与滑杆只冻结演练时钟；天空为分层程序云，非真实体积云。</p>
+</details>
 
 <div class="cta">
-  <div class="maphint" id="mapHint">先看地图：六馆在哪、按什么顺序走</div>
-  <a class="mapbtn" id="btnMap" href="map.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20V6.5Z"/>
-      <path d="M9 4v13.5M15 6.5V20"/>
-      <circle cx="12" cy="11.5" r="1.6" fill="currentColor" stroke="none"/>
-    </svg>
-    <span class="mbt">
-      <b>进入杨城地图</b>
-      <i>MAP · 六馆定位 · 参观顺序</i>
-    </span>
-  </a>
+  <div class="maphint" id="mapHint">先看地图，定位六馆与城市设施</div>
+  <a class="mapbtn" id="btnMap" href="map.html"><span class="mbt"><b>进入城市地图</b><i>六馆定位 · 保留旧馆入口</i></span></a>
+  <div class="hall-shortcuts"><a class="new-hall" href="../h1-lab.html">去旧馆</a><a class="new-hall" href="h3-museum.html">H3 指标失效新馆</a></div>
+</div>
+<div class="map-tools" id="mapTools" hidden><button type="button" id="resetView">全城总览</button><span id="mapSelection" role="status">选择分类后点击节点定位</span></div>
+
+<div class="district-hud" id="districtHud" hidden>
+  <h2 id="dhName">—</h2>
+  <div class="dh-en" id="dhEn"></div>
+  <p class="dh-desc" id="dhDesc"></p>
+  <div class="dh-museums" id="dhMuseums"></div>
+  <div class="dh-nav">
+    <a href="index.html">返回平面区域图</a>
+    <a href="map.html">全城鸟瞰</a>
+  </div>
+</div>
+
+<div class="tip" id="cityTip"></div>
+<div class="card" id="cityCard" role="dialog" aria-label="城市节点信息" aria-hidden="true">
+  <button class="card-x" id="cardX" aria-label="关闭节点信息">×</button>
+  <div class="card-k" id="cardKind">博物馆</div>
+  <h2 class="card-n" id="cardName">—</h2>
+  <div class="card-e" id="cardEn">—</div>
+  <p class="card-l" id="cardLine">—</p>
+  <div class="card-m" id="cardMeta"></div>
+  <button class="card-locate" id="cardLocate" type="button">定位建筑</button>
+  <a class="card-go" id="cardGo" href="map.html">进入这座馆</a>
+  <div class="card-links" id="cardLinks"></div>
 </div>
 
 <footer class="botbar">
-  <span>北京时间实时驱动</span>
-  <span class="sep">/</span>
+  <span id="clockMode">北京时间 UTC+8 实时驱动</span>
   <span id="footPhase">--</span>
-  <span class="sep hide-sm">/</span>
-  <span class="hide-sm">YC-EVIDENCE 1.0</span>
-  <div class="right">
-    <span class="hide-sm"><kbd>M</kbd> 地图</span>
-    <span class="hide-sm"><kbd>E</kbd> 证据厅</span>
-    <span>不宣称世界首创</span>
-  </div>
+  <div class="right"><span class="hide-sm"><kbd>M</kbd> 地图　<kbd>E</kbd> 证据厅</span><span>虚构场景 · 设施运行演示，非实时遥测</span></div>
 </footer>

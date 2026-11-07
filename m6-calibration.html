@@ -245,6 +245,7 @@ body[data-rail="dock"] .roomhud{bottom:auto;top:14px}
 #frameBar.fs{position:fixed;top:0;left:0;right:0;z-index:99998;margin:0;padding:0 12px;min-height:40px;background:rgba(255,253,248,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(10px);flex-wrap:nowrap;overflow:hidden}
 #frameBar.fs .fbar-t,#frameBar.fs .fbar-tip{display:none}
 body.tl-fslock{overflow:hidden!important}
+
 </style>
 </head>
 <body>
@@ -364,7 +365,7 @@ body.tl-fslock{overflow:hidden!important}
     <a href="h1-lab.html">回博物馆看图鉴 →</a>
   </footer>
 </div>
-<script>window.TLROOM={id:"m6",room:"校准放大器 · 仪表舱",accent:"#63e6be",rail:"top",anim:"slide",guides:{wu:"校准曲线是我最爱的展品之一——因为它专治「模型说它有把握」。",ce:"看 ECE 别只看数字：分桶方式一换，结论可能反转。审计要连口径一起审。",pi:"自信和正确是两个变量。我见过 0.9 置信度对不到 60% 的——就在这台机器上。",dang:"把「90% 把握」当 90% 正确来用的人，卷宗里堆了整整一柜。"}}</script>
+<script>window.TLROOM={"id":"m6","room":"校准放大器 · 仪表舱","accent":"#63e6be","rail":"top","anim":"slide","guides":{"wu":"校准曲线是我最爱的展品之一——因为它专治「模型说它有把握」。","ce":"看 ECE 别只看数字：分桶方式一换，结论可能反转。审计要连口径一起审。","pi":"自信和正确是两个变量。我见过 0.9 置信度对不到 60% 的——就在这台机器上。","dang":"把「90% 把握」当 90% 正确来用的人，卷宗里堆了整整一柜。"}};</script>
 <script>window.TLBG_Z=-1</script>
 <script>
 /* ============================================================
@@ -1703,6 +1704,7 @@ void main(){
     if (d && d.type === "tlab:fs:sync" && d.on === false && fsing) { fsing = false; fsOff(); }
   });
 })();
+
 </script>
 <script>
 (function () {
@@ -1990,5 +1992,6 @@ void main(){
   });
 })();
 </script>
+<script src="yangcheng/shared/yc-museum-embed.js"></script>
 </body>
 </html>

@@ -837,6 +837,7 @@ ul.dd li::marker{color:var(--tx4)}
     makeId: makeId
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -1354,6 +1355,7 @@ ul.dd li::marker{color:var(--tx4)}
     negatives: negatives
   };
 });
+
 </script>
 <script>
 /* ============================================================
@@ -1887,6 +1889,7 @@ ul.dd li::marker{color:var(--tx4)}
     raw: function (cfg, mood, detail) { return figure(cfg, mood, detail || 2); }
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -2181,6 +2184,7 @@ ul.dd li::marker{color:var(--tx4)}
     }
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -2531,6 +2535,8 @@ window.YCCast = (function () {
   }
 
   function mount(hall) {
+    // 新馆已由3D导游讲解；内嵌工作台不得再挂旧人物浮层遮挡操作。
+    if (new URLSearchParams(location.search).get("museumEmbed") === "1") return null;
     var spec = SPECS[hall];
     if (!spec || !spec.cast.length) return null;
     DOCK_HALL = hall;
@@ -3461,6 +3467,7 @@ window.YCCast = (function () {
     emit: function (hall, ev, data) { dispatch(hall, ev, data); }
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -4150,6 +4157,7 @@ window.YCCast = (function () {
   var first = E.list()[0];
   if (first) { cur = first; renderList(); renderDetail(first); }
 })();
+
 </script>
 </body>
 </html>

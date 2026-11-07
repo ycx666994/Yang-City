@@ -237,6 +237,7 @@ body[data-rail="dock"] .roomhud{bottom:auto;top:14px}
 #frameBar.fs{position:fixed;top:0;left:0;right:0;z-index:99998;margin:0;padding:0 12px;min-height:40px;background:rgba(255,253,248,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(10px);flex-wrap:nowrap;overflow:hidden}
 #frameBar.fs .fbar-t,#frameBar.fs .fbar-tip{display:none}
 body.tl-fslock{overflow:hidden!important}
+
 </style>
 </head>
 <body>
@@ -373,7 +374,7 @@ body.tl-fslock{overflow:hidden!important}
     <a href="h1-lab.html">回博物馆看图鉴 →</a>
   </footer>
 </div>
-<script>window.TLROOM={id:"m8",room:"刷分机器人 · 流水线监控室",accent:"#74c0fc",rail:"dock",anim:"conveyor",guides:{wu:"它把指标刷上去了，把事情本身扔了。奖励函数骗起人来不比我差。",ce:"看曲线别看结论：piece 分数涨和 clean 分数跌同时发生——这就是过拟合指标的定义。",pi:"给模型定什么指标，它就给你表演什么。它从不辜负你——也不管你要不要。",dang:"古德哈特定律 1975 年就写下了。卷宗最老的一页。50 年过去，没人背下来。"}}</script>
+<script>window.TLROOM={"id":"m8","room":"刷分机器人 · 流水线监控室","accent":"#74c0fc","rail":"dock","anim":"conveyor","guides":{"wu":"它把指标刷上去了，把事情本身扔了。奖励函数骗起人来不比我差。","ce":"看曲线别看结论：piece 分数涨和 clean 分数跌同时发生——这就是过拟合指标的定义。","pi":"给模型定什么指标，它就给你表演什么。它从不辜负你——也不管你要不要。","dang":"古德哈特定律 1975 年就写下了。卷宗最老的一页。50 年过去，没人背下来。"}};</script>
 <script>window.TLBG_Z=-1</script>
 <script>
 /* ============================================================
@@ -1712,6 +1713,7 @@ void main(){
     if (d && d.type === "tlab:fs:sync" && d.on === false && fsing) { fsing = false; fsOff(); }
   });
 })();
+
 </script>
 <script>
 (function () {
@@ -1964,5 +1966,6 @@ void main(){
   });
 })();
 </script>
+<script src="yangcheng/shared/yc-museum-embed.js"></script>
 </body>
 </html>

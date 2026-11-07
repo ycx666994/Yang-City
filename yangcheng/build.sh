@@ -8,7 +8,17 @@
 #   yc-cast.js 必须在 07-cast.js 之前（后者一载入就 register）；
 #   07-cast.js 必须在 04-app.js 之后（它的 probe 要读玩法页的只读钩子）。
 set -e
-cd "$(dirname "$0")"
+# 统一转交build.py，防止旧拼接链覆盖新地图与人物加载器。
+SCRIPT_DIR="$(dirname "$0")"
+MANAGED_PY="/c/Users/HP/.workbuddy-ai/binaries/python/versions/3.13.12/python.exe"
+if [ -x "$MANAGED_PY" ]; then
+  exec "$MANAGED_PY" "$SCRIPT_DIR/build.py"
+elif [ -n "$PYTHON" ]; then
+  exec "$PYTHON" "$SCRIPT_DIR/build.py"
+else
+  exec python3 "$SCRIPT_DIR/build.py"
+fi
+cd "$SCRIPT_DIR"
 
 CAST_CSS='<link rel="stylesheet" href="shared/yc-cast.css">'
 
@@ -383,27 +393,26 @@ CAST_CSS='<link rel="stylesheet" href="shared/yc-cast.css">'
   cat src/evidence/05-tail.html
 } > evidence.html
 
-# ---------- 城市入口（时间感知城市天际线 + 今日值守） ----------
+# ---------- 城市入口（WebGL 未来城市：主塔 / 轨道环 / 六馆 / 十家算力塔） ----------
+# three.js 走外链：file:// 下同源脚本可加载，发布后还能被浏览器缓存
 {
   cat src/city/01-head.html
   echo "$CAST_CSS"
   cat src/city/02-style.html
   echo "</head>"
   cat src/city/03-body.html
+  echo '<script src="shared/yc3d/three.min.js"></script>'
   echo "<script>"
   cat shared/yc-evidence.js
   echo "</script>"
   echo "<script>"
-  cat shared/yc-port.js
+  cat shared/yc3d/yc3d-core.js
   echo "</script>"
   echo "<script>"
-  cat shared/yc-faces.js
+  cat shared/yc3d/yc3d-build.js
   echo "</script>"
   echo "<script>"
-  cat shared/yc-cast.js
-  echo "</script>"
-  echo "<script>"
-  cat shared/yc-cityview.js
+  cat shared/yc3d/yc3d-city.js
   echo "</script>"
   echo "<script>"
   cat src/city/04-app.js
@@ -439,5 +448,35 @@ CAST_CSS='<link rel="stylesheet" href="shared/yc-cast.css">'
   cat src/map/05-tail.html
 } > map.html
 
+
+# ---------- 博物馆 3D · H3 指标失效（大厅 + 导游 + 展厅） ----------
+# 与城市同一套 WebGL 引擎：three.js 外链，其余内联
+{
+  cat src/museum/01-head.html
+  cat src/museum/02-style.html
+  echo "</head>"
+  cat src/museum/03-body.html
+  echo '<script src="shared/yc3d/three.min.js"></script>'
+  echo "<script>"
+  cat shared/yc3d/yc3d-core.js
+  echo "</script>"
+  echo "<script>"
+  cat shared/yc3d/yc3d-build.js
+  echo "</script>"
+  echo "<script>"
+  cat shared/yc3d/yc3d-parts.js
+  echo "</script>"
+  echo "<script>"
+  cat shared/yc3d/yc3d-museum.js
+  echo "</script>"
+  echo "<script>"
+  cat src/museum/h3.js
+  echo "</script>"
+  echo "<script>"
+  cat src/museum/04-app.js
+  echo "</script>"
+  cat src/museum/05-tail.html
+} > h3-museum.html
+
 echo "built: index.html  map.html  evidence.html  h2-forensic.html  h2-case.html  h3-metrics.html  h3-maze.html  h4-contam.html  h4-purge.html  h5-collapse.html  h5-forecast.html  h6-budget.html  h6-tower.html"
-ls -lh index.html map.html evidence.html h2-forensic.html h2-case.html h3-metrics.html h3-maze.html h4-contam.html h4-purge.html h5-collapse.html h5-forecast.html h6-budget.html h6-tower.html | awk '{print "  "$9"  "$5}'
+ls -lh index.html map.html h3-museum.html evidence.html h2-forensic.html h2-case.html h3-metrics.html h3-maze.html h4-contam.html h4-purge.html h5-collapse.html h5-forecast.html h6-budget.html h6-tower.html | awk '{print "  "$9"  "$5}'

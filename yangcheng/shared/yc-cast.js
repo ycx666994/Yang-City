@@ -330,6 +330,7 @@ window.YCCast = (function () {
   }
 
   function autoMount(hall) {
+    if (new URLSearchParams(location.search).get("museumEmbed") === "1") return;
     var spec = SPECS[hall];
     if (!spec) return;
     /* 一页只挂一馆；若页面已挂过别的馆，先拆 */
@@ -346,6 +347,8 @@ window.YCCast = (function () {
   }
 
   function mount(hall) {
+    // 新馆已由3D导游讲解；内嵌工作台不得再挂旧人物浮层遮挡操作。
+    if (new URLSearchParams(location.search).get("museumEmbed") === "1") return null;
     var spec = SPECS[hall];
     if (!spec || !spec.cast.length) return null;
     DOCK_HALL = hall;

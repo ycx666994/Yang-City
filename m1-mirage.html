@@ -237,6 +237,7 @@ body[data-rail="dock"] .roomhud{bottom:auto;top:14px}
 #frameBar.fs{position:fixed;top:0;left:0;right:0;z-index:99998;margin:0;padding:0 12px;min-height:40px;background:rgba(255,253,248,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(10px);flex-wrap:nowrap;overflow:hidden}
 #frameBar.fs .fbar-t,#frameBar.fs .fbar-tip{display:none}
 body.tl-fslock{overflow:hidden!important}
+
 </style>
 </head>
 <body>
@@ -345,7 +346,7 @@ body.tl-fslock{overflow:hidden!important}
     <a href="h1-lab.html">回博物馆看图鉴 →</a>
   </footer>
 </div>
-<script>window.TLROOM={id:"m1",room:"涌现与海市蜃楼 · 剧场",accent:"#b48cff",rail:"side",anim:"zoom",guides:{wu:"我最惭愧的展品：那个「惊人能力」，重跑一遍就没了。它是我的海市蜃楼。",ce:"复跑一次再看结论。不能复现的「涌现」，按未证实归档——这是铁律。",pi:"所有人都想看到涌现，所以所有人都看到了。你猜这算不算另一种幻觉？",dang:"2016 年 Tay 上线 16 小时学坏下线；2023 年律师引用不存在的判例。都在这间剧场首映过。"}}</script>
+<script>window.TLROOM={"id":"m1","room":"涌现与海市蜃楼 · 剧场","accent":"#b48cff","rail":"side","anim":"zoom","guides":{"wu":"我最惭愧的展品：那个「惊人能力」，重跑一遍就没了。它是我的海市蜃楼。","ce":"复跑一次再看结论。不能复现的「涌现」，按未证实归档——这是铁律。","pi":"所有人都想看到涌现，所以所有人都看到了。你猜这算不算另一种幻觉？","dang":"2016 年 Tay 上线 16 小时学坏下线；2023 年律师引用不存在的判例。都在这间剧场首映过。"}};</script>
 <script>window.TLBG_Z=-1</script>
 <script>
 /* ============================================================
@@ -1684,6 +1685,7 @@ void main(){
     if (d && d.type === "tlab:fs:sync" && d.on === false && fsing) { fsing = false; fsOff(); }
   });
 })();
+
 </script>
 <script>
 (function () {
@@ -1892,5 +1894,6 @@ void main(){
   });
 })();
 </script>
+<script src="yangcheng/shared/yc-museum-embed.js"></script>
 </body>
 </html>

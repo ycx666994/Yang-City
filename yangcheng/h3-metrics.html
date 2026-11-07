@@ -874,6 +874,7 @@ console.log(a.verdict, a.structural, a.peak, a.cusum, a.decline);</div>
     makeId: makeId
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -1060,6 +1061,7 @@ console.log(a.verdict, a.structural, a.peak, a.cusum, a.decline);</div>
 
   window.YCChart = { draw: draw, hover: hover };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -1605,6 +1607,7 @@ console.log(a.verdict, a.structural, a.peak, a.cusum, a.decline);</div>
     _util: { clamp: clamp, mean: mean, median: median, quantile: quantile, variance: variance, mulberry32: mulberry32 }
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -2138,6 +2141,7 @@ console.log(a.verdict, a.structural, a.peak, a.cusum, a.decline);</div>
     raw: function (cfg, mood, detail) { return figure(cfg, mood, detail || 2); }
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -2432,6 +2436,7 @@ console.log(a.verdict, a.structural, a.peak, a.cusum, a.decline);</div>
     }
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -2766,6 +2771,7 @@ window.YCCast = (function () {
   }
 
   function autoMount(hall) {
+    if (new URLSearchParams(location.search).get("museumEmbed") === "1") return;
     var spec = SPECS[hall];
     if (!spec) return;
     /* 一页只挂一馆；若页面已挂过别的馆，先拆 */
@@ -2782,6 +2788,8 @@ window.YCCast = (function () {
   }
 
   function mount(hall) {
+    // 新馆已由3D导游讲解；内嵌工作台不得再挂旧人物浮层遮挡操作。
+    if (new URLSearchParams(location.search).get("museumEmbed") === "1") return null;
     var spec = SPECS[hall];
     if (!spec || !spec.cast.length) return null;
     DOCK_HALL = hall;
@@ -3712,6 +3720,7 @@ window.YCCast = (function () {
     emit: function (hall, ev, data) { dispatch(hall, ev, data); }
   };
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -4211,6 +4220,7 @@ window.YCCast = (function () {
   setLayer("story");
   runDevice(true);          /* 预跑一次，让装置层一进去就有画面 */
 })();
+
 </script>
 <script>
 /* ============================================================
@@ -4479,6 +4489,8 @@ window.YCCast = (function () {
     ]
   });
 })();
+
 </script>
+<script src="shared/yc-museum-embed.js"></script>
 </body>
 </html>

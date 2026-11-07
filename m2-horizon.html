@@ -237,6 +237,7 @@ body[data-rail="dock"] .roomhud{bottom:auto;top:14px}
 #frameBar.fs{position:fixed;top:0;left:0;right:0;z-index:99998;margin:0;padding:0 12px;min-height:40px;background:rgba(255,253,248,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(10px);flex-wrap:nowrap;overflow:hidden}
 #frameBar.fs .fbar-t,#frameBar.fs .fbar-tip{display:none}
 body.tl-fslock{overflow:hidden!important}
+
 </style>
 </head>
 <body>
@@ -347,7 +348,7 @@ body.tl-fslock{overflow:hidden!important}
     <a href="h1-lab.html">回博物馆看图鉴 →</a>
   </footer>
 </div>
-<script>window.TLROOM={id:"m2",room:"认证地平线 · 测绘台",accent:"#57c7ff",rail:"side",anim:"wipe",guides:{wu:"这是全馆唯一有「CERTIFIED」钢印的展台——钢印边上写着它的适用范围，记得看。",ce:"认证不是全称命题：ρ 半径之内才作数。证书上的小字比钢印重要。",pi:"证书守护的是扰动半径，不是真实世界。出了 ρ 我照样能骗它——但得承认，圈内它是硬的。",dang:"随机平滑的思想借自统计学的老智慧：多数投票抗噪声。卷宗里我标注了原始论文页码。"}}</script>
+<script>window.TLROOM={"id":"m2","room":"认证地平线 · 测绘台","accent":"#57c7ff","rail":"side","anim":"wipe","guides":{"wu":"这是全馆唯一有「CERTIFIED」钢印的展台——钢印边上写着它的适用范围，记得看。","ce":"认证不是全称命题：ρ 半径之内才作数。证书上的小字比钢印重要。","pi":"证书守护的是扰动半径，不是真实世界。出了 ρ 我照样能骗它——但得承认，圈内它是硬的。","dang":"随机平滑的思想借自统计学的老智慧：多数投票抗噪声。卷宗里我标注了原始论文页码。"}};</script>
 <script>window.TLBG_Z=-1</script>
 <script>
 /* ============================================================
@@ -1686,6 +1687,7 @@ void main(){
     if (d && d.type === "tlab:fs:sync" && d.on === false && fsing) { fsing = false; fsOff(); }
   });
 })();
+
 </script>
 <script>
 (function () {
@@ -1854,5 +1856,6 @@ void main(){
   });
 })();
 </script>
+<script src="yangcheng/shared/yc-museum-embed.js"></script>
 </body>
 </html>

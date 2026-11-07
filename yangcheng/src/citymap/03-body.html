@@ -1,0 +1,31 @@
+<div class="cm-bg" aria-hidden="true"></div>
+<header class="cm-top">
+  <div class="cm-brand"><b>杨城</b><em>YANG CITY · 17 区导览总图</em></div>
+  <div class="cm-spacer"></div>
+  <span class="cm-clock" id="cmClock" datetime="">--:--</span>
+  <button class="cm-btn" id="cmRandom" type="button" title="随机高亮一个区域（快捷键 R）">随机漫游</button>
+  <a class="cm-btn" href="map.html" title="三维全城鸟瞰">全城鸟瞰 3D</a>
+</header>
+<main class="cm-main">
+  <svg id="cmMap" viewBox="0 0 1600 1100" preserveAspectRatio="xMidYMid meet"
+       role="img" aria-label="杨城 17 区域平面导览图：点击区域进入三维街区，点击发光馆标直接参观"></svg>
+</main>
+<aside class="cm-panel" id="cmPanel" aria-live="polite">
+  <div class="cm-panel-head">
+    <span class="cm-panel-kicker" id="cmKick">区域</span>
+    <button id="cmClose" type="button" aria-label="收起面板">×</button>
+  </div>
+  <h2 id="cmName">—</h2>
+  <p class="cm-en" id="cmEn"></p>
+  <p class="cm-desc" id="cmDesc"></p>
+  <div class="cm-tags" id="cmTags"></div>
+  <div class="cm-museums" id="cmMuseums"></div>
+  <a class="cm-enter" id="cmEnter" href="district.html">进入三维街区 →</a>
+</aside>
+<div class="cm-legend" aria-hidden="true">
+  <span><i style="background:linear-gradient(90deg,#59c8ec,#35d6e8)"></i>城市区域（17）</span>
+  <span><i style="background:#3f7fa8;height:4px;border-radius:2px"></i>澄川河</span>
+  <span><i style="background:repeating-linear-gradient(90deg,#ffd88f 0 5px,transparent 5px 9px);height:3px"></i>城际高架线</span>
+  <span><i style="background:radial-gradient(circle,#ff5fa8 40%,transparent 70%);border-radius:50%;width:10px;height:10px"></i>博物馆（可直达）</span>
+</div>
+<p class="cm-foot" id="cmHint"><b>点击任意区域</b>进入其三维街区 · 点击<b>发光馆标</b>直接参观博物馆</p>

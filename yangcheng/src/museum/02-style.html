@@ -1,0 +1,90 @@
+<style>
+/* 明亮的实体建筑是主角，界面为深蓝文字与轻薄瓷白导览牌。 */
+:root{--mu-ink:#183248;--mu-accent:#b69962;--mu-blue:#285d83;--mu-line:#c0cdd2;--mu-paper:#f6f8f7;--sans:"Microsoft YaHei","PingFang SC","Helvetica Neue",sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#e6eef4}
+body{font-family:var(--sans);color:var(--mu-ink);-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+button,select,a{font:inherit}
+button,select{color:var(--mu-ink);background:#fff;border:1px solid var(--mu-line);border-radius:6px;min-height:38px;padding:8px 12px}
+button,select,a{touch-action:manipulation}
+button{cursor:pointer}
+button:hover:not(:disabled),select:hover{border-color:var(--mu-blue);background:#edf3f6}
+button:disabled{opacity:.46;cursor:default}
+button:focus-visible,a:focus-visible,select:focus-visible,#mCv:focus-visible{outline:3px solid #316b9b;outline-offset:3px}
+.muwrap{position:fixed;inset:0;overflow:hidden;background:#e6eef4}
+#mCv{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+#mCv.hot{cursor:pointer}
+#mCv:active{cursor:grabbing}
+.muboot{position:fixed;inset:0;z-index:90;display:grid;place-items:center;background:#eff4f6;transition:opacity .3s,visibility .3s}
+.muboot.done{opacity:0;visibility:hidden;pointer-events:none}
+.muboot .in{width:min(430px,85vw);text-align:center}
+.muboot .mk{font-size:28px;font-weight:700;letter-spacing:2px}
+.muboot .sub{margin-top:12px;color:#4b687c;font-size:14px}
+.muboot .bar{margin-top:28px;height:3px;background:#d2dee4}
+.muboot .bar i{display:block;height:100%;width:0;background:var(--mu-blue);transition:width .2s}
+.muboot .log{margin-top:15px;font-size:13px;line-height:1.7;color:#4b687c}
+.mutop{position:fixed;left:18px;right:18px;top:14px;z-index:20;display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:12px 16px;border:1px solid #cbd6db;border-top:3px solid var(--mu-accent);background:rgba(249,251,250,.95);box-shadow:0 3px 12px #16394e14}
+.mubrand{display:flex;flex-direction:column;gap:4px}
+.mubrand b{font-size:17px;font-weight:700}
+.mubrand i{font-style:normal;font-size:11px;color:#4b687c}
+.muroom{font-size:13px;font-weight:700;color:var(--mu-blue)}
+.munav{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:12px;flex-wrap:wrap}
+.munav label{color:#415f73}
+.munav select{max-width:180px}
+.munav a{color:#234f6e;padding:8px 5px;text-decoration:none}
+.munav a:hover{text-decoration:underline}
+.muvisit{position:fixed;left:18px;top:110px;z-index:21;display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap;max-width:310px;padding:12px;background:rgba(249,251,250,.95);border:1px solid var(--mu-line);font-size:12px}
+.muvisit>span{width:100%;font-size:13px;font-weight:700;color:var(--mu-blue);margin:0 0 3px}
+.muvisit button{font-size:12px}
+#muTools:empty{display:none}
+#muTools{width:100%}
+#muTools button{width:100%;border-color:#6b8ca3;background:#e4eef3}
+.muguides{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);z-index:30;width:min(740px,calc(100% - 32px));padding:20px 24px;background:rgba(250,252,251,.98);border:1px solid #bac9cf;border-top:3px solid var(--mu-accent);box-shadow:0 12px 35px #14354a21;max-height:calc(100dvh - 210px);overflow:auto}
+.muguides h1{font-size:22px;margin:0 0 8px;font-weight:700}
+.muguides p{font-size:13px;margin:0 0 18px;line-height:1.7;color:#466073}
+.muguidecards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.gcard{text-align:left;padding:14px;border-radius:4px;border-left:4px solid var(--c);background:#fff;min-height:116px}
+.gcard b{display:block;font-size:20px;margin-bottom:4px;color:#183248}
+.gcard i{display:block;font-style:normal;color:#466073;font-size:12px}
+.gcard em{display:block;font-style:normal;font-size:12px;line-height:1.5;margin-top:12px;color:#304f63}
+.gcard.on{outline:2px solid var(--c);outline-offset:1px;background:#eaf1f5}
+.muguideactions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.muprimary{background:#285d83;color:#fff;border-color:#285d83;font-weight:700}
+.muprimary:hover:not(:disabled){background:#1e4866;color:#fff}
+.muguides small{display:block;margin-top:12px;font-size:11px;color:#536d7e;line-height:1.6}
+.musub{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:25;width:min(760px,calc(100% - 40px));visibility:hidden;opacity:0;pointer-events:none;background:rgba(251,252,249,.97);border:1px solid #a6b8c2;border-left:4px solid var(--mu-accent);padding:14px 20px}
+.musub.on{opacity:1;visibility:visible}
+.musub .who{font-size:12px;font-weight:700;color:#285d83;margin-bottom:6px}
+.musub .txt{font-size:15px;line-height:1.85;color:#183248}
+.mubottom{position:fixed;left:18px;right:18px;bottom:14px;z-index:24;display:flex;align-items:center;gap:16px;padding:9px 12px;background:rgba(249,251,250,.94);border:1px solid var(--mu-line);font-size:12px;min-height:52px}
+.muhint{flex:1;color:#3e5b6f;font-size:12px;line-height:1.6}
+.muprog{white-space:nowrap;color:#3e5b6f}
+.muprog b{color:var(--mu-blue)}
+.muinstrument{position:fixed;inset:0;margin:auto;width:calc(100vw - 44px);height:calc(100dvh - 44px);max-width:1500px;max-height:none;padding:0;border:1px solid #a6bac5;background:#edf2f5;color:var(--mu-ink);overflow:hidden;z-index:80}
+.muinstrument[open]{display:flex;flex-direction:column}
+.muinstrument::backdrop{background:rgba(38,65,83,.4)}
+.muinstrument>header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 20px;background:#f7f9f8;border-bottom:1px solid #b4c5ce}
+.muinstrument h2{font-size:17px;margin:0 0 4px}
+.muinstrument p{font-size:12px;margin:0;color:#4b687c}
+#muInstrumentFrames{flex:1;min-height:0;background:#fff}
+#muInstrumentFrames iframe{width:100%;height:100%;border:0;display:block}
+@media(max-width:1100px){.mutop{gap:10px}.munav{width:100%;margin:0}.muvisit{top:145px}}
+@media(max-width:680px){
+  .mutop{left:8px;right:8px;top:8px;padding:8px 10px;gap:7px}
+  .mubrand b{font-size:14px}.mubrand i{display:none}.muroom{font-size:11px;margin-left:auto}
+  .munav{gap:5px}.munav label{display:none}.munav select{max-width:155px}.munav a{font-size:11px;padding:4px}
+  .munav button,.munav select{min-height:34px;padding:5px 7px;font-size:11px}
+  .muvisit{left:8px;right:8px;top:135px;max-width:none;padding:8px;gap:5px}
+  .muvisit>span{width:auto;margin:8px}.muvisit button{padding:5px 7px;min-height:34px;font-size:11px}
+  .muguides{bottom:76px;padding:14px;width:calc(100% - 16px);max-height:calc(100dvh - 255px)}
+  .muguides h1{font-size:19px}.muguides p{font-size:12px;margin-bottom:12px}
+  .muguidecards{gap:7px}.gcard{padding:10px 8px;min-height:96px}.gcard b{font-size:16px}.gcard em{font-size:11px}
+  .muguideactions{gap:7px}.muguideactions button{width:100%;font-size:12px}
+  .musub{bottom:85px;padding:10px 13px;width:calc(100% - 16px)}.musub .txt{font-size:13px;line-height:1.7}
+  .mubottom{left:8px;right:8px;bottom:8px;padding:8px;gap:8px}.muhint{font-size:10px}.muprog{font-size:10px}
+  .muinstrument{width:100vw;height:100dvh;border:0}.muinstrument>header{padding:10px;gap:8px}.muinstrument h2{font-size:14px}.muinstrument p{font-size:10px}.muinstrument button{font-size:11px}
+}
+@media(max-height:600px){.muguides{bottom:70px;max-height:calc(100dvh - 150px)}.muguides-head p,.muguides small{display:none}.muvisit{max-width:220px}.musub{left:auto;right:18px;transform:none;width:calc(100% - 260px)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+</style>

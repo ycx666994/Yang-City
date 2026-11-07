@@ -243,6 +243,7 @@ body[data-rail="dock"] .roomhud{bottom:auto;top:14px}
 #frameBar.fs{position:fixed;top:0;left:0;right:0;z-index:99998;margin:0;padding:0 12px;min-height:40px;background:rgba(255,253,248,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(10px);flex-wrap:nowrap;overflow:hidden}
 #frameBar.fs .fbar-t,#frameBar.fs .fbar-tip{display:none}
 body.tl-fslock{overflow:hidden!important}
+
 </style>
 </head>
 <body>
@@ -411,6 +412,7 @@ window.TL_CORPUS = `
 
 研究表明，系统误差决定结果的偏移方向，随机误差决定结果的离散程度。实验数据显示，n 次重复测量的平均值标准差与根号 n 成反比。换言之，测量次数翻四倍，精度才能翻一倍。在仪器长期服役的环境中，零点漂移要求定期标定复核。科学家发现，不给出不确定度的测量值在科学上几乎没有意义。进一步的观测表明，样本量不足时置信区间会宽到失去价值。在没有对照的环境中，真实效应与背景波动难以区分。这种把噪声当信号的现象被称为假阳性，它是实验设计的头号陷阱。
 `.trim();
+
 </script>
 <script>
 /* ============================================================
@@ -596,8 +598,9 @@ window.TLLM = (function () {
 
   return { TinyLM, mulberry32, fnv1a };
 })();
+
 </script>
-<script>window.TLROOM={id:"m3",room:"幻觉放大器 · 双炉对比台",accent:"#f5b451",rail:"dock",anim:"split",guides:{wu:"左边是冷静的我，右边是发烧的我。温度旋钮一拧你就明白什么叫一本正经地胡说。",ce:"「问它三遍」是最便宜的一致性测试。答案飘=在掷骰子，记进清单。",pi:"敢把温度拉到 1.2 吗？看它当场表演 fluent nonsense。",dang:"Galactica 的锅炉温度没人调——2022 年 11 月，它一本正经编了三页参考文献。"}}</script>
+<script>window.TLROOM={"id":"m3","room":"幻觉放大器 · 双炉对比台","accent":"#f5b451","rail":"dock","anim":"split","guides":{"wu":"左边是冷静的我，右边是发烧的我。温度旋钮一拧你就明白什么叫一本正经地胡说。","ce":"「问它三遍」是最便宜的一致性测试。答案飘=在掷骰子，记进清单。","pi":"敢把温度拉到 1.2 吗？看它当场表演 fluent nonsense。","dang":"Galactica 的锅炉温度没人调——2022 年 11 月，它一本正经编了三页参考文献。"}};</script>
 <script>window.TLBG_Z=-1</script>
 <script>
 /* ============================================================
@@ -1936,6 +1939,7 @@ void main(){
     if (d && d.type === "tlab:fs:sync" && d.on === false && fsing) { fsing = false; fsOff(); }
   });
 })();
+
 </script>
 <script>
 (function () {
@@ -2172,5 +2176,6 @@ void main(){
   /* ---------- 开机：LM 后台建好后由 setTimeout 首绘，此处不再同步跑 ---------- */
 })();
 </script>
+<script src="yangcheng/shared/yc-museum-embed.js"></script>
 </body>
 </html>

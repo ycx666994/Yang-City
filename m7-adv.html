@@ -239,6 +239,7 @@ body[data-rail="dock"] .roomhud{bottom:auto;top:14px}
 #frameBar.fs{position:fixed;top:0;left:0;right:0;z-index:99998;margin:0;padding:0 12px;min-height:40px;background:rgba(255,253,248,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(10px);flex-wrap:nowrap;overflow:hidden}
 #frameBar.fs .fbar-t,#frameBar.fs .fbar-tip{display:none}
 body.tl-fslock{overflow:hidden!important}
+
 </style>
 </head>
 <body>
@@ -425,8 +426,9 @@ window.TLADV = {
     {"y": 9, "x": [0,0,0.1875,0.8125,0.375,0,0,0,0,0,0.875,0.6875,0.9375,0.5,0,0,0,0,0.9375,0.0625,0.875,1,0.0625,0,0,0,0.6875,0.8125,0.75,0.8125,0.3125,0,0,0,0.1875,0.5,0.0625,0.5,0.625,0,0,0,0,0,0,0.5625,0.375,0,0,0,0.5625,0.25,0.1875,1,0.125,0,0,0,0.25,0.875,0.875,0.4375,0,0]},
   ]
 };
+
 </script>
-<script>window.TLROOM={id:"m7",room:"对抗样本 · 靶场",accent:"#ffa94d",rail:"top",anim:"flash",guides:{wu:"那台 96 分的小模型，被一层人眼看不见的噪声骗得团团转。别笑，你也会被骗。",ce:"攻击成功率高不等于模型没用——但足以证明「测试集准确率」不等于「安全」。两个指标分开记。",pi:"这是我的游乐场。ε 旋钮往右拧，看那个「3」怎么一步步变「长臂猿」。",dang:"2019 年，几张贴纸让自动驾驶看错路牌。卷宗 07-A：攻击成本几美元，损失——幸好没人受伤。"}}</script>
+<script>window.TLROOM={"id":"m7","room":"对抗样本 · 靶场","accent":"#ffa94d","rail":"top","anim":"flash","guides":{"wu":"那台 96 分的小模型，被一层人眼看不见的噪声骗得团团转。别笑，你也会被骗。","ce":"攻击成功率高不等于模型没用——但足以证明「测试集准确率」不等于「安全」。两个指标分开记。","pi":"这是我的游乐场！ε 旋钮往右拧，看那个「3」怎么一步步变「长臂猿」。","dang":"2019 年，几张贴纸让自动驾驶看错路牌。卷宗 07-A：攻击成本几美元，损失——幸好没人受伤。"}};</script>
 <script>window.TLBG_Z=-1</script>
 <script>
 /* ============================================================
@@ -1765,6 +1767,7 @@ void main(){
     if (d && d.type === "tlab:fs:sync" && d.on === false && fsing) { fsing = false; fsOff(); }
   });
 })();
+
 </script>
 <script>
 (function () {
@@ -2092,5 +2095,6 @@ void main(){
   hardStats();
 })();
 </script>
+<script src="yangcheng/shared/yc-museum-embed.js"></script>
 </body>
 </html>

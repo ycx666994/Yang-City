@@ -1,0 +1,66 @@
+<div class="muwrap">
+  <canvas id="mCv" tabindex="0" aria-label="明亮的指标失效博物馆，WASD移动、拖拽转向"></canvas>
+
+  <div class="muboot" id="muBoot" role="status">
+    <div class="in">
+      <div class="mk">指标失效博物馆</div>
+      <div class="sub">天光大厅 · 五个独立展厅</div>
+      <div class="bar"><i id="muBar"></i></div>
+      <div class="log" id="muLog">正在开馆</div>
+    </div>
+  </div>
+
+  <header class="mutop">
+    <div class="mubrand"><b>指标失效博物馆</b><i>AI · 计量与证据</i></div>
+    <span class="muroom" id="muRoom" aria-live="polite">指标殿 · 大厅</span>
+    <nav class="munav" aria-label="馆内与城市导航">
+      <label for="muRoomSelect">馆内导航</label>
+      <select id="muRoomSelect"></select>
+      <button id="muBack" type="button">回大厅</button>
+      <button id="muFs" type="button">全屏 F</button>
+      <a href="map.html">城市地图</a>
+      <a href="index.html">回杨城</a>
+    </nav>
+  </header>
+
+  <aside class="muvisit" aria-label="参观控制">
+    <span id="muMode" role="status">自由参观</span>
+    <button id="muChangeGuide" type="button">选择 / 更换导游</button>
+    <button id="muFree" type="button">自由参观（不选导游）</button>
+    <button id="muPause" type="button" disabled aria-pressed="false">暂停讲解</button>
+    <button id="muReplay" type="button" disabled>重新讲解本厅</button>
+    <div id="muTools"></div>
+  </aside>
+
+  <section class="muguides" id="muGuides" aria-labelledby="muChooseTitle">
+    <div class="muguides-head">
+      <h1 id="muChooseTitle">怎样参观这座馆？</h1>
+      <p>选择一位导游，听不同角度的讲解；也可以不选，直接自由游览。</p>
+    </div>
+    <div class="muguidecards" id="muGuideCards"></div>
+    <div class="muguideactions">
+      <button class="muprimary" id="muStart" type="button" disabled>跟随 <span id="muStartName">所选导游</span> 开始讲解</button>
+      <button id="muFreeInitial" type="button">不选导游 · 自由游览</button>
+    </div>
+    <small>角色为共享风格化资产，非专属定制面容；馆长与陶叔共用 Jay。Sintel / Jay：Blender Foundation / Blender Studio（Mesh2Motion GLB 转换）；Sophia：GDQuest 与贡献者（固定历史版本）。模型采用 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC-BY 4.0</a>，本项目做尺寸适配和动画装配；动画为 Mesh2Motion / Quaternius 的 CC0 资产。<a href="shared/yc3d/assets/asset-sources.json" target="_blank" rel="noopener">完整来源与授权</a></small>
+  </section>
+
+  <div class="musub" id="muSub" aria-live="polite" aria-atomic="true">
+    <div class="who" id="muWho">展厅说明</div>
+    <div class="txt" id="muText"></div>
+  </div>
+
+  <footer class="mubottom">
+    <div class="muhint" id="muHint">点击画布后 WASD 移动，拖拽转向；Esc 回大厅。</div>
+    <div class="muprog" id="muProg" hidden>讲解站点 <b id="muProgN">1 / 1</b></div>
+    <button class="muprimary" id="muNext" type="button" hidden disabled>下一站</button>
+  </footer>
+
+  <dialog class="muinstrument" id="muInstrument" aria-labelledby="muInstrumentTitle" hidden>
+    <header>
+      <div><h2 id="muInstrumentTitle">展厅仪器</h2><p>原版交互页面 · 关闭回到本展厅 · 导览保持暂停</p></div>
+      <button id="muInstrumentClose" type="button">关闭仪器 · 回展厅</button>
+    </header>
+    <div id="muInstrumentFrames"></div>
+  </dialog>
+</div>
