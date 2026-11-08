@@ -162,6 +162,9 @@
     r.toneMapping = THREE.NoToneMapping;
     r.shadowMap.enabled = true;
     r.shadowMap.type = THREE.PCFSoftShadowMap;
+    /* 地块裁剪靠 material.clippingPlanes，全局必须开；不给任何材质挂裁剪面时
+       等于没开，单区页面不受影响。 */
+    r.localClippingEnabled = true;
 
     this.clock = new THREE.Clock();
     this.time = 0;

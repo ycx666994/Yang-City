@@ -135,7 +135,7 @@
         ].join("\n"))
         .replace("#include <emissivemap_fragment>", [
           "#include <emissivemap_fragment>",
-          "totalEmissiveRadiance += uGlow * ycLit * ycPane * 1.7;"
+          "totalEmissiveRadiance += uGlow * ycLit * ycPane * 0.95;"
         ].join("\n"));
       FACADE_PROGRAMS++;
     };
@@ -7382,13 +7382,15 @@
     var R = spec.R || 460;
     /* 地块半边长：近景按 R 铺一片大到雾里的地面，全城只在自己这块地内铺 */
     var PHX = CITY ? (CITY.hx || R) : R, PHZ = CITY ? (CITY.hz || R) : R;
-    /* 全城拼装时关掉行人、摊车与咖啡馆：5 公里外它们不到一个像素，
-       却要为每个区生成上万个三体块。街上的树保留，俯视时那是唯一还在的尺度线索。 */
+    /* 全城拼装时把街道生活摊薄：5 公里外它们不到一个像素，按原密度生成要让整城
+       多花三秒多。但镜头能一路推到 22 米贴到楼跟前——那里街上必须有人有车，
+       否则就是一座空模型。所以不关，只把间距拉开到原来的五分之一密度。 */
     if (CITY && spec.streetLife) {
       var life = {};
       for (var lk in spec.streetLife) life[lk] = spec.streetLife[lk];
-      life.pedGap = 1e9; life.pedRun = 0; life.stall = 0; life.cart = 0; life.cafe = 0;
-      life.traffic = Math.min(life.traffic || 0, 0.18);
+      life.pedGap = 30; life.pedRun = 0.34;
+      life.stall = 0.022; life.cart = 0.010; life.cafe = 0;
+      life.traffic = Math.max(life.traffic || 0, 0.34);
       var shim = {};
       for (var sk in spec) shim[sk] = spec[sk];
       shim.streetLife = life;
@@ -10165,7 +10167,9 @@
       rig.setTime(state);
       rig.sun.shadow.needsUpdate = true;
       baseLit.forEach(function (b) {
-        b.m.uniforms.uLit.value = U.clamp(b.v * U.lerp(2.9, 0.06, state.day), 0, 0.9);
+        /* 夜里点灯的窗占比。原来 2.9 倍、上限 0.9，等于「夜里 58% 的窗全亮」，
+           镜头推到楼跟前就是一整面白光墙。真实夜城的亮窗在三四成，且亮的是少数楼层。 */
+        b.m.uniforms.uLit.value = U.clamp(b.v * U.lerp(1.55, 0.06, state.day), 0, 0.56);
       });
       if (groundShadow) groundShadow.material.opacity = U.lerp(0.05, 0.26, state.day);
       if (api.onTimeChange) api.onTimeChange(state);

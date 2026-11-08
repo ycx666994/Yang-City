@@ -38,9 +38,10 @@
     <button type="button" data-filter="halls" aria-pressed="true">六馆</button>
     <button type="button" data-filter="giants" aria-pressed="false">AI企业</button>
     <button type="button" data-filter="infra" aria-pressed="false">基础设施</button>
+    <button type="button" data-filter="zones" aria-pressed="false">17 区</button>
   </div>
   <div id="nodeList"></div>
-  <p class="nodes-f" id="nodesFoot">点击建筑查看；馆内入口保持可用。</p>
+  <p class="nodes-f" id="nodesFoot">点击建筑查看；双击画面再近一档，可一路推到单栋楼。</p>
 </details>
 
 <div class="phaseNote" id="phaseNote" aria-live="polite"></div>
@@ -59,7 +60,15 @@
   <div class="maphint" id="mapHint">先看地图，定位六馆与城市设施</div>
   <a class="mapbtn" id="btnMap" href="index.html"><span class="mbt"><b>城市地图</b><i>17 区总图 · 二维导览</i></span></a>
 </div>
-<div class="map-tools" id="mapTools" hidden><button type="button" id="resetView">全城总览</button><span id="mapSelection" role="status">选择分类后点击节点定位</span></div>
+<div class="map-tools" id="mapTools" hidden>
+  <div class="zoomctl" role="group" aria-label="缩放">
+    <button type="button" id="zoomOut" aria-label="拉远">−</button>
+    <output id="scaleLabel" aria-label="当前视距"><i>全城</i><b>6.9 km</b></output>
+    <button type="button" id="zoomIn" aria-label="推近">＋</button>
+  </div>
+  <button type="button" id="resetView">全城总览</button>
+  <span id="mapSelection" role="status">滚轮往哪儿指就往哪儿钻 · 左键转视角 · Shift 拖动平移</span>
+</div>
 
 <div class="district-hud" id="districtHud" hidden>
   <h2 id="dhName">—</h2>

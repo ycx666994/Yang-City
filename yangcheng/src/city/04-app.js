@@ -26,6 +26,16 @@
     return pad(Math.floor(seconds / 3600)) + ":" + pad(Math.floor(seconds / 60) % 60) + ":" + pad(seconds % 60);
   }
 
+  /* ---------------- 镜头 ----------------
+     全城要能从 8 公里总览一路推到单栋建筑的窗台，所以距离用「乘一个比例」
+     来变，不用加减：加减在 8 公里和 80 米这两种尺度上不可能同时好用。
+     22 米是贴着楼站的视距（相机 near 0.45，再近就穿模）。 */
+  var MAP_MIN_D = 22, MAP_MAX_D = 8000;
+  var MAP_BOX = (window.YC_CITY_PLAN && window.YC_CITY_PLAN.bounds) ||
+    { minX: -3120, maxX: 3260, minZ: -2700, maxZ: 2850 };
+  var MAP_PAD = 1100;
+  function clampNum(v, a, b) { return v < a ? a : v > b ? b : v; }
+
   function CamRig(camera) {
     this.cam = camera;
     /* 全城的视线中心要往南压一点：透视会把远景压扁，把镜头对准几何中心，
@@ -52,10 +62,68 @@
     this.cam.position.set(this.center.x + x + this.mx * parallax, this.center.y + y, this.center.z + z);
     this.cam.lookAt(this.center);
   };
+  CamRig.prototype.clampD = function (d) {
+    return isMap ? clampNum(d, MAP_MIN_D, MAP_MAX_D) : clampNum(d, 420, 2800);
+  };
+  /* 不许把镜头推到城外虚无里：中心点限制在城市范围外扩一圈之内 */
+  CamRig.prototype.clampCenter = function () {
+    if (!isMap) return;
+    this.targetCenter.x = clampNum(this.targetCenter.x, MAP_BOX.minX - MAP_PAD, MAP_BOX.maxX + MAP_PAD);
+    this.targetCenter.z = clampNum(this.targetCenter.z, MAP_BOX.minZ - MAP_PAD, MAP_BOX.maxZ + MAP_PAD);
+  };
+  /* 以 anchor（光标下的地面点）为不动点推拉：镜头沿「锚点 → 镜头」这条线走，
+     锚点就钉在屏幕上不动——这就是「往哪儿指就往哪儿钻」的手感。 */
+  CamRig.prototype.zoomBy = function (factor, anchor) {
+    var d0 = this.tDist, d1 = this.clampD(d0 * factor);
+    if (Math.abs(d1 - d0) < 1e-4) return this.tDist;
+    if (anchor) {
+      var k = d1 / d0;
+      this.targetCenter.x = anchor.x + (this.targetCenter.x - anchor.x) * k;
+      this.targetCenter.z = anchor.z + (this.targetCenter.z - anchor.z) * k;
+      this.clampCenter();
+    }
+    this.tDist = d1;
+    return d1;
+  };
+  /* 屏幕空间平移：位移按当前视距换算成米，抓住地面拖 */
+  CamRig.prototype.panBy = function (dx, dy, camera) {
+    var right = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 0);
+    var back = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 2);
+    right.y = 0; back.y = 0;
+    if (right.lengthSq() < 1e-6 || back.lengthSq() < 1e-6) return;
+    right.normalize(); back.normalize();
+    var s = this.tDist * 0.0017;
+    this.targetCenter.addScaledVector(right, -dx * s);
+    this.targetCenter.addScaledVector(back, dy * s);
+    this.clampCenter();
+  };
+  /* 区域近景（district.html）用的三个动作：绕中心转、抓地平移、推拉。
+     全城那套是「绕着视点跑」，区域页是「中心点不动、改朝向」，两套别混用。 */
+  CamRig.prototype.orbit = function (dx, dy) {
+    this.tTheta -= dx * 0.0042;
+    this.tPhi = clampNum(this.tPhi + dy * 0.0030, 0.10, 1.32);
+  };
+  CamRig.prototype.pan = function (dx, dy) { this.panBy(dx, dy, this.cam); };
+  CamRig.prototype.zoom = function (step) { this.tDist = this.clampD(this.tDist * Math.exp(step * 0.0022)); };
+  CamRig.prototype.flyTo = function (x, z, dist, phi) {
+    this.targetCenter.x = x; this.targetCenter.z = z;
+    if (isMap) this.targetCenter.y = 0;
+    this.clampCenter();
+    if (dist) this.tDist = this.clampD(dist);
+    if (phi !== undefined) this.tPhi = clampNum(phi, 0.30, 1.42);
+    this.tmx = this.tmy = 0;
+  };
   CamRig.prototype.focus = function (o) {
-    this.targetCenter.set(o.x, Math.min(o.h * 0.35, 78), o.z);
-    this.tTheta = 0; this.tPhi = isDistrict ? 0.60 : isMap ? 1.13 : 0.28;
-    this.tDist = isDistrict ? 460 : isMap ? 300 : 410;
+    /* 区域节点：把整块地框满一屏。建筑节点：按楼高定视距，
+       200 米的塔在 420 米外刚好是一张「楼的标准像」。 */
+    if (isMap && o.kind === "district") {
+      this.flyTo(o.x, o.z, Math.max(740, (o.r || 470) * 2.05), 0.84);
+      return;
+    }
+    var h = o.h || 60;
+    this.targetCenter.set(o.x, Math.min(h * 0.35, 78), o.z);
+    this.tTheta = 0; this.tPhi = isMap ? 0.98 : isDistrict ? 0.60 : 1.13;
+    this.tDist = isMap ? clampNum(h * 2.1, 120, 640) : isDistrict ? 460 : 410;
     this.tmx = this.tmy = 0;
   };
   CamRig.prototype.reset = function () {
@@ -90,13 +158,17 @@
     stage.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     step(26, "正在布设太阳光、城市结构与设施");
     var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(isMap ? 52 : 48, 1, 0.5, 10000);
+    /* near 收到 0.45、far 放到 12500：一边要能贴到窗台，一边要能退到 8 公里外
+       还看得见南岸第四排。深度比 2.8 万，路面都带 polygonOffset，不会打架。 */
+    var camera = new THREE.PerspectiveCamera(isMap ? 52 : 48, 1, 0.45, 12500);
     /* 区域模式走局部街区引擎：只生成这一个区域，1 单位 = 1 米，镜头贴近侧上方。 */
     var plan = isDistrict && window.YC3D_DISTRICT && window.ycDistrictPlan ? window.ycDistrictPlan(zone) : null;
     /* 每个区域可以有自己的曝光：亮色石材区不压曝光就会整片发白 */
     if (plan && plan.exposure) stage.exposure = plan.exposure;
     var city = plan ? YC3D_DISTRICT.build(scene, plan, { hour: seedHour })
       : YC3D_CITY.build(scene, { hour: seedHour });
+    /* 全城的 17 个片区也当节点用：面板里能选，画面上能点，镜头能飞过去 */
+    var ZONES = city.zones || [];
     var rig;
     if (plan) {
       var bb = city.bounds, vw = plan.view || {};
@@ -122,7 +194,7 @@
       /* 这一个按钮去的是二维《城市地图》(index.html)，所以就叫「城市地图」。
          以前这里写「城市首页」——点下去落地的是张地图，名字和目标两张皮。 */
       $("navMap").href = "index.html"; $("navMap").textContent = "城市地图";
-      $("nodesFoot").textContent = "节点定位后可进入馆内；坐标是虚构场景单位。";
+      $("nodesFoot").textContent = "滚轮推近到片区，双击再进一档到单栋楼；坐标为虚构场景单位。";
       canvas.setAttribute("aria-label", "虚构杨城俯视地图，六馆、" + YC3D_CITY.GIANTS.length + "家AI企业及" + YC3D_CITY.INFRA.length + "个设施可分类定位");
     }
     if (isDistrict) {
@@ -221,37 +293,93 @@
     var locator = new THREE.LineSegments(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({
       color: city.state.day > 0.5 ? 0x146783 : 0x8be8ff, toneMapped: false }));
     locator.visible = false; scene.add(locator);
-    function locateMarker(o) {
-      var groups = (city.halls || []).concat(city.giants || [], city.infrastructure || []);
-      var group = groups.find(function (g) { return g.userData.hall === o || g.userData.giant === o || g.userData.infrastructure === o; });
-      if (!group) return;
-      var bounds = group.userData.bounds, size = bounds.getSize(new THREE.Vector3());
-      var wx = size.x / 2 + 2, wz = size.z / 2 + 2, l = 5, positions = [];
+    /* 地面定位框：四个角画直角 + 一根立杆。片区与单栋楼共用同一套画法。 */
+    function drawBox(minX, minZ, maxX, maxZ) {
+      var wx = (maxX - minX) / 2 + 2, wz = (maxZ - minZ) / 2 + 2, l = Math.min(5, wx * 0.4, wz * 0.4), positions = [];
       [-1, 1].forEach(function (x) { [-1, 1].forEach(function (z) {
         positions.push(x * wx, 0, z * wz, x * (wx - l), 0, z * wz,
           x * wx, 0, z * wz, x * wx, 0, z * (wz - l), x * wx, 0, z * wz, x * wx, 7, z * wz);
       }); });
       locator.geometry.dispose(); locator.geometry = new THREE.BufferGeometry();
       locator.geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-      locator.position.set((bounds.min.x + bounds.max.x) / 2, 0.32, (bounds.min.z + bounds.max.z) / 2);
-      locator.visible = true; $("mapSelection").textContent = "已定位 " + o.name;
+      locator.position.set((minX + maxX) / 2, 0.32, (minZ + maxZ) / 2);
+      locator.visible = true;
+    }
+    function locateMarker(o) {
+      if (!o) return;
+      /* 片区节点不属于任何一个「馆/企业/设施组」，按地块矩形画框 */
+      if (o.kind === "district") {
+        var rr = o.r || 470;
+        drawBox(o.x - rr, o.z - rr, o.x + rr, o.z + rr);
+        $("mapSelection").textContent = "已定位 " + o.name;
+        return;
+      }
+      var groups = (city.halls || []).concat(city.giants || [], city.infrastructure || []);
+      var group = groups.find(function (g) {
+        return g && g.userData && (g.userData.hall === o || g.userData.giant === o || g.userData.infrastructure === o);
+      });
+      if (!group || !group.userData.bounds) return;
+      var bounds = group.userData.bounds;
+      drawBox(bounds.min.x, bounds.min.z, bounds.max.x, bounds.max.z);
+      $("mapSelection").textContent = "已定位 " + o.name;
     }
     var raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2(), tip = $("cityTip");
     var pointer = { down: false, moved: 0, sx: 0, sy: 0, x: 0, y: 0, queued: false };
-    function category(o) { return /^H[1-6]$/.test(o.id) ? "halls" : o.biz ? "giants" : "infra"; }
+    /* 缩放锚点：光标射线打到 y=0 平面的落点。看不见地面（在望天）时返回 null，
+       那就退回以画面中心为锚。 */
+    var groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    var anchorPt = new THREE.Vector3();
+    function anchorUnderCursor() {
+      raycaster.setFromCamera(ndc, camera);
+      if (!raycaster.ray.intersectPlane(groundPlane, anchorPt)) return null;
+      /* 视线越平，落点越远。落到当前视距五倍以外，说明指着的其实不是这块地 */
+      if (anchorPt.distanceTo(camera.position) > rig.dist * 5) return null;
+      return anchorPt;
+    }
+    /* 比例尺读数：从「全城」到「建筑」四档，让人知道自己在哪一层 */
+    function scaleText(d) {
+      if (d >= 2000) return { zone: "全城", v: (d / 1000).toFixed(1) + " km" };
+      if (d >= 900) return { zone: "城区", v: Math.round(d / 10) * 10 + " m" };
+      if (d >= 260) return { zone: "街区", v: Math.round(d / 5) * 5 + " m" };
+      return { zone: "建筑", v: Math.round(d) + " m" };
+    }
+    var scaleEl = $("scaleLabel"), scaleLast = "";
+    function updateScale() {
+      if (!scaleEl) return;
+      var t = scaleText(rig.dist);
+      var key = t.zone + t.v;
+      if (key === scaleLast) return;
+      scaleLast = key;
+      scaleEl.replaceChildren();
+      var z = document.createElement("i"); z.textContent = t.zone;
+      var v = document.createElement("b"); v.textContent = t.v;
+      scaleEl.append(z, v);
+      scaleEl.dataset.zone = t.zone;
+    }
+    /* 屏幕上的「某一点」写成世界坐标，用于双击推进与卡片里的定位 */
+    function groundAtPointer() { return anchorUnderCursor(); }
+    /* 片区也是一类可选节点：地图上点到哪块地，就知道自己进的是哪个区 */
+    function category(o) {
+      if (o && o.kind === "district") return "zones";
+      return /^H[1-6]$/.test(o.id) ? "halls" : o.biz ? "giants" : "infra";
+    }
     function pickOwner() {
       raycaster.setFromCamera(ndc, camera);
       var hits = raycaster.intersectObjects(scene.children, true);
+      /* 分类筛选只决定「先挑谁」：被筛出来的节点优先，一个都没命中时退一步给片区。
+         不这样的话，在「六馆」分类下点地块是一片没有反应，人以为地图点不动。 */
+      var fallback = null;
       for (var i = 0; i < hits.length; i++) {
         var mesh = hits[i].object, parent = mesh, visible = true;
         while (parent) { if (!parent.visible) visible = false; parent = parent.parent; }
         if (!visible || !mesh.isMesh) continue;
         var owner = mesh.isInstancedMesh && mesh.userData.instanceOwners ? mesh.userData.instanceOwners[hits[i].instanceId] : mesh.userData.owner;
         if (owner && (!isMap || isDistrict || category(owner) === filter)) return owner;
+        if (owner && isMap) { if (!fallback) fallback = owner; continue; }
         var mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-        if (mats.some(function (m) { return !m.transparent && m.depthWrite; })) return null;
+        if (mats.some(function (m) { return !m.transparent && m.depthWrite; })) return fallback;
       }
-      return null;
+      return fallback;
     }
     function hideTip() { tip.classList.remove("on"); canvas.classList.remove("hot"); }
     function pickHover() {
@@ -259,7 +387,9 @@
       if (!hovered) { hideTip(); return; }
       tip.replaceChildren();
       var b = document.createElement("b"); b.textContent = hovered.name; tip.appendChild(b);
-      var label = document.createElement("i"); label.textContent = hovered.id; tip.appendChild(label);
+      var label = document.createElement("i");
+      label.textContent = hovered.kind === "district" ? hovered.id + " · 双击飞近" : hovered.id;
+      tip.appendChild(label);
       tip.style.left = Math.max(100, Math.min(innerWidth - 100, pointer.x)) + "px";
       tip.style.top = Math.max(60, pointer.y) + "px";
       tip.classList.add("on"); canvas.classList.add("hot");
@@ -273,8 +403,9 @@
       updatePointer(e); pointer.down = true; pointer.moved = 0; pointer.sx = e.clientX; pointer.sy = e.clientY;
       pointer.btn = e.button;
       canvas.classList.add("dragging"); canvas.setPointerCapture(e.pointerId); hideTip();
+      if (isMap && e.button === 1) e.preventDefault();
     });
-    canvas.addEventListener("contextmenu", function (e) { if (isDistrict) e.preventDefault(); });
+    canvas.addEventListener("contextmenu", function (e) { if (isMap || isDistrict) e.preventDefault(); });
     canvas.addEventListener("pointermove", function (e) {
       updatePointer(e);
       if (!isMap && !isDistrict && !reduceMotion) { rig.tmx = ndc.x; rig.tmy = ndc.y; }
@@ -284,9 +415,15 @@
         if (isDistrict) {
           /* 区域近景：左键拖动平移（抓地），右键或 Shift 拖动转视角。 */
           if (e.shiftKey || pointer.btn === 2) rig.orbit(dx, dy); else rig.pan(dx, dy);
+        } else if (isMap && (e.shiftKey || pointer.btn === 1 || pointer.btn === 2)) {
+          /* 全城：Shift / 中键 / 右键 = 抓地平移，左键仍是转视角 */
+          rig.panBy(dx, dy, camera); hideTip();
         } else {
           rig.tTheta = Math.max(freeCam ? -Math.PI : -0.8, Math.min(freeCam ? Math.PI : 0.8, rig.tTheta - dx * 0.002));
-          rig.tPhi = Math.max(freeCam ? 0.65 : 0.02, Math.min(freeCam ? 1.30 : 0.52, rig.tPhi + dy * 0.0012));
+          /* 放大看楼时要能压到接近平视，总览时不许把地平线压进画面 */
+          var loPhi = isMap ? 0.30 : 0.02, hiPhi = isMap ? 1.42 : 0.52;
+          if (isMap) { if (rig.tDist < 900) loPhi = 0.16; if (rig.tDist < 260) loPhi = 0.06; }
+          rig.tPhi = Math.max(loPhi, Math.min(hiPhi, rig.tPhi + dy * 0.0012));
         }
         pointer.sx = e.clientX; pointer.sy = e.clientY;
       }
@@ -303,9 +440,23 @@
     canvas.addEventListener("wheel", function (e) {
       e.preventDefault();
       if (isDistrict) { rig.zoom(e.deltaY * 0.6); return; }
-      var minD = isMap ? 180 : 420, maxD = isMap ? 4600 : 2800;
-      rig.tDist = Math.max(minD, Math.min(maxD, rig.tDist + e.deltaY * 0.45));
+      /* 全城：往哪儿指就往哪儿钻。往里推时以光标下的地面点为锚，
+         往外拉时不设锚——否则锚点会把中心一路拽到城外。 */
+      var step = clampNum(e.deltaY, -260, 260);
+      var anchor = step < 0 ? groundAtPointer() : null;
+      rig.zoomBy(Math.exp(step * 0.0022), anchor);
+      updateScale();
     }, { passive: false });
+    /* 双击：把落点搬到画面中心，并再近一档。连点几下就是从全城钻进某栋楼。 */
+    canvas.addEventListener("dblclick", function (e) {
+      if (!isMap) return;
+      e.preventDefault(); updatePointer(e);
+      var a = groundAtPointer();
+      if (!a) return;
+      var nd = Math.max(MAP_MIN_D, Math.min(rig.tDist * 0.34, 1400));
+      rig.flyTo(a.x, a.z, nd, Math.min(1.24, Math.max(rig.tPhi, 0.78)));
+      updateScale();
+    });
 
     function addLink(container, text, href) {
       var a = document.createElement("a"); a.textContent = text; a.href = href; container.appendChild(a);
@@ -314,13 +465,20 @@
       selected = o;
       if (!cardOpen) previousFocus = document.activeElement;
       var kind = category(o), go = $("cardGo");
-      $("cardKind").textContent = kind === "halls" ? "六馆 / " + o.id : kind === "giants" ? "虚构企业 / 运行设定" : "基础设施 / " + o.category;
+      $("cardKind").textContent = kind === "halls" ? "六馆 / " + o.id
+        : kind === "zones" ? "城市片区 / " + o.id
+        : kind === "giants" ? "虚构企业 / 运行设定" : "基础设施 / " + o.category;
       $("cardName").textContent = o.name; $("cardEn").textContent = o.en || o.id;
       $("cardLine").textContent = o.line || o.note || "";
-      $("cardMeta").textContent = (o.biz ? "业态　" + o.biz + "\n" : "") + "局部场景位置　X " + o.x + " / Z " + o.z + "\n纯虚构设计，无地理底图" + (kind !== "halls" ? "\n设施动画为演示，未连接实时数据" : "\n三维大厅 · 独立分厅学习");
-      go.hidden = kind !== "halls";
-      go.href = o.href || "map.html"; go.textContent = kind === "halls" ? "进入三维大厅" : "定位此处";
+      $("cardMeta").textContent = (o.biz ? "业态　" + o.biz + "\n" : "")
+        + "局部场景位置　X " + Math.round(o.x) + " / Z " + Math.round(o.z) + "\n纯虚构设计，无地理底图"
+        + (kind === "zones" ? "\n片区地块 " + Math.round((o.r || 0) * 2) + " 米见方 · 滚轮可继续推近到单栋建筑"
+          : kind !== "halls" ? "\n设施动画为演示，未连接实时数据" : "\n三维大厅 · 独立分厅学习");
+      go.hidden = kind === "giants" || kind === "infra";
+      go.href = o.href || "map.html";
+      go.textContent = kind === "halls" ? "进入三维大厅" : "进入街区近景";
       var links = $("cardLinks"); links.replaceChildren();
+      if (kind === "zones") addLink(links, "只看这一个区", o.href);
       if (kind !== "halls" && !isMap) addLink(links, "在城市地图查看", "map.html?node=" + encodeURIComponent(o.id));
       $("cityCard").classList.add("on"); $("cityCard").setAttribute("aria-hidden", "false");
       document.body.classList.add("card-open"); cardOpen = true; $("cardX").focus({ preventScroll: true });
@@ -333,7 +491,7 @@
     function select(o) {
       /* 区域模式下点馆直接进馆，不弹卡。 */
       if (isDistrict && category(o) === "halls") { location.href = o.href; return; }
-      openCard(o); locateMarker(o); if (isMap || isDistrict) rig.focus(o); renderNodes();
+      openCard(o); locateMarker(o); if (isMap || isDistrict) rig.focus(o); updateScale(); renderNodes();
     }
     $("cardX").addEventListener("click", closeCard);
     $("cardLocate").addEventListener("click", function () { if (selected) { rig.focus(selected); locateMarker(selected); } });
@@ -342,10 +500,18 @@
       $("mapSelection").textContent = "选择分类后点击节点定位";
     }
     $("resetView").addEventListener("click", resetView);
+    if ($("zoomIn")) $("zoomIn").addEventListener("click", function () { rig.zoomBy(1 / 1.75, null); updateScale(); });
+    if ($("zoomOut")) $("zoomOut").addEventListener("click", function () { rig.zoomBy(1.75, null); updateScale(); });
+    /* 面板里的四类节点：片区 / 六馆 / 企业 / 设施。
+       片区的色块用区自己的颜色，这样面板和地上的地块对得上号。 */
+    function nodeSource() {
+      if (!isMap) return YC3D_CITY.HALLS;
+      return filter === "zones" ? ZONES : filter === "giants" ? YC3D_CITY.GIANTS
+        : filter === "infra" ? YC3D_CITY.INFRA : YC3D_CITY.HALLS;
+    }
     function renderNodes() {
       var box = $("nodeList"); box.replaceChildren();
-      var source = !isMap || filter === "halls" ? YC3D_CITY.HALLS : filter === "giants" ? YC3D_CITY.GIANTS : YC3D_CITY.INFRA;
-      source.forEach(function (o) {
+      nodeSource().forEach(function (o) {
         var node = document.createElement(isMap ? "button" : "a"); node.className = "node";
         node.dataset.id = o.id; node.classList.toggle("selected", selected === o);
         if (isMap) { node.type = "button"; node.setAttribute("aria-label", "定位" + o.name); node.addEventListener("click", function () { select(o); }); }
@@ -353,8 +519,12 @@
         var dot = document.createElement("span"); dot.className = "dot"; dot.style.setProperty("--c", "#" + o.color.toString(16).padStart(6, "0"));
         var nm = document.createElement("span"); nm.className = "nm";
         var b = document.createElement("b"); b.textContent = o.name; nm.appendChild(b);
-        var sub = document.createElement("i"); sub.textContent = o.biz || o.category || o.id + " · 三维大厅 / 独立分厅"; nm.appendChild(sub);
-        var st = document.createElement("span"); st.className = "st"; st.textContent = isMap ? "定位" : "进入";
+        var sub = document.createElement("i");
+        sub.textContent = o.kind === "district" ? o.id + " · " + (o.en || "城市片区")
+          : (o.biz || o.category || o.id + " · 三维大厅 / 独立分厅");
+        nm.appendChild(sub);
+        var st = document.createElement("span"); st.className = "st";
+        st.textContent = !isMap ? "进入" : o.kind === "district" ? "飞过去" : "定位";
         node.append(dot, nm, st); box.appendChild(node);
       });
     }
@@ -370,7 +540,7 @@
     /* 企业定位可从首页信息卡和外部链接转入地图，不附带强制白天参数。 */
     var initialId = new URLSearchParams(location.search).get("node");
     if (isMap && initialId) {
-      var initialOwner = YC3D_CITY.HALLS.concat(YC3D_CITY.GIANTS, YC3D_CITY.INFRA).find(function (o) { return o.id === initialId; });
+      var initialOwner = ZONES.concat(YC3D_CITY.HALLS, YC3D_CITY.GIANTS, YC3D_CITY.INFRA).find(function (o) { return o.id === initialId; });
       if (initialOwner) {
         filter = category(initialOwner);
         document.querySelectorAll("[data-filter]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.filter === filter)); });
@@ -399,11 +569,27 @@
       if (e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable) return;
       if (e.key.toLowerCase() === "m") { if (isMap) resetView(); else location.href = "map.html"; }
       else if (e.key.toLowerCase() === "e") location.href = "evidence.html";
+      /* 全城：+/- 推拉，方向键挪视点。放大到楼跟前之后，键盘比鼠标稳 */
+      else if (isMap && (e.key === "+" || e.key === "=")) { rig.zoomBy(1 / 1.5, null); updateScale(); }
+      else if (isMap && (e.key === "-" || e.key === "_")) { rig.zoomBy(1.5, null); updateScale(); }
+      else if (isMap && /^Arrow/.test(e.key)) {
+        e.preventDefault();
+        var stepK = rig.tDist * 0.22;
+        if (e.key === "ArrowLeft") rig.targetCenter.x -= stepK;
+        else if (e.key === "ArrowRight") rig.targetCenter.x += stepK;
+        else if (e.key === "ArrowUp") rig.targetCenter.z -= stepK;
+        else rig.targetCenter.z += stepK;
+        rig.clampCenter();
+      }
     });
     stage.onFrame(function (dt, t) {
       rig.update(dt);
       /* 阴影只覆盖镜头附近，必须跟着视点走，否则转到边上就没阴影了 */
       if (city.followShadow) city.followShadow(rig.center.x, rig.center.z);
+      /* 阴影盒按视距收放：8 公里外要盖住整排地，贴到楼跟前要收到两百米，
+         否则一张 2048 的贴图摊到楼身上，影子是一团糊斑 */
+      if (isMap && city.setShadowHalf) city.setShadowHalf(rig.dist * 0.72);
+      if (isMap) updateScale();
       city.update(reduceMotion ? 0 : dt, reduceMotion ? 0 : t);
     });
     var lowT = 0, degraded = false;
@@ -430,7 +616,7 @@
       return result;
     }
     function locate(id) {
-      var owner = YC3D_CITY.HALLS.concat(YC3D_CITY.GIANTS, YC3D_CITY.INFRA).find(function (o) { return o.id === id; });
+      var owner = ZONES.concat(YC3D_CITY.HALLS, YC3D_CITY.GIANTS, YC3D_CITY.INFRA).find(function (o) { return o.id === id; });
       if (!owner) return null;
       filter = category(owner);
       document.querySelectorAll("[data-filter]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.filter === filter)); });

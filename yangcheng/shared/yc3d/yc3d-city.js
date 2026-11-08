@@ -495,6 +495,36 @@
        每个区都走同一条 build：近景里长什么样，在这里就长什么样。
        地块先建成独立 Group（此时世界矩阵还是局部的，批处理才能正确），
        量完再挂到总图坐标上。 */
+    /* ---------------- 地块裁剪 ----------------
+       片区是按「一块完整的地」设计的：大道会一路画到 R 以外，河会横穿整块地。
+       单独看是一个完整街区，拼进城里就戳到邻区和草地上——D01 那条斜向大道
+       能伸出地块一百多米，D05 的河道更是铺开 1.8 公里。
+       每块地四个轴对齐裁剪面，正好把溢出的部分切在地块边界上，
+       不用去改任何一份设计方案。 */
+    var clipOwner = new Map();
+    var clippedMeshes = 0;
+    function clipToPlate(host, id, rect) {
+      var planes = [
+        new THREE.Plane(new THREE.Vector3(1, 0, 0), -(rect.minX + 1)),
+        new THREE.Plane(new THREE.Vector3(-1, 0, 0), rect.maxX - 1),
+        new THREE.Plane(new THREE.Vector3(0, 0, 1), -(rect.minZ + 1)),
+        new THREE.Plane(new THREE.Vector3(0, 0, -1), rect.maxZ - 1)
+      ];
+      host.traverse(function (o) {
+        if (!o.isMesh && !o.isInstancedMesh) return;
+        var list = Array.isArray(o.material) ? o.material : [o.material];
+        var next = list.map(function (m) {
+          if (!m || !m.isMaterial) return m;
+          /* 材质可能被两个区共用：先拆一份，否则后建的区会改掉前一个区的裁剪面 */
+          if (clipOwner.has(m.uuid) && clipOwner.get(m.uuid) !== id) m = m.clone();
+          clipOwner.set(m.uuid, id);
+          m.clippingPlanes = planes;
+          return m;
+        });
+        o.material = Array.isArray(o.material) ? next : next[0];
+        clippedMeshes++;
+      });
+    }
     var builtGroups = [];
     var t0 = (typeof performance !== "undefined" ? performance.now() : Date.now());
     if (global.YC3D_DISTRICT && global.ycDistrictPlan) {
@@ -510,13 +540,18 @@
           return;
         }
         host.position.set(d.cx, 0, d.cz);
+        /* 在总图坐标下裁：此时 host 的位移已经生效，box 直接取世界坐标 */
+        var pr = plates.filter(function (p) { return p.d.id === d.id; })[0];
+        clipToPlate(host, d.id, pr ? pr.r : { minX: d.cx - d.hx - PAD, maxX: d.cx + d.hx + PAD,
+          minZ: d.cz - d.hz - PAD, maxZ: d.cz + d.hz + PAD });
         scene.add(host);
         /* 实例网格保持 frustumCulled=false：three r150 的视锥剔除只认几何包围球，
            而同一份几何被同区多个批次复用，改包围球会把别的批次一起剪错。
            阴影只覆盖镜头附近，靠 followShadow 里按距离关掉远处批次的投影。 */
         /* 点哪栋楼都归这个片区：地图上随手一点就能打开它的档案 */
         var node = { id: d.id, name: d.name, en: d.en, color: d.color, x: d.cx, z: d.cz,
-          h: d.maxH, zone: d.id, kind: "district", line: d.desc, href: "district.html?zone=" + d.id };
+          h: d.maxH, r: Math.max(d.hx, d.hz), zone: d.id, kind: "district",
+          line: d.desc, href: "district.html?zone=" + d.id };
         host.traverse(function (o) { if (o.isMesh && !o.userData.owner) o.userData.owner = node; });
         api.districts.push({ d: d, api: sub, group: host, node: node });
         builtGroups.push(host);
@@ -524,6 +559,8 @@
         if (sub.state) api.state = api.state || sub.state;
       });
     }
+    /* 片区节点也当导航目标：面板里点一下就把镜头飞过去，落在「整块地」这一级 */
+    api.zones = api.districts.map(function (x) { return x.node; });
     var buildMs = (typeof performance !== "undefined" ? performance.now() : Date.now()) - t0;
 
     /* ---------------- 行道树 ----------------
@@ -597,7 +634,7 @@
         facades: { count: facades.length, standard: true },
         moonVisible: moon.visible, environment: rig.inspect().environment,
         nodes: { halls: api.halls.length, giants: api.giants.length, facilities: api.infrastructure.length },
-        urban: { districts: api.districts.length, buildings: b, bounds: BOUNDS,
+        urban: { districts: api.districts.length, buildings: b, bounds: BOUNDS, shadowHalf: shadowHalf,
           buildMs: Math.round(buildMs), trees: treePts.length * 2,
           streets: roads.children.length },
         coordinates: "虚构局部场景单位，1 单位 = 1 米，非 GIS", shadowMapSize: sun.shadow.mapSize.x };
@@ -615,6 +652,18 @@
       groundShadow.material.opacity = U.lerp(0.05, 0.22, state.day);
       if (api.onTimeChange) api.onTimeChange(state); return api.inspect();
     };
+    /* 阴影覆盖到哪：只让镜头附近这几块地投影。远处的区在阴影贴图之外，
+       投了只是白跑一遍几何。阈值按地块中心算，整块地一起开一起关。 */
+    var shadowHalf = 1900, shadowReach = 2600;
+    function applyShadowReach(cx, cz) {
+      for (var i = 0; i < api.districts.length; i++) {
+        var d = api.districts[i];
+        var far = Math.abs(d.d.cx - cx) > shadowReach || Math.abs(d.d.cz - cz) > shadowReach;
+        if (d.near === !far) continue;
+        d.near = !far;
+        d.group.traverse(function (o) { if (o.isMesh && !o.userData.alwaysShadow) o.castShadow = !far; });
+      }
+    }
     /* 阴影盒跟着视点走：镜头挪到哪，2048 的阴影就重算哪一块 */
     api.followShadow = function (cx, cz) {
       var t = sun.target.position;
@@ -622,16 +671,23 @@
       t.set(cx, 0, cz);
       sun.position.copy(t).addScaledVector(api.state ? api.state.direction : new THREE.Vector3(0.1, 0.7, -0.3), rig.sunDistance);
       sun.shadow.needsUpdate = true;
-      /* 阴影只覆盖镜头附近 1250 米。离得远的区不用投——它们在阴影贴图之外，
-         投了只是白跑一遍几何。阈值按地块中心算，整块地一起开一起关。 */
-      for (var i = 0; i < api.districts.length; i++) {
-        var d = api.districts[i];
-        var far = Math.abs(d.d.cx - cx) > 2600 || Math.abs(d.d.cz - cz) > 2600;
-        if (d.near === !far) continue;
-        d.near = !far;
-        d.group.traverse(function (o) { if (o.isMesh && !o.userData.alwaysShadow) o.castShadow = !far; });
-      }
+      applyShadowReach(cx, cz);
     };
+    /* 镜头远近决定阴影盒大小：1900 米摊 2048 像素是每像素 1.9 米，看楼时影子是糊的脏斑；
+       收到 220 米就是每像素 11 厘米，窗台、檐口的影子才立得住。 */
+    api.setShadowHalf = function (h) {
+      h = Math.max(150, Math.min(1900, h));
+      if (Math.abs(h - shadowHalf) < 1) return shadowHalf;
+      shadowHalf = h; shadowReach = Math.max(760, h * 1.85);
+      var c = sun.shadow.camera;
+      c.left = -h; c.right = h; c.top = h; c.bottom = -h; c.updateProjectionMatrix();
+      sun.shadow.needsUpdate = true;
+      /* 盒子的覆盖范围变了，哪些地该投得重判一次 */
+      for (var i = 0; i < api.districts.length; i++) api.districts[i].near = null;
+      applyShadowReach(sun.target.position.x, sun.target.position.z);
+      return shadowHalf;
+    };
+    api.shadowHalf = function () { return shadowHalf; };
     api.update = function (dt, t) {
       rig.update(t, api.camera);
       materials.forEach(function (m) { if (m.uniforms && m.uniforms.uTime) m.uniforms.uTime.value = t; });
