@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 const PORT = 9993;
 const URLX = process.env.PG_URL, NAME = process.env.PG_NAME || "page.png", FULL = process.env.PG_FULL === "1";
-const OUT = "D:/wobdy海外/2026-10-18-18-15-27/_devshots/yangcheng-shots";
+const OUT = process.env.PG_OUT || process.cwd();
 mkdirSync(OUT, { recursive: true });
 const EDGE = ["C://Program Files (x86)//Microsoft//Edge//Application//msedge.exe", "C://Program Files//Microsoft//Edge//Application//msedge.exe"].find(p => { try { readFileSync(p); return true } catch { return false } });
 const prof = mkdtempSync(join(tmpdir(), "shot-"));

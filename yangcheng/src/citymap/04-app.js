@@ -1,45 +1,54 @@
-/* 杨城 17 区平面总图：SVG 全息风格，零依赖。
-   区划/河流/轨道坐标与 shared/yc3d/yc3d-city.js 保持一致（虚构局部坐标）。 */
+/* 杨城 · 17 区平面总图（figure-ground 制图风）
+   ------------------------------------------------------------
+   上一版是一张「程序化全息图」：19 条竖线 + 15 条横线铺满全图，
+   再给每个区画一个随机抖动的圆斑。它和杨城没有任何关系——
+   圆的半径是 d.r 乘随机数，河流是手写的一串坐标，桥、高架、
+   街区全是装饰。所以它「黑漆漆的」，也「体现不出杨城的容貌」。
+
+   这一版换掉整套画法：直接读 3D 用的那两份数据源
+     · YC_DISTRICTS    —— 17 个地块的真实矩形（cx/cz/hx/hz）
+     · YC_CITY_PLAN    —— 澄川河、三座桥、城际高架、干道
+     · ycDistrictPlan  —— 每区自己的街网、环路、林荫道、广场与真建筑
+   于是这张图上画出来的每一条街、每一栋楼，都是 3D 里真有的那一条、那一栋。
+   图上没有一处是「随机」：所有抖动都来自各区自己的 seed。
+
+   配色按纸质总图来做：浅米底、白街、灰楼，高度越高越深。
+   19:00 之后切到夜图（深底、亮街、楼里点灯），滑杆可手动拨时间。 */
 (function () {
   "use strict";
   var DISTRICTS = window.YC_DISTRICTS || [];
-  if (!DISTRICTS.length) return;
+  var CP = window.YC_CITY_PLAN;
+  if (!DISTRICTS.length || !CP) return;
+  var PLAN = window.ycDistrictPlan;
   var SVG = "http://www.w3.org/2000/svg";
   var $ = function (id) { return document.getElementById(id); };
   var map = $("cmMap");
 
-  var MUSEUMS = {
-    H1: { name: "能力与边界博物馆", short: "老馆", href: "h1-museum.html", color: "#ffb347", x: -1510, z: 105 },
-    H2: { name: "推理法医馆", short: "法医", href: "h2-museum.html", color: "#37e6ff", x: -1260, z: -720 },
-    H3: { name: "指标失效博物馆", short: "指标", href: "h3-museum.html", color: "#ff4fa3", x: 0, z: 150 },
-    H4: { name: "数据污染博物馆", short: "污染", href: "h4-museum.html", color: "#63d61a", x: 1510, z: -660 },
-    H5: { name: "递归坍塌博物馆", short: "坍塌", href: "h5-museum.html", color: "#8b5cff", x: -1050, z: 1190 },
-    H6: { name: "潜能与预算博物馆", short: "预算", href: "h6-museum.html", color: "#ff9a2e", x: 1180, z: 1180 }
+  /* 馆 → 原型。和 shared/yc3d/yc3d-city.js 里的 HALL_TYPE 同一张表，
+     用来在地块里把「那座馆」那栋楼找出来，标在它真正的位置上。 */
+  var HALL_TYPE = { H1: "museum", H2: "forensicHall", H3: "twist",
+    H4: "archiveFrustum", H5: "collapseFunnel", H6: "archMuseum" };
+  var HALLS = {
+    H1: { name: "能力与边界博物馆", short: "能力与边界", href: "h1-museum.html", color: "#e8862b" },
+    H2: { name: "推理法医馆", short: "推理法医", href: "h2-museum.html", color: "#2b8fc4" },
+    H3: { name: "指标失效博物馆", short: "指标失效", href: "h3-museum.html", color: "#d63d7e" },
+    H4: { name: "数据污染博物馆", short: "数据污染", href: "h4-museum.html", color: "#5c9a2e" },
+    H5: { name: "递归坍塌博物馆", short: "递归坍塌", href: "h5-museum.html", color: "#6a4bd0" },
+    H6: { name: "潜能与预算博物馆", short: "潜能与预算", href: "h6-museum.html", color: "#c8761c" }
   };
-  var LANDMARKS = {
-    spire: { x: -20, z: -200, label: "杨城主塔" },
-    plaza: { x: 620, z: -30, label: "中央广场" },
-    "station-west": { x: -1580, z: -330, label: "西园站" },
-    "station-center": { x: 360, z: 400, label: "杨城中央站" },
-    "station-east": { x: 1390, z: 930, label: "东湾站" },
-    hospital: { x: 2210, z: 1460, label: "杨城综合医院" },
-    university: { x: -1800, z: 1530, label: "创新大学" },
-    waterworks: { x: 2350, z: 1280, label: "澄湾水务中心" },
-    freight: { x: 2450, z: -1540, label: "东部综合物流港" }
-  };
-  var RIVER = [[-2700, -1390], [-2240, -1080], [-1740, -650], [-1220, -300], [-650, 60], [-80, 250],
-    [500, 210], [1080, 540], [1640, 850], [2170, 640], [2700, 910]];
-  var RAIL = [[-2700, -1430], [-2250, -1030], [-1960, -650], [-1580, -330], [-1120, -240], [-650, 80],
-    [-80, 240], [360, 400], [860, 530], [1260, 680], [1390, 930], [1740, 1060], [2100, 760], [2700, 930]];
   var VIBE_LABEL = { core: "核心商务", heritage: "文化老城", compute: "算力园区", research: "科研园区",
     justice: "司法文化", transit: "交通枢纽", campus: "大学城", recursive: "科学园区", green: "生态居住",
     mixed: "市井混合", living: "滨水居住", eco: "生态城", port: "制造港口", lab: "实验区",
     design: "设计社区", cbd: "商务区", energy: "能源新区" };
 
-  /* 世界坐标 → SVG 视图（viewBox 1600×1100，城市 5400×3600） */
-  function PX(x) { return (x + 2700) / 5400 * 1520 + 40; }
-  function PY(z) { return (z + 1800) / 3600 * 980 + 60; }
-  function pt(p) { return PX(p[0]).toFixed(1) + "," + PY(p[1]).toFixed(1); }
+  /* ---------------- 投影：世界米 → 视图单位 ---------------- */
+  var B = CP.bounds, VB_W = 1600, VB_H = 1400;
+  var S = Math.min((VB_W - 108) / (B.maxX - B.minX), (VB_H - 104) / (B.maxZ - B.minZ));
+  var OX = (VB_W - (B.maxX - B.minX) * S) / 2, OY = (VB_H - (B.maxZ - B.minZ) * S) / 2;
+  function PX(x) { return +(OX + (x - B.minX) * S).toFixed(1); }
+  function PY(z) { return +(OY + (z - B.minZ) * S).toFixed(1); }
+  /* 米 → 视图单位（长度） */
+  function L(m) { return +(m * S).toFixed(2); }
 
   function el(name, attrs, parent) {
     var node = document.createElementNS(SVG, name);
@@ -47,128 +56,253 @@
     (parent || map).appendChild(node);
     return node;
   }
-  /* Catmull-Rom → 三次贝塞尔 */
-  function openPath(points) {
-    var d = "M" + pt(points[0]);
-    for (var i = 0; i < points.length - 1; i++) {
-      var p0 = points[Math.max(0, i - 1)], p1 = points[i], p2 = points[i + 1], p3 = points[Math.min(points.length - 1, i + 2)];
-      var c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
-      var c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
-      d += "C" + PX(c1x).toFixed(1) + "," + PY(c1y).toFixed(1) + " " + PX(c2x).toFixed(1) + "," + PY(c2y).toFixed(1) + " " + pt(p2);
-    }
-    return d;
-  }
-  function closedPath(points) {
-    var n = points.length, d = "M" + pt(points[0]);
-    for (var i = 0; i < n; i++) {
-      var p0 = points[(i - 1 + n) % n], p1 = points[i], p2 = points[(i + 1) % n], p3 = points[(i + 2) % n];
-      var c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
-      var c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
-      d += "C" + PX(c1x).toFixed(1) + "," + PY(c1y).toFixed(1) + " " + PX(c2x).toFixed(1) + "," + PY(c2y).toFixed(1) + " " + pt(p2);
-    }
-    return d + "Z";
-  }
   function rng(seedStr) {
     var h = 2166136261;
     for (var i = 0; i < seedStr.length; i++) { h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
     return function () { h = Math.imul(h ^ (h >>> 15), 2246822519); h = Math.imul(h ^ (h >>> 13), 3266489917); return ((h ^= h >>> 16) >>> 0) / 4294967296; };
   }
 
-  /* ---------- 底层：路网 ---------- */
-  var gGrid = el("g", {});
-  for (var gx = 0; gx < 19; gx++) {
-    var x = -2610 + gx * 290;
-    el("line", { x1: PX(x), y1: PY(-1800), x2: PX(x), y2: PY(1800),
-      class: "d-road" + (gx % 4 === 2 ? " major" : "") }, gGrid);
-  }
-  for (var gz = 0; gz < 15; gz++) {
-    var z = -1736 + gz * 248;
-    el("line", { x1: PX(-2700), y1: PY(z), x2: PX(2700), y2: PY(z),
-      class: "d-road" + (gz % 3 === 1 ? " major" : "") }, gGrid);
-  }
+  /* ---------------- 0. 底图 ---------------- */
+  el("rect", { x: 0, y: 0, width: VB_W, height: VB_H, class: "cm-paper" });
+  /* 郊野：城界以外的一圈。稍微深一档，让城界本身就看得见。 */
+  var mrg = 78;
+  el("rect", { x: PX(B.minX) - mrg, y: PY(B.minZ) - mrg, width: L(B.maxX - B.minX) + mrg * 2,
+    height: L(B.maxZ - B.minZ) + mrg * 2, rx: 26, class: "cm-country" });
+  el("rect", { x: PX(B.minX), y: PY(B.minZ), width: L(B.maxX - B.minX), height: L(B.maxZ - B.minZ),
+    class: "cm-land" });
 
-  /* ---------- 区域 ---------- */
-  var gDistricts = el("g", {});
-  var blobs = {};
-  DISTRICTS.forEach(function (d, i) {
-    var rand = rng(d.id + d.en), pts = [], steps = 14;
-    for (var s = 0; s < steps; s++) {
-      var ang = s / steps * Math.PI * 2;
-      var wob = 0.78 + rand() * 0.26;
-      pts.push([d.cx + Math.cos(ang) * d.r * wob * 1.02, d.cz + Math.sin(ang) * d.r * wob * 0.97]);
-    }
-    var gid = "grad" + d.id;
-    var grad = el("radialGradient", { id: gid, cx: "50%", cy: "50%", r: "62%" },
-      el("defs", {}));
-    el("stop", { offset: "0%", "stop-color": d.color, "stop-opacity": ".46" }, grad);
-    el("stop", { offset: "70%", "stop-color": d.color, "stop-opacity": ".16" }, grad);
-    el("stop", { offset: "100%", "stop-color": d.color, "stop-opacity": ".05" }, grad);
-    var a = el("a", { class: "d-blob", href: "district.html?zone=" + d.id,
-      "aria-label": "进入" + d.name + "三维街区" }, gDistricts);
-    a.style.setProperty("--i", i);
-    a.style.color = d.color;
-    el("path", { d: closedPath(pts), fill: "url(#" + gid + ")", class: "fill", "fill-opacity": ".3" }, a);
-    el("path", { d: closedPath(pts), fill: "none", stroke: d.color, "stroke-width": "1.6",
-      class: "edge", opacity: ".8" }, a);
-    var cy = PY(d.cz);
-    el("text", { x: PX(d.cx), y: cy - 3, class: "d-name" }, a).textContent = d.name;
-    el("text", { x: PX(d.cx), y: cy + 13, class: "d-en", fill: d.accent }, a).textContent = d.en;
-    blobs[d.id] = a;
+  var gRoad = el("g", { class: "cm-g-road" });
+  var gWater = el("g", { class: "cm-g-water" });
+  var gRail = el("g", { class: "cm-g-rail" });
+  var gBridge = el("g", { class: "cm-g-bridge" });
+  var gDistrict = el("g", { class: "cm-g-district" });
+  var gLabel = el("g", { class: "cm-g-label" });
+  var gPin = el("g", { class: "cm-g-pin" });
+
+  /* ---------------- 1. 干道（在江下面，被江截断） ---------------- */
+  CP.roads.forEach(function (r) {
+    if (!r.a || !r.b) return;                       /* ring:true 那条是环城路，二维图不画 */
+    el("line", { x1: PX(r.a[0]), y1: PY(r.a[1]), x2: PX(r.b[0]), y2: PY(r.b[1]),
+      class: "cm-ave " + (r.cls === "spine" ? "spine" : ""),
+      "stroke-width": Math.max(1.4, L(r.w) * 1.5) }, gRoad);
   });
 
-  /* ---------- 河流与轨道 ---------- */
-  var river = el("path", { d: openPath(RIVER), class: "d-river",
-    stroke: "#3f7fa8", "stroke-width": "52", opacity: ".9" });
-  el("path", { d: openPath(RIVER), class: "d-river", stroke: "#6fc4e8",
-    "stroke-width": "30", opacity: ".55" });
-  el("path", { d: openPath(RIVER), class: "d-river", stroke: "#bfeaff",
-    "stroke-width": "3", opacity: ".5" });
-  el("path", { d: openPath(RAIL), class: "d-rail" });
-
-  /* ---------- 地标与馆标 ---------- */
-  var gMarks = el("g", {});
-  for (var id in LANDMARKS) {
-    var m = LANDMARKS[id];
-    var dot = el("circle", { cx: PX(m.x), cy: PY(m.z), r: id === "spire" ? 6 : 3.4,
-      class: "d-mark" }, gMarks);
-    var t = document.createElementNS(SVG, "title"); t.textContent = m.label; dot.appendChild(t);
+  /* ---------------- 2. 澄川河 ---------------- */
+  function ribbon(pts) {
+    var A = [], Bk = [], n = pts.length, i;
+    for (i = 0; i < n; i++) {
+      var p = pts[i], a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)];
+      var dx = b[0] - a[0], dz = b[1] - a[1], len = Math.sqrt(dx * dx + dz * dz) || 1;
+      var nx = -dz / len, nz = dx / len, hw = p[2];
+      A.push([p[0] + nx * hw, p[1] + nz * hw]);
+      Bk.push([p[0] - nx * hw, p[1] - nz * hw]);
+    }
+    var d = "M" + A.map(function (q) { return PX(q[0]) + "," + PY(q[1]); }).join("L");
+    d += "L" + Bk.reverse().map(function (q) { return PX(q[0]) + "," + PY(q[1]); }).join("L") + "Z";
+    return d;
   }
-  var gMuseums = el("g", {});
-  for (var hid in MUSEUMS) {
-    var mu = MUSEUMS[hid];
-    var a = el("a", { class: "d-museum", href: mu.href, "aria-label": "参观" + mu.name }, gMuseums);
+  var rd = ribbon(CP.river);
+  el("path", { d: rd, class: "cm-river-bank" }, gWater);
+  el("path", { d: rd, class: "cm-river" }, gWater);
+
+  /* ---------------- 3. 城际高架 ---------------- */
+  var railD = "M" + CP.rail.pts.map(function (p) { return PX(p[0]) + "," + PY(p[1]); }).join("L");
+  el("path", { d: railD, class: "cm-rail-casing" }, gRail);
+  el("path", { d: railD, class: "cm-rail" }, gRail);
+  CP.rail.stations.forEach(function (s) {
+    el("circle", { cx: PX(s.x), cy: PY(railAt(s.x)), r: 3.6, class: "cm-station" }, gRail);
+  });
+  function railAt(x) {
+    var p = CP.rail.pts;
+    for (var i = 0; i < p.length - 1; i++) {
+      if ((p[i][0] <= x && p[i + 1][0] >= x) || (p[i][0] >= x && p[i + 1][0] <= x)) {
+        var t = (x - p[i][0]) / ((p[i + 1][0] - p[i][0]) || 1);
+        return p[i][1] + (p[i + 1][1] - p[i][1]) * t;
+      }
+    }
+    return p[0][1];
+  }
+
+  /* ---------------- 4. 三座桥 ---------------- */
+  CP.bridges.forEach(function (b) {
+    var x = PX(b.x), w = Math.max(3.4, L(b.w)), y0 = PY(b.z0), y1 = PY(b.z1);
+    el("rect", { x: x - w / 2, y: y0, width: w, height: y1 - y0, rx: w / 2, class: "cm-bridge" }, gBridge);
+    el("rect", { x: x - w / 2 + 1.1, y: y0 + 1.2, width: Math.max(1, w - 2.2), height: y1 - y0 - 2.4,
+      rx: (w - 2.2) / 2, class: "cm-bridge-in" }, gBridge);
+  });
+
+  /* ---------------- 5. 17 个地块 ---------------- */
+  var HEIGHT_STEPS = [
+    [16, 0], [30, 1], [55, 2], [95, 3], [150, 4], [230, 5], [400, 6]
+  ];
+  function hClass(h) {
+    for (var i = 0; i < HEIGHT_STEPS.length; i++) if (h <= HEIGHT_STEPS[i][0]) return "h" + HEIGHT_STEPS[i][1];
+    return "h6";
+  }
+
+  var zones = {}, hallPos = {};
+
+  DISTRICTS.forEach(function (d, di) {
+    var plan = PLAN ? PLAN(d) : null;
+    var hx = d.hx || d.r, hz = d.hz || d.r;
+    var g = el("g", { transform: "translate(" + PX(d.cx) + "," + PY(d.cz) + ") scale(" + S + ")" }, gDistrict);
+    g.style.setProperty("--i", di);
+    var cid = "cmclip-" + d.id;
+    var cp = el("clipPath", { id: cid }, el("defs", {}, map));
+    el("rect", { x: -hx, y: -hz, width: hx * 2, height: hz * 2 }, cp);
+
+    var body = el("g", { "clip-path": "url(#" + cid + ")" }, g);
+
+    /* 地块底板 */
+    el("rect", { x: -hx, y: -hz, width: hx * 2, height: hz * 2, class: "cm-plate" }, body);
+    /* 地块轮廓：这一圈是二维图上唯一「硬」的边界，读图靠它分块 */
+    el("rect", { x: -hx, y: -hz, width: hx * 2, height: hz * 2, class: "cm-plate-edge",
+      "vector-effect": "non-scaling-stroke" }, body);
+
+    if (plan) {
+      /* --- 5a. 水系：海 / 湖 / 河 --- */
+      if (plan.basin) {
+        var bx = plan.basin.x0;
+        el("rect", { x: bx, y: -hz, width: hx - bx, height: hz * 2, class: "cm-sea" }, body);
+        el("line", { x1: bx, y1: -hz, x2: bx, y2: hz, class: "cm-shore",
+          "vector-effect": "non-scaling-stroke" }, body);
+      }
+      if (plan.lake) {
+        var lk = plan.lake;
+        el("ellipse", { cx: lk.x, cy: lk.z, rx: lk.rx, ry: lk.rz, class: "cm-lake",
+          transform: "rotate(" + ((lk.rot || 0) * 180 / Math.PI).toFixed(1) + "," + lk.x + "," + lk.z + ")" }, body);
+      }
+      if (plan.water && plan.water.pts) {
+        var wp = plan.water.pts, hw = (plan.water.w || 60) / 2, A = [], Bk = [];
+        for (var wi = 0; wi < wp.length; wi++) {
+          var a2 = wp[Math.max(0, wi - 1)], b2 = wp[Math.min(wp.length - 1, wi + 1)];
+          var dx2 = b2[0] - a2[0], dz2 = b2[1] - a2[1], l2 = Math.sqrt(dx2 * dx2 + dz2 * dz2) || 1;
+          var nx2 = -dz2 / l2, nz2 = dx2 / l2;
+          A.push([wp[wi][0] + nx2 * hw, wp[wi][1] + nz2 * hw]);
+          Bk.push([wp[wi][0] - nx2 * hw, wp[wi][1] - nz2 * hw]);
+        }
+        var wd = "M" + A.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join("L")
+          + "L" + Bk.reverse().map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join("L") + "Z";
+        el("path", { d: wd, class: "cm-inner-water" }, body);
+      }
+
+      /* --- 5b. 街网：街区是一块块浅灰，街是它们之间露出来的底板 --- */
+      var gd = plan.grid;
+      var R = plan.R || 470;
+      if (gd && gd.type === "grid") {
+        var ang = (gd.angle || 0) * 180 / Math.PI;
+        var gg = el("g", { transform: "rotate(" + ang.toFixed(2) + ")" }, body);
+        var sx = gd.spacingX || 96, sz = gd.spacingZ || 96;
+        var major = gd.majorEvery || 3;
+        var limX = hx * 1.45, limZ = hz * 1.45;
+        var ix = 0;
+        for (var cx0 = -limX; cx0 < limX; cx0 += sx, ix++) {
+          var iz = 0;
+          for (var cz0 = -limZ; cz0 < limZ; cz0 += sz, iz++) {
+            /* 交叉口留得更宽 */
+            var padX = (ix % major === 0) ? 13 : 8, padZ = (iz % major === 0) ? 13 : 8;
+            el("rect", { x: +(cx0 + padX).toFixed(1), y: +(cz0 + padZ).toFixed(1),
+              width: Math.max(2, sx - padX * 2), height: Math.max(2, sz - padZ * 2), class: "cm-block" }, gg);
+          }
+        }
+      }
+
+      /* --- 5c. 环路与林荫道 --- */
+      (plan.rings || []).forEach(function (r) {
+        el("circle", { cx: r.cx || 0, cy: r.cz || 0, r: r.r, fill: "none",
+          class: "cm-ring-road", "stroke-width": Math.max(1.6, L(r.w || 26) * 1.4),
+          "vector-effect": "non-scaling-stroke" }, body);
+      });
+      (plan.avenues || []).forEach(function (av) {
+        el("line", { x1: av.from[0], y1: av.from[1], x2: av.to[0], y2: av.to[1],
+          class: "cm-dist-ave", "stroke-width": Math.max(1.5, L(av.w || 30) * 1.4),
+          "vector-effect": "non-scaling-stroke" }, body);
+      });
+      /* --- 5d. 广场 --- */
+      (plan.plazas || []).forEach(function (pz) {
+        el("rect", { x: pz.x - pz.w / 2, y: pz.z - pz.d / 2, width: pz.w, height: pz.d,
+          rx: 3, class: "cm-plaza" }, body);
+      });
+      /* --- 5e. 真建筑 --- */
+      var gh = el("g", { class: "cm-bldg-g" }, body);
+      (plan.hero || []).forEach(function (h) {
+        if (!h.w || !h.d) return;
+        var rot = h.rot ? (h.rot * 180 / Math.PI) : 0;
+        var tr = "rotate(" + rot.toFixed(1) + "," + h.x + "," + h.z + ")";
+        if ((h.h || 0) >= 110) {
+          /* 只有高个子才投影子：低层楼也投，图会糊成一片灰。 */
+          el("rect", { x: +(h.x - h.w / 2 + 7).toFixed(1), y: +(h.z - h.d / 2 + 7).toFixed(1),
+            width: h.w, height: h.d, transform: tr, class: "cm-bldg-sh" }, gh);
+        }
+        el("rect", { x: +(h.x - h.w / 2).toFixed(1), y: +(h.z - h.d / 2).toFixed(1),
+          width: h.w, height: h.d, transform: tr, class: "cm-bldg " + hClass(h.h || 20) }, gh);
+        /* 灯：夜里高楼上的一层亮窗 */
+        if ((h.h || 0) >= 55) {
+          el("rect", { x: +(h.x - h.w * 0.22).toFixed(1), y: +(h.z - h.d * 0.22).toFixed(1),
+            width: +(h.w * 0.44).toFixed(1), height: +(h.d * 0.44).toFixed(1), transform: tr,
+            class: "cm-lit" }, gh);
+        }
+        /* 记下每座馆在本区里的位置 */
+        for (var hid in HALL_TYPE) {
+          if (HALL_TYPE[hid] === h.type && (d.museums || []).indexOf(hid) >= 0 && !hallPos[hid]) {
+            hallPos[hid] = { x: d.cx + h.x, z: d.cz + h.z };
+          }
+        }
+      });
+    }
+
+    /* 交互层：透明矩形盖住整块地 */
+    var hit = el("rect", { x: -hx, y: -hz, width: hx * 2, height: hz * 2, class: "cm-hit" }, body);
+    zones[d.id] = { g: g, hit: hit, d: d, hx: hx, hz: hz, plan: plan };
+    hit.addEventListener("mouseenter", function () { show(d); });
+    hit.addEventListener("click", function () { location.href = "district.html?zone=" + d.id; });
+
+    /* --- 5f. 标签：挂在每块地头上那条缝里，不压街区 --- */
+    var lx = PX(d.cx - hx) + 2, ly = PY(d.cz - hz) - 6;
+    var nmW = d.name.length * 11.4 + 30;
+    var gl = el("g", { class: "cm-lab" + (d.featured ? " featured" : "") }, gLabel);
+    gl.dataset.id = d.id;
+    el("rect", { x: lx - 3.5, y: ly - 10.5, width: nmW, height: 15, rx: 2, class: "cm-lab-bg" }, gl);
+    el("text", { x: lx, y: ly, class: "cm-lab-id" }, gl).textContent = d.id;
+    el("text", { x: lx + 22, y: ly, class: "cm-lab-name" }, gl).textContent = d.name;
+    gl.addEventListener("mouseenter", function () { show(d); });
+    zones[d.id].lab = gl;
+  });
+
+  /* ---------------- 6. 六馆 ---------------- */
+  for (var hid in HALLS) {
+    var p = hallPos[hid];
+    if (!p) continue;
+    var mu = HALLS[hid];
+    var a = el("a", { class: "cm-hall", href: mu.href, "aria-label": "参观" + mu.name }, gPin);
     a.style.color = mu.color;
-    var mx = PX(mu.x), my = PY(mu.z);
-    el("circle", { cx: mx, cy: my, r: 5, fill: "none", stroke: mu.color, "stroke-width": "1.6", class: "halo" }, a);
-    el("circle", { cx: mx, cy: my, r: 5.5, fill: mu.color, class: "core" }, a);
-    el("circle", { cx: mx, cy: my, r: 2.2, fill: "#fff" }, a);
-    el("text", { x: mx + 11, y: my + 4 }, a).textContent = hid + " · " + mu.short;
+    var mx = PX(p.x), my = PY(p.z);
+    el("circle", { cx: mx, cy: my, r: 7.5, class: "cm-hall-halo" }, a);
+    el("circle", { cx: mx, cy: my, r: 4.6, class: "cm-hall-dot" }, a);
+    el("circle", { cx: mx, cy: my, r: 1.8, class: "cm-hall-core" }, a);
+    var t = el("text", { x: mx + 8, y: my + 3.4, class: "cm-hall-t" }, a);
+    t.textContent = hid;
+    var tt = document.createElementNS(SVG, "title"); tt.textContent = mu.name; a.appendChild(tt);
+  }
+  /* 中央广场与主塔 */
+  var d01 = DISTRICTS.filter(function (x) { return x.id === "D01"; })[0];
+  if (d01) {
+    var tx = PX(d01.cx), ty = PY(d01.cz - 60);
+    var bg = el("g", { class: "cm-badge" }, gPin);
+    el("rect", { x: tx - 40, y: ty - 34, width: 80, height: 17, rx: 2 }, bg);
+    el("text", { x: tx, y: ty - 22 }, bg).textContent = "中央广场 · 主塔";
   }
 
-  /* ---------- 推荐徽标（主塔上方） ---------- */
-  var bg = el("g", { class: "d-badge" });
-  var bx = PX(-20), by = PY(-200) - 46;
-  el("rect", { x: bx - 44, y: by - 13, width: 88, height: 22, rx: 3 }, bg);
-  el("text", { x: bx, y: by + 3 }, bg).textContent = "推荐参观";
-  el("path", { d: "M" + (bx - 7) + "," + (by - 34) + "L" + bx + "," + (by - 20) + "L" + (bx + 7) + "," + (by - 34) + "L" + bx + "," + (by - 26) + "Z",
-    fill: "#ffd45e", opacity: ".95" }, bg);
-
-  /* ---------- 选中环 ---------- */
-  var gRing = el("g", { style: "display:none" });
-  var ring1 = el("circle", { class: "cm-ring", stroke: "#59e6f5", r: 200 }, gRing);
-  var ring2 = el("circle", { class: "cm-ring2", stroke: "#8ff3ff", r: 214 }, gRing);
-
-  /* ---------- 面板与高亮 ---------- */
+  /* ---------------- 7. 面板与选中 ---------------- */
   var selected = null;
   function show(d) {
     selected = d;
-    for (var id in blobs) blobs[id].classList.toggle("sel", id === d.id);
-    var r = d.r * 0.2815 * 1.12;
-    gRing.style.display = "";
-    ring1.setAttribute("cx", PX(d.cx)); ring1.setAttribute("cy", PY(d.cz)); ring1.setAttribute("r", r);
-    ring2.setAttribute("cx", PX(d.cx)); ring2.setAttribute("cy", PY(d.cz)); ring2.setAttribute("r", r + 13);
-    ring1.setAttribute("stroke", d.color); ring2.setAttribute("stroke", d.accent);
-    $("cmPanel").style.borderTopColor = d.color;
+    for (var id in zones) {
+      var z = zones[id];
+      z.hit.classList.toggle("sel", id === d.id);
+      z.lab.classList.toggle("on", id === d.id);
+    }
+    $("cmPanel").style.setProperty("--c", d.color || "#4a7f9c");
     $("cmKick").textContent = d.featured ? "推荐参观" : (VIBE_LABEL[d.vibe] || d.vibe);
     $("cmKick").className = "cm-panel-kicker" + (d.featured ? " rec" : "");
     $("cmName").textContent = d.name;
@@ -183,41 +317,80 @@
     });
     var box = $("cmMuseums"); box.replaceChildren();
     d.museums.forEach(function (hid) {
-      var mu = MUSEUMS[hid]; if (!mu) return;
+      var mu = HALLS[hid]; if (!mu) return;
       var a = document.createElement("a"); a.href = mu.href; a.style.color = mu.color;
       var dot = document.createElement("span"); dot.className = "dot"; a.appendChild(dot);
       var nm = document.createElement("span"); nm.textContent = hid + " · " + mu.name; a.appendChild(nm);
       var go = document.createElement("span"); go.className = "go"; go.textContent = "直接参观 →"; a.appendChild(go);
       box.appendChild(a);
     });
-    $("cmEnter").href = "district.html?zone=" + d.id;
+    $("cmEnter").href = "district.html?zone=" + d.id + "&" + phaseQuery();
     $("cmEnter").textContent = "进入" + d.name + " →";
     $("cmPanel").hidden = false;
   }
-  DISTRICTS.forEach(function (d) {
-    var a = blobs[d.id];
-    a.addEventListener("mouseenter", function () { show(d); });
-  });
-  gMuseums.addEventListener("click", function (e) { e.stopPropagation(); });
   $("cmClose").addEventListener("click", function () { $("cmPanel").hidden = true; });
   $("cmRandom").addEventListener("click", roll);
+  function roll() {
+    show(DISTRICTS[Math.floor(Math.random() * DISTRICTS.length)]);
+  }
   document.addEventListener("keydown", function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key === "r" || e.key === "R") roll();
   });
-  function roll() { show(DISTRICTS[Math.floor(Math.random() * DISTRICTS.length)]); }
 
-  /* 打开时随机展示一个区域；?zone=Dxx 可固定（回归测试用） */
-  var pinned = new URLSearchParams(location.search).get("zone");
-  var initial = pinned && blobs[pinned] ? DISTRICTS.find(function (d) { return d.id === pinned; }) : null;
-  (initial ? show(initial) : roll());
-
-  /* 北京时间 UTC+8 时钟 */
-  function tick() {
-    var now = new Date(Date.now() + 8 * 3600000);
-    var label = ("0" + now.getUTCHours()).slice(-2) + ":" + ("0" + now.getUTCMinutes()).slice(-2);
-    var clock = $("cmClock"); clock.textContent = label + " 北京时间";
-    clock.setAttribute("datetime", now.toISOString().slice(0, 16) + "+08:00");
+  /* ---------------- 8. 时间 ---------------- */
+  /* 和 3D 同一套口径：默认跟随北京时间，滑杆只冻结「演练时钟」。
+     二维图上时间不是装饰——它决定这张图是白天总图还是夜间灯图。 */
+  var autoTime = true, simHour = null;
+  function phaseOf(h) {
+    if (h >= 6.5 && h < 17.5) return "day";
+    if (h >= 5 && h < 6.5) return "dawn";
+    if (h >= 17.5 && h < 19.5) return "dusk";
+    return "night";
   }
-  tick(); setInterval(tick, 30000);
+  function phaseQuery() { return autoTime ? "" : "time=" + simHour; }
+  function fmt(h) {
+    var hh = Math.floor(h) % 24, mm = Math.round((h - Math.floor(h)) * 60);
+    return ("0" + hh).slice(-2) + ":" + ("0" + mm).slice(-2);
+  }
+  function applyPhase(h) {
+    var ph = phaseOf(h);
+    document.body.dataset.phase = ph;
+    $("cmHourOut").textContent = fmt(h);
+    document.body.classList.toggle("is-night", ph === "night");
+  }
+  function beijingNow() { var n = new Date(Date.now() + 8 * 3600000); return n.getUTCHours() + n.getUTCMinutes() / 60; }
+  function tick() {
+    if (autoTime) {
+      var h = beijingNow();
+      applyPhase(h);
+      $("cmHour").value = h.toFixed(2);
+      $("cmReset").classList.add("on");
+      $("cmClock").textContent = fmt(h) + " 北京时间";
+    }
+  }
+  $("cmHour").addEventListener("input", function () {
+    autoTime = false; simHour = parseFloat(this.value);
+    $("cmReset").classList.remove("on");
+    applyPhase(simHour);
+    $("cmClock").textContent = fmt(simHour) + " 演练时间";
+  });
+  $("cmReset").addEventListener("click", function () {
+    autoTime = true; simHour = null; tick();
+  });
+
+  var q = new URLSearchParams(location.search);
+  var pinned = q.get("zone");
+  if (q.get("time") !== null && q.get("time") !== "") {
+    autoTime = false; simHour = parseFloat(q.get("time")) || 0;
+    $("cmHour").value = simHour;
+    applyPhase(simHour);
+    $("cmClock").textContent = fmt(simHour) + " 演练时间";
+  } else {
+    tick();
+  }
+  setInterval(tick, 20000);
+
+  var initial = pinned && zones[pinned] ? DISTRICTS.filter(function (d) { return d.id === pinned; })[0] : null;
+  if (initial) show(initial); else roll();
 })();

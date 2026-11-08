@@ -30,3 +30,6 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
+
+# 根目录的出图（旧四版展厅的截图）
+/*.png

@@ -172,14 +172,14 @@ def build_targets(targets):
     if "city" in targets:
         # 首页是平面 17 区总图（无 WebGL）；yc-districts.js 先内联再进 app。
         built.append(("index.html", page("index.html", "src/citymap/01-head.html", "src/citymap/02-style.html", "src/citymap/03-body.html",
-            ["shared/yc-districts.js", "src/citymap/04-app.js"], "src/citymap/05-tail.html", cast_css=False)))
+            ["shared/yc-districts.js", "shared/yc-city-plan.js", "shared/yc-district-plan.js", "src/citymap/04-app.js"], "src/citymap/05-tail.html", cast_css=False)))
     if "map" in targets:
         built.append(("map.html", page("map.html", "src/city/01-head.html", "src/city/02-style.html", "src/city/03-body.html",
-            [THREE, "shared/yc-evidence.js", "shared/yc3d/yc3d-core.js", "shared/yc3d/yc3d-build.js", "shared/yc-districts.js", "shared/yc3d/yc3d-city.js", "src/city/04-app.js"], "src/city/05-tail.html")))
+            [THREE, "shared/yc-evidence.js", "shared/yc3d/yc3d-core.js", "shared/yc3d/yc3d-build.js", "shared/yc-districts.js", "shared/yc-city-plan.js", "shared/yc-district-plan.js", "shared/yc3d/yc3d-district.js", "shared/yc3d/yc3d-city.js", "src/city/04-app.js"], "src/city/05-tail.html")))
     if "district" in targets:
-        # 区域三维街区视角：与 map.html 同壳，?zone=Dxx 激活区域模式。
+        # 区域街区近景：只生成当前区域，走局部街区引擎（1 单位 = 1 米）。
         built.append(("district.html", page("district.html", "src/city/01-head.html", "src/city/02-style.html", "src/city/03-body.html",
-            [THREE, "shared/yc-evidence.js", "shared/yc3d/yc3d-core.js", "shared/yc3d/yc3d-build.js", "shared/yc-districts.js", "shared/yc3d/yc3d-city.js", "src/city/04-app.js"], "src/city/05-tail.html")))
+            [THREE, "shared/yc-evidence.js", "shared/yc3d/yc3d-core.js", "shared/yc3d/yc3d-build.js", "shared/yc-districts.js", "shared/yc-city-plan.js", "shared/yc-district-plan.js", "shared/yc3d/yc3d-district.js", "shared/yc3d/yc3d-city.js", "src/city/04-app.js"], "src/city/05-tail.html")))
     if "museums" in targets:
         build_museums(built)
     print("built targeted pages:")

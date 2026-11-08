@@ -19,9 +19,8 @@
     <span class="real-clock" id="realClock" hidden></span>
   </div>
   <nav class="topnav" aria-label="业务入口">
-    <a id="navMap" href="map.html">城市地图</a>
+    <a id="navMap" href="index.html">城市地图</a>
     <a href="evidence.html">公共证据厅</a>
-    <a href="h1-museum.html">能力与边界馆</a>
   </nav>
 </header>
 
@@ -58,18 +57,18 @@
 
 <div class="cta">
   <div class="maphint" id="mapHint">先看地图，定位六馆与城市设施</div>
-  <a class="mapbtn" id="btnMap" href="map.html"><span class="mbt"><b>进入城市地图</b><i>六馆定位 · 保留旧馆入口</i></span></a>
-  <div class="hall-shortcuts"><a class="new-hall" href="../h1-lab.html">去旧馆</a><a class="new-hall" href="h3-museum.html">H3 指标失效新馆</a></div>
+  <a class="mapbtn" id="btnMap" href="index.html"><span class="mbt"><b>城市地图</b><i>17 区总图 · 二维导览</i></span></a>
 </div>
 <div class="map-tools" id="mapTools" hidden><button type="button" id="resetView">全城总览</button><span id="mapSelection" role="status">选择分类后点击节点定位</span></div>
 
 <div class="district-hud" id="districtHud" hidden>
   <h2 id="dhName">—</h2>
   <div class="dh-en" id="dhEn"></div>
+  <div class="dh-hint" id="dhHint">拖动平移看不同地段 · Shift 拖动转视角 · 滚轮推近拉远</div>
   <p class="dh-desc" id="dhDesc"></p>
   <div class="dh-museums" id="dhMuseums"></div>
   <div class="dh-nav">
-    <a href="index.html">返回平面区域图</a>
+    <button type="button" id="dhReset">回到默认视角</button>
     <a href="map.html">全城鸟瞰</a>
   </div>
 </div>

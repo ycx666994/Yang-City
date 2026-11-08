@@ -1,16 +1,20 @@
 <div class="cm-bg" aria-hidden="true"></div>
 <header class="cm-top">
-  <div class="cm-brand"><b>杨城</b><em>YANG CITY · 17 区导览总图</em></div>
+  <div class="cm-brand"><b>杨城</b><em>YANG CITY · 17 区总图</em></div>
   <div class="cm-spacer"></div>
   <span class="cm-clock" id="cmClock" datetime="">--:--</span>
+  <div class="cm-time">
+    <label for="cmHour">时间<output id="cmHourOut">--:--</output></label>
+    <input id="cmHour" type="range" min="0" max="23.75" step="0.25" aria-label="演练小时，UTC+8">
+    <button type="button" class="cm-btn on" id="cmReset" title="回到跟随北京时间的实时状态">北京时间</button>
+  </div>
   <a class="cm-btn" href="evidence.html" title="跨馆证据比对与联合复核">公共证据厅</a>
-  <a class="cm-btn cm-opt" href="../h1-lab.html" title="最早的八件展品 · Trust Lab">旧馆</a>
   <button class="cm-btn" id="cmRandom" type="button" title="随机高亮一个区域（快捷键 R）">随机漫游</button>
-  <a class="cm-btn" href="map.html" title="三维全城鸟瞰">全城鸟瞰 3D</a>
+  <a class="cm-btn" href="map.html" title="三维全城，可进到每一区的街区近景">杨城 3D</a>
 </header>
 <main class="cm-main">
-  <svg id="cmMap" viewBox="0 0 1600 1100" preserveAspectRatio="xMidYMid meet"
-       role="img" aria-label="杨城 17 区域平面导览图：点击区域进入三维街区，点击发光馆标直接参观"></svg>
+  <svg id="cmMap" viewBox="0 0 1600 1400" preserveAspectRatio="xMidYMid meet"
+       role="img" aria-label="杨城 17 区平面总图：按地块真实轮廓、街网与建筑平面绘制，点击区域进入三维街区，点击馆标直接参观"></svg>
 </main>
 <aside class="cm-panel" id="cmPanel" aria-live="polite">
   <div class="cm-panel-head">
@@ -25,9 +29,10 @@
   <a class="cm-enter" id="cmEnter" href="district.html">进入三维街区 →</a>
 </aside>
 <div class="cm-legend" aria-hidden="true">
-  <span><i style="background:linear-gradient(90deg,#59c8ec,#35d6e8)"></i>城市区域（17）</span>
-  <span><i style="background:#3f7fa8;height:4px;border-radius:2px"></i>澄川河</span>
-  <span><i style="background:repeating-linear-gradient(90deg,#ffd88f 0 5px,transparent 5px 9px);height:3px"></i>城际高架线</span>
-  <span><i style="background:radial-gradient(circle,#ff5fa8 40%,transparent 70%);border-radius:50%;width:10px;height:10px"></i>博物馆（可直达）</span>
+  <span><i style="background:#ffffff;border:1px solid #c9cfc2"></i>街道 / 街区</span>
+  <span><i style="background:linear-gradient(90deg,#b3baa8,#5a6455)"></i>建筑（越深越高）</span>
+  <span><i style="background:#a9cfe2"></i>澄川河与湖</span>
+  <span><i style="background:repeating-linear-gradient(90deg,#c6a267 0 4px,transparent 4px 7px)"></i>城际高架</span>
+  <span><i style="background:#d63d7e;border-radius:50%;width:9px;height:9px"></i>博物馆（可直达）</span>
 </div>
-<p class="cm-foot" id="cmHint"><b>点击任意区域</b>进入其三维街区 · 点击<b>发光馆标</b>直接参观博物馆</p>
+<p class="cm-foot" id="cmHint"><b>点击任意区域</b>进三维街区 · 点<b>馆标</b>直接参观 · 拨时间看白天与夜间</p>

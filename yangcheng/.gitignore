@@ -1,0 +1,5 @@
+# 出图与调试产物不入库：仓库里只留页面、脚本与运行时资源
+*.png
+!shared/yc3d/assets/*.png
+_build/
+.node-port

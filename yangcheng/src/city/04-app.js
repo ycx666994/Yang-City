@@ -28,12 +28,14 @@
 
   function CamRig(camera) {
     this.cam = camera;
+    /* 全城的视线中心要往南压一点：透视会把远景压扁，把镜头对准几何中心，
+       画面下半（南排）就顶出框、上半留一大片空地。6600 米也不够把南岸第四排收进来。 */
     this.center = new THREE.Vector3(isDistrict ? zone.cx : isMap ? 0 : -20,
-      isDistrict ? 40 : isMap ? 0 : 145, isDistrict ? zone.cz : isMap ? 0 : 25);
+      isDistrict ? 40 : isMap ? 0 : 145, isDistrict ? zone.cz : isMap ? 170 : 25);
     this.targetCenter = this.center.clone();
     this.theta = this.tTheta = 0;
-    this.phi = this.tPhi = isDistrict ? 0.60 : isMap ? 0.76 : 0.28;
-    this.dist = this.tDist = isDistrict ? Math.max(1000, Math.min(1900, zone.r * 2.3)) : isMap ? 3800 : 1600;
+    this.phi = this.tPhi = isDistrict ? 0.60 : isMap ? 0.97 : 0.28;
+    this.dist = this.tDist = isDistrict ? Math.max(1000, Math.min(1900, zone.r * 2.3)) : isMap ? 6900 : 1600;
     this.mx = this.my = this.tmx = this.tmy = 0;
   }
   CamRig.prototype.update = function (dt) {
@@ -58,9 +60,9 @@
   };
   CamRig.prototype.reset = function () {
     this.targetCenter.set(isDistrict ? zone.cx : isMap ? 0 : -20,
-      isDistrict ? 40 : isMap ? 0 : 145, isDistrict ? zone.cz : isMap ? 0 : 25);
-    this.tTheta = 0; this.tPhi = isDistrict ? 0.60 : isMap ? 0.76 : 0.28;
-    this.tDist = isDistrict ? Math.max(1000, Math.min(1900, zone.r * 2.3)) : isMap ? 3800 : 1600;
+      isDistrict ? 40 : isMap ? 0 : 145, isDistrict ? zone.cz : isMap ? 170 : 25);
+    this.tTheta = 0; this.tPhi = isDistrict ? 0.60 : isMap ? 0.97 : 0.28;
+    this.tDist = isDistrict ? Math.max(1000, Math.min(1900, zone.r * 2.3)) : isMap ? 6900 : 1600;
   };
 
   function boot() {
@@ -89,19 +91,42 @@
     step(26, "正在布设太阳光、城市结构与设施");
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(isMap ? 52 : 48, 1, 0.5, 10000);
-    var city = YC3D_CITY.build(scene, { hour: seedHour });
-    var rig = new CamRig(camera); city.camera = camera;
+    /* 区域模式走局部街区引擎：只生成这一个区域，1 单位 = 1 米，镜头贴近侧上方。 */
+    var plan = isDistrict && window.YC3D_DISTRICT && window.ycDistrictPlan ? window.ycDistrictPlan(zone) : null;
+    /* 每个区域可以有自己的曝光：亮色石材区不压曝光就会整片发白 */
+    if (plan && plan.exposure) stage.exposure = plan.exposure;
+    var city = plan ? YC3D_DISTRICT.build(scene, plan, { hour: seedHour })
+      : YC3D_CITY.build(scene, { hour: seedHour });
+    var rig;
+    if (plan) {
+      var bb = city.bounds, vw = plan.view || {};
+      rig = new YC3D_DISTRICT.Rig(camera, {
+        bounds: { minX: bb.minX * 0.94, maxX: bb.maxX * 0.94, minZ: bb.minZ * 0.94, maxZ: bb.maxZ * 0.94 },
+        x: vw.x || 0, y: vw.y || 0, z: vw.z || 0, dist: vw.dist || 300,
+        phi: vw.phi === undefined ? 0.74 : vw.phi, theta: vw.theta || 0.4,
+        minD: 85, maxD: 780
+      });
+    } else {
+      rig = new CamRig(camera);
+    }
+    city.camera = camera;
+    /* 仅在 ?debug=1 时暴露内部对象，用于射线探针排查材质/构件归属。 */
+    if (location.search.indexOf("debug=1") >= 0) {
+      window.__yc = { scene: scene, camera: camera, renderer: stage.renderer, city: city, rig: rig, THREE: THREE };
+    }
     stage.setScene(scene, camera);
     if (isMap) {
       document.title = "杨城城市地图 · 六馆、" + YC3D_CITY.GIANTS.length + "家AI企业与" + YC3D_CITY.INFRA.length + "个设施";
       $("cityNodes").open = true; $("nodesTitle").textContent = "城市地图 · 分类定位";
       $("nodeFilters").hidden = false; $("mapTools").hidden = false;
-      $("navMap").href = "index.html"; $("navMap").textContent = "城市首页";
+      /* 这一个按钮去的是二维《城市地图》(index.html)，所以就叫「城市地图」。
+         以前这里写「城市首页」——点下去落地的是张地图，名字和目标两张皮。 */
+      $("navMap").href = "index.html"; $("navMap").textContent = "城市地图";
       $("nodesFoot").textContent = "节点定位后可进入馆内；坐标是虚构场景单位。";
       canvas.setAttribute("aria-label", "虚构杨城俯视地图，六馆、" + YC3D_CITY.GIANTS.length + "家AI企业及" + YC3D_CITY.INFRA.length + "个设施可分类定位");
     }
     if (isDistrict) {
-      document.title = "杨城 · " + zone.name + " · 三维街区";
+      document.title = "杨城 · " + zone.name + " · 街区近景";
       $("cityNodes").open = false;
       if ($("nodeFilters")) $("nodeFilters").hidden = true;
       if ($("mapTools")) $("mapTools").hidden = true;
@@ -119,7 +144,8 @@
         }
         dh.hidden = false;
       }
-      canvas.setAttribute("aria-label", "虚构杨城" + zone.name + "三维街区，可环绕浏览并点击建筑");
+      if ($("dhReset")) $("dhReset").addEventListener("click", function () { rig.reset(); });
+      canvas.setAttribute("aria-label", "虚构杨城" + zone.name + "街区近景，可拖动平移查看不同地段，Shift 拖动转换视角");
     }
     function fit() {
       camera.aspect = (canvas.clientWidth || innerWidth) / (canvas.clientHeight || innerHeight);
@@ -128,10 +154,14 @@
     fit(); window.addEventListener("resize", fit);
     var environmentKey = null;
     function syncRealClock() { $("realClock").textContent = "实际北京时间 " + hourLabel(clockHour(beijingNow())) + " UTC+8"; }
+    /* 区域可以再压一档曝光：正午的 ACES 会把浅灰铝皮直接推到白，
+       谷地要的是有层次的灰，不是一片白。只作用于显式声明 exposureK 的区域。 */
+    /* 全城要再压一档曝光：17 个区的地面全是浅色铺装，摊到一屏里会整片过曝发白 */
+    var exposureK = plan && plan.exposureK ? plan.exposureK : (isMap ? 0.82 : 1);
     function syncTime(state) {
       if (!applyingClock) { manualHour = state.hour; rehearsalSource = "API"; }
-      stage.exposure = state.exposure;
-      if (stage.matComp.uniforms.uExposure) stage.matComp.uniforms.uExposure.value = state.exposure;
+      stage.exposure = state.exposure * exposureK;
+      if (stage.matComp.uniforms.uExposure) stage.matComp.uniforms.uExposure.value = stage.exposure;
       stage.bloom = 0.07 + state.night * 0.30;
       stage.thresh = 1.40 - state.night * 0.35;
       stage.matBright.uniforms.uThresh.value = stage.thresh;
@@ -192,8 +222,9 @@
       color: city.state.day > 0.5 ? 0x146783 : 0x8be8ff, toneMapped: false }));
     locator.visible = false; scene.add(locator);
     function locateMarker(o) {
-      var groups = city.halls.concat(city.giants, city.infrastructure);
+      var groups = (city.halls || []).concat(city.giants || [], city.infrastructure || []);
       var group = groups.find(function (g) { return g.userData.hall === o || g.userData.giant === o || g.userData.infrastructure === o; });
+      if (!group) return;
       var bounds = group.userData.bounds, size = bounds.getSize(new THREE.Vector3());
       var wx = size.x / 2 + 2, wz = size.z / 2 + 2, l = 5, positions = [];
       [-1, 1].forEach(function (x) { [-1, 1].forEach(function (z) {
@@ -240,16 +271,23 @@
     }
     canvas.addEventListener("pointerdown", function (e) {
       updatePointer(e); pointer.down = true; pointer.moved = 0; pointer.sx = e.clientX; pointer.sy = e.clientY;
+      pointer.btn = e.button;
       canvas.classList.add("dragging"); canvas.setPointerCapture(e.pointerId); hideTip();
     });
+    canvas.addEventListener("contextmenu", function (e) { if (isDistrict) e.preventDefault(); });
     canvas.addEventListener("pointermove", function (e) {
       updatePointer(e);
-      if (!isMap && !reduceMotion) { rig.tmx = ndc.x; rig.tmy = ndc.y; }
+      if (!isMap && !isDistrict && !reduceMotion) { rig.tmx = ndc.x; rig.tmy = ndc.y; }
       if (pointer.down) {
         var dx = e.clientX - pointer.sx, dy = e.clientY - pointer.sy;
         pointer.moved += Math.abs(dx) + Math.abs(dy);
-        rig.tTheta = Math.max(freeCam ? -Math.PI : -0.8, Math.min(freeCam ? Math.PI : 0.8, rig.tTheta - dx * 0.002));
-        rig.tPhi = Math.max(freeCam ? 0.65 : 0.02, Math.min(freeCam ? 1.30 : 0.52, rig.tPhi + dy * 0.0012));
+        if (isDistrict) {
+          /* 区域近景：左键拖动平移（抓地），右键或 Shift 拖动转视角。 */
+          if (e.shiftKey || pointer.btn === 2) rig.orbit(dx, dy); else rig.pan(dx, dy);
+        } else {
+          rig.tTheta = Math.max(freeCam ? -Math.PI : -0.8, Math.min(freeCam ? Math.PI : 0.8, rig.tTheta - dx * 0.002));
+          rig.tPhi = Math.max(freeCam ? 0.65 : 0.02, Math.min(freeCam ? 1.30 : 0.52, rig.tPhi + dy * 0.0012));
+        }
         pointer.sx = e.clientX; pointer.sy = e.clientY;
       }
       if (!pointer.queued) { pointer.queued = true; requestAnimationFrame(function () { pointer.queued = false; pickHover(); }); }
@@ -264,7 +302,8 @@
     canvas.addEventListener("pointerleave", function () { rig.tmx = rig.tmy = 0; hideTip(); });
     canvas.addEventListener("wheel", function (e) {
       e.preventDefault();
-      var minD = isMap ? 180 : freeCam ? 160 : 420, maxD = isMap ? 4600 : freeCam ? 2400 : 2800;
+      if (isDistrict) { rig.zoom(e.deltaY * 0.6); return; }
+      var minD = isMap ? 180 : 420, maxD = isMap ? 4600 : 2800;
       rig.tDist = Math.max(minD, Math.min(maxD, rig.tDist + e.deltaY * 0.45));
     }, { passive: false });
 
@@ -361,15 +400,20 @@
       if (e.key.toLowerCase() === "m") { if (isMap) resetView(); else location.href = "map.html"; }
       else if (e.key.toLowerCase() === "e") location.href = "evidence.html";
     });
-    stage.onFrame(function (dt, t) { rig.update(dt); city.update(reduceMotion ? 0 : dt, reduceMotion ? 0 : t); });
+    stage.onFrame(function (dt, t) {
+      rig.update(dt);
+      /* 阴影只覆盖镜头附近，必须跟着视点走，否则转到边上就没阴影了 */
+      if (city.followShadow) city.followShadow(rig.center.x, rig.center.z);
+      city.update(reduceMotion ? 0 : dt, reduceMotion ? 0 : t);
+    });
     var lowT = 0, degraded = false;
     stage.autoQuality = function (fps) {
       if (degraded) return;
       lowT = fps < 30 ? lowT + 0.5 : Math.max(0, lowT - 0.5);
       if (lowT > 3) {
-        degraded = true; stage.maxDPR = 1;
-        stage.renderer.shadowMap.enabled = false; $("shadowToggle").checked = false;
-        $("shadowToggle").parentElement.title = "低帧率时已关闭阴影，可手动重新开启"; fit();
+        /* 只降分辨率与泛光，不再直接砍阴影：没有阴影的画面会立刻退化成玩具模型 */
+        degraded = true; stage.maxDPR = 1; stage.bloom = 0;
+        $("shadowToggle").parentElement.title = "低帧率时已降低分辨率，阴影可手动关闭"; fit();
       }
     };
     renderStats(); initHint();
