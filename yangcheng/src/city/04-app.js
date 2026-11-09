@@ -681,6 +681,8 @@
   function openBul(on) {
     bul.classList.toggle("on", on);
     bul.setAttribute("aria-hidden", String(!on));
+    /* 公告栏默认就是开的，右下角的缩放条得给它让位，否则被压在底下 */
+    document.body.classList.toggle("bul-open", on);
     if (btn) btn.setAttribute("aria-expanded", String(on));
     if (on && lyr && !lyr.hidden) open2d(false);
   }
@@ -718,6 +720,9 @@
 
   /* ---------- URL 直达：公告栏 / 二维图都能被链接分享 ---------- */
   var q = new URLSearchParams(location.search);
-  if (q.get("panel") === "bulletin") openBul(true);
+  /* 公告栏默认就展开。杨城新上线的 AI 项目全挂在这上面，
+     收起来没人会去点那个按钮，项目就等于没发布。
+     只有明确要看二维图的时候才让位（open2d 会把它收掉）。 */
+  if (q.get("layer") !== "map") openBul(true);
   if (q.get("layer") === "map") open2d(true);
 })();
