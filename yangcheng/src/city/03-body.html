@@ -25,31 +25,32 @@
     </button>
     <button type="button" id="nav2d" aria-expanded="false" aria-controls="lyr2d">二维地图</button>
     <a href="evidence.html">公共证据厅</a>
-    <!-- 分类定位原来是压在地图右上角的浮层（right:24px / top:83px），
-         公告抽屉 top:72px 一展开就把它整个盖住。挪进顶栏和其余四个入口并排，
-         折叠列表改成从按钮下方浮出的下拉。 -->
-    <details class="nodes" id="cityNodes">
-      <summary id="nodesTitle">分类定位</summary>
-      <div class="nodes-pop">
-        <div class="node-filters" id="nodeFilters" role="group" aria-label="地图节点分类" hidden>
-          <button type="button" data-filter="halls" aria-pressed="true">六馆</button>
-          <button type="button" data-filter="giants" aria-pressed="false">AI企业</button>
-          <button type="button" data-filter="infra" aria-pressed="false">基础设施</button>
-          <button type="button" data-filter="zones" aria-pressed="false">17 区</button>
-        </div>
-        <div id="nodeList"></div>
-        <p class="nodes-f" id="nodesFoot">点击建筑查看；双击画面再近一档，可一路推到单栋楼。</p>
-      </div>
-    </details>
   </nav>
 </header>
 
-<details class="hudleft">
-  <summary>城市档案 <span id="cRec">0</span></summary>
-  <div class="hudrow"><span>可用馆</span><b id="cAvail">6<small>/6</small></b></div>
-  <div class="hudrow"><span>可回放</span><b id="cReplay">0</b></div>
-  <div class="hudrow"><span>已复核</span><b id="cReview">0</b></div>
-  <div class="hudmini" id="hudMini">六馆 · 多片区 AI 企业 · 医疗/教育/水务/交通/物流设施</div>
+<!-- 分类定位在左上角，占原来「城市档案」那个位置。
+     地图页默认展开：四类筛选加条目列表直接摊开，不用先点一下才知道有这功能。
+     原来档案里的三项统计（可用馆 / 可回放 / 已复核）收在列表下面一行，
+     数字没丢，只是不再单独占一个入口。 -->
+<details class="nodes" id="cityNodes" open>
+  <summary id="nodesTitle"><span id="nodesCap">分类定位</span></summary>
+  <div class="nodes-pop">
+    <div class="node-filters" id="nodeFilters" role="group" aria-label="地图节点分类" hidden>
+      <button type="button" data-filter="halls" aria-pressed="true">六馆</button>
+      <button type="button" data-filter="giants" aria-pressed="false">AI企业</button>
+      <button type="button" data-filter="infra" aria-pressed="false">基础设施</button>
+      <button type="button" data-filter="zones" aria-pressed="false">17 区</button>
+    </div>
+    <div id="nodeList"></div>
+    <p class="nodes-f" id="nodesFoot">点击建筑查看；双击画面再近一档，可一路推到单栋楼。</p>
+    <div class="nodes-stats">
+      <span>记录 <b id="cRec">0</b></span>
+      <span>可用馆 <b id="cAvail">6<small>/6</small></b></span>
+      <span>可回放 <b id="cReplay">0</b></span>
+      <span>已复核 <b id="cReview">0</b></span>
+    </div>
+    <div class="hudmini" id="hudMini">六馆 · 多片区 AI 企业 · 医疗/教育/水务/交通/物流设施</div>
+  </div>
 </details>
 
 <div class="phaseNote" id="phaseNote" aria-live="polite"></div>

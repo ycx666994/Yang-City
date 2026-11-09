@@ -28,32 +28,31 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{o
 #clkPhase{font-size:10px;white-space:nowrap;color:var(--yc-muted)}
 .topnav{margin-left:auto;display:flex;gap:6px}.topnav a{padding:9px 12px;font-size:12px;white-space:nowrap;border:1px solid var(--yc-line);background:var(--yc-panel);border-radius:6px;backdrop-filter:blur(12px);color:var(--yc-ink)}
 .topnav a:hover{border-color:var(--yc-accent)}
-.hudleft,.time-control{position:fixed;z-index:15;border:1px solid var(--yc-line);border-radius:9px;background:var(--yc-panel);backdrop-filter:blur(16px);box-shadow:var(--yc-shadow)}
+.time-control{position:fixed;z-index:15;border:1px solid var(--yc-line);border-radius:9px;background:var(--yc-panel);backdrop-filter:blur(16px);box-shadow:var(--yc-shadow)}
 summary{cursor:pointer;font-size:12px;padding:12px 14px;font-weight:600;user-select:none}
-.hudleft{left:24px;top:83px;width:178px}.hudleft summary span{float:right;font-variant-numeric:tabular-nums;font-weight:500}
-.hudrow{display:flex;align-items:baseline;justify-content:space-between;margin:0 14px;padding:5px 0;font-size:11px}.hudrow b{font-size:16px;font-variant-numeric:tabular-nums}.hudrow small{font-size:10px;font-weight:400;color:var(--yc-muted)}
+/* 分类定位：坐在左上角原来「城市档案」的位置，默认展开。
+   四类筛选、条目列表、档案三项统计都在这一块里。 */
 .hudmini{padding:12px 14px;font-size:10px;line-height:1.7;color:var(--yc-muted)}
-/* 分类定位：顶栏里的第五个入口。收起时就是一个普通按钮，
-   展开时列表从按钮左下方浮出，不再占据地图右上角。 */
-.nodes{position:relative;width:auto;flex:none}
-.nodes > summary{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;
-  font-size:12px;font-weight:500;white-space:nowrap;list-style:none;
-  border:1px solid var(--yc-line);background:var(--yc-panel);border-radius:6px;
-  backdrop-filter:blur(12px);color:var(--yc-ink);
-  transition:border-color .16s,background .16s,color .16s}
-.nodes > summary::-webkit-details-marker{display:none}
-.nodes > summary::after{content:"▾";font-size:8px;line-height:1;opacity:.55}
-.nodes > summary:hover{border-color:var(--yc-accent)}
-.nodes[open] > summary{background:var(--yc-accent);color:var(--yc-bg);border-color:var(--yc-accent)}
-.nodes-pop{position:absolute;right:0;top:calc(100% + 8px);z-index:16;width:266px;
-  max-height:min(58vh,440px);overflow:auto;overscroll-behavior:contain;
+.nodes{position:fixed;left:24px;top:83px;z-index:15;width:252px;overflow:hidden;
   border:1px solid var(--yc-line);border-radius:9px;background:var(--yc-panel);
-  backdrop-filter:blur(16px);box-shadow:var(--yc-shadow);padding-top:10px}
+  backdrop-filter:blur(16px);box-shadow:var(--yc-shadow)}
+.nodes > summary{display:flex;align-items:center;gap:8px;padding:12px 14px;
+  font-size:12px;font-weight:600;list-style:none;white-space:nowrap}
+.nodes > summary::-webkit-details-marker{display:none}
+.nodes #nodesCap{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.nodes > summary::after{content:"▾";font-size:8px;line-height:1;opacity:.5;
+  transition:transform .16s}
+.nodes[open] > summary::after{transform:rotate(180deg)}
+.nodes > summary:hover #nodesCap{color:var(--yc-accent)}
+.nodes-pop{max-height:calc(100vh - 386px);overflow:auto;
+  overscroll-behavior:contain;border-top:1px solid var(--yc-line);padding-top:10px}
 #nodeList{padding:0 10px;max-height:none;overflow:visible}
 .node-filters{display:flex;gap:4px;padding:0 10px 10px}.node-filters button{flex:1;padding:6px 3px;font-size:11px;border:1px solid var(--yc-line);background:transparent;border-radius:5px}.node-filters button[aria-pressed="true"]{background:var(--yc-accent);color:var(--yc-bg);border-color:var(--yc-accent)}
 .node{display:flex;width:100%;align-items:center;gap:8px;text-align:left;padding:9px 5px;border:0;border-top:1px solid var(--yc-line);border-radius:0;background:transparent;color:var(--yc-ink)}
 .node:hover,.node.selected{background:rgba(79,153,186,.13)}.node .dot{width:6px;height:20px;border-radius:2px;background:var(--c);flex:none}.node .nm{flex:1;min-width:0}.node .nm b{display:block;font-size:12px;font-weight:600}.node .nm i{display:block;font-size:10px;font-style:normal;color:var(--yc-muted);margin-top:3px;line-height:1.5}.node .st{font-size:9px;white-space:nowrap;color:var(--yc-muted)}
 .nodes-f{margin:0;padding:10px 14px;font-size:10px;line-height:1.6;color:var(--yc-muted)}
+.nodes-stats{display:flex;flex-wrap:wrap;gap:4px 12px;margin:0 14px;padding:10px 0;border-top:1px solid var(--yc-line);font-size:10px;color:var(--yc-muted);font-variant-numeric:tabular-nums}
+.nodes-stats b{font-size:11px;font-weight:600;color:var(--yc-ink)}.nodes-stats b small{font-size:9px;font-weight:400;color:var(--yc-muted)}
 .phaseNote{position:fixed;left:24px;bottom:198px;z-index:14;max-width:270px;font-size:11px;line-height:1.7;background:var(--yc-panel);padding:8px 12px;border-left:2px solid var(--yc-accent);border-radius:0 5px 5px 0;color:var(--yc-muted)}.phaseNote b{color:var(--yc-ink)}
 .time-control{left:24px;bottom:60px;width:220px}.time-control label{display:flex;justify-content:space-between;gap:8px;margin:0 12px;font-size:11px}.time-control output{font-variant-numeric:tabular-nums}.time-control input[type="range"]{width:calc(100% - 24px);margin:10px 12px;accent-color:var(--yc-accent)}.time-actions{display:flex;gap:8px;align-items:center;padding:0 12px}.time-actions button{font-size:10px;padding:5px 6px;background:transparent;border:1px solid var(--yc-line);border-radius:4px}.time-actions label{margin:0;align-items:center;font-size:10px;white-space:nowrap}.time-actions input{accent-color:var(--yc-accent)}.time-control p{font-size:10px;color:var(--yc-muted);line-height:1.6;margin:10px 12px}
 .cta{position:fixed;right:24px;bottom:70px;z-index:16;display:flex;flex-direction:column;align-items:flex-end;gap:12px}.maphint{padding:7px 12px;font-size:11px;background:var(--yc-panel);border:1px solid var(--yc-line);border-radius:5px}.maphint.gone{display:none}
@@ -73,10 +72,12 @@ summary{cursor:pointer;font-size:12px;padding:12px 14px;font-weight:600;user-sel
 .card{position:fixed;z-index:40;left:24px;bottom:110px;width:304px;max-height:calc(100vh - 200px);overflow:auto;padding:20px;background:var(--yc-panel);backdrop-filter:blur(18px);border:1px solid var(--yc-line);border-radius:10px;box-shadow:var(--yc-shadow);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(8px);transition:opacity .18s,transform .18s,visibility .18s}.card.on{opacity:1;visibility:visible;pointer-events:auto;transform:none}
 .card-x{position:absolute;right:10px;top:8px;border:0;background:transparent;padding:2px 6px;font-size:22px}.card-k{font-size:10px;color:var(--yc-muted);margin-bottom:10px}.card-n{font-size:21px;line-height:1.3;font-weight:700;margin:0 24px 0 0}.card-e{font-size:10px;color:var(--yc-muted);margin-top:6px}.card-l{font-size:12px;line-height:1.8;margin:14px 0 10px}.card-m{white-space:pre-line;font-size:10px;line-height:1.8;color:var(--yc-muted)}.card-locate{margin-top:12px}.card-go{display:block;text-align:center;margin-top:10px;padding:10px;color:var(--yc-bg);background:var(--yc-accent);border-radius:5px;font-size:12px;font-weight:600}.card-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:11px}.card-links a{padding:4px 0;text-decoration:underline;text-underline-offset:3px}
 body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-open .phaseNote{display:none}
+/* 建筑档案卡也是在左下弹出，会盖住「时间与阴影」。卡片开着时先让时间面板退场，关掉就回来。 */
+body.card-open .time-control{display:none}
 @media(max-width:1100px){.real-clock{display:none}.clock{max-width:420px}}
 @media(max-width:1050px){.brand em{display:none}.topbar{gap:16px}#clkPhase{font-size:9px}.topnav a{padding:8px;font-size:11px}.botbar .hide-sm{display:none}#footPhase{display:none}}
-@media(max-width:760px){.topbar{top:10px;left:12px;right:12px;gap:10px;flex-wrap:wrap}.brand{font-size:21px}.clock{padding:7px 9px;gap:6px}#clkTime{font-size:18px}#clkPhase{font-size:9px}.topnav{gap:4px}.topnav a{padding:7px 8px;font-size:10px}.topnav>a:last-of-type{display:none}.hudleft,.phaseNote{display:none}.nodes-pop{width:min(266px,calc(100vw - 24px));max-height:52vh}.nodes>summary{padding:8px;font-size:10.5px}.time-control{left:12px;bottom:55px;width:208px}body.bul-open .time-control{display:none}.cta{right:12px;bottom:62px}.maphint{display:none}.mapbtn{padding:10px 12px}.mbt b{font-size:12px}.mbt i{display:none}.new-hall{font-size:10px}.botbar{padding:7px 12px;gap:7px;font-size:9px}.botbar .right{max-width:46%;text-align:right}.map-tools{right:12px;bottom:57px}.map-tools span{display:none}.card{left:12px;bottom:102px;width:min(304px,calc(100vw - 24px));max-height:calc(100vh - 186px)}}
-@media(max-width:480px){.topnav{margin-left:0;flex:1;justify-content:flex-end}.topnav a{font-size:9px;padding:7px 6px}.brand{font-size:19px}.clock{gap:5px}#clkPhase{max-width:86px;white-space:normal;font-size:8px}.topbar{gap:7px}.time-control{width:178px;bottom:118px}.time-actions{flex-wrap:wrap}.time-control summary{font-size:11px}.nodes>summary{font-size:9.5px;padding:7px 6px}}
+@media(max-width:760px){.topbar{top:10px;left:12px;right:12px;gap:10px;flex-wrap:wrap}.brand{font-size:21px}.clock{padding:7px 9px;gap:6px}#clkTime{font-size:18px}#clkPhase{font-size:9px}.topnav{gap:4px}.topnav a{padding:7px 8px;font-size:10px}.phaseNote{display:none}.nodes{left:12px;top:100px;width:212px}.nodes-pop{max-height:calc(100vh - 500px)}.nodes>summary{padding:9px 11px;font-size:11px}.nodes-pop{padding-top:8px}.node-filters button{font-size:9px;padding:5px 2px}.nodes-f{font-size:9px;padding:8px 11px}.nodes-stats{margin:0 11px;font-size:9px}.hudmini{display:none}.time-control{left:12px;bottom:55px;width:208px}body.bul-open .time-control{display:none}.cta{right:12px;bottom:62px}.maphint{display:none}.mapbtn{padding:10px 12px}.mbt b{font-size:12px}.mbt i{display:none}.new-hall{font-size:10px}.botbar{padding:7px 12px;gap:7px;font-size:9px}.botbar .right{max-width:46%;text-align:right}.map-tools{right:12px;bottom:57px}.map-tools span{display:none}.card{left:12px;bottom:102px;width:min(304px,calc(100vw - 24px));max-height:calc(100vh - 186px)}}
+@media(max-width:480px){.topnav{margin-left:0;flex:1;justify-content:flex-end}.topnav a{font-size:9px;padding:7px 6px}.brand{font-size:19px}.clock{gap:5px}#clkPhase{max-width:86px;white-space:normal;font-size:8px}.topbar{gap:7px}.time-control{width:178px;bottom:118px}.time-actions{flex-wrap:wrap}.time-control summary{font-size:11px}.nodes{top:104px;width:200px}.nodes>summary{font-size:10.5px;padding:8px 10px}}
 /* 手机上公告栏是铺满宽度的底部抽屉，不用给谁让位 */
 @media(max-width:760px){body.bul-open .cta,body.bul-open .map-tools{right:12px}}
 /* 区域视角 HUD（district.html?zone=） */
@@ -173,7 +174,7 @@ body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-
 .l2b-open{font-size:11px;color:#3f5f4a;text-decoration:none;padding:6px 8px;border-radius:5px;
   border:1px solid transparent;white-space:nowrap}
 .l2b-open:hover{border-color:#c9cfc2;background:#fff}
-body.l2-open .topbar,body.l2-open .hudleft,body.l2-open .nodes,body.l2-open .phaseNote,
+body.l2-open .topbar,body.l2-open .nodes,body.l2-open .phaseNote,
 body.l2-open .time-control,body.l2-open .cta,body.l2-open .map-tools,body.l2-open .card,
 body.l2-open .botbar,body.l2-open .bul{filter:blur(2px);pointer-events:none;opacity:.5}
 /* 公告栏开着的时候，右下角那两条控件往左让 376（面板宽）+ 24（原来的边距） */

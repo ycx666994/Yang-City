@@ -189,16 +189,43 @@
     stage.setScene(scene, camera);
     if (isMap) {
       document.title = "杨城 · 三维全景 · 十七区、六馆与" + YC3D_CITY.GIANTS.length + "家 AI 大厂";
-      $("nodesTitle").textContent = "分类定位";
+      $("nodesCap").textContent = "分类定位";
       $("nodeFilters").hidden = false; $("mapTools").hidden = false;
       /* 顶栏那枚「二维地图」按钮由页面里的独立一段脚本接管（切图层，不换页）。 */
       $("nodesFoot").textContent = "滚轮推近到片区，双击再进一档到单栋楼；坐标为虚构场景单位。";
+      /* 手机上公告是满宽抽屉，默认就展开、从屏幕腰部往上拉。分类定位在左上角，
+         展开的列表会被它压住。所以窄屏先收起，标题条留着（点得到），
+         点开时再把公告收掉，一次只占一块屏。 */
+      var phone = window.matchMedia("(max-width:760px)");
+      if (phone.matches) $("cityNodes").open = false;
+      /* 手机上没滚轮，别照搬桌面的操作提示 */
+      if (phone.matches && $("nodesFoot")) $("nodesFoot").textContent = "点条目定位，双指缩放，双击再进一档；坐标为虚构场景单位。";
+      /* 两个浮层一个在左上、一个从底部拉，窄屏上同时开会把画面糊死。
+         双向互斥：开这个就收那个。 */
+      if ($("cityNodes")) {
+        $("cityNodes").addEventListener("toggle", function () {
+          /* 公告模块在它自己的闭包里，这里的 bul / btn 取不到，直接查 DOM */
+          var b = document.getElementById("bul"), nb = document.getElementById("navBulletin");
+          if (this.open && phone.matches && b && b.classList.contains("on") && nb) nb.click();
+        });
+      }
+      if ($("navBulletin")) {
+        $("navBulletin").addEventListener("click", function () {
+          var b = document.getElementById("bul");
+          if (phone.matches && b && b.classList.contains("on") && $("cityNodes").open) $("cityNodes").open = false;
+        });
+      }
       canvas.setAttribute("aria-label", "虚构杨城俯视地图，六馆、" + YC3D_CITY.GIANTS.length + "家AI企业及" + YC3D_CITY.INFRA.length + "个设施可分类定位");
+    }
+    /* 只有全景图要按类定位建筑。街区近景这些页面把这块退回成「城市档案」：
+       收起，只留标题，展开还是那三项统计——和它原来的样子一致。 */
+    if (!isMap) {
+      if ($("nodesCap")) $("nodesCap").textContent = "城市档案";
+      $("cityNodes").open = false;
+      if ($("nodeFilters")) $("nodeFilters").hidden = true;
     }
     if (isDistrict) {
       document.title = "杨城 · " + zone.name + " · 街区近景";
-      $("cityNodes").open = false;
-      if ($("nodeFilters")) $("nodeFilters").hidden = true;
       if ($("mapTools")) $("mapTools").hidden = true;
       var dh = $("districtHud");
       if (dh) {
@@ -512,7 +539,15 @@
       nodeSource().forEach(function (o) {
         var node = document.createElement(isMap ? "button" : "a"); node.className = "node";
         node.dataset.id = o.id; node.classList.toggle("selected", selected === o);
-        if (isMap) { node.type = "button"; node.setAttribute("aria-label", "定位" + o.name); node.addEventListener("click", function () { select(o); }); }
+        if (isMap) {
+          node.type = "button"; node.setAttribute("aria-label", "定位" + o.name);
+          node.addEventListener("click", function () {
+            select(o);
+            /* 选完建筑，左下会弹出它的档案卡；这块面板在左上、又高，两者会叠在一起。
+               收起列表，标题条留在原地，想再选点一下就行。 */
+            if ($("cityNodes").open) $("cityNodes").open = false;
+          });
+        }
         else node.href = o.href;
         var dot = document.createElement("span"); dot.className = "dot"; dot.style.setProperty("--c", "#" + o.color.toString(16).padStart(6, "0"));
         var nm = document.createElement("span"); nm.className = "nm";
@@ -685,21 +720,9 @@
     document.body.classList.toggle("bul-open", on);
     if (btn) btn.setAttribute("aria-expanded", String(on));
     if (on && lyr && !lyr.hidden) open2d(false);
-    /* 分类定位的下拉和公告抽屉都从顶栏下面拉开，会叠在一起；
-       公告展开时把下拉收掉，免得两个浮层打架。 */
-    if (on && $("cityNodes") && $("cityNodes").open) $("cityNodes").open = false;
   }
   if (btn) btn.addEventListener("click", function () { openBul(!bul.classList.contains("on")); });
   if ($("bulClose")) $("bulClose").addEventListener("click", function () { openBul(false); });
-
-  /* 反方向也要管：公告开着时点开「分类定位」，下拉会被 376px 宽的公告整个盖住。
-     两者都从右上角往下拉，只能留一个。这里借公告按钮的点击复用它的收起逻辑
-     （aria、body.bul-open、右下角让位都是一处改的）。 */
-  if ($("cityNodes")) {
-    $("cityNodes").addEventListener("toggle", function () {
-      if (this.open && bul.classList.contains("on") && btn) btn.click();
-    });
-  }
 
   /* ---------- 二维图层 ---------- */
   function open2d(on) {
