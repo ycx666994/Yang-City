@@ -219,5 +219,15 @@ body[data-phase="night"] .cm-panel{box-shadow:0 14px 38px rgba(0,0,0,.55)}
   .cm-brand b{font-size:18px;letter-spacing:3px}
   .cm-foot{display:none}
 }
+/* 嵌进三维页当图层时：本页顶栏让位给父页，图往上顶一段，
+   给父页那条「← 返回三维」的工具条腾出位置。 */
+body.in-frame .cm-top{display:none}
+body.in-frame .cm-main{inset:76px 0 0 0}
+body.in-frame .cm-panel{top:92px}
+@media (min-width:900px){body.in-frame .cm-main{left:348px}}
+@media (max-width:880px){
+  body.in-frame .cm-main{inset:64px 0 0 0}
+  body.in-frame .cm-panel{top:auto;bottom:12px;left:10px;right:10px;width:auto}
+}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>

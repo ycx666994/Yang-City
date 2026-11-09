@@ -19,7 +19,11 @@
     <span class="real-clock" id="realClock" hidden></span>
   </div>
   <nav class="topnav" aria-label="业务入口">
-    <a id="navMap" href="index.html">城市地图</a>
+    <a href="index.html">城市介绍</a>
+    <button type="button" id="navBulletin" aria-expanded="false" aria-controls="bul">
+      城市公告<span class="tn-count" id="tnBulCount">0</span>
+    </button>
+    <button type="button" id="nav2d" aria-expanded="false" aria-controls="lyr2d">二维地图</button>
     <a href="evidence.html">公共证据厅</a>
   </nav>
 </header>
@@ -58,7 +62,7 @@
 
 <div class="cta">
   <div class="maphint" id="mapHint">先看地图，定位六馆与城市设施</div>
-  <a class="mapbtn" id="btnMap" href="index.html"><span class="mbt"><b>城市地图</b><i>17 区总图 · 二维导览</i></span></a>
+  <button class="mapbtn" id="btnMap" type="button"><span class="mbt"><b>二维地图</b><i>17 区总图 · 点击切换</i></span></button>
 </div>
 <div class="map-tools" id="mapTools" hidden>
   <div class="zoomctl" role="group" aria-label="缩放">
@@ -94,6 +98,30 @@
   <a class="card-go" id="cardGo" href="map.html">进入这座馆</a>
   <div class="card-links" id="cardLinks"></div>
 </div>
+
+<!-- 二维图层：同一座城的另一张画法，不是跳去另一页。
+     用 iframe 而不是把 SVG 塞进本页，是因为那张图自带昼夜翻图、时间滑杆
+     和一整套 .cm-* 样式，两套壳的变量名会互相踩。隔离在框里最干净，
+     而且 src 只在第一次点「二维地图」时才写入，三维首屏不多下 100KB。 -->
+<div class="lyr2d" id="lyr2d" hidden>
+  <div class="l2b">
+    <button type="button" class="l2b-back" id="lyr2dBack">← 返回三维</button>
+    <div class="l2b-t"><b>杨城 · 17 区总图</b><i>点地块进街区 · 拨时间看昼夜</i></div>
+    <a class="l2b-open" href="map2d.html" target="_blank" rel="noopener">单独打开 ↗</a>
+  </div>
+  <iframe id="lyr2dFrame" title="杨城 17 区二维总图" loading="lazy"></iframe>
+</div>
+
+<!-- 城市公告栏：右侧抽屉，与三维同屏，不遮挡城市 -->
+<aside class="bul" id="bul" aria-hidden="true" aria-labelledby="bulTitle">
+  <header class="bul-h">
+    <div class="bul-ht"><b id="bulTitle">城市公告</b><i>CITY BULLETIN</i></div>
+    <button type="button" class="bul-x" id="bulClose" aria-label="收起公告栏">×</button>
+  </header>
+  <p class="bul-sub">AI 大厂与云湖研究院在杨城上线的项目。点一条，看它的档案。</p>
+  <div class="bul-list" id="bulList"></div>
+  <div class="bul-f"><span id="bulFoot">—</span><a href="index.html">关于杨城 →</a></div>
+</aside>
 
 <footer class="botbar">
   <span id="clockMode">北京时间 UTC+8 实时驱动</span>

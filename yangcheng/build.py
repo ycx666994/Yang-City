@@ -170,12 +170,26 @@ def build_targets(targets):
             "h3-maze.html", "src/h3maze/01-head.html", "src/h3maze/02-style.html", "src/h3maze/03-body.html",
             ["shared/yc-deep.js", "shared/yc-port.js", "shared/yc-faces.js", "shared/yc-cast.js", "src/h3maze/03b-quiz.js", "src/h3maze/04-app.js", "src/h3/07-cast.js", embed], "src/h3maze/05-tail.html")))
     if "city" in targets:
-        # 首页是平面 17 区总图（无 WebGL）；yc-districts.js 先内联再进 app。
-        built.append(("index.html", page("index.html", "src/citymap/01-head.html", "src/citymap/02-style.html", "src/citymap/03-body.html",
+        # 首页 = 城市介绍（纯静态叙事页，无 WebGL、无地图）。
+        built.append(("index.html", page("index.html", "src/home/01-head.html", "src/home/02-style.html", "src/home/03-body.html",
+            ["shared/yc-districts.js", "shared/yc-bulletin.js", "src/home/04-app.js"], "src/home/05-tail.html", cast_css=False)))
+    if "map2d" in targets:
+        # 二维 17 区总图：不再单独作为首页，改为三维页里「二维地图」按钮加载的图层页。
+        # 仍保留独立产物，是因为它自带昼夜翻图与面板状态，塞进三维页会互相踩样式。
+        built.append(("map2d.html", page("map2d.html", "src/citymap/01-head.html", "src/citymap/02-style.html", "src/citymap/03-body.html",
             ["shared/yc-districts.js", "shared/yc-city-plan.js", "shared/yc-district-plan.js", "src/citymap/04-app.js"], "src/citymap/05-tail.html", cast_css=False)))
+    if "project" in targets:
+        # 公告详情页：数据全部来自 shared/yc-bulletin.js。
+        built.append(("project.html", page("project.html", "src/project/01-head.html", "src/project/02-style.html", "src/project/03-body.html",
+            ["shared/yc-bulletin.js", "src/project/04-app.js"], "src/project/05-tail.html", cast_css=False)))
+    if "weave" in targets:
+        # 织识：白泽出品的认知工具，纯前端、无请求、可离线。
+        # 数据（六套体系）单独一个文件，改内容不必碰逻辑。
+        built.append(("weave.html", page("weave.html", "src/weave/01-head.html", "src/weave/02-style.html", "src/weave/03-body.html",
+            ["src/weave/03b-data.js", "src/weave/04-app.js"], "src/weave/05-tail.html", cast_css=False)))
     if "map" in targets:
         built.append(("map.html", page("map.html", "src/city/01-head.html", "src/city/02-style.html", "src/city/03-body.html",
-            [THREE, "shared/yc-evidence.js", "shared/yc3d/yc3d-core.js", "shared/yc3d/yc3d-build.js", "shared/yc-districts.js", "shared/yc-city-plan.js", "shared/yc-district-plan.js", "shared/yc3d/yc3d-district.js", "shared/yc3d/yc3d-city.js", "src/city/04-app.js"], "src/city/05-tail.html")))
+            [THREE, "shared/yc-evidence.js", "shared/yc-bulletin.js", "shared/yc3d/yc3d-core.js", "shared/yc3d/yc3d-build.js", "shared/yc-districts.js", "shared/yc-city-plan.js", "shared/yc-district-plan.js", "shared/yc3d/yc3d-district.js", "shared/yc3d/yc3d-city.js", "src/city/04-app.js"], "src/city/05-tail.html")))
     if "district" in targets:
         # 区域街区近景：只生成当前区域，走局部街区引擎（1 单位 = 1 米）。
         built.append(("district.html", page("district.html", "src/city/01-head.html", "src/city/02-style.html", "src/city/03-body.html",
@@ -190,8 +204,8 @@ def build_targets(targets):
 def main():
     if len(sys.argv) > 1:
         if sys.argv[1] != "--targets" or len(sys.argv) < 3:
-            raise SystemExit("usage: python build.py --targets city map district content evidence museums maze-embed")
-        allowed = {"city", "map", "district", "content", "evidence", "museums", "maze-embed"}
+            raise SystemExit("usage: python build.py --targets city map2d map district content evidence museums maze-embed project weave")
+        allowed = {"city", "map2d", "map", "district", "content", "evidence", "museums", "maze-embed", "project", "weave"}
         targets = set(sys.argv[2:])
         unknown = targets - allowed
         if unknown:
@@ -199,7 +213,7 @@ def main():
         build_targets(targets)
         return
     # 全量构建不再单独实现一遍：直接跑全部 target，避免两条路径产出不同结果。
-    build_targets({"content", "evidence", "maze-embed", "city", "map", "district", "museums"})
+    build_targets({"content", "evidence", "maze-embed", "city", "map2d", "map", "district", "museums", "project", "weave"})
 
 
 if __name__ == "__main__":

@@ -1,0 +1,90 @@
+<div class="wv-app">
+  <header class="wv-top">
+    <div class="wv-brand"><b>织识</b><i>KNOWLEDGE WEAVER</i></div>
+    <div class="wv-now"><b id="wvSysName">—</b><i id="wvSysEn"></i></div>
+    <div class="wv-prog">
+      <div class="wv-seg" id="wvSeg" aria-hidden="true"></div>
+      <span class="wv-pct" id="wvPct">0%</span>
+    </div>
+    <div class="wv-tb">
+      <button class="wv-btn hide-sm" id="wvBtnLeft" type="button">灯单</button>
+      <button class="wv-btn" id="wvBtnPick" type="button">换体系</button>
+      <button class="wv-btn" id="wvBtnReview" type="button">复盘</button>
+      <button class="wv-btn hide-sm" id="wvBtnTalk" type="button">守灯人</button>
+      <a class="wv-btn" href="project.html?id=weave">← 项目</a>
+    </div>
+  </header>
+
+  <aside class="wv-left" id="wvLeft" aria-label="灯单">
+    <div class="wv-search"><input id="wvSearch" type="search" placeholder="搜索知识点…" autocomplete="off"></div>
+    <div class="wv-sorts" id="wvSorts">
+      <button type="button" data-sort="name" aria-pressed="true">名称</button>
+      <button type="button" data-sort="lv" aria-pressed="false">掌握度</button>
+      <button type="button" data-sort="tag" aria-pressed="false">分组</button>
+    </div>
+    <div class="wv-list" id="wvList"></div>
+  </aside>
+
+  <main class="wv-stage">
+    <canvas id="wvCv" aria-label="知识灯图：可拖动、缩放，点击知识点查看详情并调整掌握度"></canvas>
+    <div class="wv-hintbar" id="wvHint">拖动平移 · 滚轮缩放 · 点灯看详情 · 双击提一档</div>
+    <div class="wv-tools">
+      <button type="button" id="wvIn" title="放大" aria-label="放大">＋</button>
+      <button type="button" id="wvOut" title="缩小" aria-label="缩小">－</button>
+      <button type="button" id="wvFit" title="复位视图" aria-label="复位视图">⌾</button>
+      <button type="button" id="wvTier" title="按先决深度重排" aria-label="按先决深度重排">⌸</button>
+    </div>
+    <div class="wv-zoom" id="wvZoom">×1.00</div>
+    <div class="wv-card" id="wvCard" aria-live="polite">
+      <button class="wv-card-x" id="wvCardX" type="button" aria-label="关闭">×</button>
+      <div class="k"><span id="wvCardTag">—</span><span id="wvCardDepth"></span></div>
+      <h3 id="wvCardName">—</h3>
+      <p id="wvCardDesc"></p>
+      <div class="wv-lvlab" id="wvLvLab">掌握度</div>
+      <div class="wv-lvs" id="wvLvs"></div>
+      <div class="wv-card-act">
+        <button class="wv-btn" id="wvCardAsk" type="button">问守灯人</button>
+        <button class="wv-btn" id="wvCardPath" type="button">怎么学到这</button>
+      </div>
+    </div>
+  </main>
+
+  <aside class="wv-right" id="wvRight" aria-label="守灯人">
+    <div class="wv-rh">
+      <div class="t"><span class="wv-lamp" id="wvLamp"></span>守灯人</div>
+      <div class="s">评估 · 规划 · 追问 · 复盘</div>
+    </div>
+    <div class="wv-talk" id="wvTalk"></div>
+    <div class="wv-input">
+      <div class="wv-row">
+        <textarea id="wvText" rows="1" placeholder="说一句你刚学到的东西…"></textarea>
+        <button class="wv-send" id="wvSend" type="button" aria-label="发送">↑</button>
+      </div>
+      <div class="wv-chips">
+        <button type="button" data-fill="我刚学了「">学了…</button>
+        <button type="button" data-fill="规划一条从基础到「">路径</button>
+        <button type="button" data-fill="考考我，挑最弱的">考我</button>
+        <button type="button" data-fill="帮我分析一下我的掌握情况">分析我</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div class="wv-pick" id="wvPickWrap" hidden>
+  <div class="wv-pick-in">
+    <h1>织识</h1>
+    <div class="sub">KNOWLEDGE WEAVER · 白泽</div>
+    <p class="lead">选一张灯图。每个知识点是一盏灯，五级掌握度：未燃、引燃、微明、炽亮、鎏辉。灯点亮到哪一级，图上看得到，藏不住。</p>
+    <div class="wv-grid" id="wvPickGrid"></div>
+    <p class="wv-pick-f">首次打开带一份示例进度，方便你看到灯图长什么样。<br>想从零开始，在<b>复盘</b>里重置本体系。<a href="project.html?id=weave">回到项目页</a></p>
+  </div>
+</div>
+
+<div class="wv-modal" id="wvModal" hidden>
+  <div class="wv-box" role="dialog" aria-modal="true" aria-label="学习复盘">
+    <h2 id="wvMTitle">复盘</h2>
+    <p class="bx-sub" id="wvMSub">—</p>
+    <div id="wvMBody"></div>
+    <button class="wv-btn solid close" id="wvMClose" type="button">继续</button>
+  </div>
+</div>

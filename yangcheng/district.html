@@ -6,15 +6,15 @@
 <link rel="apple-touch-icon" href="../favicon.svg">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="杨城 · AI 认知失效证据城市">
-<meta property="og:title" content="杨城 · AI 认知失效证据城市">
+<meta property="og:title" content="杨城 · 三维全景">
 <meta property="og:description" content="一座让每个关于 AI 的判断都能接受实验的城市。六馆、一套证据协议。">
 <meta property="og:image" content="https://ycx666994.github.io/Yang-City/docs/screens/01-city.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="杨城 · AI 认知失效证据城市">
+<meta name="twitter:title" content="杨城 · 三维全景">
 <meta name="twitter:description" content="一座让每个关于 AI 的判断都能接受实验的城市。六馆、一套证据协议。">
 <meta name="twitter:image" content="https://ycx666994.github.io/Yang-City/docs/screens/01-city.jpg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>杨城 · AI 认知失效证据城市</title>
+<title>杨城 · 三维全景</title>
 <meta name="description" content="一座让每个关于 AI 的判断都能接受实验的城市。六馆、一套证据协议。">
 <link rel="stylesheet" href="shared/yc-core.css">
 <link rel="stylesheet" href="shared/yc-cast.css">
@@ -94,7 +94,98 @@ body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-
 .dh-nav a,.dh-nav button{flex:1;text-align:center;padding:8px 6px;border:1px solid var(--yc-line);background:transparent;font-size:11.5px;color:var(--yc-muted)}
 .dh-nav a:hover,.dh-nav button:hover{color:var(--yc-ink);border-color:var(--yc-accent)}
 @media(max-width:760px){.district-hud{left:10px;right:10px;top:auto;bottom:96px;width:auto;padding:11px 13px}.district-hud h2{font-size:18px}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* ============================================================
+   城市公告栏 + 二维图层（本轮新增）
+   ------------------------------------------------------------
+   公告栏是右侧抽屉：收起时完全在画面外，不占场景；展开时压住
+   六馆列表那一列（那一列本来也要收起）。抽屉不上遮罩——看公告
+   的时候城还在转，这符合「城市里的一块告示板」而不是弹窗。
+   ============================================================ */
+.topnav button{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;font-size:12px;
+  white-space:nowrap;border:1px solid var(--yc-line);background:var(--yc-panel);border-radius:6px;
+  backdrop-filter:blur(12px);color:var(--yc-ink);cursor:pointer;transition:border-color .16s,background .16s}
+.topnav button:hover{border-color:var(--yc-accent)}
+.topnav button[aria-expanded="true"]{background:var(--yc-accent);color:var(--yc-bg);border-color:var(--yc-accent)}
+.tn-count{display:inline-grid;place-items:center;min-width:16px;height:16px;padding:0 4px;
+  border-radius:8px;background:var(--yc-accent);color:var(--yc-bg);font-size:9.5px;font-weight:700;
+  font-variant-numeric:tabular-nums;line-height:1}
+.topnav button[aria-expanded="true"] .tn-count{background:var(--yc-bg);color:var(--yc-accent)}
+
+/* ---------- 公告抽屉 ---------- */
+.bul{position:fixed;right:0;top:72px;bottom:0;z-index:55;width:min(376px,100vw);
+  display:flex;flex-direction:column;padding:20px 0 0;
+  background:var(--yc-panel);backdrop-filter:blur(20px);
+  border-left:1px solid var(--yc-line);border-top:1px solid var(--yc-line);
+  border-radius:10px 0 0 0;box-shadow:-18px 0 46px rgba(20,44,60,.14);
+  transform:translateX(calc(100% + 20px));visibility:hidden;
+  transition:transform .32s cubic-bezier(.22,.7,.3,1),visibility .32s}
+.bul.on{transform:none;visibility:visible}
+.bul-h{display:flex;align-items:flex-start;gap:12px;padding:0 22px 12px}
+.bul-ht{flex:1;min-width:0}
+.bul-ht b{display:block;font-size:17px;font-weight:700;letter-spacing:.06em;color:var(--yc-ink)}
+.bul-ht i{display:block;margin-top:4px;font-style:normal;font-size:9.5px;letter-spacing:.2em;
+  color:var(--yc-muted)}
+.bul-x{border:1px solid var(--yc-line);background:transparent;border-radius:5px;
+  width:28px;height:28px;font-size:18px;line-height:1;color:var(--yc-muted);flex:none}
+.bul-x:hover{color:var(--yc-ink);border-color:var(--yc-accent)}
+.bul-sub{margin:0 22px 14px;padding-bottom:14px;border-bottom:1px solid var(--yc-line);
+  font-size:11px;line-height:1.75;color:var(--yc-muted)}
+.bul-list{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:0 12px 8px}
+
+.bul-item{display:block;position:relative;padding:13px 12px 13px 16px;border-radius:7px;
+  text-decoration:none;color:var(--yc-ink);transition:background .16s}
+.bul-item::before{content:"";position:absolute;left:5px;top:14px;bottom:14px;width:2.5px;
+  border-radius:2px;background:var(--tone,#5b8ea8);opacity:.75;transition:opacity .16s}
+.bul-item:hover{background:rgba(79,153,186,.1)}
+.bul-item:hover::before{opacity:1}
+.bi-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bi-date{font-family:Consolas,"Microsoft YaHei",monospace;font-size:10.5px;
+  color:var(--yc-muted);font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.bi-vendor{font-size:10.5px;font-weight:700;color:var(--tone,#5b8ea8)}
+.bi-joint{font-size:9.5px;color:var(--yc-muted)}
+.bi-st{margin-left:auto;font-size:9px;letter-spacing:.08em;padding:2px 6px;border-radius:3px;
+  border:1px solid var(--yc-line);color:var(--yc-muted);white-space:nowrap}
+.bi-st.live{color:#2f7a4a;border-color:rgba(47,122,74,.5);background:rgba(47,122,74,.09)}
+:root[data-city-theme="night"] .bi-st.live{color:#7fd6a0;border-color:rgba(127,214,160,.45);
+  background:rgba(127,214,160,.1)}
+.bi-title{font-size:14px;font-weight:700;line-height:1.45;letter-spacing:.02em}
+.bi-title em{font-style:normal;font-size:10px;font-weight:400;letter-spacing:.12em;
+  color:var(--yc-muted);margin-left:7px}
+.bi-lead{margin:6px 0 0;font-size:11.5px;line-height:1.72;color:var(--yc-muted);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bul-f{display:flex;align-items:center;gap:12px;padding:12px 22px 14px;
+  border-top:1px solid var(--yc-line);font-size:10px;color:var(--yc-muted)}
+.bul-f a{margin-left:auto;color:var(--yc-accent);font-size:10.5px}
+
+/* ---------- 二维图层 ---------- */
+.lyr2d{position:fixed;inset:0;z-index:60;background:#dfe5d6;
+  animation:l2in .28s ease both}
+@keyframes l2in{from{opacity:0}to{opacity:1}}
+.lyr2d iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#eef0e6}
+.l2b{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:2;
+  display:flex;align-items:center;gap:14px;padding:8px 10px 8px 8px;
+  background:rgba(247,249,241,.95);backdrop-filter:blur(14px);
+  border:1px solid #c9cfc2;border-radius:9px;box-shadow:0 10px 26px rgba(38,48,43,.14)}
+.l2b-back{padding:8px 12px;font-size:12px;font-weight:600;border:1px solid #b9c1b2;
+  background:#fff;border-radius:6px;color:#26302b;cursor:pointer}
+.l2b-back:hover{background:#26302b;color:#f4f6ec;border-color:#26302b}
+.l2b-t{display:flex;flex-direction:column;gap:2px;line-height:1.3}
+.l2b-t b{font-size:12.5px;font-weight:700;color:#26302b;letter-spacing:.03em}
+.l2b-t i{font-style:normal;font-size:10px;color:#6f7d74}
+.l2b-open{font-size:11px;color:#3f5f4a;text-decoration:none;padding:6px 8px;border-radius:5px;
+  border:1px solid transparent;white-space:nowrap}
+.l2b-open:hover{border-color:#c9cfc2;background:#fff}
+body.l2-open .topbar,body.l2-open .hudleft,body.l2-open .nodes,body.l2-open .phaseNote,
+body.l2-open .time-control,body.l2-open .cta,body.l2-open .map-tools,body.l2-open .card,
+body.l2-open .botbar,body.l2-open .bul{filter:blur(2px);pointer-events:none;opacity:.5}
+
+@media(max-width:760px){
+  .bul{width:100vw;top:auto;height:76vh;bottom:0;border-left:0;border-top:1px solid var(--yc-line);
+    border-radius:14px 14px 0 0;transform:translateY(100%)}
+  .bul.on{transform:none}
+  .l2b{left:10px;right:10px;transform:none;gap:8px;padding:7px 8px}
+  .l2b-t i,.l2b-open{display:none}
+}
 </style>
 </head>
 <canvas id="cityCv" aria-label="虚构杨城三维场景，光照随UTC+8时间变化"></canvas>
@@ -118,7 +209,11 @@ body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-
     <span class="real-clock" id="realClock" hidden></span>
   </div>
   <nav class="topnav" aria-label="业务入口">
-    <a id="navMap" href="index.html">城市地图</a>
+    <a href="index.html">城市介绍</a>
+    <button type="button" id="navBulletin" aria-expanded="false" aria-controls="bul">
+      城市公告<span class="tn-count" id="tnBulCount">0</span>
+    </button>
+    <button type="button" id="nav2d" aria-expanded="false" aria-controls="lyr2d">二维地图</button>
     <a href="evidence.html">公共证据厅</a>
   </nav>
 </header>
@@ -157,7 +252,7 @@ body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-
 
 <div class="cta">
   <div class="maphint" id="mapHint">先看地图，定位六馆与城市设施</div>
-  <a class="mapbtn" id="btnMap" href="index.html"><span class="mbt"><b>城市地图</b><i>17 区总图 · 二维导览</i></span></a>
+  <button class="mapbtn" id="btnMap" type="button"><span class="mbt"><b>二维地图</b><i>17 区总图 · 点击切换</i></span></button>
 </div>
 <div class="map-tools" id="mapTools" hidden>
   <div class="zoomctl" role="group" aria-label="缩放">
@@ -193,6 +288,30 @@ body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-
   <a class="card-go" id="cardGo" href="map.html">进入这座馆</a>
   <div class="card-links" id="cardLinks"></div>
 </div>
+
+<!-- 二维图层：同一座城的另一张画法，不是跳去另一页。
+     用 iframe 而不是把 SVG 塞进本页，是因为那张图自带昼夜翻图、时间滑杆
+     和一整套 .cm-* 样式，两套壳的变量名会互相踩。隔离在框里最干净，
+     而且 src 只在第一次点「二维地图」时才写入，三维首屏不多下 100KB。 -->
+<div class="lyr2d" id="lyr2d" hidden>
+  <div class="l2b">
+    <button type="button" class="l2b-back" id="lyr2dBack">← 返回三维</button>
+    <div class="l2b-t"><b>杨城 · 17 区总图</b><i>点地块进街区 · 拨时间看昼夜</i></div>
+    <a class="l2b-open" href="map2d.html" target="_blank" rel="noopener">单独打开 ↗</a>
+  </div>
+  <iframe id="lyr2dFrame" title="杨城 17 区二维总图" loading="lazy"></iframe>
+</div>
+
+<!-- 城市公告栏：右侧抽屉，与三维同屏，不遮挡城市 -->
+<aside class="bul" id="bul" aria-hidden="true" aria-labelledby="bulTitle">
+  <header class="bul-h">
+    <div class="bul-ht"><b id="bulTitle">城市公告</b><i>CITY BULLETIN</i></div>
+    <button type="button" class="bul-x" id="bulClose" aria-label="收起公告栏">×</button>
+  </header>
+  <p class="bul-sub">AI 大厂与云湖研究院在杨城上线的项目。点一条，看它的档案。</p>
+  <div class="bul-list" id="bulList"></div>
+  <div class="bul-f"><span id="bulFoot">—</span><a href="index.html">关于杨城 →</a></div>
+</aside>
 
 <footer class="botbar">
   <span id="clockMode">北京时间 UTC+8 实时驱动</span>
@@ -16382,12 +16501,10 @@ body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-
     }
     stage.setScene(scene, camera);
     if (isMap) {
-      document.title = "杨城城市地图 · 六馆、" + YC3D_CITY.GIANTS.length + "家AI企业与" + YC3D_CITY.INFRA.length + "个设施";
+      document.title = "杨城 · 三维全景 · 十七区、六馆与" + YC3D_CITY.GIANTS.length + "家 AI 大厂";
       $("cityNodes").open = true; $("nodesTitle").textContent = "城市地图 · 分类定位";
       $("nodeFilters").hidden = false; $("mapTools").hidden = false;
-      /* 这一个按钮去的是二维《城市地图》(index.html)，所以就叫「城市地图」。
-         以前这里写「城市首页」——点下去落地的是张地图，名字和目标两张皮。 */
-      $("navMap").href = "index.html"; $("navMap").textContent = "城市地图";
+      /* 顶栏那枚「二维地图」按钮由页面里的独立一段脚本接管（切图层，不换页）。 */
       $("nodesFoot").textContent = "滚轮推近到片区，双击再进一档到单栋楼；坐标为虚构场景单位。";
       canvas.setAttribute("aria-label", "虚构杨城俯视地图，六馆、" + YC3D_CITY.GIANTS.length + "家AI企业及" + YC3D_CITY.INFRA.length + "个设施可分类定位");
     }
@@ -16828,6 +16945,94 @@ body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-
     requestAnimationFrame(function () { if (bootEl) bootEl.classList.add("done"); });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+})();
+
+/* ============================================================
+   城市公告栏 + 二维图层
+   ------------------------------------------------------------
+   单独一个 IIFE：district.html 也用这份脚本，那里没有公告栏的 DOM，
+   拿不到 #bulList 就直接退出，不影响街区页。
+   数据只有一份（shared/yc-bulletin.js），这里不写任何文案。
+   ============================================================ */
+(function () {
+  "use strict";
+  var B = window.YC_BULLETIN;
+  var list = document.getElementById("bulList");
+  if (!B || !list) return;
+  var $ = function (id) { return document.getElementById(id); };
+  var bul = $("bul"), btn = $("navBulletin"), frame = $("lyr2dFrame"), lyr = $("lyr2d");
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c];
+    });
+  }
+
+  /* ---------- 列表 ---------- */
+  list.innerHTML = B.items.map(function (it) {
+    var v = B.vendorOf(it);
+    var live = it.status === "live";
+    return '<a class="bul-item" href="project.html?id=' + encodeURIComponent(it.id) + '"' +
+      ' style="--tone:' + esc(v.tone) + '">' +
+      '<span class="bi-top">' +
+        '<span class="bi-date">' + esc(B.fmtDate(it.date)) + "</span>" +
+        '<span class="bi-vendor">' + esc(v.name) + "</span>" +
+        (v.joint.length ? '<span class="bi-joint">× ' + esc(v.joint.join("、")) + "</span>" : "") +
+        '<span class="bi-st' + (live ? " live" : "") + '">' + (live ? "开放中" : "已归档") + "</span>" +
+      "</span>" +
+      '<span class="bi-title">' + esc(it.title) +
+        (it.titleEn ? "<em>" + esc(it.titleEn) + "</em>" : "") + "</span>" +
+      '<span class="bi-lead">' + esc(it.lead) + "</span></a>";
+  }).join("");
+
+  var cnt = $("tnBulCount");
+  if (cnt) cnt.textContent = B.items.length;
+  var foot = $("bulFoot");
+  if (foot) foot.textContent = "共 " + B.items.length + " 条 · 最近更新 " + B.fmtDate(B.published);
+
+  /* ---------- 开关 ---------- */
+  function openBul(on) {
+    bul.classList.toggle("on", on);
+    bul.setAttribute("aria-hidden", String(!on));
+    if (btn) btn.setAttribute("aria-expanded", String(on));
+    if (on && lyr && !lyr.hidden) open2d(false);
+  }
+  if (btn) btn.addEventListener("click", function () { openBul(!bul.classList.contains("on")); });
+  if ($("bulClose")) $("bulClose").addEventListener("click", function () { openBul(false); });
+
+  /* ---------- 二维图层 ---------- */
+  function open2d(on) {
+    if (!lyr) return;
+    if (on) {
+      /* 第一次展开才给 src：三维首屏不必为一个可能不打开的图多付 100KB */
+      if (!frame.getAttribute("src")) {
+        var t = new URLSearchParams(location.search).get("time");
+        frame.setAttribute("src", "map2d.html" + (t !== null && t !== "" ? "?time=" + encodeURIComponent(t) : ""));
+      }
+      lyr.hidden = false;
+      document.body.classList.add("l2-open");
+      openBul(false);
+    } else {
+      lyr.hidden = true;
+      document.body.classList.remove("l2-open");
+    }
+    var b = $("nav2d");
+    if (b) b.setAttribute("aria-expanded", String(on));
+  }
+  if ($("nav2d")) $("nav2d").addEventListener("click", function () { open2d(lyr.hidden); });
+  if ($("btnMap")) $("btnMap").addEventListener("click", function () { open2d(true); });
+  if ($("lyr2dBack")) $("lyr2dBack").addEventListener("click", function () { open2d(false); });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    if (lyr && !lyr.hidden) { open2d(false); return; }
+    if (bul.classList.contains("on")) openBul(false);
+  });
+
+  /* ---------- URL 直达：公告栏 / 二维图都能被链接分享 ---------- */
+  var q = new URLSearchParams(location.search);
+  if (q.get("panel") === "bulletin") openBul(true);
+  if (q.get("layer") === "map") open2d(true);
 })();
 
 </script>

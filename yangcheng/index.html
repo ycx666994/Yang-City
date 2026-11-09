@@ -6,278 +6,409 @@
 <link rel="apple-touch-icon" href="../favicon.svg">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="杨城 · AI 认知失效证据城市">
-<meta property="og:title" content="杨城 · 17 区导览总图">
-<meta property="og:description" content="虚构未来 AI 城市杨城的平面区域总图：17 个风格街区，点击进入三维街区，点击馆标直接参观。">
+<meta property="og:title" content="杨城 · 一座以 AI 为业、也以 AI 为戒的城">
+<meta property="og:description" content="杨城是一座虚构的 AI 之城：17 个城区、六家 AI 大厂、云湖研究院，以及由市长与六家大厂共建的六座 AI 失效博物馆。这是这座城市的总介绍。">
 <meta property="og:image" content="https://ycx666994.github.io/Yang-City/docs/screens/01-city.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="杨城 · 17 区导览总图">
-<meta name="twitter:description" content="虚构未来 AI 城市杨城的平面区域总图：17 个风格街区，点击进入三维街区，点击馆标直接参观。">
+<meta name="twitter:title" content="杨城 · 一座以 AI 为业、也以 AI 为戒的城">
+<meta name="twitter:description" content="杨城是一座虚构的 AI 之城：17 个城区、六家 AI 大厂、云湖研究院，以及由市长与六家大厂共建的六座 AI 失效博物馆。这是这座城市的总介绍。">
 <meta name="twitter:image" content="https://ycx666994.github.io/Yang-City/docs/screens/01-city.jpg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>杨城 · 17 区导览总图</title>
-<meta name="description" content="虚构未来 AI 城市杨城的平面区域总图：17 个风格街区，点击进入三维街区，点击馆标直接参观。">
+<title>杨城 · 一座以 AI 为业、也以 AI 为戒的城</title>
+<meta name="description" content="杨城是一座虚构的 AI 之城：17 个城区、六家 AI 大厂、云湖研究院，以及由市长与六家大厂共建的六座 AI 失效博物馆。这是这座城市的总介绍。">
 <style>
-/* 杨城平面总图 · 纸质制图风（day）/ 夜间灯图（night）
-   上一版是深色全息：整页 #070c16，地块是发光圆斑。
-   用户的原话是「黑漆漆的，太丑了，也体现不出杨城的容貌」。
-   这一版按总图来配色：浅米纸、白街、灰楼、深蓝江；
-   晚上 19:30 之后自动翻成夜图，楼里点灯。 */
+/* ============================================================
+   杨城 · 首页（城市介绍）
+   ------------------------------------------------------------
+   这一页要回答的不是「有什么可玩」，而是「这是座什么城」。
+   所以它长得像一份城市志：编号章节、宋体标题、细线分栏、
+   大量留白。地图和三维都在次页，这里只给一张图版和几个入口。
+   ------------------------------------------------------------
+   配色与二维总图、公告详情页同源（米纸 + 墨绿 + 一点砖金），
+   三页连起来看是同一套印刷品，不是三个网站。
+   ============================================================ */
 :root{
-  --cm-paper:#eef0e6; --cm-country:#d6dfc6; --cm-land:#e0e7d2;
-  --cm-plate:#f1f1e8; --cm-plate-edge:#c2c8b7;
-  --cm-block:#d9ddca; --cm-block2:#d0d5c0;
-  --cm-b0:#c4cab6; --cm-b1:#b4bba4; --cm-b2:#a2aa91;
-  --cm-b4:#8e9780; --cm-b5:#77826a; --cm-b6:#5b6751;
-  --cm-ave:#ffffff; --cm-ave-edge:#dfe2d7;
-  --cm-river:#a9cfe2; --cm-river-bank:#8cbdd6; --cm-water-2:#b6d8e6;
-  --cm-rail:#c6a267; --cm-rail-casing:#efe7d4;
-  --cm-bridge:#f7f6ef; --cm-bridge-in:#ffffff;
-  --cm-plaza:#f4f2e5; --cm-sea:#b3d4e2;
-  --cm-ink:#26302b; --cm-muted:#6f7d74; --cm-line:#d3d8cb;
-  --cm-panel:#ffffff; --cm-panel-2:#f6f7f1; --cm-hair:#e2e6da;
-  --cm-lit:#ffd88a; --cm-lit-op:0;
-  --sans:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;
-  --mono:"Cascadia Code","Consolas",monospace;
-}
-body[data-phase="dawn"]{ --cm-paper:#eee7dc; --cm-country:#e4e2cf; --cm-land:#ebe5d8;
-  --cm-ave:#fffaf0; --cm-river:#a8c4d6; --cm-river-bank:#8fb0c6; }
-body[data-phase="dusk"]{ --cm-paper:#e6ddd6; --cm-country:#dcd6c6; --cm-land:#e4ddd2;
-  --cm-ave:#fff4e6; --cm-river:#8fa8c0; --cm-river-bank:#7793ad; --cm-block:#cdc7bd;
-  --cm-b0:#c2bcb2; --cm-b1:#b6b0a5; --cm-b2:#a6a094; --cm-b3:#948e82; --cm-b4:#7e786e; }
-body[data-phase="night"]{
-  /* 夜图不是把白图整体压暗：夜里的主调是「街亮、楼暗」。
-     街道被路灯照出来，所以 --cm-ave 要比街区亮一档；
-     楼只剩轮廓，靠窗户的暖光点出来。压反了整张图就是一片黑。 */
-  --cm-paper:#0a1119; --cm-country:#0e161f; --cm-land:#101a24;
-  --cm-plate:#2a3947; --cm-plate-edge:#40566b;
-  --cm-block:#18232e; --cm-block2:#1b2733;
-  --cm-b0:#26323f; --cm-b1:#2d3b49; --cm-b2:#354555; --cm-b3:#3f5162;
-  --cm-b4:#4a5e71; --cm-b5:#576d82; --cm-b6:#6b8399;
-  --cm-ave:#4a6076; --cm-ave-edge:#22303e;
-  --cm-river:#122f42; --cm-river-bank:#0e2534; --cm-water-2:#16384c;
-  --cm-rail:#8a7448; --cm-rail-casing:#1d2a36;
-  --cm-bridge:#32465a; --cm-bridge-in:#3c5468;
-  --cm-plaza:#1d2a36; --cm-sea:#0f2b3c;
-  --cm-ink:#e2ecf3; --cm-muted:#8ea3b3; --cm-line:#26343f;
-  --cm-panel:#16202b; --cm-panel-2:#1b2733; --cm-hair:#26343f;
-  --cm-lit:#ffd07a; --cm-lit-op:.92;
+  --hm-paper:#eef0e6; --hm-card:#fbfcf5; --hm-slab:#e5e8dc;
+  --hm-ink:#222b26; --hm-ink2:#47524a; --hm-muted:#6d7a70; --hm-faint:#8e9a90;
+  --hm-line:#d1d7c8; --hm-line2:#e2e6d9;
+  --hm-ac:#3f5f4a; --hm-warm:#a97c3c;
+  --hm-serif:"Songti SC","SimSun","Noto Serif SC",Georgia,serif;
+  --hm-sans:"Microsoft YaHei","PingFang SC","Segoe UI",system-ui,sans-serif;
+  --hm-mono:"Cascadia Code","Consolas","SF Mono",monospace;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;overflow:hidden}
-body{font-family:var(--sans);color:var(--cm-ink);background:var(--cm-paper);
-  transition:background .5s ease,color .5s ease}
-[hidden]{display:none!important}
-button,a{font:inherit;color:inherit}
-button{cursor:pointer;background:none;border:0;padding:0}
-a{text-decoration:none}
-:focus-visible{outline:2px solid #2b7fa8;outline-offset:2px}
+html{scroll-behavior:smooth;overflow-x:clip}   /* 移动端：装饰底纹会溢出 25px，裁掉免得整页能左右拖 */
+body{margin:0;background:var(--hm-paper);color:var(--hm-ink);font-family:var(--hm-sans);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+.hm-bg{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(var(--hm-line2) 1px,transparent 1px),
+    linear-gradient(90deg,var(--hm-line2) 1px,transparent 1px);
+  background-size:96px 96px;opacity:.4;
+  -webkit-mask-image:linear-gradient(180deg,#000,transparent 62%);
+          mask-image:linear-gradient(180deg,#000,transparent 62%)}
 
-/* 纸纹：极淡的一层斜线，别抢图 */
-.cm-bg{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
-  background:repeating-linear-gradient(45deg,rgba(120,132,110,.035) 0 1px,transparent 1px 6px)}
-body[data-phase="night"] .cm-bg{opacity:.35;
-  background:repeating-linear-gradient(45deg,rgba(120,180,220,.05) 0 1px,transparent 1px 6px)}
+/* ---------- 顶栏 ---------- */
+.hm-top{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:24px;
+  height:58px;padding:0 36px;background:rgba(238,240,230,.9);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--hm-line)}
+.hm-brand{display:flex;align-items:baseline;gap:9px;text-decoration:none;color:var(--hm-ink)}
+.hm-brand b{font-family:var(--hm-serif);font-size:19px;font-weight:500;letter-spacing:.12em}
+.hm-brand i{font-style:normal;font-family:var(--hm-mono);font-size:10px;
+  letter-spacing:.18em;color:var(--hm-faint)}
+.hm-nav{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
+.hm-nav a{position:relative;padding:7px 13px;font-size:13px;color:var(--hm-ink2);
+  text-decoration:none;border-radius:4px;transition:background .18s,color .18s}
+.hm-nav a:hover{background:var(--hm-slab);color:var(--hm-ink)}
+.hm-nav a[aria-current="page"]{color:var(--hm-ac);font-weight:500}
+.hm-nav a[aria-current="page"]::after{content:"";position:absolute;left:13px;right:13px;
+  bottom:1px;height:1.5px;background:var(--hm-ac)}
 
-/* 顶栏 */
-.cm-top{position:fixed;z-index:30;left:0;right:0;top:0;height:56px;display:flex;align-items:center;
-  gap:14px;padding:0 18px;background:linear-gradient(180deg,var(--cm-panel) 72%,rgba(255,255,255,0));
-  border-bottom:1px solid var(--cm-hair)}
-body[data-phase="night"] .cm-top{background:linear-gradient(180deg,var(--cm-panel) 72%,rgba(13,21,32,0))}
-.cm-brand{display:flex;align-items:baseline;gap:10px}
-.cm-brand b{font-size:21px;letter-spacing:5px;color:var(--cm-ink)}
-.cm-brand em{font-style:normal;font-size:10.5px;letter-spacing:2.5px;color:var(--cm-muted)}
-.cm-top .cm-spacer{flex:1}
-.cm-clock{font-family:var(--mono);font-size:12.5px;color:var(--cm-ink);letter-spacing:.5px;
-  border:1px solid var(--cm-line);padding:5px 10px;border-radius:3px;background:var(--cm-panel-2)}
-.cm-btn{border:1px solid var(--cm-line);background:var(--cm-panel-2);padding:7px 13px;font-size:12.5px;
-  border-radius:3px;letter-spacing:.5px;transition:.16s;color:var(--cm-ink);white-space:nowrap}
-.cm-btn:hover{border-color:#3f8fb5;color:#1d6b8c;background:#fff}
-body[data-phase="night"] .cm-btn:hover{color:#bfe6f6;border-color:#3f8fb5;background:#1e2b38}
+/* ---------- 通用容器 ---------- */
+.hm-wrap{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:0 36px}
 
-/* 时间条 */
-.cm-time{display:flex;align-items:center;gap:9px;padding:4px 10px 4px 12px;border:1px solid var(--cm-line);
-  border-radius:3px;background:var(--cm-panel-2)}
-.cm-time label{font-size:11.5px;color:var(--cm-muted);letter-spacing:.5px}
-.cm-time output{font-family:var(--mono);color:var(--cm-ink);font-size:12px;margin-left:5px}
-.cm-time input[type=range]{width:104px;accent-color:#3f8fb5}
-.cm-time .cm-btn{padding:4px 9px;font-size:11.5px;border-radius:2px}
-.cm-time .cm-btn.on{border-color:#3f8fb5;color:#1d6b8c;background:#eaf4f8}
-body[data-phase="night"] .cm-time .cm-btn.on{color:#bfe6f6;background:#1d3242}
+/* ---------- 章节头 ---------- */
+.hm-sec{padding:76px 0 0}
+.hm-kick{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.hm-kick b{font-family:var(--hm-mono);font-size:11px;font-weight:400;letter-spacing:.14em;
+  color:var(--hm-faint)}
+.hm-kick i{flex:none;width:26px;height:1px;background:var(--hm-line);font-style:normal}
+.hm-kick span{font-family:var(--hm-mono);font-size:10.5px;letter-spacing:.2em;
+  color:var(--hm-faint);text-transform:uppercase}
+.hm-sec h2{font-family:var(--hm-serif);font-size:34px;font-weight:500;letter-spacing:.02em;
+  line-height:1.32;margin:0 0 16px;max-width:24em}
+.hm-sec .hm-desc{font-size:14.5px;line-height:1.95;color:var(--hm-ink2);margin:0 0 38px;
+  max-width:40em;text-wrap:pretty}
 
-/* 主区 */
-.cm-main{position:absolute;inset:56px 0 0 0;z-index:1}
-@media(min-width:900px){.cm-main{left:348px}}
-#cmMap{width:100%;height:100%;display:block}
+/* ---------- 主视觉 ---------- */
+.hm-hero{display:grid;grid-template-columns:minmax(0,1fr) 520px;gap:52px;align-items:start;
+  padding:66px 0 0}
+.hm-hk{display:flex;align-items:center;gap:10px;font-family:var(--hm-mono);font-size:11px;
+  letter-spacing:.12em;color:var(--hm-faint)}
+.hm-hk b{color:var(--hm-warm);font-weight:500}
+.hm-h1{font-family:var(--hm-serif);font-size:clamp(64px,7.2vw,96px);font-weight:500;
+  line-height:1;letter-spacing:.09em;margin:22px 0 10px;text-indent:.04em}
+.hm-h1e{font-family:var(--hm-mono);font-size:12px;letter-spacing:.42em;color:var(--hm-faint);
+  margin-bottom:30px}
+.hm-lead{font-size:15.5px;line-height:2.05;color:var(--hm-ink2);max-width:33em;margin:0 0 8px;
+  text-wrap:pretty}
+.hm-tag{font-family:var(--hm-serif);font-size:19px;line-height:1.7;color:var(--hm-ink);
+  margin:20px 0 0;letter-spacing:.02em}
+.hm-tag em{font-style:normal;border-bottom:1.5px solid var(--hm-warm);padding-bottom:1px}
 
-/* ---------- 图纸 ---------- */
-.cm-paper{fill:var(--cm-paper)}
-.cm-country{fill:var(--cm-country)}
-.cm-land{fill:var(--cm-land)}
-.cm-ave{stroke:var(--cm-ave);stroke-linecap:round;opacity:.95}
-.cm-ave.spine{stroke:var(--cm-ave);opacity:1}
-.cm-river-bank{fill:var(--cm-river-bank);opacity:.55}
-.cm-river{fill:var(--cm-river)}
-.cm-rail-casing{fill:none;stroke:var(--cm-rail-casing);stroke-width:4.4;stroke-linejoin:round;stroke-linecap:round}
-.cm-rail{fill:none;stroke:var(--cm-rail);stroke-width:1.5;stroke-dasharray:5 4;stroke-linejoin:round;
-  animation:railflow 3.4s linear infinite}
-@keyframes railflow{to{stroke-dashoffset:-18}}
-.cm-station{fill:var(--cm-paper);stroke:var(--cm-rail);stroke-width:2}
-.cm-bridge{fill:var(--cm-bridge);stroke:var(--cm-river-bank);stroke-width:.8}
-.cm-bridge-in{fill:var(--cm-bridge-in);opacity:.85}
+.hm-hero-act{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+.hm-btn{display:inline-flex;align-items:center;gap:9px;height:46px;padding:0 26px;
+  font-size:14px;font-weight:500;letter-spacing:.02em;text-decoration:none;border-radius:5px;
+  border:1px solid transparent;transition:transform .16s,background .18s,border-color .18s,color .18s}
+.hm-btn:active{transform:translateY(1px)}
+.hm-btn.primary{background:var(--hm-ink);color:#f6f7f0}
+.hm-btn.primary:hover{background:#0f1612}
+.hm-btn.primary svg{transition:transform .2s}
+.hm-btn.primary:hover svg{transform:translateX(3px)}
+.hm-btn.ghost{border-color:#c3cabc;color:var(--hm-ink)}
+.hm-btn.ghost:hover{background:var(--hm-card);border-color:var(--hm-ink2)}
 
-/* 地块 */
-.cm-g-district .cm-plate{fill:var(--cm-plate)}
-.cm-g-district .cm-plate-edge{fill:none;stroke:var(--cm-plate-edge);stroke-width:1}
-.cm-block{fill:var(--cm-block)}
-.cm-dist-ave{stroke:var(--cm-ave);stroke-linecap:round;opacity:.96}
-.cm-ring-road{stroke:var(--cm-ave);opacity:.96}
-.cm-plaza{fill:var(--cm-plaza);stroke:var(--cm-plate-edge);stroke-width:.5}
-.cm-inner-water{fill:var(--cm-water-2)}
-.cm-lake{fill:var(--cm-river);stroke:var(--cm-river-bank);stroke-width:.8}
-.cm-sea{fill:var(--cm-sea)}
-.cm-shore{stroke:var(--cm-river-bank);stroke-width:1.1;stroke-dasharray:6 3}
-.cm-bldg{stroke:rgba(60,70,58,.28);stroke-width:.35}
-.cm-bldg.h0{fill:var(--cm-b0)} .cm-bldg.h1{fill:var(--cm-b1)} .cm-bldg.h2{fill:var(--cm-b2)}
-.cm-bldg.h3{fill:var(--cm-b3)} .cm-bldg.h4{fill:var(--cm-b4)} .cm-bldg.h5{fill:var(--cm-b5)}
-.cm-bldg.h6{fill:var(--cm-b6)}
-body[data-phase="night"] .cm-bldg{stroke:rgba(10,18,26,.6)}
-.cm-bldg-sh{fill:#5d6656;opacity:.14}
-body[data-phase="night"] .cm-bldg-sh{fill:#000;opacity:.34}
-.cm-lit{fill:var(--cm-lit);opacity:var(--cm-lit-op);transition:opacity .5s}
-.cm-bldg-g{pointer-events:none}
+/* 图版：像贴在档案上的一张照片 */
+.hm-plate{position:relative;background:var(--hm-card);border:1px solid var(--hm-line);
+  padding:9px 9px 0;box-shadow:0 18px 40px rgba(34,43,38,.09)}
+.hm-plate img{display:block;width:100%;height:auto}
+.hm-plate figcaption{display:flex;justify-content:space-between;gap:12px;
+  padding:11px 3px 12px;font-family:var(--hm-mono);font-size:10px;letter-spacing:.05em;
+  color:var(--hm-faint);border-top:1px solid var(--hm-line2);margin-top:9px}
+.hm-plate figcaption b{font-weight:500;color:var(--hm-muted)}
 
-/* 交互 */
-.cm-hit{fill:transparent;cursor:pointer;transition:fill .18s}
-.cm-hit:hover{fill:rgba(58,140,180,.09)}
-body[data-phase="night"] .cm-hit:hover{fill:rgba(120,200,240,.10)}
-.cm-hit.sel{fill:rgba(58,140,180,.13);stroke:#2f88ad;stroke-width:1.6;stroke-dasharray:5 4;
-  animation:march 12s linear infinite}
-body[data-phase="night"] .cm-hit.sel{fill:rgba(120,200,240,.12);stroke:#63c6e6}
-@keyframes march{to{stroke-dashoffset:-72}}
+/* ---------- 数字条 ---------- */
+/* 分栏线用单元格自身的 border 画，不用「容器底色 + 1px gap」那种做法：
+   后者一旦条目数除不尽列数，空出来的格子就会露出一块灰方块。
+   列数变化时只需改 n 的倍数（5 / 3 / 2），换行处的横线用 nth-child(n+k) 补。 */
+.hm-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:70px;
+  border-top:1px solid var(--hm-line);border-bottom:1px solid var(--hm-line)}
+.hm-stats div{padding:26px 20px 24px;border-left:1px solid var(--hm-line)}
+.hm-stats div:nth-child(5n+1){border-left:0}
+.hm-stats b{display:block;font-family:var(--hm-serif);font-size:38px;font-weight:500;
+  line-height:1;letter-spacing:.02em;margin-bottom:9px}
+.hm-stats b small{font-size:15px;margin-left:3px;color:var(--hm-muted)}
+.hm-stats span{font-size:12px;color:var(--hm-muted);letter-spacing:.03em}
 
-/* 标签 */
-.cm-lab{pointer-events:auto;cursor:pointer;transition:opacity .25s;opacity:.9}
-.cm-lab:hover{opacity:1}
-.cm-lab.on{opacity:1}
-.cm-lab.on .cm-lab-bg{stroke:#2f88ad}
-.cm-lab.on .cm-lab-name{fill:#1d6b8c}
-.cm-lab-bg{fill:var(--cm-panel);opacity:.82;stroke:var(--cm-hair);stroke-width:.6}
-.cm-lab-id{font-family:var(--mono);font-size:8.5px;fill:var(--cm-muted);letter-spacing:.5px}
-.cm-lab-name{font-size:11px;font-weight:700;fill:var(--cm-ink);letter-spacing:.6px}
-.cm-lab.featured .cm-lab-name{fill:#b8641c}
-body[data-phase="night"] .cm-lab.featured .cm-lab-name{fill:#ffc06a}
+/* ---------- 市长致辞 ---------- */
+.hm-letter{max-width:672px}
+.hm-letter p{font-size:15.5px;line-height:2.15;color:#39443c;margin:0 0 22px;text-wrap:pretty}
+.hm-letter p:first-of-type::first-letter{font-family:var(--hm-serif);float:left;font-size:52px;
+  line-height:.92;padding:6px 10px 0 0;color:var(--hm-ac)}
+.hm-letter strong{font-weight:500;color:var(--hm-ink);
+  background:linear-gradient(transparent 64%,rgba(169,124,60,.24) 64%)}
+.hm-sign{display:flex;align-items:center;gap:16px;margin-top:34px;padding-top:22px;
+  border-top:1px solid var(--hm-line)}
+.hm-sign b{font-family:var(--hm-serif);font-size:19px;font-weight:500;letter-spacing:.14em}
+.hm-sign span{font-family:var(--hm-mono);font-size:10.5px;letter-spacing:.1em;color:var(--hm-faint)}
 
-/* 馆标 */
-.cm-hall{cursor:pointer}
-.cm-hall-dot{fill:currentColor;stroke:#fff;stroke-width:1.4;filter:drop-shadow(0 1px 2px rgba(0,0,0,.3))}
-body[data-phase="night"] .cm-hall-dot{stroke:#0d1520}
-.cm-hall-halo{fill:currentColor;opacity:.18;animation:halo 2.6s ease-out infinite}
-@keyframes halo{0%{r:6;opacity:.34}70%{r:15;opacity:0}100%{r:15;opacity:0}}
-.cm-hall-core{fill:#fff;opacity:.9}
-.cm-hall-t{font-family:var(--mono);font-size:9px;font-weight:700;fill:var(--cm-ink);
-  paint-order:stroke;stroke:var(--cm-paper);stroke-width:2.4px}
-.cm-hall:hover .cm-hall-dot{filter:drop-shadow(0 0 7px currentColor)}
-.cm-badge rect{fill:var(--cm-panel);stroke:#c9a24a;stroke-width:1}
-.cm-badge text{fill:#a8761c;font-size:9px;letter-spacing:1px;text-anchor:middle;font-weight:700}
-body[data-phase="night"] .cm-badge text{fill:#ffcf7d}
+/* ---------- 六馆 ---------- */
+.hm-halls{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--hm-line);
+  border:1px solid var(--hm-line)}
+.hm-hall{display:flex;flex-direction:column;gap:0;background:var(--hm-card);
+  padding:24px 24px 22px;text-decoration:none;color:inherit;transition:background .2s}
+.hm-hall:hover{background:#f4f6ec}
+.hm-hall .n{font-family:var(--hm-mono);font-size:10.5px;letter-spacing:.12em;color:var(--hm-faint);
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.hm-hall .n i{font-style:normal;color:#c4cbbb;transition:transform .2s,color .2s}
+.hm-hall:hover .n i{transform:translateX(3px);color:var(--hm-ac)}
+.hm-hall h3{font-family:var(--hm-serif);font-size:19px;font-weight:500;letter-spacing:.03em;
+  margin:0 0 7px;line-height:1.45}
+.hm-hall .e{font-family:var(--hm-mono);font-size:9.5px;letter-spacing:.13em;color:var(--hm-faint);
+  margin-bottom:18px}
+.hm-hall .q{font-size:12.5px;line-height:1.85;color:var(--hm-muted);margin:auto 0 0;
+  padding-top:14px;border-top:1px dotted #dde1d3}
+.hm-hall .q::before{content:"“";font-family:var(--hm-serif);color:var(--hm-warm);margin-right:1px}
+.hm-hall .q::after{content:"”";font-family:var(--hm-serif);color:var(--hm-warm);margin-left:1px}
 
-/* 信息面板 */
-.cm-panel{position:fixed;z-index:25;left:18px;top:72px;width:314px;padding:15px 17px 17px;
-  background:var(--cm-panel);border:1px solid var(--cm-hair);border-top:3px solid var(--c,#3f8fb5);
-  box-shadow:0 14px 38px rgba(40,55,45,.16);border-radius:2px}
-body[data-phase="night"] .cm-panel{box-shadow:0 14px 38px rgba(0,0,0,.55)}
-.cm-panel-head{display:flex;align-items:center;gap:8px}
-.cm-panel-kicker{font-size:10px;letter-spacing:2.5px;color:#fff;background:#3f8fb5;
-  padding:3px 8px;border-radius:2px;font-weight:700}
-.cm-panel-kicker.rec{background:#c9861c;color:#fff}
-#cmClose{margin-left:auto;color:var(--cm-muted);font-size:19px;line-height:1;padding:2px 6px}
-#cmClose:hover{color:var(--cm-ink)}
-.cm-panel h2{margin:10px 0 1px;font-size:22px;letter-spacing:1.5px;color:var(--cm-ink)}
-.cm-en{margin:0 0 9px;font-size:9.5px;letter-spacing:3px;color:var(--cm-muted);text-transform:uppercase}
-.cm-desc{margin:0 0 11px;font-size:12.5px;line-height:1.85;color:var(--cm-ink);opacity:.86}
-.cm-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:11px}
-.cm-tags i{font-style:normal;font-size:10.5px;letter-spacing:.5px;padding:3px 8px;border:1px solid var(--cm-hair);
-  border-radius:2px;color:var(--cm-muted);background:var(--cm-panel-2)}
-.cm-tags i b{color:var(--cm-ink);font-weight:650}
-.cm-museums{display:grid;gap:6px;margin-bottom:13px}
-.cm-museums a{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--cm-hair);
-  background:var(--cm-panel-2);font-size:12px;transition:.16s;color:var(--cm-ink);border-radius:2px}
-.cm-museums a:hover{background:var(--cm-panel);border-color:currentColor}
-.cm-museums .dot{width:8px;height:8px;border-radius:50%;flex:none;background:currentColor}
-.cm-museums .go{margin-left:auto;font-size:10.5px;color:var(--cm-muted)}
-.cm-enter{display:block;text-align:center;padding:10px;font-size:13.5px;letter-spacing:1.5px;font-weight:700;
-  color:#fff;background:#2f7fa3;border-radius:2px;transition:.18s}
-.cm-enter:hover{background:#256b8c}
+/* ---------- 17 区 ---------- */
+.hm-zones{display:grid;grid-template-columns:repeat(4,1fr);gap:0 30px}
+.hm-zone{display:flex;align-items:baseline;gap:10px;padding:13px 2px;
+  border-bottom:1px dotted #d9ded0;text-decoration:none;color:inherit;
+  transition:background .16s,padding-left .16s}
+.hm-zone:hover{background:rgba(169,124,60,.07);padding-left:8px}
+.hm-zone b{font-family:var(--hm-mono);font-size:10px;font-weight:400;color:var(--hm-faint);
+  letter-spacing:.06em;flex:none;width:26px}
+.hm-zone span{font-size:13.5px;letter-spacing:.01em}
+.hm-zone em{display:block;font-style:normal;font-family:var(--hm-mono);font-size:9px;
+  letter-spacing:.1em;color:var(--hm-faint);margin-top:3px}
 
-/* 图例与底栏 */
-.cm-legend{position:fixed;z-index:24;right:16px;bottom:16px;display:grid;gap:4px;padding:9px 12px;
-  background:var(--cm-panel);border:1px solid var(--cm-hair);font-size:10.5px;color:var(--cm-muted);
-  border-radius:2px}
-.cm-legend span{display:flex;align-items:center;gap:7px}
-.cm-legend i{width:14px;height:7px;border-radius:1px;flex:none}
-.cm-foot{position:fixed;z-index:24;left:50%;transform:translateX(-50%);bottom:12px;padding:6px 16px;
-  font-size:11.5px;letter-spacing:.5px;color:var(--cm-muted);background:var(--cm-panel);
-  border:1px solid var(--cm-hair);border-radius:16px}
-.cm-foot b{color:var(--cm-ink)}
+/* ---------- 公告 ---------- */
+.hm-notices{border-top:1px solid var(--hm-line)}
+.hm-notice{display:grid;grid-template-columns:104px 1fr 132px 22px;gap:26px;align-items:center;
+  padding:26px 4px;border-bottom:1px solid var(--hm-line);text-decoration:none;color:inherit;
+  transition:background .18s,padding-left .18s}
+.hm-notice:hover{background:var(--hm-card);padding-left:14px}
+.hm-notice .d{font-family:var(--hm-mono);font-size:11px;letter-spacing:.05em;color:var(--hm-faint)}
+.hm-notice .d b{display:block;font-size:10px;font-weight:500;color:var(--hm-warm);
+  letter-spacing:.1em;margin-top:5px}
+.hm-notice h3{font-family:var(--hm-serif);font-size:20px;font-weight:500;margin:0 0 6px;
+  letter-spacing:.02em}
+.hm-notice h3 em{font-style:normal;font-family:var(--hm-mono);font-size:9.5px;
+  letter-spacing:.12em;color:var(--hm-faint);margin-left:9px}
+.hm-notice p{margin:0;font-size:12.5px;line-height:1.8;color:var(--hm-muted)}
+.hm-notice .s{font-size:11px;color:var(--hm-muted);text-align:right;letter-spacing:.04em}
+.hm-notice .s i{display:block;font-style:normal;font-size:9.5px;font-family:var(--hm-mono);
+  color:#2f7a4a;margin-top:4px;letter-spacing:.1em}
+.hm-notice .s i.off{color:#96702f}
+.hm-notice .ar{color:#c4cbbb;transition:transform .2s,color .2s;font-size:15px}
+.hm-notice:hover .ar{transform:translateX(4px);color:var(--hm-ac)}
 
-@media (max-width:1080px){ .cm-time input[type=range]{width:76px} .cm-brand em{display:none} }
-@media (max-width:860px){
-  .cm-panel{left:10px;right:10px;top:auto;bottom:10px;width:auto;max-height:44vh;overflow:auto;padding:12px 14px}
-  .cm-panel h2{font-size:18px;margin-top:7px}
-  .cm-legend{display:none}
-  .cm-clock{display:none}
-  .cm-top{gap:8px;padding:0 10px;height:52px}
-  .cm-main{inset:52px 0 0 0}
-  .cm-btn{padding:6px 9px;font-size:11.5px}
-  .cm-time{padding:3px 8px}
+/* ---------- 结尾 ---------- */
+.hm-next{margin-top:96px;padding:64px 0 72px;border-top:1px solid var(--hm-line);
+  display:grid;grid-template-columns:1fr auto;gap:48px;align-items:end}
+.hm-next h2{font-family:var(--hm-serif);font-size:38px;font-weight:500;letter-spacing:.03em;
+  margin:0 0 20px;line-height:1.35}
+.hm-next p{font-size:14.5px;line-height:2.05;color:var(--hm-ink2);margin:0;max-width:34em;
+  text-wrap:pretty}
+.hm-next-act{display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-end}
+
+/* ---------- 页脚 ---------- */
+.hm-foot{border-top:1px solid var(--hm-line);padding:28px 36px;display:flex;
+  justify-content:space-between;gap:18px;flex-wrap:wrap;font-family:var(--hm-mono);
+  font-size:10.5px;letter-spacing:.05em;color:var(--hm-faint)}
+.hm-foot a{color:var(--hm-muted);text-decoration:none;border-bottom:1px solid var(--hm-line)}
+.hm-foot a:hover{color:var(--hm-ac);border-bottom-color:var(--hm-ac)}
+
+@media (max-width:1000px){
+  .hm-hero{grid-template-columns:1fr;gap:34px;padding-top:44px}
+  .hm-plate{max-width:520px}
+  .hm-halls{grid-template-columns:repeat(2,1fr)}
+  .hm-zones{grid-template-columns:repeat(2,1fr)}
+  /* 数字条不折行：5 条数据排 5 列，只收窄内边距与字号。
+     一旦折成 3 列，末行必然空出一格，画出来像缺了一块。 */
+  .hm-stats div{padding:22px 12px 20px;border-left:1px solid var(--hm-line)}
+  .hm-stats div:nth-child(5n+1){border-left:0}
+  .hm-stats b{font-size:30px}
+  .hm-stats span{font-size:11.5px;line-height:1.5}
+  .hm-next{grid-template-columns:1fr;gap:26px;align-items:start}
+  .hm-next-act{justify-content:flex-start}
 }
-@media (max-width:620px){
-  .cm-time label{display:none}
-  .cm-time input[type=range]{width:62px}
-  .cm-brand b{font-size:18px;letter-spacing:3px}
-  .cm-foot{display:none}
+@media (max-width:680px){
+  .hm-wrap{padding:0 20px}
+  .hm-top{padding:0 16px;height:auto;flex-wrap:wrap;padding-top:8px;padding-bottom:8px;gap:8px}
+  .hm-nav{margin-left:0;width:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
+  .hm-nav::-webkit-scrollbar{display:none}
+  .hm-nav a{padding:6px 7px;font-size:12.5px;white-space:nowrap}
+  .hm-sec{padding-top:52px}
+  .hm-sec h2{font-size:25px}
+  .hm-h1{letter-spacing:.1em}
+  .hm-plate figcaption{flex-direction:column;gap:4px}
+  .hm-stats{grid-template-columns:repeat(2,1fr)}
+  .hm-stats div:nth-child(n){border-left:1px solid var(--hm-line)}
+  .hm-stats div:nth-child(2n+1){border-left:0}
+  .hm-stats div:nth-child(n+3){border-top:1px solid var(--hm-line)}
+  .hm-stats div:last-child{grid-column:1/-1}
+  .hm-halls{grid-template-columns:1fr}
+  .hm-zones{grid-template-columns:1fr}
+  /* 窄屏改成 3 行堆叠：日期厂牌 / 标题+一句话 / 状态，箭头单占右列。
+     必须写死行列，靠自动排布会把标题塞进 22px 的箭头列，变成一字一行的竖排。 */
+  .hm-notice{grid-template-columns:1fr 20px;gap:7px 12px;padding:20px 2px;align-items:start}
+  .hm-notice>span{min-width:0}
+  .hm-notice .d{grid-column:1;grid-row:1;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+  .hm-notice .m{grid-column:1;grid-row:2}
+  .hm-notice .s{grid-column:1;grid-row:3;text-align:left;margin-top:3px}
+  .hm-notice .ar{grid-column:2;grid-row:1;align-self:center}
+  .hm-notice .d b{margin-top:0}
+  .hm-notice h3{font-size:18px}
+  .hm-notice h3 em{display:block;margin:3px 0 0}
+  .hm-notice .s{grid-column:1;text-align:left}
+  .hm-notice .s i{display:inline;margin-left:8px}
+  .hm-next h2{font-size:28px}
+  .hm-foot{padding:22px 20px}
+  .hm-letter p{font-size:15px}
 }
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}
+  *{animation:none!important;transition:none!important}}
 </style>
 </head>
-<div class="cm-bg" aria-hidden="true"></div>
-<header class="cm-top">
-  <div class="cm-brand"><b>杨城</b><em>YANG CITY · 17 区总图</em></div>
-  <div class="cm-spacer"></div>
-  <span class="cm-clock" id="cmClock" datetime="">--:--</span>
-  <div class="cm-time">
-    <label for="cmHour">时间<output id="cmHourOut">--:--</output></label>
-    <input id="cmHour" type="range" min="0" max="23.75" step="0.25" aria-label="演练小时，UTC+8">
-    <button type="button" class="cm-btn on" id="cmReset" title="回到跟随北京时间的实时状态">北京时间</button>
-  </div>
-  <a class="cm-btn" href="evidence.html" title="跨馆证据比对与联合复核">公共证据厅</a>
-  <button class="cm-btn" id="cmRandom" type="button" title="随机高亮一个区域（快捷键 R）">随机漫游</button>
-  <a class="cm-btn" href="map.html" title="三维全城，可进到每一区的街区近景">杨城 3D</a>
+<div class="hm-bg" aria-hidden="true"></div>
+
+<header class="hm-top">
+  <a class="hm-brand" href="index.html"><b>杨城</b><i>YANG CITY</i></a>
+  <nav class="hm-nav" aria-label="主导航">
+    <a href="index.html" aria-current="page">城市介绍</a>
+    <a href="map.html">三维城市</a>
+    <a href="map.html?layer=map">二维地图</a>
+    <a href="map.html?panel=bulletin">城市公告</a>
+    <a href="evidence.html">公共证据厅</a>
+  </nav>
 </header>
-<main class="cm-main">
-  <svg id="cmMap" viewBox="0 0 1600 1400" preserveAspectRatio="xMidYMid meet"
-       role="img" aria-label="杨城 17 区平面总图：按地块真实轮廓、街网与建筑平面绘制，点击区域进入三维街区，点击馆标直接参观"></svg>
+
+<main class="hm-wrap">
+
+  <!-- ========== 主视觉 ========== -->
+  <section class="hm-hero">
+    <div>
+      <div class="hm-hk"><b>虚构城市</b><span>·</span><span>建城第九年</span></div>
+      <h1 class="hm-h1">杨城</h1>
+      <div class="hm-h1e">YANG CITY</div>
+      <p class="hm-lead">长江下游的一座城。17 个城区沿澄川河铺开，六家 AI 大厂把总部和机房都放在这里，云湖研究院替全城做模型评测。市民的一天从调度开始，到推荐结束。</p>
+      <p class="hm-tag">一座以 AI 为业、<em>也以 AI 为戒</em>的城。</p>
+      <div class="hm-hero-act">
+        <a class="hm-btn primary" href="map.html">进入三维城市
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="hm-btn ghost" href="#mayor">读这座城的来历</a>
+      </div>
+    </div>
+    <figure class="hm-plate">
+      <img src="assets/city-hero.jpg" width="1600" height="1000" alt="杨城三维总览：澄川河穿城而过，17 个城区分列两岸">
+      <figcaption><b>澄川河两岸 · 17 区俯瞰</b><span>YANG CITY / 3D OVERVIEW</span></figcaption>
+    </figure>
+  </section>
+
+  <!-- ========== 数字 ========== -->
+  <section class="hm-stats" aria-label="城市概况">
+    <div><b>17</b><span>个城区</span></div>
+    <div><b>6</b><span>家 AI 大厂</span></div>
+    <div><b>1</b><span>座云湖研究院</span></div>
+    <div><b>6</b><span>座 AI 失效博物馆</span></div>
+    <div><b id="hmNoticeCount">4</b><span>条城市公告</span></div>
+  </section>
+
+  <!-- ========== 市长致辞 ========== -->
+  <section class="hm-sec" id="mayor">
+    <div class="hm-kick"><b>01</b><i></i><span>一封公开信</span></div>
+    <h2>我不担心市民不会用 AI。<br>我担心他们太会用。</h2>
+    <div class="hm-letter">
+      <p>上任第一年，我做了一次全市摸底。87% 的成年人每天至少调用一次 AI 服务；六成公文初稿由模型起草；三分之二的家庭作业辅导发生在屏幕上。数据很好看。</p>
+      <p>同一份摸底里还有一栏：<strong>当模型给出一个明显不对劲的答案时，会停下来核实的市民，占 11%。</strong></p>
+      <p>这才是问题。不是不会用，是太会用——熟练到不再怀疑。熟练会把判断力悄悄换成惯性，而惯性是看不见的，它只在出事之后才显形。</p>
+      <p>所以我联合六家大厂和云湖研究院，在城里盖了六座馆。它们不展出 AI 有多强，只展出 AI 是怎么失效的：能力被误读、解释不成立、指标失真、数据被污染、递归吞掉信息、预算被耗尽。六座馆，六个几乎人人都会遇到、却很少有人当场问出口的问题。</p>
+      <p>我不指望谁逛完一遍就变成专家。我只希望他下一次按下回车之前，多停半秒。</p>
+      <p>这座城的产业还要往前跑，AI 还会更深入地嵌进市政、医疗、教育和港口。跑得越快，越需要有人记得刹车在哪。</p>
+      <div class="hm-sign">
+        <b>杨城市长</b>
+        <span>市政厅 · 建城第九年</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 六馆 ========== -->
+  <section class="hm-sec" id="halls">
+    <div class="hm-kick"><b>02</b><i></i><span>城市公共设施</span></div>
+    <h2>六座馆，六个必须问出口的问题</h2>
+    <p class="hm-desc">这是市长与六家大厂、云湖研究院共建的一组公共设施。每一座只处理一种失效机制，进门先看到的不是展品，是一个问题。</p>
+    <div class="hm-halls">
+      <a class="hm-hall" href="h1-museum.html">
+        <div class="n"><span>H1 / 01</span><i>→</i></div>
+        <h3>能力与边界博物馆</h3>
+        <div class="e">TRUST LAB</div>
+        <p class="q">它表现得很强，究竟证明了什么？</p>
+      </a>
+      <a class="hm-hall" href="h2-museum.html">
+        <div class="n"><span>H2 / 02</span><i>→</i></div>
+        <h3>推理法医馆</h3>
+        <div class="e">REASONING FORENSICS</div>
+        <p class="q">解释得通，是否意味着解释真的影响了答案？</p>
+      </a>
+      <a class="hm-hall" href="h3-museum.html">
+        <div class="n"><span>H3 / 03</span><i>→</i></div>
+        <h3>指标失效博物馆</h3>
+        <div class="e">MUSEUM OF BROKEN METRICS</div>
+        <p class="q">分数提高，是否真的让任务变好？</p>
+      </a>
+      <a class="hm-hall" href="h4-museum.html">
+        <div class="n"><span>H4 / 04</span><i>→</i></div>
+        <h3>数据污染博物馆</h3>
+        <div class="e">DATA CONTAMINATION ARCHIVE</div>
+        <p class="q">它答对，是泛化、记忆，还是证据无法区分？</p>
+      </a>
+      <a class="hm-hall" href="h5-museum.html">
+        <div class="n"><span>H5 / 05</span><i>→</i></div>
+        <h3>递归坍塌博物馆</h3>
+        <div class="e">RECURSIVE COLLAPSE GREENHOUSE</div>
+        <p class="q">数据反复来自模型自身时，哪些信息会消失？</p>
+      </a>
+      <a class="hm-hall" href="h6-museum.html">
+        <div class="n"><span>H6 / 06</span><i>→</i></div>
+        <h3>潜能与预算博物馆</h3>
+        <div class="e">BUDGET DOME</div>
+        <p class="q">一次失败，是能力不足、调用不当，还是预算不足？</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- ========== 17 区 ========== -->
+  <section class="hm-sec" id="zones">
+    <div class="hm-kick"><b>03</b><i></i><span>城市的形状</span></div>
+    <h2>城市不是六座馆，是十七个区</h2>
+    <p class="hm-desc">博物馆只是公共设施里的六件。城市的绝大部分是总部、机房、港口、铁路、学园和住区——六家大厂的楼都在其中，只是它们不需要被展出来。点一个区名，进它的街区近景。</p>
+    <div class="hm-zones" id="hmZones"></div>
+  </section>
+
+  <!-- ========== 公告 ========== -->
+  <section class="hm-sec" id="notice">
+    <div class="hm-kick"><b>04</b><i></i><span>城市公告</span></div>
+    <h2>最近在城里上线的东西</h2>
+    <p class="hm-desc">六家大厂与云湖研究院的新产品，上线后会在这里公示：日期、出品方、开放了什么。点进去能看到它是什么、怎么用，以及现在能不能打开。</p>
+    <div class="hm-notices" id="hmNotices2"></div>
+    <div class="hm-hero-act" style="margin-top:34px">
+      <a class="hm-btn ghost" href="map.html?panel=bulletin">在三维城里打开公告栏</a>
+    </div>
+  </section>
+
+  <!-- ========== 下一步 ========== -->
+  <section class="hm-next">
+    <div>
+      <div class="hm-kick"><b>05</b><i></i><span>下一步</span></div>
+      <h2>这座城还在长</h2>
+      <p>杨城的产业结构不是定稿。新项目先上公告栏；和 AI 失效有关的，会被并进某座馆；同类攒够一批，就再盖一座新的。这座城的目录一直是开着的。</p>
+    </div>
+    <div class="hm-next-act">
+      <a class="hm-btn primary" href="map.html">进入三维城市
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="hm-btn ghost" href="map.html?panel=bulletin">打开公告栏</a>
+    </div>
+  </section>
 </main>
-<aside class="cm-panel" id="cmPanel" aria-live="polite">
-  <div class="cm-panel-head">
-    <span class="cm-panel-kicker" id="cmKick">区域</span>
-    <button id="cmClose" type="button" aria-label="收起面板">×</button>
-  </div>
-  <h2 id="cmName">—</h2>
-  <p class="cm-en" id="cmEn"></p>
-  <p class="cm-desc" id="cmDesc"></p>
-  <div class="cm-tags" id="cmTags"></div>
-  <div class="cm-museums" id="cmMuseums"></div>
-  <a class="cm-enter" id="cmEnter" href="district.html">进入三维街区 →</a>
-</aside>
-<div class="cm-legend" aria-hidden="true">
-  <span><i style="background:#ffffff;border:1px solid #c9cfc2"></i>街道 / 街区</span>
-  <span><i style="background:linear-gradient(90deg,#b3baa8,#5a6455)"></i>建筑（越深越高）</span>
-  <span><i style="background:#a9cfe2"></i>澄川河与湖</span>
-  <span><i style="background:repeating-linear-gradient(90deg,#c6a267 0 4px,transparent 4px 7px)"></i>城际高架</span>
-  <span><i style="background:#d63d7e;border-radius:50%;width:9px;height:9px"></i>博物馆（可直达）</span>
-</div>
-<p class="cm-foot" id="cmHint"><b>点击任意区域</b>进三维街区 · 点<b>馆标</b>直接参观 · 拨时间看白天与夜间</p>
+
+<footer class="hm-foot">
+  <span>杨城 · 虚构城市 / YANG CITY</span>
+  <span>三维与二维由同一份城市数据生成 · 六馆为独立互动展厅</span>
+  <span><a href="map.html">三维城市</a>　<a href="evidence.html">公共证据厅</a></span>
+</footer>
 <script>
 /* 杨城 17 区划数据 · 3D 城市与平面总图共用。
    坐标是虚构局部场景单位（x: -3120..3260, z: -2700..2830），无地理底图。
@@ -391,3349 +522,265 @@ body[data-phase="night"] .cm-panel{box-shadow:0 14px 38px rgba(0,0,0,.55)}
 
 </script>
 <script>
-/* 杨城总图 · 全城层的基础设施
-   17 个片区各自成篇（见 yc-district-plan.js），这一层只放「城」而不是「区」的东西：
-   澄川河、三座跨江桥、贯穿北岸的城际高架、以及片区之间那几条干道。
-   3D 全城（map.html）与平面总图（index.html）共用同一份数据，两边的城要长得一样。 */
-(function (global) {
-  "use strict";
+/* ============================================================
+   yc-bulletin.js — 杨城城市公告栏 · 唯一数据源
+   ------------------------------------------------------------
+   首页（公告预览）、三维杨城（公告面板）、project.html（详情页）
+   三处共用这一份数据，绝不在页面里各写一份文案。
 
-  /* 用地范围：比 17 块地各外扩 100 米，留出滨江绿带与外围道路 */
-  var BOUNDS = { minX: -3120, maxX: 3260, minZ: -2700, maxZ: 2850 };
-
-  /* 澄川河：西起北岭山脚，东入澄湾，江面宽 190 米，在东段放大成湾。
-     [x, 江心 z, 半宽] —— 只允许在两侧片区之间摆动，不能切进任何一块地。 */
-  var RIVER = [
-    [-3600, 150, 120], [-3120, 142, 112], [-2700, 132, 104], [-2200, 146, 100],
-    [-1700, 168, 100], [-1200, 178, 96], [-700, 166, 94], [-200, 184, 96],
-    [350, 196, 102], [900, 186, 102], [1450, 174, 106], [1950, 186, 110],
-    [2450, 200, 116], [2900, 228, 130], [3300, 246, 146], [3800, 258, 160]
-  ];
-
-  /* 跨江桥：x 位置 + 南北桥头 + 桥宽。桥面标高 7 米，两孔拱。 */
-  var BRIDGES = [
-    { x: 0, z0: 58, z1: 312, w: 36, name: "中枢大桥" },
-    { x: -1420, z0: 45, z1: 300, w: 26, name: "西园桥" },
-    { x: 1100, z0: 52, z1: 318, w: 26, name: "蜂巢桥" }
-  ];
-
-  /* 城际高架：沿北岸的东西向廊道（z≈-1300）穿过全城，两端没入雾里。 */
-  var RAIL = {
-    y: 22,
-    pts: [[-3400, -1200], [-2600, -1210], [-1800, -1196], [-1000, -1206],
-      [-200, -1200], [600, -1204], [1400, -1196], [2100, -1208], [2700, -1200], [3400, -1190]],
-    stations: [{ x: -1420, name: "西园站" }, { x: 760, name: "云门站" }]
+   一条公告 = 一家 AI 大厂（或联合体）在杨城上线的一个项目。
+   字段约定：
+     id        URL 参数用（project.html?id=weave）
+     date      ISO 日期，面板按此倒序
+     vendor    出品的 AI 大厂，必须是城中六家之一或联合署名
+     kind      项目类别（认知工具 / 评测 / 数据 / 研究）
+     status    live（可立即体验） | archived（已归档，只能了解）
+     lead      一句话，公告面板里只显示这一句
+     sections  详情页正文，按「问题 → 做法 → 和六馆的关系」三段
+     play      立即体验的目标页；archived 留空
+   ------------------------------------------------------------
+   维护约定：新增项目只往 items 头部插，不需要改任何页面代码；
+   published 是公告栏页脚的「最近更新」，跟着最新一条走。
+   ============================================================ */
+(function (w) {
+  var VENDORS = {
+    baize: { name: "白泽", en: "BAIZE", field: "认知工程 · 推理集群", tone: "#5b8ea8" },
+    deepwit: { name: "深智", en: "DEEPWIT", field: "基础模型 · 通用能力", tone: "#4a6f8c" },
+    zhulong: { name: "烛龙", en: "ZHULONG", field: "长上下文 · 训练集群", tone: "#a8595f" },
+    lanzhou: { name: "澜舟", en: "LANZHOU", field: "液冷算力 · 推理服务", tone: "#3f7d80" },
+    gewu: { name: "格物", en: "GEWU", field: "数据工程 · 评测基准", tone: "#6b7a86" },
+    entropy: { name: "熵减", en: "ENTROPY", field: "能效 · 冷却系统", tone: "#586a76" },
+    cloudlake: { name: "云湖研究院", en: "CLOUDLAKE", field: "城市级 AI 研究机构", tone: "#7d8f6a" }
   };
 
-  /* 全城干道：只写长直段，穿过片区的那一截由城市构建器自动剪掉，
-     剩下的正好落在片区间隙里；片区内部由各自的街网接手。 */
-  var ROADS = [
-    /* 三条东西向干道：北廊、南北两岸各一条滨江路、南廊 */
-    { a: [-3120, -1300], b: [3260, -1300], w: 30, cls: "avenue" },
-    { a: [-3120, -30], b: [3260, -30], w: 26, cls: "avenue" },
-    { a: [-3120, 405], b: [3260, 405], w: 24, cls: "avenue" },
-    { a: [-3120, 1640], b: [3260, 1640], w: 30, cls: "avenue" },
-    /* 南北向：主轴 + 三条次级 */
-    { a: [0, -2700], b: [0, 2850], w: 36, cls: "spine" },
-    { a: [-1420, -2700], b: [-1420, 2850], w: 28, cls: "avenue" },
-    { a: [1100, -2700], b: [1100, 2850], w: 26, cls: "avenue" },
-    { a: [2820, -2700], b: [2820, 2850], w: 26, cls: "avenue" },
-    /* 片区四周的联络路（由构建器按地块自动生成，这里只声明宽与等级） */
-    { ring: true, w: 16, cls: "street" }
-  ];
-
-  global.YC_CITY_PLAN = {
-    bounds: BOUNDS, river: RIVER, bridges: BRIDGES, rail: RAIL, roads: ROADS,
-    /* 江心 z 查询：给树木、绿带、桥头用 */
-    riverAt: function (x) {
-      for (var i = 1; i < RIVER.length; i++) {
-        if (RIVER[i][0] >= x) {
-          var a = RIVER[i - 1], b = RIVER[i];
-          var t = (x - a[0]) / Math.max(0.001, b[0] - a[0]);
-          return { z: a[1] + (b[1] - a[1]) * t, half: a[2] + (b[2] - a[2]) * t };
+  var items = [
+    {
+      id: "weave",
+      date: "2026-11-09",
+      vendor: "baize",
+      joint: ["cloudlake"],
+      title: "织识",
+      titleEn: "KNOWLEDGE WEAVER",
+      kind: "认知工具",
+      status: "live",
+      lead: "一张会长大的知识地图，把「我好像懂了」变成「我确实点亮了哪几盏灯」。",
+      summary: "白泽与云湖研究院联合上线。把知识拆成可以点亮的节点，用五级掌握度记录你真正走到哪一步；守灯人不给答案，只追问你还没想清楚的那一层。默认内置 AI 素养体系，也能学习任何学科。",
+      play: "weave.html",
+      cover: "",
+      metric: [["内置体系", "6 套"], ["掌握度分级", "五级"], ["是否联网", "完全离线"]],
+      tags: ["AI 素养", "知识图谱", "离线可用", "免费"],
+      sections: [
+        {
+          h: "它要解决的那件事",
+          p: "市民对 AI 的依赖，多数不是「不会用」，而是「以为自己会用」。问一句得到一个像样的回答，读起来通顺、结构清楚，于是判断力提前退场。织识把这件事拆开：一个知识点不是「看过」就算会，而是能说清它的边界、知道它什么时候不成立、能判断别人用得对不对。图上每盏灯的五级，对应的就是这四件事的进度。"
+        },
+        {
+          h: "怎么用",
+          p: "打开任何一个体系，会看到一张可以无限拖动的灯图：上游是地基，下游是它推得动的东西。点一盏灯，写下你刚学到的一句话，守灯人会追问一句——不是夸你，是找出这句话里还悬着的地方。你答不上来，那盏灯就停在「微明」，图上会留下一个可见的缺口。整张图的价值不在好看，在于缺口藏不住。"
+        },
+        {
+          h: "开放安排",
+          p: "即日起向全城开放，免费，不需要注册。打开就能用，所有学习记录存在你自己的浏览器里，不上传、不跨设备同步——这是刻意的：练判断力不该先交出自己的数据。首版内置六套体系，AI 素养是默认打开的那一套；学校与图书馆的公共终端本月内会预装。此后每季度增补一套。"
         }
-      }
-      var last = RIVER[RIVER.length - 1];
-      return { z: last[1], half: last[2] };
+      ]
     },
-    /* 地块矩形（含 34 米路侧带）：城市地面在这里开洞，避免与片区地面共面闪烁 */
-    plateRect: function (d, pad) {
-      var p = pad || 0;
-      return { minX: d.cx - d.hx - p, maxX: d.cx + d.hx + p,
-        minZ: d.cz - d.hz - p, maxZ: d.cz + d.hz + p };
-    }
-  };
-})(window);
-
-</script>
-<script>
-/* 杨城 17 区 · 区域街区规划方案
-   每个区域一份独立设计：路网形态、色板、建筑原型权重、地标与默认视角。
-   3D 区域页按这里的方案生成；没有单列的区域退化为按气质推导的通用方案。 */
-(function (global) {
-  "use strict";
-
-  var PLANS = {};
-
-  /* ---------------- D01 中枢核心区 ----------------
-     环形路 + 斜穿主干道 + 7° 偏转的正交网格，正中是城主演说广场。
-     八家 AI 大厂总部沿环形路外侧围成一圈，核心径向加成把塔群往中心压，
-     外围压成低层配套，形成「盆地托孤峰」的天际线。 */
-  PLANS.D01 = {
-    id: "D01", seed: 1101, R: 470,
-    groundColor: 0x73756e,
-    palette: ["white", "ochre", "stoneCool", "terracotta", "slate", "steelBlue", "ivory", "navy", "graphite", "mustard"],
-    paneColor: 0x1e2f3b, nightLit: 0.30,
-    grid: { type: "grid", angle: 0.13, spacingX: 98, spacingZ: 94, majorEvery: 3, jitter: 7 },
-    rings: [{ cx: 0, cz: 0, r: 172, w: 30, cls: "avenue" }],
-    avenues: [{ from: [-560, -430], to: [560, 400], w: 38 }],
-    /* 中央广场：北侧演说台 + 扇形看台，中轴五组喷泉，广场后是城主府 */
-    plazas: [{ x: 0, z: 0, w: 180, d: 140, civic: true }],
-    profile: { hMin: 26, hMax: 112, lotW: 24, lotD: 22, setback: 4, lotGap: 1,
-      innerFill: 0.8, innerStep: 34, farMax: 120, ringFront: true,
-      coreR: 330, coreK: 1.72 },
-    types: [{ t: "tower", w: 3.4 }, { t: "glassTower", w: 3.2 }, { t: "podium", w: 2.6 },
-      { t: "slab", w: 2.2 }, { t: "twin", w: 1.1 }, { t: "courtyard", w: 1 }, { t: "loft", w: 0.6 }],
-    hero: [
-      /* 城主府：演说台背后的仪式性背景建筑 */
-      { type: "cityHall", x: 0, z: -112, w: 74, d: 52, h: 44, plain: "stone" },
-      /* 八家 AI 大厂总部，沿环形路外侧一圈 */
-      { type: "glassTower", x: -150, z: -175, w: 58, d: 52, h: 236, rot: 0.1,
-        color: 0x2f6f9e, sign: { name: "深智", en: "DEEPWIT", tone: "#8fd8ff" } },
-      { type: "cylinderTower", x: 165, z: -150, w: 54, d: 54, h: 198,
-        color: 0x8f3a44, sign: { name: "烛龙", en: "ZHULONG", tone: "#ff9aa8" } },
-      { type: "twin", x: -215, z: 30, w: 62, d: 46, h: 174, rot: -0.2,
-        color: 0xd8dde0, sign: { name: "白泽", en: "BAIZE", tone: "#ffffff" } },
-      { type: "tower", x: 220, z: 25, w: 52, d: 46, h: 156, rot: 0.34,
-        color: 0x2e8b84, sign: { name: "澜舟", en: "LANZHOU", tone: "#7ff0e2" } },
-      { type: "ziggurat", x: -160, z: 190, w: 58, d: 52, h: 142, rot: 0.16,
-        color: 0x9aa8b4, sign: { name: "格物", en: "GEWU", tone: "#c8ff8a" } },
-      { type: "dome", x: 175, z: 195, w: 60, d: 56, h: 128,
-        color: 0xb0547f, sign: { name: "万象", en: "WANXIANG", tone: "#ff9dc8" } },
-      { type: "podium", x: -272, z: -72, w: 56, d: 48, h: 112, rot: 0.08,
-        color: 0x6d7f95, sign: { name: "星野算力", en: "STARFIELD", tone: "#b8c8ff" } },
-      { type: "slab", x: 276, z: -82, w: 54, d: 44, h: 96, rot: -0.12,
-        color: 0x5f8288, sign: { name: "熵减", en: "ENTROPY", tone: "#9fe6ff" } },
-      /* 指标失效博物馆：广场南侧、八家总部围成的圈里唯一一座「不属于任何公司」的楼。
-         主塔是扭转的，因为这一馆讲的就是「指标一直往上走，任务却在变坏」。 */
-      { type: "twist", x: 0, z: 168, w: 58, d: 52, h: 118, rot: 0.06, color: 0xa8739a }
-    ],
-    view: { x: 0, y: 85, z: -20, dist: 410, phi: 0.62, theta: 0.48 }
-  };
-
-  /* ---------------- D02 河西文创区 ----------------
-     跟 D01 完全相反的一套城市语言：没有一条正交网格。
-     杨河从北向南切过东侧，西岸是老城本体、东岸是一条艺廊带，两座石拱桥相连。
-     一条蜿蜒主街 + 两条次街 + 七条断头窄巷 + 三块小广场；
-     建筑是 2 到 4 层的暖色坡顶联排，只有博物馆和一座文创塔是新建的现代体量。 */
-  PLANS.D02 = (function () {
-    /* 河道中心线：正弦叠加，避免出现笔直的「运河」。
-       河心走区域中线偏西一点，两岸才都留得下实景街区。 */
-    function riverX(z) { return 90 + 40 * Math.sin((z + 380) / 260) + 18 * Math.sin(z / 140); }
-    var waterPts = [];
-    for (var wz = -900; wz <= 900; wz += 36) waterPts.push([riverX(wz), wz]);
-    /* 堤街：贴着西岸跑，与河心固定偏 62 米（水面半宽 40，中间留出步道） */
-    var quayPts = [];
-    for (var qz = -520; qz <= 520; qz += 36) quayPts.push([riverX(qz) - 50, qz]);
-    return {
-      id: "D02", seed: 1202, R: 470,
-      groundColor: 0xa2a296,
-      palette: ["warmStone", "cream", "sand", "terracotta", "brickRed", "brickBrown",
-        "ochre", "ivory", "indigo", "patina", "slate", "olive"],
-      /* 八成以上用暖色主族，冷色只做零星跳色 */
-      paletteCore: ["warmStone", "cream", "sand", "terracotta", "brickRed", "brickBrown", "ochre", "ivory"],
-      accentRate: 0.055,
-      streetStyle: "stone",
-      /* 老城：临街第一排做檐口+店面，内部只做檐口 */
-      trim: 2,
-      exposure: 0.92, sunIntensity: 0.86, hemiScale: 0.95,
-      paneColor: 0x2a2520, nightLit: 0.34,
-      grid: { type: "none", angle: 0.13 },
-      rings: [],
-      avenues: [],
-      water: { w: 64, depth: 4.2, surfY: -1.5, pts: waterPts },
-      paths: [
-        /* 主街「窑湾街」：自西侧入城，一路偏折，最后落到一号桥西桥头 */
-        { w: 11, cls: "street", step: 16, pts: [
-          [-470, -40], [-395, -92], [-320, -44], [-270, 28], [-208, 68],
-          [-140, 94], [-62, 100], [8, 92], [68, 84]] },
-        /* 次街「北巷」：南北贯通，北端从城门洞穿过 */
-        { w: 8.5, cls: "street", step: 16, pts: [
-          [-300, -460], [-290, -330], [-280, -200], [-266, -80], [-250, 20],
-          [-230, 120], [-206, 230], [-182, 340], [-164, 460]] },
-        /* 「南市街」：西岸第二条南北街，走向更松 */
-        { w: 8, cls: "street", step: 16, pts: [
-          [-92, -460], [-72, -320], [-52, -180], [-32, -40], [-12, 90],
-          [8, 200], [22, 320], [30, 460]] },
-        /* 「东岸新街」：过桥之后的东岸街区主轴，弧度与河平行 */
-        { w: 8, cls: "street", step: 16, pts: [
-          [232, -460], [242, -320], [246, -180], [236, -40], [226, 80],
-          [240, 200], [256, 320], [266, 460]] },
-        /* 「堤街」：滨河街，一侧临水 */
-        { w: 7, cls: "lane", smooth: false, pts: quayPts },
-        /* 窄巷：西岸全是断头巷与丁字口，没有一条贯通全区 */
-        { w: 5, cls: "lane", pts: [[-402, -128], [-334, -152], [-282, -140]] },
-        { w: 5, cls: "lane", pts: [[-364, 152], [-302, 142], [-252, 148]] },
-        { w: 5, cls: "lane", pts: [[-166, -84], [-114, -62], [-66, -52]] },
-        { w: 5, cls: "lane", pts: [[-124, 216], [-74, 232], [-34, 242]] },
-        { w: 6, cls: "lane", pts: [[-262, 332], [-212, 320], [-172, 326]] },
-        { w: 5, cls: "lane", pts: [[-420, 300], [-352, 288], [-300, 296]] },
-        /* 东岸两条 */
-        { w: 6, cls: "lane", pts: [[300, -160], [342, -140], [376, -132]] },
-        { w: 5, cls: "lane", pts: [[318, 182], [358, 202], [392, 216]] }
-      ],
-      /* 三块小广场：戏台广场、码头广场、小市场 */
-      plazas: [
-        /* 博物馆前庭：南向入口台阶前必须有一块硬质前场，否则新馆像扔在空地上 */
-        { x: -78, z: -168, w: 96, d: 54, trees: true },
-        { x: -150, z: 240, w: 66, d: 48, trees: true },
-        { x: 202, z: 150, w: 54, d: 40, trees: true },
-        { x: -330, z: 60, w: 44, d: 32, trees: true }
-      ],
-      profile: { hMin: 6.5, hMax: 20, lotW: 12, lotD: 17, setback: 1.0, lotGap: 0.2, lotGapRand: 0.3,
-        innerFill: 0.70, innerStep: 25, farMax: 44, ringFront: true, gable: 0.82, lowRise: 0.16 },
-      types: [{ t: "rowHouse", w: 6.6 }, { t: "courtyard", w: 2.2 }, { t: "warehouse", w: 1.6 },
-        { t: "terrace", w: 0.9 }, { t: "loft", w: 0.6 }, { t: "pavilion", w: 0.8 },
-        { t: "market", w: 0.6 }],
-      hero: [
-        /* 能力与边界博物馆：新建的当代体量，不是老厂房改造 */
-        { type: "museum", x: -70, z: -232, w: 96, d: 84, h: 21, rot: 0.14 },
-        /* 老城门 · 钟楼：卡在北巷北端，道路从门洞里穿过 */
-        { type: "clockTower", x: -292, z: -430, w: 13, d: 13, h: 27 },
-        /* 砖砌水塔：老城第二制高点 */
-        { type: "waterTower", x: 26, z: -330, w: 9, d: 9, h: 34 },
-        /* 两座石拱桥 */
-        { type: "bridge", x: 139, z: 80, w: 96, d: 13, h: 14, arches: 3 },
-        { type: "bridge", x: 125, z: 300, w: 86, d: 10, h: 14, arches: 1, rot: 0.04 },
-        /* 老戏台：戏台广场北端 */
-        { type: "stage", x: -150, z: 214, w: 19, d: 15, h: 7 },
-        /* 文创塔：老城里唯一的现代高层，作为天际线破点 */
-        { type: "glassTower", x: 172, z: -250, w: 24, d: 24, h: 46, mat: 3 }
-      ],
-      view: { x: 62, y: 0, z: 40, dist: 292, phi: 0.55, theta: 0.40 }
-    };
-  })();
-
-  /* ---------------- D03 北岭智算谷 ----------------
-     工业园逻辑，和 D01 的塔楼森林、D02 的窄巷老城都不是同一套语言。
-     一条 30 米岭道做南北骨架，正交次干道把谷地切成 148×132 米的大地块；
-     地块大、退线深、建筑低而阔——满谷都是机房，天际线只在六家大厂主楼处起峰。
-     辨识点：退台机房 + 屋面冷却机组阵列 + 液冷鳍片塔 + 架空管廊 + 冷却塔。 */
-  PLANS.D03 = (function () {
-    /* 六家大厂在谷里的算力基地，按地块中心对称排布。
-       名字沿用 D01 那批 AI 厂商——D01 是总部，这里是它们的机房。 */
-    var GIANTS = [
-      { x: -222, z: -198, w: 44, d: 42, h: 148, color: 0x3f6a86, brand: 0,
-        sign: { name: "深智", en: "DEEPWIT · DC-01", tone: "#8fd8ff" } },
-      { x: 222, z: -198, w: 42, d: 46, h: 132, color: 0x8a4a52, brand: 1,
-        sign: { name: "烛龙", en: "ZHULONG · CLUSTER", tone: "#ff9aa8" } },
-      { x: -370, z: 66, w: 40, d: 40, h: 118, color: 0xc8ced2, brand: 2,
-        sign: { name: "白泽", en: "BAIZE · INFERENCE", tone: "#ffffff" } },
-      { x: 370, z: 66, w: 46, d: 42, h: 126, color: 0x2f6f74, brand: 3,
-        sign: { name: "澜舟", en: "LANZHOU · LIQUID", tone: "#7ff0e2" } },
-      { x: -222, z: 330, w: 42, d: 42, h: 108, color: 0x5b6672, brand: 4,
-        sign: { name: "格物", en: "GEWU · COMPUTE", tone: "#c8ff8a" } },
-      { x: 222, z: 330, w: 44, d: 40, h: 114, color: 0x6f7d88, brand: 5,
-        sign: { name: "熵减", en: "ENTROPY · COOLING", tone: "#9fe6ff" } }
-    ];
-    var hero = GIANTS.map(function (g) {
-      return { type: "finTower", x: g.x, z: g.z, w: g.w, d: g.d, h: g.h,
-        color: g.color, brand: g.brand, sign: g.sign };
-    });
-    /* 三座超大规模基地：不属于某一家，是国家算力枢纽的公共机房 */
-    hero.push({ type: "datacenter", x: 74, z: -198, w: 112, d: 84, h: 27, color: 0xc9cfd2 });
-    hero.push({ type: "datacenter", x: -74, z: 198, w: 104, d: 82, h: 24, color: 0xd6d9d8 });
-    hero.push({ type: "datacenter", x: 370, z: -330, w: 96, d: 78, h: 21, color: 0xbfc6c9 });
-    /* 两座 220kV 变电站，压在谷地两角，高压进线从外围进来 */
-    hero.push({ type: "substation", x: -370, z: -330, w: 62, d: 52, h: 15, color: 0x9aa4a8 });
-    hero.push({ type: "substation", x: 370, z: 198, w: 58, d: 48, h: 15, color: 0x9aa4a8 });
-    /* 架空管廊：冷却水从高位水池送进机房的那条主动脉。
-       d 给到 18 是为了把占位走廊留宽——管廊两侧不能贴楼，否则管道会穿进厂房。 */
-    hero.push({ type: "pipeRack", x: -222, z: -232, w: 120, d: 18, h: 9.5 });
-    hero.push({ type: "pipeRack", x: 370, z: 66, w: 100, d: 18, h: 9.5, rot: Math.PI / 2 });
-    /* 两座高位水池：谷地两侧的制高水头，也是硬轮廓上的两个锚点。
-       它们必须落在坡脚外侧，比机房高一截，谷才不是一张平纸。 */
-    hero.push({ type: "hillTank", x: -452, z: -66, w: 48, d: 40, h: 46 });
-    hero.push({ type: "hillTank", x: 452, z: 264, w: 44, d: 36, h: 42 });
-    /* 冷却塔群：谷地中央那团白汽，动态与尺度全靠它 */
-    hero.push({ type: "coolingYard", x: 74, z: -66, w: 112, d: 68, h: 40 });
-    /* 光伏场与集装箱堆场：工业谷的色彩来源，纯灰的谷读不出产业 */
-    hero.push({ type: "solarFarm", x: -370, z: -198, w: 104, d: 76, h: 3 });
-    hero.push({ type: "solarFarm", x: 74, z: 330, w: 92, d: 68, h: 3 });
-    hero.push({ type: "containerYard", x: 370, z: -120, w: 92, d: 54, h: 9 });
-    hero.push({ type: "containerYard", x: -74, z: -330, w: 86, d: 50, h: 9 });
-    return {
-      id: "D03", seed: 1303, R: 470,
-      groundColor: 0x807f76,
-      /* 点缀色给工业色：锈红、焦褐、墨绿、铜青。
-         机房谷全是铝皮白，一成多的锈红与深绿能把整片灰压出层次，
-         又不会像老城那样变成马赛克。 */
-      palette: ["stoneCool", "white", "slate", "steelBlue", "graphite", "navy", "sky", "stoneGrey",
-        "rust", "brickBrown", "teal", "olive", "amber", "cream"],
-      /* 主色压到中间调：正午 ACES 会把近白墙推到纯白，
-         一片白盒子比灰盒子更像石膏模型。留一档白做跳色就够。 */
-      paletteCore: ["stoneCool", "stoneGrey", "slate", "cream", "white"],
-      /* 点缀色是一组独立的工业色，不再和灰系混在一锅里抢概率：
-         锈红、焦褐、铜青、墨绿、琥珀——厂房彩钢板本来就是这个色域。 */
-      paletteAccent: ["rust", "brickBrown", "teal", "olive", "amber", "steelBlue"],
-      accentRate: 0.34,
-      streetStyle: "asphalt",
-      /* 谷地外围也必须是平屋顶厂房，不能铺一圈赭红瓦房 */
-      fringeFlat: true,
-      /* 屋顶只允许金属灰蓝 */
-      coolRoof: true,
-      /* 谷不是平坝：两侧起岭、北端封口，谷底自南向北缓抬。
-         没有这层地形，一屏厂房会像摊在桌面上的一张图纸。
-         岭脚必须贴着建成区（floorX≈400），山才能进画面；岭太远等于没有。
-         两个孤丘是场平之后剩下的山包——谷底唯一能读出「地形」的实体。 */
-      /* 岭脚必须紧贴建成区边缘（floorX 略大于 R=470），坡要比之前陡一倍：
-         谷的形状靠的是「绿色陡坡把厂房围住」，坡缓了山谷就退化成缓丘。
-         180 米高差压在 280 米水平距离上≈33°，一眼就能读出一条山壁。 */
-      terrain: { floorX: 500, ridgeX: 782, ridgeH: 182, ridgePow: 1.0,
-        headZ: 430, headEnd: 820, headH: 196, headPow: 1.0,
-        tilt: 0.016, tiltRef: -40, tiltMax: 360, undul: 8.5,
-        knolls: [{ x: -222, z: -66, r: 88, h: 56 }, { x: 222, z: 66, r: 66, h: 30 }] },
-      /* 工业谷的街面：人是换班的人，不是逛街的人。
-         密度按「几十米一个」给，摊位基本没有，板车一辆都不该有。 */
-      streetLife: { pedGap: 27, pedRun: 0.42, stall: 0.006, cart: 0, vest: true, treeGap: 12 },
-      exposure: 0.90, exposureK: 0.86, sunIntensity: 1.18, hemiScale: 0.52,
-      /* 谷里的雾要薄：脊线被雾吃掉，谷就读不出来。
-         1.7 还会在山面上糊一层灰膜，把整幅画面的饱和度一起拉平。 */
-      fogScale: 1.05,
-      paneColor: 0x243642, nightLit: 0.22,
-      grid: { type: "grid", angle: 0, spacingX: 148, spacingZ: 132, majorEvery: 3, jitter: 0 },
-      rings: [],
-      avenues: [],
-      /* 中央调度广场：两座地标机房之间唯一的空地 */
-      plazas: [{ x: -74, z: 66, w: 86, d: 66, trees: true }],
-      profile: { hMin: 13, hMax: 38, lotW: 42, lotD: 30, setback: 6, lotGap: 2, lotGapRand: 2.5,
-        innerFill: 0.86, innerStep: 46, farMax: 56, ringFront: false, gable: 0, lowRise: 0.08 },
-      /* 机房压倒性占比：一屏看下去必须全是 AI 基地，配套只是点缀。
-         不要四合院——工业谷里没有院落，它还会带一圈坡顶把色板搞乱。 */
-      types: [{ t: "datacenter", w: 6 }, { t: "datacenter", w: 3 }, { t: "finTower", w: 2.6 },
-        { t: "warehouse", w: 1.8 }, { t: "slab", w: 1.4 }, { t: "substation", w: 0.8 },
-        { t: "coolingTower", w: 0.7 }],
-      hero: hero,
-      /* 机位必须能同时挂出两块厂牌，否则一屏看下去只剩「一片厂房」。
-         机位退到谷口、抬高、拉远：两侧岭和北端封口要一起进画面，
-         谷的形状才成立；贴太近就只剩一堵厂房墙。 */
-      view: { x: 0, y: 12, z: 30, dist: 1010, phi: 0.52, theta: 0.22 }
-    };
-  })();
-
-  /* ---------------- D04 云湖研究院 ----------------
-     和前三区都不是一套语言：D01 是塔楼森林，D02 是窄巷老城，D03 是正交厂房。
-     这里的主语是水——一个三百多米宽的湖占了画面中心，园区绕着湖岸长成一圈，
-     路网没有正交网格，只有一条环湖道和四条放射支路。
-     辨识点：玻璃穹顶会议中庭、射电望远镜、环湖木栈道、三翼实验庭院。 */
-  PLANS.D04 = (function () {
-    /* 湖：椭圆 + 三个低频谐波，湖岸才有几个湾。
-       纯椭圆在俯视图里就是一个水池子，读不出「云湖」。 */
-    var LAKE = {
-      x: -10, z: 40, rx: 250, rz: 186, rot: 0.08, seed: 4127,
-      wob: 0.15, wob2: 0.08, depth: 4.8, surfY: -0.9,
-      roadOff: 34, roadW: 20,
-      islands: [{ x: 20, z: 150, r: 32 }],
-      piers: [{ a: 0.62, len: 58, w: 6.5 }, { a: 2.55, len: 46, w: 6 }]
-    };
-    var hero = [];
-    /* 天问：穹顶中庭压在北岸，是整片湖的对景。
-       厂牌不能挂在这里——穹顶是球面收顶的，牌子只能浮在球顶上方，
-       近景看就是一块悬空的广告板。牌子改挂在后面的总部塔上。 */
-    hero.push({ type: "conferenceDome", x: 0, z: -252, w: 104, d: 104, h: 56 });
-    /* 天问总部塔：穹顶之后唯一一根竖线，给湖对岸一个高度落点。
-       要比穹顶高出明显一截——只高 20 米、又隔了 130 米，透视一压就和穹顶齐平了。 */
-    hero.push({ type: "glassTower", x: 0, z: -382, w: 42, d: 40, h: 116, color: 0xd6dcd8,
-      sign: { name: "天问", en: "TIANWEN · ATRIUM", tone: "#8ff0d8", w: 42 } });
-    /* 射电望远镜：西岸的碟形。研究院总得有一件"大科学装置" */
-    hero.push({ type: "dish", x: -302, z: -104, w: 80, d: 80, h: 64 });
-    /* 四组三翼实验庭院，绕湖铺开 */
-    hero.push({ type: "labCourt", x: -352, z: 62, w: 104, d: 86, h: 30 });
-    hero.push({ type: "labCourt", x: 350, z: 30, w: 100, d: 84, h: 28 });
-    hero.push({ type: "labCourt", x: -152, z: -300, w: 96, d: 80, h: 26 });
-    hero.push({ type: "labCourt", x: 162, z: -298, w: 96, d: 80, h: 26 });
-    /* 南岸：一座架在岸边的小型会议楼 + 一座跨到湖心岛的拱桥 */
-    hero.push({ type: "slab", x: 210, z: 300, w: 86, d: 54, h: 22, color: 0xe0e4e0 });
-    hero.push({ type: "lakeBridge", x: 20, z: 200, w: 46, d: 10, h: 8.5, rot: Math.PI / 2 });
-    return {
-      id: "D04", seed: 1404, R: 470,
-      /* 草地要压深一档：浅绿 + 白墙 + 灰路，三样都是高明度，整幅画会灰成一张石膏图。
-         深一点的草能把白墙托出来，湖也才有「岸」。 */
-      groundColor: 0x6e7d64,
-      /* 这个区的地面九成是草地，铺装格线铺到草坪上会读成一地瓷砖 */
-      groundStyle: "lawn",
-      /* 研究院的底色是白与薄荷：白墙、浅玻璃、一点点青绿。
-         不能给暖色——暖墙一多，湖就变成老城边上的鱼塘。 */
-      palette: ["white", "ivory", "mint", "stoneCool", "teal", "sky", "cream"],
-      paletteCore: ["white", "ivory", "stoneCool", "mint"],
-      paletteAccent: ["teal", "sky", "mint"],
-      accentRate: 0.28,
-      streetStyle: "asphalt",
-      fringeFlat: true,
-      /* 湖区的屋顶只许冷色：锈红/橄榄那几档是工业谷用的，
-         撒在白墙园区里比全灰更乱。 */
-      coolRoof: true, roofWarm: false,
-      /* 三成屋顶做种植屋面：湖区的白盒子全顶着灰板，俯视就是一张灰纸 */
-      greenRoof: 0.32,
-      /* 湖区地平线全靠外圈林带收口，要铺得比默认密 */
-      groveClusters: 300,
-      /* 没有正交路网兜住外围建筑，外围必须走同心环摆位，
-         否则就是撒了一圈彩色碎块。 */
-      fringeRing: true,
-      lake: LAKE,
-      /* 没有正交网格：环湖道由湖岸线推出来，其余是四条放射支路。
-         研究院本来就该是"一条环路 + 几条支路"，画方格网立刻变成产业园。 */
-      grid: { type: "none" },
-      rings: [],
-      avenues: [
-        { from: [0, -198], to: [0, -452], w: 26 },
-        { from: [24, 276], to: [24, 458], w: 24 },
-        { from: [300, 40], to: [452, 40], w: 24 },
-        { from: [-316, 52], to: [-452, 52], w: 24 }
-      ],
-      /* 穹顶前的礼仪前庭：不留这块铺地，穹顶就直接坐在草地上 */
-      plazas: [{ x: 0, z: -190, w: 150, d: 28, trees: true }],
-      profile: { hMin: 11, hMax: 34, lotW: 34, lotD: 26, setback: 8, lotGap: 3, lotGapRand: 4,
-        innerFill: 0.82, innerStep: 34, innerCap: 0.84, farMax: 48, ringFront: false, gable: 0, lowRise: 0.12 },
-      types: [{ t: "slab", w: 4.2 }, { t: "loft", w: 2.4 }, { t: "labCourt", w: 2.0 },
-        { t: "pavilion", w: 1.8 }, { t: "dome", w: 0.9 }, { t: "glassTower", w: 0.5 }],
-      hero: hero,
-      /* 机位压在南岸水面上方，往北越过湖面看穹顶：
-         湖占下半屏、穹顶在北岸正中，一眼就知道这是个湖区园区。
-         俯角必须低到 0.47 左右——0.62 是「看图纸」的角度，湖会被压成一个深色块，
-         整片园区摊平，没有远近。压低之后湖面按透视收成一条宽带，
-         北岸的穹顶与总部塔才立得起来，远处的林带正好当地平线。 */
-      view: { x: -10, y: 16, z: 4, dist: 730, phi: 0.48, theta: 0.26 },
-      /* 建筑之间全是草地，俯视会糊成一片均匀的绿；树丛填空档 */
-      parkTrees: { clusters: 62 },
-      /* 湖面是整幅画面的主体，曝光压低一档才不会被正午的镜面反光烧白 */
-      exposure: 0.94, exposureK: 0.90, sunIntensity: 1.10, hemiScale: 0.72,
-      /* 雾要薄：这个区没有山体挡视线，雾一浓整幅画就糊成一片白，
-         湖对岸的穹顶、塔、望远镜全被吃掉。 */
-      fogScale: 0.9,
-      paneColor: 0x3a5058, nightLit: 0.26,
-      streetLife: { pedGap: 34, pedRun: 0.30, stall: 0.004, cart: 0, treeGap: 11 }
-    };
-  })();
-
-  /* ---------------- D05 临河司法区 ----------------
-     前面四区都靠「一片肌理」成形：D01 塔林、D02 窄巷、D03 谷地、D04 环湖。
-     这一区反过来，靠一条线——一条不许被打断的中轴。
-     河横在南侧当前提，门楼骑在岸上做起点，广场、主楼、案卷库一线穿过去；
-     两翼合议楼夹住广场，法医馆独立在西侧。其余全是冷青石材的竖条楼。 */
-  PLANS.D05 = (function () {
-    /* 静水河湾：东西横贯、缓弯、宽 44 米。
-       和 D02 那条窄运河分开——那条是穿城的水道，两岸夹着街；
-       这条是园区南缘的一片水面，对岸什么都没有，只用来把视线推远。 */
-    var RIVER = { w: 44, depth: 5.0, surfY: -1.2, pts: [] };
-    for (var rx = -920; rx <= 920; rx += 60) {
-      RIVER.pts.push([rx, 342 + 11 * Math.sin(rx / 240)]);
-    }
-
-    /* 四家法律垂直方向的 AI 大厂。刻意不碰 D01/D03 那批：
-       那边是通用大模型与算力基地，这里是「司法 + AI」这一条细分赛道。 */
-    /* 高度：原来 38~46 米，比周边外围楼还矮（那一圈能长到 54 米），
-       远看就是四栋「围在广场边上的配楼」，完全不像大厂总部。
-       现在抬到 70~88，同时把楼面收窄（原来是 50×46 的方墩，
-       高宽比只有 1.3，再高也读成方块）。窄了、高了，才立得起来。
-       审判主楼仍是全区最高体量：它 78 米高、106 米宽，是唯一的大面白石材；
-       这四栋是玻璃窄塔，只做中轴两侧的竖向框景。 */
-    var LEGALTECH = [
-      { x: 306, z: 240, w: 44, d: 40, h: 88, color: 0x3f6a86, brand: 0,
-        sign: { name: "明镜", en: "MINGJING · LEGAL LLM", tone: "#8fd8ff", w: 56 } },
-      { x: 332, z: 62, w: 42, d: 38, h: 76, color: 0x5a7a86, brand: 3,
-        sign: { name: "无讼", en: "WUSONG · DISPUTE AI", tone: "#7ff0e2", w: 54 } },
-      { x: -330, z: 22, w: 44, d: 38, h: 82, color: 0x6b7a86, brand: 5,
-        sign: { name: "天宪", en: "TIANXIAN · STATUTE", tone: "#b8c8ff", w: 56 } },
-      { x: -302, z: -168, w: 42, d: 38, h: 70, color: 0x7a8490, brand: 4,
-        sign: { name: "绳墨", en: "SHENGMO · CONTRACT", tone: "#c8ff8a", w: 54 } }
-    ];
-
-    var hero = [];
-    /* 中轴四点：门楼骑在河北岸，广场在中间，主楼落在正中，案卷库封北端。
-       主楼 78 米——区域上限 88，但审判建筑不靠高度压人：
-       78 米配三级台基和 22 米门洞，在广场尺度上已经够，再高就成写字楼了。 */
-    hero.push({ type: "justiceGate", x: 0, z: 314, w: 88, d: 26, h: 27 });
-    hero.push({ type: "justiceHall", x: 0, z: 0, w: 106, d: 78, h: 78 });
-    hero.push({ type: "archiveVault", x: 0, z: -212, w: 186, d: 46, h: 34 });
-    /* 两翼合议楼：柱廊一律朝中轴 */
-    hero.push({ type: "courtHall", x: -198, z: -18, w: 76, d: 56, h: 36 });
-    hero.push({ type: "courtHall", x: 198, z: -18, w: 76, d: 56, h: 36 });
-    /* 法医馆 H2：独立在西侧，全区唯一的暖色体量，从冷青里跳出来，
-       和东侧那排大厂形成不对称平衡。 */
-    hero.push({ type: "forensicHall", x: -338, z: 152, w: 90, d: 68, h: 32 });
-    /* 广场两侧的案卷墙：三段一列、南北向，把广场框成一条走廊。
-       墙长 48——再短就成了一张张独立的碑，看不出「阵列」。 */
-    [-96, 96].forEach(function (wx) {
-      [140, 196, 252].forEach(function (wz) {
-        hero.push({ type: "recordWall", x: wx, z: wz, w: 48, d: 3.4, h: 8.5, rot: Math.PI / 2 });
-      });
-    });
-    /* 跨河桥：河宽 44，桥跨 60，一座单拱。桥面只连广场，不接车行路——
-       司法区的入口是走进来的。 */
-    hero.push({ type: "bridge", x: 0, z: 342, w: 60, d: 22, h: 9, arches: 1, rot: Math.PI / 2 });
-    LEGALTECH.forEach(function (g) {
-      hero.push({ type: "glassTower", x: g.x, z: g.z, w: g.w, d: g.d, h: g.h,
-        color: g.color, brand: g.brand, sign: g.sign });
-    });
-
-    return {
-      id: "D05", seed: 1505, R: 470,
-      groundColor: 0x8a8c85,
-      /* 硬质铺装为主：司法区没有大片草坪，草地只做边角 */
-      groundStyle: "stone",
-      /* 周围压成中灰、白色只做零星跳色：主楼是全区唯一的大面积白，
-         周边也跟着白，焦点就散了。 */
-      palette: ["stoneGrey", "stoneCool", "slate", "graphite", "white", "charcoal", "sky"],
-      paletteCore: ["stoneGrey", "stoneCool", "slate"],
-      paletteAccent: ["white", "sky", "graphite"],
-      accentRate: 0.14,
-      streetStyle: "stone",
-      /* 屋顶只许冷色：锈红与橄榄撒进这片灰蓝里比全灰更乱 */
-      coolRoof: true, roofWarm: false,
-      water: RIVER,
-      /* 没有正交网格：中轴不能被任何一条横路切断。
-         外围靠同心环摆位收边，跟 D04 同一套逻辑。 */
-      grid: { type: "none" },
-      rings: [],
-      avenues: [
-        /* 南入口只到南岸，不上桥 */
-        { from: [0, 470], to: [0, 380], w: 30 },
-        /* 北岸门楼到广场 */
-        { from: [0, 300], to: [0, 264], w: 30 },
-        /* 滨河路：沿北岸横贯，把两岸车流截在门楼之外 */
-        { from: [-460, 292], to: [460, 292], w: 20 },
-        /* 主楼两侧那条横路：在中轴前庭断开，不然一条马路横切过主楼正面 */
-        { from: [-460, 100], to: [-112, 100], w: 22 },
-        { from: [112, 100], to: [460, 100], w: 22 },
-        /* 两条纵向次干道，绕开中轴 */
-        { from: [-282, 100], to: [-282, -300], w: 20 },
-        { from: [282, 100], to: [282, -300], w: 20 },
-        /* 北端横路：案卷库背后 */
-        { from: [-460, -142], to: [460, -142], w: 20 }
-      ],
-      /* 广场中央是静水镜面，不是喷泉：司法广场的水拿来照倒影，
-         喷头一开就成了市政广场的音乐喷泉。主楼前留一块空铺装做前庭。 */
-      plazas: [{ x: 0, z: 196, w: 176, d: 124, trees: true, pool: true, still: true,
-        poolColor: 0x2b444c }],
-      /* 中轴走廊与河带一律禁建：这条轴要能一眼看到底，
-         两侧塞满楼就退化成一片普通街区了。南岸也清空——
-         河对岸什么都没有，才推得出距离。 */
-      noBuild: [
-        { x: 0, z: 40, w: 196, d: 620 },
-        { x: 0, z: 342, w: 960, d: 86 },
-        { x: 0, z: 436, w: 960, d: 100 }
-      ],
-      profile: { hMin: 12, hMax: 26, lotW: 40, lotD: 34, setback: 10, lotGap: 6, lotGapRand: 5,
-        innerFill: 0.40, innerStep: 52, innerCap: 0.86, farMax: 54, ringFront: false,
-        gable: 0, lowRise: 0.05 },
-      types: [{ t: "slab", w: 4.6 }, { t: "courtyard", w: 2.0 }, { t: "tower", w: 1.4 },
-        { t: "courtHall", w: 1.2 }, { t: "archiveVault", w: 1.0 }, { t: "pavilion", w: 0.8 }],
-      hero: hero,
-      fringeRing: true,
-      /* 机位压在河南岸偏东，越过水面看中轴：
-         水在下沿、门楼在中景、主楼压在正中，一眼能读出这区是「一条线上的」。
-         完全正对中轴会像证件照，偏 18° 才有纵深。 */
-      /* 塔楼抬到 70~88 之后，原来的机位（dist 590 / theta 0.18）会把
-         东南角那栋明镜削掉一半——它在镜头右前，一抬高人就从画面右缘出去了。
-         往后拉到 615、机位再往东偏一点，四栋才全在一屏里。 */
-      view: { x: 0, y: 32, z: 96, dist: 615, phi: 0.335, theta: 0.225 },
-      /* 司法区不要满地散树：树只做广场四角和行道，撒多了像街心公园 */
-      parkTrees: { clusters: 13 },
-      /* 外围靠林带收口：这个区是从高处俯看的，看得到很远，
-         林子不够就把地平线摊成一片无边灰地。 */
-      groveClusters: 240,
-      exposure: 0.96, exposureK: 0.94, sunIntensity: 1.04, hemiScale: 0.86,
-      fogScale: 1.32,
-      paneColor: 0x2a343a, nightLit: 0.22,
-      /* 司法区人少：不是没人，是没有闲逛的人 */
-      streetLife: { pedGap: 54, pedRun: 0.24, stall: 0, cart: 0, treeGap: 28 }
-    };
-  })();
-
-  /* ---------------- D06 西站枢纽区 ----------------
-     前五区是「站在城里看一片街区」，这一区是「站在桥下看一座车站」。
-     城际高架从西北 40° 进来，在站心拐到 9° 后出东缘，所以站房只能斜放；
-     站前广场朝南偏西，正对城内——车站的门面不是朝轨道，是朝城。
-     剖面是本区的语法：0 米换乘大厅、8.4 米站台板、13.7 米折板雨棚起坡。
-     四栋 48~66 米的通勤塔夹住广场，西侧停车楼用连廊接进大厅——
-     没有这四栋塔，车站就只是铁路边上一座大房子，不是「站城」。 */
-  PLANS.D06 = (function () {
-    /* 站体中心与轨道走向：与 yc3d-city.js 里那条城际线同址（世界 -1580,-330） */
-    var SX = 320, SZ = -130, SR = -0.16;
-    var SC = Math.cos(SR), SS = Math.sin(SR);
-    /* 站体局部 (u 沿轨道, v 垂直轨道朝南) → 区坐标 */
-    function P(u, v) { return [SX + u * SC + v * SS, SZ - u * SS + v * SC]; }
-    var hero = [];
-    function H(u, v, o) {
-      var p = P(u, v);
-      o.x = p[0]; o.z = p[1];
-      o.rot = (o.rot || 0) + SR;
-      hero.push(o);
-      return o;
-    }
-
-    /* 城际线：控制点取自城市总图那条轨道的站位，用同样的 Catmull-Rom
-       张力 0.16 重采样，区里这一段才和全城那条线对得上，
-       而不是各画一条「大概朝这个方向」的桥。 */
-    function railPts(ctrl) {
-      var tension = 0.16, out = [], guard = function (i) {
-        return ctrl[Math.max(0, Math.min(ctrl.length - 1, i))];
-      };
-      function cs(a, b, c, d, t, t2, t3) {
-        return b + tension * (c - a) * t + tension * (2 * a - 5 * b + 4 * c - d) * t2
-          + tension * (-a + 3 * b - 3 * c + d) * t3;
-      }
-      for (var s = 0; s < ctrl.length - 1; s++) {
-        var p0 = guard(s - 1), p1 = ctrl[s], p2 = ctrl[s + 1], p3 = guard(s + 2);
-        for (var k = 0; k < 10; k++) {
-          var t = k / 10, t2 = t * t, t3 = t2 * t;
-          out.push([cs(p0[0], p1[0], p2[0], p3[0], t, t2, t3),
-            cs(p0[1], p1[1], p2[1], p3[1], t, t2, t3)]);
+    {
+      id: "pact",
+      date: "2026-10-26",
+      vendor: "deepwit",
+      joint: [],
+      title: "提示契约",
+      titleEn: "PROMPT CONTRACT",
+      kind: "评测工具",
+      status: "archived",
+      lead: "把一句提示词拆成可复现的契约条款，看它在第几次改写之后开始失效。",
+      summary: "深智上线的提示压力测试台。同一份任务意图，用 40 种写法投给不同模型，记录结果漂移。上线三周后并入《能力与边界博物馆》的第二展区。",
+      play: "",
+      cover: "",
+      metric: [["测试写法", "40 种"], ["参与模型", "9 个"], ["上线周期", "3 周"]],
+      tags: ["提示工程", "可复现", "已归档"],
+      sections: [
+        {
+          h: "它要解决的那件事",
+          p: "「同样的提示词，昨天好用今天不行」是市民最常报的故障，但几乎没人能说清变的是模型、是上下文，还是自己那句提示本来就含糊。提示契约要求把一个任务写成四段：输入是什么、允许做什么、输出长什么样、什么情况算失败。写不满四段的提示词，不允许进入测试。"
+        },
+        {
+          h: "为什么归档",
+          p: "四十种写法里有十七种在第二轮就产生了互相矛盾的结果，而这些矛盾大多来自评测集本身的歧义，不是模型的问题。继续公开这套数据，会让人把「测试设计不当」误读成「模型不可靠」。方法论文档公开之后，工具本身关闭。"
+        },
+        {
+          h: "留下了什么",
+          p: "一条现在还在用的规则：任何关于 AI 的结论，先问「这个结论是在多少次、多少种写法下成立的」。单次观察只能当轶事。"
         }
-      }
-      out.push(ctrl[ctrl.length - 1]);
-      return out;
-    }
-    var RAIL = railPts([[-430, -890], [-60, -450], [320, -130], [700, -58], [980, 12]]);
-
-    /* --- 站房主体 --- */
-    /* 换乘大厅 132×66，屋顶就是站台板；雨棚 226 米，跨在站场上方 */
-    H(0, 0, { type: "stationHall", w: 132, d: 66, h: 8.4, plain: "stone" });
-    /* 门楼：站房立面。桥下那层抬不高，站房的「脸」只能单独立在南侧桥缘上。
-       进深 14 米，正好嵌在站台板南缘（v=18）与大厅前沿（v=33）之间。 */
-    H(0, 40, { type: "stationPortal", w: 132, d: 14, h: 18.6,
-      plate: { name: "西园站", en: "WESTGATE · STATION", tone: "#dcc8ff", w: 24 } });
-    H(0, 0, { type: "stationCanopy", w: 226, d: 34 });
-    /* 端部楼梯间：广场上看得出「从这里上去坐车」的两个玻璃盒子 */
-    H(-86, 47, { type: "stationStair", w: 18, d: 26, h: 9.8 });
-    H(86, 47, { type: "stationStair", w: 18, d: 26, h: 9.8 });
-    /* 停车楼 + 连廊：西侧换乘的主力，连廊必须真的跨过中间那条路 */
-    H(-154, 52, { type: "parkingGarage", w: 96, d: 58, h: 13.2 });
-    H(-86, 26, { type: "skyBridge", w: 44, d: 7, h: 6.4 });
-    /* 北侧塔楼到站房的通廊：站台在 8.46 米，桥面本身够不着站台北缘，
-       所以这条不做「接站台」，做地面层的风雨连廊，从厅北直接进塔楼。
-       上一版接在 z=-170，那一带压根没有站台板，桥是飞着的。
-       rot 90°：这条廊必须沿 v 轴（垂直轨道）从厅背走向塔楼，
-       不转的话 w 是沿轨道方向的，等于在站北横着搭一条没头没尾的长廊。 */
-    H(36, -72, { type: "skyBridge", w: 84, d: 7.5, h: 5.2, rot: Math.PI / 2 });
-    /* 公交首末站：只有火车的枢纽还是「一个站」，加了这个才是「枢纽」 */
-    H(-46, 214, { type: "busBay", w: 92, d: 40, h: 5.4 });
-
-    /* --- 四栋通勤塔：48~66 米，两栋在前景夹住广场，两栋在后面压住站场 ---
-       颜色压到中深灰：塔一白，8 米高的站房就彻底看不见了。
-       这一区的高度差本来就大，靠明度拉开层次比靠高度更有效。 */
-    var TOWERS = [
-      { u: -118, v: 150, w: 52, d: 48, h: 66, color: 0x6d767b, sign: null },
-      { u: 112, v: 150, w: 48, d: 44, h: 52, color: 0x7a8388,
-        sign: { name: "西站天地", en: "WESTGATE TOD", tone: "#dcc8ff", w: 30 } },
-      { u: 96, v: -84, w: 46, d: 44, h: 58, color: 0x5f6a70 },
-      { u: 36, v: -136, w: 52, d: 46, h: 48, color: 0x737c80 }
-    ];
-    TOWERS.forEach(function (t) {
-      H(t.u, t.v, { type: "glassTower", w: t.w, d: t.d, h: t.h, color: t.color, sign: t.sign });
-    });
-
-    /* 轨道走廊禁建：线路是斜的，禁建区只能沿采样点一段段铺。
-       走廊要留到 100 米宽——桥面只有 8.4 米高，四周全是 20~40 米的楼，
-       楼只要贴到 30 米内，桥就彻底看不见了。
-       这一条空带不是「没盖完」，是站场：铁路两侧本来就该是一片铺装与检修场。 */
-    var noBuild = [];
-    RAIL.forEach(function (p, i) {
-      if (i % 2) return;
-      noBuild.push({ x: p[0], z: p[1], w: 102, d: 102 });
-    });
-    /* 站房两侧再清出一整条站场带：站台 226 米长，任何一栋楼贴到 30 米内都会把它切碎 */
-    noBuild.push({ x: SX, z: SZ, w: 310, d: 150 });
-    /* 站前落客区：广场南缘到站前大道之间不许长楼，
-       否则从广场看站房会被前景的第一排楼切掉一半。 */
-    noBuild.push({ x: 305, z: 86, w: 130, d: 86 });
-
-    return {
-      id: "D06", seed: 1606, R: 470,
-      groundColor: 0x7a7871,
-      /* 硬质为主：枢纽区没有大片草坪，绿化只做行道与广场边角 */
-      groundStyle: "stone",
-      /* 站区的底色是混凝土灰 + 一点钢蓝，暖色只出现在站前那条商业街上 */
-      palette: ["stoneGrey", "stoneCool", "slate", "graphite", "white", "steelBlue",
-        "charcoal", "sand", "amber", "sky"],
-      paletteCore: ["stoneGrey", "stoneCool", "slate", "white"],
-      paletteAccent: ["sand", "amber", "steelBlue", "graphite"],
-      accentRate: 0.20,
-      streetStyle: "asphalt",
-      /* 屋顶只许冷色：锈红瓦撒在站房周围，整个枢纽立刻退回县城站前街 */
-      coolRoof: true, roofWarm: false,
-      /* 站房与站场是斜的，街区反倒该是正的——
-         铁路斜穿正交街区是这类片区最真实的一条肌理，两边都不必迁就对方。 */
-      grid: { type: "grid", angle: 0.05, spacingX: 136, spacingZ: 118, majorEvery: 3, jitter: 8 },
-      rings: [],
-      avenues: [
-        /* 站前大道：从南缘直插广场，车流止于广场不穿站 */
-        { from: [298, 470], to: [302, 56], w: 34 },
-        /* 西进场道：把西侧车流带到停车楼与公交站 */
-        { from: [-470, 26], to: [150, 26], w: 26 },
-        /* 站北通道：从高架下面穿过去，铁路对面的街区靠它连回车站 */
-        { from: [-470, -318], to: [250, -318], w: 22 }
-      ],
-      /* 站前广场：整块硬质铺地，中央一片静水——车站广场的水是拿来照站房的。
-         不能太大：200×150 的广场在俯视里就是一块空停车场，
-         站房反而被这块空地压成一条边。
-         openNorth：北侧那排树必须撤掉。它正好挡在门楼正前方，
-         7 棵球形树把 132 米宽的站房立面切成碎片，远看就是「广场边一排树」。 */
-      plazas: [{ x: 302, z: -24, w: 186, d: 132, trees: true, openNorth: true,
-        pool: true, still: true, forecourt: true, poolW: 76, poolD: 26, poolRot: -0.16,
-        poolColor: 0x141f24, poolRough: 0.24, poolMetal: 0.06, poolEnv: 0.45 }],
-      noBuild: noBuild,
-      /* 站房、广场、桥下都清空，其余照常长街区 */
-      profile: { hMin: 16, hMax: 44, lotW: 34, lotD: 28, setback: 6, lotGap: 3, lotGapRand: 2.5,
-        innerFill: 0.74, innerStep: 42, innerCap: 0.84, farMax: 62, ringFront: false,
-        gable: 0.14, lowRise: 0.16 },
-      types: [{ t: "slab", w: 3.4 }, { t: "podium", w: 2.4 }, { t: "tower", w: 1.8 },
-        { t: "loft", w: 1.6 }, { t: "glassTower", w: 1.2 }, { t: "warehouse", w: 0.9 },
-        { t: "courtyard", w: 1.2 }, { t: "pavilion", w: 0.6 }],
-      hero: hero,
-      /* 高架城际线：桥面 26 米、梁底净高 6.5 米，墩距 40 米。
-         站台段不许落墩（那一段的荷载走站房），站棚下也不立接触网杆。 */
-      viaduct: {
-        pts: RAIL, h: 8.4, w: 26, pierStep: 40, mastStep: 44,
-        noPier: [{ x: SX, z: SZ, w: 150, d: 62 }],
-        noMast: [{ x: SX, z: SZ, w: 240, d: 70 }]
-      },
-      /* 机位压在广场正南，越过水面看站房：水在前、厅在中、棚在上、
-         四栋塔夹住两侧，一眼能读出这是「一个枢纽」而不是「一座房子」。
-         机位必须略偏西——正南对着站房会拍成一张立面证件照。 */
-      view: { x: 326, y: 14, z: -80, dist: 330, phi: 0.30, theta: -0.27 },
-      /* 枢纽区不撒散树：广场上那些树由广场自己的树阵给，
-         随机撒的树会落到水面和铺装正中。 */
-      groveClusters: 200,
-      /* 高架与站台的金属反光很吃曝光：压一档，玻璃才不会烧成白片 */
-      exposure: 0.97, exposureK: 0.93, sunIntensity: 1.08, hemiScale: 0.80,
-      /* 雾要薄：站棚与桥面都在 8~18 米，雾一浓就整片糊掉 */
-      fogScale: 1.05,
-      paneColor: 0x33454f, nightLit: 0.26,
-      /* 站前人多，但都是赶车的人：比司法区密，比老城稀 */
-      streetLife: { pedGap: 24, pedRun: 0.46, stall: 0.03, cart: 0.012, treeGap: 15 }
-    };
-  })();
-
-  PLANS.D07 = (function () {
-    /* 主轴：东北—西南。区中心到主城中心的方向约 (1750,-1410)，
-       换算成这条轴的方位角就是 38.7°——校园入口必须朝着人来的方向。
-       从城里过来先看到校门，穿过中央庭院，最后在轴端看到图书馆；
-       反过来摆，这所学校从城里看就只剩下一个背影。 */
-    var SR = 0.676;
-    var SC = Math.cos(SR), SS = Math.sin(SR);
-    function P(u, v) { return [u * SC + v * SS, -u * SS + v * SC]; }
-    var hero = [];
-    function H(u, v, o) {
-      var p = P(u, v);
-      o.x = p[0]; o.z = p[1];
-      o.rot = (o.rot || 0) + SR;
-      hero.push(o);
-      return o;
-    }
-
-    /* --- 轴线：校门 → 庭院 → 图书馆 --- */
-    /* 校门横跨主轴，正面朝城。w 沿 v 方向，所以转 90° */
-    H(322, 0, { type: "campusGate", w: 132, d: 12, h: 19.6, rot: Math.PI / 2,
-      plate: { name: "创新大学", en: "ACADEMY OF INNOVATION", tone: "#ffe4a0", w: 30 } });
-    /* 中央庭院 150×110，一条 92 米的静水渠横在轴线上 */
-    H(172, 0, { type: "campusCourt", w: 132, d: 96, h: 8,
-      poolW: 82, poolD: 14 });
-    /* 两段林荫道：校门到庭院、庭院到图书馆。
-       没有这两段，轴线就是三个孤立的点，不再是一条道。 */
-    H(277, 0, { type: "campusMall", w: 82, d: 46, h: 9 });
-    H(37, 0, { type: "campusMall", w: 132, d: 46, h: 9 });
-    /* 图书馆：轴线终点。正立面朝 +u（朝校门），所以也转 90° */
-    H(-52, 0, { type: "campusLibrary", w: 48, d: 40, h: 44, rot: Math.PI / 2 });
-
-    /* --- 主轴两侧 ---
-       教学院落四面都是 14 米进深的楼板，内院是真的能走进去的院子。
-       面向主轴那一面（+v 侧）就是院子的入口，所以两侧的楼要各自转 180°。
-       院落做到 72×60 就够：84×70 的围合楼比图书馆还大，
-       轴线终点的那栋主楼反而成了配角。 */
-    H(158, -152, { type: "campusCourtHall", w: 72, d: 60, h: 17.4 });
-    H(38, -152, { type: "campusCourtHall", w: 72, d: 60, h: 16.2 });
-    H(158, 154, { type: "campusLab", w: 48, d: 38, h: 26, rot: Math.PI });
-    H(38, 154, { type: "campusWoodTower", w: 30, d: 28, h: 38, rot: Math.PI });
-
-    /* --- 校企共建：AI 联合实验室基地 ---
-       放在校门内侧、主轴右手、紧挨研发塔的那一片。
-       校企合作的楼必须能「被外面看见」：参访的车从校门进来右转就到，
-       不必穿过整个校园——这也是它和校内实验楼最大的区别。 */
-    H(252, -160, { type: "aiLab", w: 96, d: 64, h: 32,
-      plate: { name: "AI 实验室", en: "AI LABORATORY", tone: "#8fe4ff", w: 16 } });
-
-    /* --- 东北侧：创新园的产出，也是校园与城市的界面 ---
-       这一区的高度上限 66，校园里其余全部低于 32，
-       所以这几栋塔一立，从城里看过去就知道「那片屋顶下面有什么」。 */
-    [
-      { u: 356, v: -198, w: 48, d: 44, h: 62, color: 0x9aabb2 },
-      { u: 356, v: 198, w: 44, d: 42, h: 48, color: 0xa8b2b4 },
-      { u: 438, v: 152, w: 42, d: 40, h: 56, color: 0x8fa2aa }
-    ].forEach(function (t) {
-      H(t.u, t.v, { type: "glassTower", w: t.w, d: t.d, h: t.h, color: t.color });
-    });
-
-    /* --- 西南角：田径场 + 篮球场 ---
-       俯视图里整个区只有这个形状是椭圆，它一眼就说明这是一所学校。
-       球场挨着田径场放，两片砖红凑成一个「体育组团」——
-       单独一片球场缩在楼缝里，远看只是一块红地。 */
-    H(-118, -286, { type: "campusTrack", w: 200, d: 130, h: 8, rx: 80, rz: 47 });
-    H(-122, -176, { type: "campusCourts", w: 104, d: 45, h: 6, nx: 3, nz: 2 });
-    /* 第二组：图书馆背后的空场。校园两侧都得有球场，
-       全挤在田径场旁边，另一半校园就还是纯草地。 */
-    H(-100, 142, { type: "campusCourts", w: 72, d: 45, h: 6, nx: 2, nz: 2 });
-
-    /* 主轴的禁建走廊：每 40 米铺一块 130 宽的方格。
-       广场 150×110 已经是坐标轴对齐的矩形，主轴却是斜的，
-       所以广场不能靠 plazas 给，只能自己用 hero 画——否则斜广场会被切成锯齿。 */
-    /* 校园核心禁建：主轴 + 院落这一片必须空。
-       只清主轴走廊的话，普通街区会从两侧压进院落之间，
-       四条楼之间塞满小房子，院落就不再是「围合」，只是一堆楼中间的空地。
-       但也不能整区清空——整区一空，校园就成了一块荒草地。
-       清到 v=±230 为止，外面那一圈留给城市，校园才是「被城包着的园子」。 */
-    var noBuild = [];
-    for (var uu = -160; uu <= 348; uu += 84) {
-      for (var vv = -230; vv <= 190; vv += 84) {
-        var pp = P(uu, vv);
-        noBuild.push({ x: pp[0], z: pp[1], w: 126, d: 126 });
-      }
-    }
-    /* 田径场单独清一块：它压在校园核心之外，不清就会被街区切掉一半 */
-    [[-118, -286, 216, 150], [-160, 0, 130, 200], [416, 0, 150, 200]].forEach(function (b) {
-      var q = P(b[0], b[1]);
-      noBuild.push({ x: q[0], z: q[1], w: b[2], d: b[3] });
-    });
-
-    return {
-      id: "D07", seed: 1707, R: 470,
-      groundColor: 0x7d8660,
-      /* 校园的地面有一半是草：全区唯一带草底色的区 */
-      groundStyle: "lawn",
-      /* 沙色 + 象牙白是底色，陶土与芥黄只做点缀。
-         校园不能七彩——一片彩色校园读起来是幼儿园，不是大学。 */
-      palette: ["sand", "cream", "ivory", "white", "warmStone",
-        "ochre", "mustard", "stoneGrey"],
-      paletteCore: ["sand", "cream", "ivory", "white"],
-      paletteAccent: ["ochre", "mustard", "warmStone", "stoneGrey"],
-      accentRate: 0.16,
-      streetStyle: "asphalt",
-      /* 屋顶不许用锈红瓦：那一片红顶一撒进来，立刻退回县城中学 */
-      coolRoof: false, roofWarm: true,
-      /* 街区跟着主轴走：校园的楼必须和轴线平行，
-         正交网格斜插进来，轴线两侧就会长出三角地。 */
-      grid: { type: "grid", angle: SR, spacingX: 138, spacingZ: 120, majorEvery: 3, jitter: 7 },
-      rings: [],
-      avenues: [
-        /* 校园环路：从校门外绕到图书馆背后，把整个校园圈起来 */
-        { from: P(392, -212), to: P(392, 212), w: 26 },
-        { from: P(-168, -212), to: P(-168, 212), w: 26 },
-        { from: P(-168, -212), to: P(392, -212), w: 24 },
-        { from: P(-168, 212), to: P(392, 212), w: 24 },
-        /* 主轴：校门到庭院、庭院到图书馆，两段各一条。
-           路会被庭院自己的体量切断，正好断在院子两端。 */
-        { from: P(392, 0), to: P(-168, 0), w: 30 },
-        /* 横向支路：把主轴和两侧的院落连起来，
-           校园没有这几条横路，四栋楼就是四个孤岛。 */
-        { from: P(158, -212), to: P(158, 212), w: 20 },
-        { from: P(38, -212), to: P(38, 212), w: 20 },
-        { from: P(-118, -212), to: P(-118, 212), w: 18 }
-      ],
-      /* 校前广场：校门外那一片必须是有铺地的空地，
-         否则「从城里进校园」这一步没有落点，校门就孤零零立在草地上。
-         坐标是轴对齐的世界坐标，所以中心按 P(410,0) 给。 */
-      plazas: [{ x: 320, z: -257, w: 168, d: 168, trees: true, noMonument: true }],
-      noBuild: noBuild,
-      profile: { hMin: 12, hMax: 26, lotW: 32, lotD: 26, setback: 7, lotGap: 4, lotGapRand: 3,
-        innerFill: 0.52, innerStep: 40, innerCap: 0.62, farMax: 34, ringFront: false,
-        gable: 0.08, lowRise: 0.30 },
-      types: [{ t: "courtyard", w: 4.4 }, { t: "slab", w: 3.2 }, { t: "pavilion", w: 2.4 },
-        { t: "terrace", w: 2.2 }, { t: "loft", w: 1.0 }],
-      hero: hero,
-      /* 机位压在主轴东北端，越过校门看庭院与图书馆：
-         三层进深（门—院—馆）一眼读完，才是「一条轴线」。 */
-      view: { x: 50, y: 14, z: -95, dist: 615, phi: 0.36, theta: 2.10 },
-      groveClusters: 95,
-      exposure: 1.0, exposureK: 0.95, sunIntensity: 1.06, hemiScale: 0.86,
-      fogScale: 1.12,
-      paneColor: 0x35454c, nightLit: 0.22,
-      /* 校园的人比街区少，但更均匀：不是在赶路，是在走 */
-      streetLife: { pedGap: 30, pedRun: 0.40, stall: 0.01, cart: 0.008, treeGap: 13 }
-    };
-  })();
-
-  /* ---------------- D08 递归科学园区 ----------------
-     前七区各有一套语法：塔林、窄巷、厂房、环湖、中轴、站台、校园轴线。
-     这一区只有一条规则——同一个形状重复三次。
-     入口是三重递减的门（90/78/66），街区全是三级退台，主楼是六段张开的漏斗。
-     全区所有体量都上小下大，只有中心那一栋上大下小：
-     它就是这个区的原点，也是从城里唯一认得出的那个轮廓。
-     三层方环不是装饰：圆环读作「绕行」，方环读作「一层套一层」，
-     而方环的每条边都排得下街，转角天然是路口——
-     这个区必须先是城市，然后才是公园。 */
-  PLANS.D08 = (function () {
-    /* 主轴朝城市：区中心 (-1000,1250) 到主城中心 (-20,25) 的方向是 (980,-1225)，
-       方位角 51.3°。u 轴朝城，跟 D07 用的是同一套写法。 */
-    var SR = 0.8957;
-    var SC = Math.cos(SR), SS = Math.sin(SR);
-    function P(u, v) { return [u * SC + v * SS, -u * SS + v * SC]; }
-
-    var hero = [];
-    function H(u, v, o) {
-      var p = P(u, v);
-      o.x = p[0]; o.z = p[1];
-      o.rot = (o.rot || 0) + SR;
-      hero.push(o);
-      return o;
-    }
-
-    /* --- 中心：H5 漏斗。底 34、顶 88、高 72，五段 --- */
-    H(-75, 0, { type: "collapseFunnel", w: 88, d: 88, h: 72, wb: 34, tiers: 5 });
-
-    /* --- 前庭：漏斗东北侧，主轴在这里落点。
-       96×78 是能装下「漏斗 + 一圈站人的地」的最小尺寸；
-       早先给到 124×104，76 米的漏斗被一块灰铺地托着，
-       从 600 米外看就是一个停车场中央摆了一座雕塑。 --- */
-    H(18, 0, { type: "funnelCourt", w: 96, d: 78, h: 6, block: false });
-
-    /* --- 三重递归门：框中有框 --- */
-    H(375, 0, { type: "recursionGate", w: 64, d: 9, h: 30, rot: Math.PI / 2, block: false });
-    H(275, 0, { type: "recursionGate", w: 54, d: 9, h: 25, rot: Math.PI / 2, block: false });
-    H(180, 0, { type: "recursionGate", w: 44, d: 9, h: 20, rot: Math.PI / 2, block: false });
-
-    /* --- 谱系温室：H5 的副馆「坍塌预报台 · 三个温室」。
-       三座沿主轴排开，长边朝主轴，从前庭进来右手就到；
-       门朝 -v（朝主轴），所以各转 180°。 --- */
-    [20, -40, -100].forEach(function (u) {
-      H(u, 86, { type: "lineageGreenhouse", w: 46, d: 20, h: 11, rot: Math.PI });
-    });
-    /* --- 谱系柱列：16 根，柱高就是各自的枯萎世代 --- */
-    H(22, -88, { type: "lineageColonnade", w: 84, d: 4, h: 9.4, n: 16 });
-
-    /* --- AI 大厂总部：内圈的第二档高度 ---
-       内圈（漏斗与一环之间）原本只有广场 + 三座温室 + 一道柱列，
-       16~29 米的常规楼和 72 米的漏斗之间断了四十几米，
-       所以整片草坪读起来是「还没招到商」。
-       四座总部压在 46 / 54 米，正好把这一档补上：
-       从主轴上往里走，高度是 楼 → 总部 → 漏斗 三级递进。
-       位置贴着主轴南北各两座，前一座压住主轴界面、后一座退到温室与柱列之外，
-       前后错开才有街道进深，四座等距并排就只是换个说法的空地。 --- */
-    [
-      { u: 124, v: 52, h: 46, variant: 0, rot: Math.PI, color: 0x95839f,
-        name: "叠境", en: "ARCFOLD", tone: "#c8a8ee" },
-      { u: 124, v: -52, h: 46, variant: 1, rot: 0, color: 0x8c7d98,
-        name: "归墟", en: "NULLSET", tone: "#b48ce0" },
-      { u: 124, v: 112, h: 54, variant: 2, rot: Math.PI, color: 0xa08caa,
-        name: "织序", en: "LATTICE", tone: "#d8c0f2" },
-      { u: 124, v: -112, h: 54, variant: 3, rot: 0, color: 0x877890,
-        name: "千镜", en: "MIRRORIA", tone: "#a888cf" }
-    ].forEach(function (c) {
-      H(c.u, c.v, {
-        type: "aiCampus", w: 50, d: 44, h: c.h, variant: c.variant,
-        rot: c.rot, color: c.color,
-        /* 走 brand 不走 sign：sign 会让引擎在楼顶挂一块小旗，
-           600 米外只剩一个黑点；brand 由原型自己贴在裙房正面，
-           近景读得出字，远景读得出「这栋楼有主」。 */
-        brand: { name: c.name, en: c.en, tone: c.tone }
-      });
-    });
-
-    /* --- 四座界塔：外环外侧的角，给城市界面一个交代。
-       区上限 92，但街区平均只有 34 米——这几栋一立，
-       从城里看过去才知道「那片屋顶下面有一栋 66 米的漏斗」。 --- */
-    [
-      { u: 392, v: -186, w: 48, d: 44, h: 88, color: 0x8b8498 },
-      { u: 392, v: 186, w: 44, d: 42, h: 80, color: 0x968fa4 },
-      { u: 186, v: -392, w: 42, d: 40, h: 72, color: 0x7d7689 },
-      { u: -186, v: 392, w: 44, d: 42, h: 68, color: 0x877f96 }
-    ].forEach(function (t) {
-      H(t.u, t.v, { type: "glassTower", w: t.w, d: t.d, h: t.h, color: t.color });
-    });
-
-    /* --- 三层方环：半边长 165 / 250 / 330。
-       不用 rings（那是圆环），用四条直路围一个方口。
-       半径封顶 330 是几何决定的：方环的角在 330×1.414 ≈ 467 米，
-       正好贴着 470 的区界——再往外一圈，四个角就捅进邻区了。 --- */
-    var rings = [[165, 22], [250, 26], [330, 30]];
-    var avenues = [];
-    rings.forEach(function (r) {
-      var h2 = r[0], w2 = r[1];
-      avenues.push({ from: P(-h2, -h2), to: P(h2, -h2), w: w2 });
-      avenues.push({ from: P(-h2, h2), to: P(h2, h2), w: w2 });
-      avenues.push({ from: P(-h2, -h2), to: P(-h2, h2), w: w2 });
-      avenues.push({ from: P(h2, -h2), to: P(h2, h2), w: w2 });
-    });
-    /* 主轴：从区外直插前庭，宽 36。止于广场边缘（u=-26），不进广场——
-       路一进广场，广场的铺装就被一条柏油带从中间劈开。 */
-    avenues.push({ from: P(400, 0), to: P(-26, 0), w: 36 });
-    /* 四条对角放射路：三层方环之间必须有联系，否则每一圈都是孤岛。
-       走 45° 是因为三个环的角正好落在同一条对角线上，
-       一条路把三个角串起来，方环才读成「一套」而不是「三圈」。 */
-    [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(function (q) {
-      avenues.push({ from: P(q[0] * 175, q[1] * 175), to: P(q[0] * 330, q[1] * 330), w: 18 });
-    });
-    /* 八条外伸支路：从最外环四个边中点、四个角往外拉出去。
-       没有它们，外环（330）到区界（470）之间是一圈 140 米厚、什么都没有的草地——
-       俯视图里像园区的「留白」，鸟瞰图里就是没做完。
-       支路一拉，这一段立刻长出路边的房，外圈才真的收住。 */
-    [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (q) {
-      avenues.push({ from: P(q[0] * 330, q[1] * 330), to: P(q[0] * 452, q[1] * 452), w: 20 });
-    });
-    [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(function (q) {
-      avenues.push({ from: P(q[0] * 330, q[1] * 330), to: P(q[0] * 442, q[1] * 442), w: 18 });
-    });
-    /* 内圈两条支路：从主轴往南北各拉一条到一环。
-       没有这两条路，四座总部就浮在草地上——楼再高也只是「草坪上的四块石头」；
-       有了路，它们是临街的，人的动线从主轴分进去，内圈才成立。
-       路的 u 只能取 78：再往东就撞进总部的轴对齐占位盒里被切断，
-       再往西又穿过温室——内圈就这么点宽度，位置是算出来的，不是挑的。 */
-    [[1], [-1]].forEach(function (q) {
-      avenues.push({ from: P(78, q[0] * 22), to: P(78, q[0] * 150), w: 12 });
-    });
-
-    /* --- 禁建 ---
-       内环以内整片清空：核心区是漏斗 + 前庭 + 温室 + 柱列，
-       这几个体量之间必须留草地，塞进普通街区就成了「楼缝里的纪念物」。
-       用斜坐标铺 5×5 的轴对齐方块去逼近斜方块（引擎的禁建盒只能轴对齐），
-       块 60、步 55，相邻块必然重叠，覆盖不会漏。 --- */
-    var noBuild = [];
-    for (var uu = -120; uu <= 120; uu += 60) {
-      for (var vv = -120; vv <= 120; vv += 60) {
-        var pp = P(uu, vv);
-        noBuild.push({ x: pp[0], z: pp[1], w: 72, d: 72 });
-      }
-    }
-    /* 三道门各自清出一块前场：门不切路（block:false），
-       但贴着主轴排的楼会把门埋进街墙里，
-       清出 96×60 之后，门才立在自己的一块空地上。 --- */
-    [375, 275, 180].forEach(function (u) {
-      var q = P(u, 0);
-      noBuild.push({ x: q[0], z: q[1], w: 84, d: 46 });
-    });
-
-    return {
-      id: "D08", seed: 1808, R: 470,
-      /* 地面是灰绿草地：紫灰建筑浮在绿地上，
-         地面也做成紫灰，整区会变成一张水泥盘子。 */
-      groundColor: 0x6e7565,
-      groundStyle: "lawn",
-      /* 紫灰为主，白与象牙只做跳色。
-         plum/violet 在同一面墙上并排时，饱和度的差就是「阴影」，
-         所以核心色只给三个，其余全是中性紫灰。 */
-      palette: ["plum", "violet", "indigo", "stoneCool", "graphite", "rose", "white", "slate"],
-      paletteCore: ["plum", "violet", "indigo", "stoneCool"],
-      paletteAccent: ["rose", "white", "slate", "graphite"],
-      accentRate: 0.14,
-      streetStyle: "asphalt",
-      /* 屋顶只许冷色：这一区一滴锈红都不能有 */
-      coolRoof: true, roofWarm: false,
-      /* 没有正交路网：三层方环就是这一区的全部路网。
-         再叠一套正交网格，方环立刻退化成「一堆方格里的三个方块」。
-         但 angle 必须留：内部的填充楼要靠它对齐主轴，
-         不给角度，环带中间那一片就是一地撒歪的盒子。 */
-      grid: { type: "none", angle: SR },
-      rings: [],
-      avenues: avenues,
-      /* 广场由 hero 自己画（主轴斜 51°，轴对齐的 plazas 会跟铺装错开），
-         这里只留一块城侧的入口铺地，让三重门的第一道有落脚点。 */
-      plazas: [],
-      noBuild: noBuild,
-    profile: { hMin: 16, hMax: 29, lotW: 34, lotD: 28, setback: 6, lotGap: 4, lotGapRand: 3,
-      innerFill: 0.55, innerStep: 42, innerCap: 0.80, farMax: 22, ringFront: false,
-      gable: 0, lowRise: 0.22 },
-      types: [{ t: "recursionTier", w: 5.4 }, { t: "ziggurat", w: 2.0 }, { t: "slab", w: 2.2 },
-        { t: "terrace", w: 1.2 }, { t: "courtyard", w: 1.0 }, { t: "loft", w: 0.6 }],
-      hero: hero,
-      fringeRing: true,
-      /* 外圈也走方环。区是三重 51° 斜放的方环，外围若还是同心圆 + 放射朝向，
-         俯视图里就成了「一个方块掉进圆盘」：内圈对得上，外圈全错。 */
-      fringeSquare: true,
-      /* 机位压在主轴正前方偏东 10°，越过三重门看漏斗：
-         门在下沿、漏斗在中心、界面塔在两侧，一屏读完「门—院—漏斗」三层进深。
-         660 / 0.36 是试出来的：再近，最外一道门就顶到画面外；
-         再远，三重门的框套框就糊成一条线。 */
-      view: { x: -10, y: 18, z: 16, dist: 660, phi: 0.36, theta: 2.32 },
-      groveClusters: 200,
-      parkTrees: { clusters: 16 },
-      exposure: 0.98, exposureK: 0.94, sunIntensity: 1.05, hemiScale: 0.85,
-      fogScale: 1.18,
-      paneColor: 0x342f3e, nightLit: 0.24,
-      /* 园区的人不多，但都在走：研究员不是来逛街的 */
-      streetLife: { pedGap: 40, pedRun: 0.34, stall: 0.015, cart: 0.008, treeGap: 18 }
-    };
-  })();
-
-  PLANS.D09 = (function () {
-    /* 绿谷新生活区：全城第一个纯生活片区。
-       前面八个区都是「一座地标 + 一圈街区填充」，这一区反过来——
-       地形、水和街巷才是主语，建筑只是它们之间的填充物。
-
-       所以这里没有一个 60 米以上的体量，最矮的住宅 10 米，
-       最高的听澜 52 米。整区的高度差全部由**坡**来提供，不是由楼。 */
-
-    /* 河道中心线。一道正弦在 1080 米长的河上只走半个周期，读出来是一段人工运河；
-       两道叠起来（波长 1300 / 560）才有自然河湾的摆动。 */
-    var WPT = [];
-    for (var wx = -600; wx <= 600; wx += 12) {
-      WPT.push([wx, 180 + 26 * Math.sin(wx / 208 + 0.35) + 9 * Math.sin(wx / 88)]);
-    }
-    function shoreZ(x) { return 180 + 26 * Math.sin(x / 208 + 0.35) + 9 * Math.sin(x / 88); }
-
-    /* 滨河路：沿河心固定偏移，不能画成直线——
-       河是弯的而路是直的，两米之外就撞进水里。 */
-    function riverRoad(off) {
-      var out = [];
-      for (var i = 0; i < WPT.length; i++) out.push([WPT[i][0], WPT[i][1] + off]);
-      return out;
-    }
-
-    var hero = [];
-    /* 听澜：水北岸，长边正对河湾。
-       楼心压到 z=96，进深 44 → 南墙面落在 118，离水面（约 132）剩 14 米，
-       正好是一条滨河步道的宽度。再往前就踩进驳岸了。 */
-    hero.push({ type: "waveHall", x: 60, z: 96, w: 96, d: 44, h: 52 });
-    /* 三个声学舱：坐在河床上，一半在水下。
-       间距 180 米不是为了好看——每个舱的直径 20 米，之间必须留出
-       两条摇橹的水道，否则三个舱在河心挤成一座浮岛。 */
-    [-110, 70, 250].forEach(function (px) {
-      hero.push({ type: "acousticPod", x: px, z: shoreZ(px), w: 20, h: 13 });
-    });
-    /* 梯台花园：坡脚两片。desc 里写死的「梯台花园」，也是坡脚唯一的场地。
-       74×30 那一版在 700 米全景里只是坡上一小块灰疙瘩——台地要读出来，
-       进深至少得 60 米（四级、每级 15 米），宽度翻到 100 米以上，
-       才够在坡面上拉出四道能数清楚的横线。 */
-    hero.push({ type: "slopeGarden", x: -272, z: -96, w: 112, d: 64, h: 9.6, n: 4 });
-    hero.push({ type: "slopeGarden", x: 196, z: -186, w: 96, d: 58, h: 8.4, n: 4 });
-    /* 社区中心：坡脚主街唯一一处公共建筑，用市场原型——生活区需要的是菜场，不是礼堂 */
-    hero.push({ type: "market", x: -116, z: 22, w: 62, d: 40, h: 9 });
-
-    /* 人行桥：三个跨河点，正对三条爬坡街，动线是「坡 → 街 → 桥 → 南岸」 */
-    [-190, 0, 200].forEach(function (bx) {
-      /* lift 7.8：河心地面被 heightAt 下切到 -4.2，桥面不抬起来就整条沉在水底。
-         抬 5.4 时桥面只比水面高 2.4 米，800 米外这点高差赢不了深度缓冲，
-         桥在水面上被打成一串白虚线。抬到 7.8，桥面离水 4.8 米，桥下的水才透得出来。 */
-      hero.push({ type: "footBridge", x: bx, z: shoreZ(bx), w: 108, d: 6.4, h: 1.6,
-        rot: Math.PI / 2, block: false, lift: 7.8 });
-    });
-
-    return {
-      id: "D09", seed: 1909, R: 500,
-      groundColor: 0x7d8a6e, groundStyle: "lawn",
-      /* 生活区的色板必须暖到能住人：白、米、砂三档铺底，
-         冷色只做点缀。前面八个区的冷调到这里全部退到 accent 里去。 */
-      palette: ["white", "ivory", "cream", "sand", "mint", "olive", "stoneCool", "patina", "warmStone"],
-      paletteCore: ["ivory", "cream", "sand", "warmStone"],
-      paletteAccent: ["white", "mint", "olive", "patina", "stoneCool"],
-      accentRate: 0.26,
-      streetStyle: "stone",
-      /* 屋顶必须绿。greenRoof 只换屋面板颜色，真让俯视图变绿的
-         是 hillVilla 屋顶上那层土和灌木；两个一起上才够。 */
-      greenRoof: 0.45, coolRoof: false, roofWarm: true,
-      /* 外围成片的林带：低密度区没有建筑挡住地平线，全靠树收口 */
-      groveClusters: 80,
-      parkTrees: { clusters: 26 },
-
-      /* --- 地形：北侧一道 40 米缓坡 ---
-         40 / 520 不是随手取的数。引擎有一条硬规则：坡度超过 0.14 的地块直接拒建。
-         smoothstep 的峰值坡是平均坡的 1.5 倍，40/520 → 峰值 0.115，
-         坡上还长得出房子；再高一点，坡面就会被引擎自己清空成一座秃山。
-         河道下切（channel）交给 heightAt 做：网格地面不开洞，让地形沉下去，
-         水面去切地形——岸线因此是平滑的，还自带一道缓坡河滩。 */
-      terrain: {
-        floorX: 660, ridgeX: 720, ridgeH: 5,
-        headZ: 40, headEnd: 600, headH: 45, headPow: 1.0,
-        undul: 3.0,
-        channel: { pts: WPT, half: 48, depth: 4.2, flat: 0.62 }
-      },
-      water: { w: 96, depth: 4.2, surfY: -1.2, pts: WPT },
-
-      /* --- 路网：一条直路都没有 ---
-         这是和前面八个区最大的差别。方格网一铺，坡地立刻变成梯田预制板。 */
-      grid: { type: "none", angle: 0 },
-      rings: [],
-      avenues: [
-        /* 坡脚主街：全区唯一一条横贯直路。商业、社区中心都在这里，
-           所以它必须直——这条街是整片坡地的「地平线」。 */
-        { from: [-640, -8], to: [640, -8], w: 22 }
-      ],
-      paths: [
-        /* 滨河北路 / 南路：跟着河心偏移，是弯的 */
-        { w: 14, cls: "street", step: 22, smooth: false, pts: riverRoad(-72) },
-        { w: 14, cls: "street", step: 22, smooth: false, pts: riverRoad(72) },
-        /* 三条爬坡街：垂直等高线往上，走到中段各自摆一次，避开陡坡上的孤石区。
-           直的爬坡街在 520 米长、40 米高的坡上会变成一条笔直的传送带。 */
-        { w: 12, cls: "street", step: 26, pts: [
-          [-190, -8], [-196, -96], [-210, -184], [-200, -272], [-178, -352], [-166, -420],
-          [-158, -500], [-150, -584]] },
-        { w: 12, cls: "street", step: 26, pts: [
-          [0, -8], [-8, -104], [4, -200], [-6, -292], [10, -374], [2, -430],
-          [8, -510], [4, -592]] },
-        { w: 12, cls: "street", step: 26, pts: [
-          [200, -8], [208, -92], [196, -180], [210, -262], [194, -344], [200, -412],
-          [194, -496], [190, -580]] },
-        /* 山腰横街：三条爬坡街伸到坡顶之后必须横着串一次，
-           否则外围是一把平行的梳子，越往上越散。
-           这条街同时是外围方环的北边——它一画，外围才有「街」而不是「草地上的房子」。 */
-        { w: 14, cls: "street", step: 30, pts: [[-586, -566], [-330, -580], [0, -588], [330, -576], [586, -560]] },
-        /* 坡上两条横街：沿等高线走，把三条爬坡街横着串起来。
-           没有横街，坡面上的房子只能背对彼此站着——一条纵向街
-           串不起一个街区，它只能串起一串房子。 */
-        { w: 12, cls: "street", step: 28, pts: [[-238, -196], [-100, -210], [40, -204], [180, -212], [268, -198]] },
-        { w: 11, cls: "street", step: 28, pts: [[-238, -286], [-96, -298], [42, -290], [184, -300], [262, -288]] },
-        /* 外围东西两条纵街：接到坡脚主街上，外围方环才闭合 */
-        { w: 13, cls: "street", step: 32, pts: [[-580, -566], [-576, -380], [-584, -180], [-578, -6]] },
-        { w: 13, cls: "street", step: 32, pts: [[584, -560], [578, -372], [586, -170], [580, -6]] },
-        /* 两条纵向连接：把坡脚主街和滨河北路接上，否则北岸是一条断头路 */
-        { w: 12, cls: "street", step: 24, pts: [[-336, -8], [-332, 46], [-338, 104]] },
-        { w: 12, cls: "street", step: 24, pts: [[326, -8], [332, 44], [326, 100]] }
-      ],
-      plazas: [],
-      /* 山顶留林：坡顶那一段坡度又变缓了，不用禁建挡住，
-         它会自己长满房子——山顶一旦有房，整条坡的天际线就没了。 */
-      noBuild: [
-        /* 山脊：纯林，一栋都不许有 */
-        { x: 0, z: -486, w: 1240, d: 250 },
-        /* 坡上部：也是林。这一条是本轮定下来的边界——
-           之前的房子一直铺到坡顶，散在草坡上、彼此不相邻、没有一条街，
-           就是「草地上的白色小板」。低密度生活区的坡本来就该以林为主。 */
-        { x: 0, z: -300, w: 1220, d: 200 },
-        /* 听澜前场：河岸与楼之间不能再塞房子，那是它的水面广场 */
-        { x: 60, z: 132, w: 190, d: 46 }
-      ],
-
-      profile: { hMin: 10, hMax: 20, lotW: 34, lotD: 26, setback: 5, lotGap: 6, lotGapRand: 4,
-        innerFill: 0.38, innerStep: 40, innerCap: 0.70, farMax: 24, ringFront: false,
-        gable: 0.46, lowRise: 0.34 },
-      types: [
-        { t: "hillVilla", w: 5.0 }, { t: "terrace", w: 2.6 }, { t: "rowHouse", w: 2.2 },
-        { t: "stilt", w: 1.8 }, { t: "courtyard", w: 1.4 }, { t: "pavilion", w: 1.0 }
-      ],
-      hero: hero,
-      /* 外围走方环：本区的路网全是南北向的，圆环带上的房子按切向排，
-         在四个角上会斜成一圈炸开的碎块。 */
-      fringeRing: true, fringeSquare: true, fringeMaxH: 20,
-      /* 外围墙色单独压一档。这一区的色板是米 / 砂 / 暖石，
-         外围若跟主色板同色，一圈浅墙撒在草地上就是「没贴完的纸片」。 */
-      fringePal: ["olive", "patina", "warmStone", "stoneCool"],
-      /* 坡面上的林带。这是本轮最要紧的一条：
-         之前坡是秃的——parkTrees 只有 12 丛撒在全区，坡上一棵都没有；
-         而 put() 不知道地形，即使撒到坡上也会被整棵埋进土里。
-         两个都修好之后，坡才靠「山脊一道密林 + 坡面渐次散林」立起来。
-         密度是被算出来的：坡面 1000×260 米、一棵树冠约 100 平米，
-         要成林得铺到六成以上；再算上占位检查会拒掉四成，投点必须给到两千多棵。 */
-      groveBands: [
-        /* 山脊密林：坡顶那一条。它压在天空上，是整道谷的天际线 */
-        { z0: -572, z1: -392, spanX: 1240, clusters: 120, per: 18, perRand: 26,
-          r: 26, rRand: 38, hMin: 11, hVar: 10 },
-        /* 坡面林：从上往下略稀，最后落进坡脚主街的街墙里 */
-        { z0: -392, z1: -130, spanX: 1080, clusters: 112, per: 14, perRand: 20,
-          r: 22, rRand: 32, hMin: 9, hVar: 9 },
-        /* 坡脚稀林：从密林一路过渡到街墙。
-           没有这一带，林子会在坡中段突然断掉，切出一条硬边——
-           自然的坡是「越往下越稀」，不是「林线 + 空地」。 */
-        { z0: -130, z1: -26, spanX: 1000, clusters: 54, per: 5, perRand: 9,
-          r: 15, rRand: 22, hMin: 7, hVar: 6 }
-      ],
-
-      /* 机位在坡上，往南俯看：前景是坡上住宅，中景是坡脚主街与听澜，
-         远景是河湾与南岸林带——一次读完「坡 → 街 → 水」三层。 */
-      view: { x: 30, y: 14, z: 122, dist: 610, phi: 0.19, theta: 0.30 },
-
-      exposure: 0.97, exposureK: 0.93, sunIntensity: 1.02, hemiScale: 1.0,
-      fogScale: 1.12, paneColor: 0x30362e, nightLit: 0.30,
-      /* 生活区的人是散步的人，不是换班的人：密度按「二十几米一个」给，
-         行道树间距 11 米，冠幅能接上，街巷才成荫。 */
-      streetLife: { pedGap: 22, pedRun: 0.40, stall: 0.014, cart: 0.008, treeGap: 17 }
-    };
-  })();
-
-  PLANS.D10 = (function () {
-    /* 河南混合街区：全城第十个区，也是第一个「只有一条街」的区。
-       前面九区都是先定一个构图中心（钟楼 / 法院 / 漏斗 / 坡与水），
-       这一区反过来——它的中心是一条 26 米宽的骑楼大街，从站前广场
-       一路往南，两侧的楼连续三百米不断。
-       所以这里没有广场、没有轴、没有大屋顶，只有一条街和它的两边。 */
-
-    /* 主街方位：从城区中心 (0,0) 指向本区中心 (450,750) 的方向是
-       (0.51, 0.86)，也就是「背离城市」。车站压在街的北头，
-       街区往南铺开——这正是「主桥以南」的意思。 */
-    var DR = 0.536;
-    var DC = Math.cos(DR), DS = Math.sin(DR);
-    function P(u, v) { return [u * DS + v * DC, u * DC - v * DS]; }
-    var hero = [];
-    function H(u, v, o) {
-      var p = P(u, v);
-      o.x = p[0]; o.z = p[1];
-      o.rot = (o.rot || 0) + DR;
-      hero.push(o); return o;
-    }
-
-    /* --- 中央站：压在北端 ---
-       站房的性质是「通过」不是「停留」。它要比四角那几座塔都矮，
-       但它站在街的尽端、正对 672 米长的街筒——如果只有 26 米，
-       整条街的透视线会从它头顶上直接滑过去，端景就没了。
-       34 米（钟楼 46 米）是「刚好挡住街筒尽头」的高度。 */
-    H(-420, 0, { type: "arcadeStation", w: 140, d: 44, h: 34 });
-
-    /* --- 站前市集大棚：广场西半 ---
-       那块 150×100 的空地如果只做铺装，在画面里就是一块灰。
-       放一个两跨钢拱棚进去，棚下有摊台、棚外是露天市，空地立刻有事发生。 */
-    H(-304, -40, { type: "marketShed", w: 66, d: 64, h: 13.5, bays: 3 });
-
-    /* --- 站前广场：东半 ---
-       市集大棚占了西半，东半这块 150×100 就只剩一片灰。
-       空地不等于广场：不抬台、不划缝、不立杆，从空中看它跟周边荒地
-       一模一样——一百米见方白白浪费在构图正前方。
-       广场压在中轴东侧，正对站房中门；棚在前、场在后，站前才是一组。 */
-    H(-296, 48, { type: "stationPlaza", w: 104, d: 64, block: false });
-
-    /* --- 骑楼大街：两侧各 10 段，每段 48 米（全长 480 米） ---
-       段与段之间不留缝。这不是偷懒——骑楼的底面必须连续，
-       留一道 5 米退线，柱廊就断成十截，街读起来是「一排楼」
-       而不是「一条街」。
-       长度定在 480 而不是初版的 672：26 米宽配 672 米长是 1:26，
-       走到哪里都一样，街就成了隧道；480 米（1:18）还能一眼看到头。
-       高度不能取模循环：二十段用三档高度轮转，远景会读成一条均匀的梳齿。
-       这一组是手工排的，两侧故意不同高——街墙要「参差」才有人味。
-       色号四档轮转，且两侧错开，不然左右同色同高，街就成了一条走廊。 */
-    var segH = [[21, 26], [28, 20], [19, 31], [24, 22], [30, 25],
-                [22, 28], [25, 19], [32, 24], [20, 27], [26, 21]];
-    var segT = [[0, 3], [2, 1], [1, 3], [3, 2], [2, 0],
-                [1, 3], [0, 2], [3, 1], [2, 3], [1, 0]];
-    var segN = 10, segD = 48, u0 = -246;
-    var segC = [0xa8967a, 0x9b8a71, 0xb3a289, 0x8c7a62];
-    for (var si = 0; si < segN; si++) {
-      var su = u0 + segD * (si + 0.5);
-      [-1, 1].forEach(function (sd) {
-        /* flip：v=+22 那侧的柱廊必须镜像才朝街（详见 arcadeBlock 注释）。
-           color 传进去才走带窗立面，不传就是一块光板。 */
-        H(su, sd * 22, { type: "arcadeBlock", w: 18 + (si % 3) * 1.5, d: segD,
-          h: segH[si][sd > 0 ? 0 : 1], tone: segT[si][sd > 0 ? 0 : 1],
-          color: segC[segT[si][sd > 0 ? 0 : 1]],
-          flip: sd > 0 });
-      });
-    }
-
-    /* --- 街门：跨街骑楼，把 480 米切成「前段 / 后段」 ---
-       街最怕的不是单调，是没有尽头。街墙一路同宽同节奏，
-       走到哪里都一样，就成了一条隧道。街门一放，街有了门，
-       远景里也有了一个可数的参照物。压在第 5、6 段之间（u=42）。
-       高度必须高过两侧最高的骑楼（32 米）——门要「比墙高」才成其为门，
-       33 米刚过线；进深只给 11 米，15 米厚它就是街中间的一栋楼。 */
-    H(42, 0, { type: "streetGate", w: 31, d: 11, h: 33, openW: 26, openH: 13, tone: 2 });
-
-    /* --- 沿街遮阳篷：一个 hero 生成整排（两侧各 17 段） ---
-       出挑 3.4 米、每段 22 米、间隔 28 米。三个数都是被柱廊逼出来的：
-       篷若出挑到 5 米、挂在 3.5 米高，正好把整排柱子罩在底下——
-       从街上往里看，两侧就是两堵光墙，「骑楼」一条都读不出来。
-       所以篷抬到柱廊顶之上（4.9 米）、只挑 3.4 米，
-       柱列（8.45 米）、柱廊暗槽、楼墙、篷，四层分得开。 */
-    H(-6, 0, { type: "streetAwning", w: 3.4, d: 22, h: 4.9,
-      count: 17, gap: 28, half: 13, block: false });
-
-    /* --- 四角高层：背景，不参与街面 ---
-       街面压到 20–26 米，全区的天际线靠这四座撑。
-       它们是「河南」的天际线，不是这一区的主角，所以放在四角、不进街。 */
-    [
-      { u: 250, v: 258, h: 64, color: 0xb9a084 },
-      { u: 250, v: -258, h: 58, color: 0xa08a70 },
-      { u: -170, v: 268, h: 62, color: 0xc0a888 },
-      { u: -170, v: -268, h: 54, color: 0x9c8672 }
-    ].forEach(function (c) {
-      H(c.u, c.v, { type: "tower", w: 34, d: 30, h: c.h, color: c.color,
-        sign: { name: "河南市场", en: "HENAN MARKET", tone: "#f2c9a0", w: 26 } });
-    });
-
-    /* --- 路网：一条主街 + 四条横巷 + 两条次街 ---
-       横巷只有 12 米宽，从主街往东西两侧甩出去。
-       没有横巷，主街就只是一条通道，两侧的街区互不相通。
-       主街只铺到 u=300：街墙到 234 就结束了，路面再往南拉一截，
-       街会拖一条没有楼的尾巴出去，像一条断头的跑道。 */
-    var avenues = [
-      { from: P(-392, 0), to: P(300, 0), w: 26 }
-    ];
-    [-150, -60, 30, 120, 210].forEach(function (cz) {
-      avenues.push({ from: P(cz, -400), to: P(cz, 400), w: 12 });
-    });
-    [-190, 190].forEach(function (cv) {
-      avenues.push({ from: P(-170, cv), to: P(300, cv), w: 14 });
-    });
-
-    return {
-      id: "D10", seed: 2010, R: 560,
-      groundColor: 0x8a8272, groundStyle: "paving",
-      /* 市井的色板必须是「用旧了的暖」：赭、窑红、土黄、水泥灰。
-         冷色只做零星跳色（卷帘门、玻璃），多了就变成工业区。
-         初版给了 mustard / patina / stoneCool 各 1/10，结果整片填充区
-         是一堆芥末黄、铜绿、蓝灰的小彩楼，比骑楼抢眼得多——
-         街就被自己的背景压掉了。彩只留两色、只占 16%。 */
-      palette: ["warmStone", "sand", "cream", "terracotta",
-        "ivory", "stoneCool", "warmStone", "sand", "cream"],
-      paletteCore: ["warmStone", "sand", "cream", "terracotta"],
-      /* 点缀色只有赭与窑红两色、只占 16%。赭不能再给 PALETTE 里那支
-         0xc59a56——带窗立面不走 sRGB 解码，同色号出来比纯色材质亮一档，
-         16% 的赭在填充区里成了 160 多栋芥末黄的楼，比骑楼抢眼得多。
-         手写一个压过两档的赭（0xa07a40），暖而不跳。 */
-      paletteAccent: [0xa07a40, "brickRed"],
-      accentRate: 0.16,
-      streetStyle: "asphalt",
-      coolRoof: false, roofWarm: true,
-      grid: { type: "none", angle: DR },
-      rings: [], avenues: avenues, plazas: [],
-      /* 站前广场：只清 150×100，不再留那块 200 米的方空场。
-         空地不是广场，空地就是空地——市井街区没有集散需求，
-         有也是站前那一小块。 */
-      noBuild: [
-        { x: P(-330, 0)[0], z: P(-330, 0)[1], w: 220, d: 160, a: DR },
-        /* 骑楼带：沿街两侧各清一条（带 a 才能跟着街转）。
-           宽 22、中心在 v=±20 → 覆盖 v 9..31，正好把骑楼（13..31）
-           连柱廊前的铺装一起盖住，背后不会冒出比骑楼更高的填充楼。
-           d 只到 540（街 480 米 + 两头余量），拉长了会清掉南边半个街区。 */
-        { x: P(-6, 20)[0], z: P(-6, 20)[1], w: 22, d: 540, a: DR },
-        { x: P(-6, -20)[0], z: P(-6, -20)[1], w: 22, d: 540, a: DR }
-      ],
-      profile: { hMin: 15, hMax: 26, lotW: 30, lotD: 26, setback: 4, lotGap: 4, lotGapRand: 3,
-        innerFill: 0.62, innerStep: 36, innerCap: 0.82, farMax: 40, ringFront: false,
-        gable: 0.22, lowRise: 0.14 },
-      types: [
-        { t: "rowHouse", w: 4.2 }, { t: "terrace", w: 3.0 }, { t: "courtyard", w: 2.0 },
-        { t: "loft", w: 2.0 }, { t: "slab", w: 1.4 }, { t: "shopRow", w: 1.0 }
-      ],
-      hero: hero,
-      fringeRing: true,
-      /* 外围墙色压深：主色板本来就暖，外围再暖就糊成一片土。
-         外围的赭同样换成压暗的手写色——外围数量最大，
-         这里用 0xc59a56 就是给整片背景撒了一层芥末黄。 */
-      fringePal: ["warmStone", "stoneCool", 0xa07a40, "sand"],
-      /* 机位：压在西侧偏北、沿街往南看（theta 必须等于街的方位角 DR=0.536，
-         否则街会横着出画）。dist 413 是「一眼看到街门、又看得清柱廊」的距离。 */
-      view: { x: -51.1, y: 8, z: -86, dist: 413, phi: 0.25, theta: 0.536 },
-      exposure: 0.98, exposureK: 0.95, sunIntensity: 1.04, hemiScale: 0.92,
-      fogScale: 1.10, paneColor: 0x33302a, nightLit: 0.34,
-      /* 市井的密度不在人，在东西：摊位多、推车多、行人密。
-         行道树直接关掉——26 米街半宽 13 米，而街道设施的树按
-         r.w/2+3.4=16.4 米定点，正好落在骑楼柱廊里：树冠穿过二楼、
-         树根埋在铺装下，街心凭空长出两棵绿球。骑楼本身遮阳，
-         岭南骑楼街本来就不种行道树。 */
-      streetLife: { pedGap: 9, pedRun: 0.62, stall: 0.046, cart: 0.024, treeGap: 9000 }
-    };
-  })();
-
-  /* ---------------- D11 学园滨水区 ----------------
-     前十个区都是先定构图再摆房子，这一区反过来：三个地标的位置由城市数据
-     给定（H6 −320,130 / 云驰 380,−80 / 东湾站 −110,−120），挪不动。
-     能定的只有它们之间怎么连——所以这一区的全部设计就是一条斜街。 */
-  PLANS.D11 = (function () {
-    /* 学园街方位：从 H6 东立面指向云驰塔，atan2(220, 630) ≈ 0.336。
-       街区所有正交构件都挂在这个角度上，不能一半正一半斜。 */
-    var DR = 0.336, CO = Math.cos(DR), SI = Math.sin(DR);
-    function P(u, v) { return [u * CO + v * SI, -u * SI + v * CO]; }
-    var OX = -250, OZ = 140;           /* 学园街西端（博物馆东立面） */
-    function Q(u, v) { var p = P(u, v); return [OX + p[0], OZ + p[1]]; }
-    var hero = [];
-    function H(u, v, o) {
-      var p = Q(u, v); o.x = p[0]; o.z = p[1];
-      o.rot = (o.rot || 0) + DR; hero.push(o); return o;
-    }
-
-    /* --- 学园湾：北缘水面 ---
-       不画成一条等宽的河。岸线在 x≈−150 处往南凹 40 米，形成一处湾口——
-       没有这个凹口，1600 米长的水面就是一条蓝带，不是「湾」。 */
-    var BAY = [[-860, -468], [-520, -496], [-150, -458], [220, -482], [560, -504], [860, -474]
-    ].map(function (p) { return [p[0] + 0, p[1] + 0]; });
-
-    /* --- H6 潜能与预算博物馆：三连拱，压在西端 ---
-       它是街的起点，也是 118 米的拱塔所在。塔必须骑在中跨东端站着，
-       不然 118 米只是贴在屋顶上的一段墙。 */
-    H(-63, -32, { type: "archMuseum", w: 150, d: 96, bays: 3, bw: 34,
-      wh: 29, rh: 17, tw: 118 });
-
-    /* --- 云驰智能：仿真塔 + 环形试车坡道，压在街的东端 ---
-       环道直径 160 米，从地面盘 24 米。全区唯一「不是建筑」的构件。 */
-    H(667, 0, { type: "emuTower", w: 26, d: 26, h: 116, tw: 26,
-      ringR: 74, ringW: 9, ringH: 24 });
-
-    /* --- 东湾站：高架，轨道横贯全区东西 --- */
-    H(218, -199, { type: "elevatedStation", w: 180, d: 34, h: 36, rot: -DR + 0.05 });
-    /* 站前广场压在南侧，正对出站口 */
-    H(192, -124, { type: "stationPlaza", w: 92, d: 62, block: false });
-
-    /* --- AI 总部塔群：东南角四座，132–186 米 ---
-       滨水一线必须压住（8–40 米），天际线只能退到街区背后去。
-       四座塔放在东南，正好从学园街尽头看过来时列成一道墙，
-       而湾、堤、板楼全在它们前面——这就是「低在前、高在后」的滨水剖面。
-       四座不等高：两两相差 14–28 米，排成 128 / 142 / 158 / 186 的阶梯。 */
-    [
-      { u: 430, v: 210, h: 186, w: 44, d: 40, color: 0xd8dde2, name: "观澜", en: "GUANLAN" },
-      { u: 560, v: 350, h: 158, w: 40, d: 38, color: 0xc8d2d8, name: "知微", en: "ZHIWEI" },
-      { u: 400, v: 430, h: 142, w: 38, d: 36, color: 0xd2cbbc, name: "星槎", en: "XINGCHA" },
-      { u: 620, v: 140, h: 128, w: 36, d: 34, color: 0xbfc9cf, name: "澜图", en: "LANTU" }
-    ].forEach(function (t) {
-      /* 裙房先落，塔后落：裙房是「这块地」，塔是「这块地上的塔」 */
-      H(t.u, t.v, { type: "towerBase", w: t.w * 2.9, d: t.d * 2.5, h: 15, block: false });
-      H(t.u, t.v, { type: "tower", w: t.w, d: t.d, h: t.h, color: t.color,
-        sign: { name: t.name, en: t.en, tone: "#bfe9f2", w: 30 } });
-    });
-
-    /* --- 长堤：沿湾岸一道人工石堤，堤顶 6 米 ---
-       这是 D11 与 D09 的分水岭。D09 的水边是自然坡岸（曲线、草坡、
-       水直接没入滩地）；这一区必须是直跑段 + 垂直石墙 + 6 米堤顶。
-       堤轴偏移 270 米：水面半宽 260、水线在 261，所以堤的临水边
-       正好压在水线外 3 米——没有这段外挑，堤脚会露在干地上，
-       从水里看就是一道台阶，不是堤。 */
-    hero.push({ type: "bayQuay", x: 0, z: 0, pts: BAY, off: 270, d: 26, h: 6.0,
-      block: false, found: false, occ: false });
-
-    /* --- 学园街墙：两侧各 13 段，段间在横巷口断开 ---
-       22 米宽、590 米长的一条路，如果两侧是空地，在 640 米视野里
-       它就是一条灰缝——路本身再怎么铺也读不出来，能读出来的只有两侧的墙。
-       分段按「横巷口」切：u=165/345/525 是三条横巷，街墙在这里留 14 米缺口，
-       街才不是一条隧道。段长 40–48 米、高 20–30 米，
-       比骑楼矮、比住宅密，是学院区的尺度。 */
-    var wallSpans = [[30, 158], [172, 338], [352, 518], [532, 615]];
-    var wallH = [24, 21, 27, 23, 26, 20, 29, 22, 25, 28, 21, 24, 26];
-    var wallDepth = [22, 24, 21, 23, 25, 22, 24, 21, 23, 22, 24, 23, 22];
-    var wi2 = 0;
-    wallSpans.forEach(function (sp) {
-      var span = sp[1] - sp[0];
-      var cnt = Math.max(1, Math.round(span / 46));
-      var segL = span / cnt;
-      for (var si2 = 0; si2 < cnt; si2++) {
-        var su2 = sp[0] + segL * (si2 + 0.5);
-        [-1, 1].forEach(function (sd) {
-          var dp = wallDepth[wi2 % wallDepth.length];
-          H(su2, sd * (11 + 3.0 + dp / 2), {
-            type: "campusBlock", w: segL - 0.3, d: dp,
-            /* plainMat：不用带窗贴图。街墙在 640 米外只需要「一整块实墙」，
-               一块贴满窗格的板在这个距离上只会变成一片灰噪点。 */
-            plainMat: wi2 % 3 === 0 ? "campusWall2" : "campusWall",
-            h: wallH[(wi2 + (sd > 0 ? 3 : 0)) % wallH.length]
-          });
-        });
-        wi2++;
-      }
-    });
-
-    /* --- 板式住宅：西南，四排十二栋，26–60 米 ---
-       板楼必须「成排」，而且是长板。点式塔楼一排就是商务区，
-       只有 160 米的长板斜列，才是滨水住区的语法。 */
-    var rows = [
-      { z: 250, h: 60, list: [[-430, 160], [-260, 160], [-90, 150]] },
-      { z: 335, h: 48, list: [[-420, 160], [-240, 160], [-60, 140]] },
-      { z: 420, h: 36, list: [[-400, 160], [-210, 160], [-30, 130]] },
-      { z: 500, h: 26, list: [[-380, 150], [-190, 150], [10, 120]] }
-    ];
-    rows.forEach(function (r, ri2) {
-      r.list.forEach(function (c) {
-        H(c[0], r.z, { type: "slabRow", w: c[1], d: 15, h: r.h,
-          plainMat: ["slabWall", "slabWall3", "slabWall2"][(ri2 + Math.round(c[0] / 150) + 9) % 3] });
-      });
-    });
-
-    /* --- 路网 --- */
-    var avenues = [
-      /* 学园街：22 米，街的两个端点都落在真实地标上 */
-      { from: Q(-40, 0), to: Q(700, 0), w: 22 },
-      /* 三条横巷，把街与南侧住区、东南塔群接通。
-         u 取 165/345/525：这三个值正好落在街墙的分段边界上（30+3×46≈168 等），
-         横巷从两段街墙的接缝里穿出去，不必为了开口把某一段砍成两截。 */
-      { from: Q(165, -260), to: Q(165, 520), w: 13 },
-      { from: Q(345, -260), to: Q(345, 540), w: 13 },
-      { from: Q(525, 60), to: Q(525, 540), w: 13 },
-      /* 滨水路：贴着湾走，堤上那条道 */
-      { from: Q(-460, -330), to: Q(640, -330), w: 14 }
-    ];
-
-    return {
-      id: "D11", seed: 2011, R: 560,
-      groundColor: 0x7f8677, groundStyle: "paving",
-      /* 湾：宽 520 米的水面，中心线压在北缘外。
-         南岸正好落在 z≈−220，站台在 −120，中间 100 米是滨水公园——
-         这个距离是「看得见水、但不被水淹」的距离。 */
-      terrain: {
-        floorX: 900, ridgeX: 1500, ridgeH: 0, headZ: -900, headEnd: -520, headH: 0,
-        undul: 1.2,
-        channel: { pts: BAY, half: 266, depth: 8, flat: 0.90 }
-      },
-      water: { pts: BAY, w: 520, surfY: -1.5, nrm: 0.22, moor: 0 },
-      /* 岸线外 30 米不许落房：水线往陆侧还有一圈 1.5 米深的缓坡，
-         房子退 5 米就会站在浅水里。30 米正好把滨水公园带空出来。 */
-      shoreGap: 30,
-      /* 色板：滨水学园是冷白 + 砂 + 淡青。
-         前十个区没有一个用这个组合——D02 是暖骑楼，D10 是赭与窑红。 */
-      palette: ["ivory", "white", "sand", "stoneCool", "cream", "sky", "mint"],
-      paletteCore: ["ivory", "white", "sand", "cream"],
-      paletteAccent: ["sky", "mint", "rose"],
-      accentRate: 0.20,
-      streetStyle: "asphalt",
-      coolRoof: true, roofWarm: false,
-      grid: { type: "grid", angle: DR, spacingX: 96, spacingZ: 88, majorEvery: 3, jitter: 8 },
-      rings: [], avenues: avenues, plazas: [],
-      noBuild: [
-        /* 学园街走廊：宽 100 不是 40。街墙自身进深 21–25、边缘在 v=±14，
-           加上柱廊外侧的铺装，40 米的走廊只清到 v=±20，后半个街墙
-           直接长进填充楼里——两侧会冒出比街墙更高的小楼，街又被吃掉。 */
-        { x: Q(300, 0)[0], z: Q(300, 0)[1], w: 100, d: 900, a: DR },
-        /* 沿堤地带：堤顶宽 26、堤脚在水里，陆地侧留 44 米。
-           这一段是滨水公园，不能有房。 */
-        { x: 0, z: -200, w: 1600, d: 86 },
-        /* 博物馆 */
-        { x: Q(-63, -32)[0], z: Q(-63, -32)[1], w: 200, d: 150, a: DR },
-        /* 仿真塔与试车场 */
-        { x: Q(667, 0)[0], z: Q(667, 0)[1], w: 210, d: 210, a: DR },
-        /* 站场 */
-        { x: Q(218, -199)[0], z: Q(218, -199)[1], w: 230, d: 130, a: DR },
-        /* 塔群 */
-        { x: Q(470, 280)[0], z: Q(470, 280)[1], w: 260, d: 340, a: DR },
-        /* 板楼四排 */
-        { x: Q(-250, 372)[0], z: Q(-250, 372)[1], w: 560, d: 300, a: DR }
-      ],
-      /* 填充密度必须压到最低：这一区的信息全在三个地标和那条斜街上，
-         填充楼一多，它们立刻被淹没成一片「普通小城」。
-         初版 innerFill 0.52 / 步距 38，260 栋小房子把街和馆全吃掉。 */
-      profile: { hMin: 12, hMax: 28, lotW: 30, lotD: 26, setback: 5, lotGap: 7, lotGapRand: 4,
-        innerFill: 0.26, innerStep: 62, innerCap: 0.58, farMax: 20, ringFront: false,
-        gable: 0.08, lowRise: 0.30 },
-      types: [
-        { t: "slab", w: 3.0 }, { t: "terrace", w: 2.4 }, { t: "courtyard", w: 2.0 },
-        { t: "loft", w: 1.8 }, { t: "rowHouse", w: 1.2 }, { t: "pavilion", w: 1.0 }
-      ],
-      hero: hero,
-      fringeRing: true,
-      fringePal: ["stoneCool", "white", "sand", "ivory"],
-      /* 机位：从西南 640 米看过去，湾在画面右上，学园街斜穿画面，
-         塔群压在远处天际线上。theta 取 街方位角的反向，才不是斜看 */
-      view: { x: -330, y: 24, z: 470, dist: 640, phi: 0.30, theta: -0.80 },
-      exposure: 1.02, exposureK: 0.98, sunIntensity: 1.06, hemiScale: 1.0,
-      fogScale: 0.92, paneColor: 0x2c3a44, nightLit: 0.28,
-      streetLife: { pedGap: 12, pedRun: 0.52, stall: 0.012, cart: 0.008, treeGap: 15 }
-    };
-  })();
-
-  /* ---------------- D12 澄湾生态城 ----------------
-     两个地标是给定的，而且只隔 228 米：医院 (−90,+60)、水务中心 (+50,−120)。
-     半径只有 440，如果照 D11 的办法把它们当作一条街的两端，
-     街长 228 米、区径 880 米，比例 1:4——那不是一条街，是一个院子。
-
-     所以这一区的构图反过来：**让水去拉长距离**。
-     水的源头是北端水务中心的四个沉淀池，
-     水的去向是东南角澄湾塘，两者相距 600 米；
-     中间用一条 200 米、三级跌水的明渠串起来。
-     医院落在西侧，用一道 150° 的弧环抱庭院，弧口朝东对着这条水轴。
-     两个地标不再是端点，而是同一片公共核心的一南一北。
-
-     这一区没有骑楼、没有板楼、没有长堤，也刻意不做第二条街。
-     它只有三样东西：一段弧、四个圆、一片浅水。 */
-  PLANS.D12 = (function () {
-    /* 澄湾塘：湿地的水面。
-       不能做成 D04 那种大而深的湖——那是「景观湖」，岸上是白亭子；
-       湿地是浅的（2.2 米）、碎的（两片芦苇洲把它切成三块）、
-       岸是软的（芦苇带占七成岸线）。水深和芦苇是它跟 D04 的分界。 */
-    var POND = {
-      x: 175, z: 168, rx: 128, rz: 96, rot: -0.30, seed: 8121,
-      wob: 0.24, wob2: 0.13, depth: 2.2, surfY: -0.55,
-      /* 水色：不是深湖的蓝灰，是浅水塘的绿灰。反射压到 0.14——
-         2 米深的水底下是草根，照不出天空，照得出就假。 */
-      color: 0x35544d, shine: 0.36, refl: 0.14,
-      roadOff: 42, roadW: 11,
-      reed: 0.14,
-      /* 两片芦苇洲，不建亭子 */
-      islands: [{ x: 130, z: 160, r: 22, bare: true }, { x: 236, z: 208, r: 15, bare: true }],
-      /* 两条木栈道：一条从北岸伸进去，一条从西岸 */
-      piers: [{ a: 4.55, len: 40, w: 6 }, { a: 3.05, len: 34, w: 5 }]
-    };
-
-    var hero = [];
-
-    /* --- 弧形住院楼：全区的主语 ---
-       弧心 (−263,+35)、半径 84、扫 150°，外缘 46 米厚的一圈。
-       组原点取弧的体量中心 (−300,+35)，弧心相对偏移 +37。
-       62 米是这一区的最高点，也是唯一一处「非直角」的轮廓。 */
-    hero.push({ type: "hospitalArc", x: -300, z: 35, w: 120, d: 180, h: 62,
-      R: 84, dep: 20, cx: 37, seg: 22, plainMat: "ecoWhite" });
-
-    /* --- 门诊医技楼：弧口正东的那道横墙 ---
-       20 米高、130 米长。它把街道的嘈杂挡在东侧，
-       把安静的医疗庭院留在西侧——医院的空间秩序就是这么一条墙定的。 */
-    hero.push({ type: "hospitalEntry", x: -105, z: 35, w: 30, d: 130, h: 20,
-      plainMat: "ecoWhite" });
-
-    /* --- 澄湾水务中心：四个正圆 + 一座 38 米调蓄塔 ---
-       池径 48/42/36/28，从大到小——真实的沉淀流程就是逐级缩小。
-       台地抬 1.2 米：水务设施永远比路面高，水才能自己流走。 */
-    hero.push({ type: "settlingYard", x: 80, z: -120, w: 190, d: 160, h: 38,
-      plat: 1.2, plainMat: "ecoTank",
-      tanks: [
-        { x: -40, z: -30, r: 24, h: 6.2 },
-        { x: 20, z: -35, r: 21, h: 6.0 },
-        { x: 75, z: -5, r: 18, h: 5.8 },
-        { x: -25, z: 35, r: 14, h: 5.4 }
-      ],
-      pump: { x: 40, z: 50, w: 44, d: 26, h: 16 },
-      tower: { x: -55, z: 42, r: 9, h: 38 },
-      pipes: [[-25, 35, -40, -30], [40, 50, 20, -35]]
-    });
-
-    /* --- 澄湾渠：1.2 米落差分三级落完 ---
-       起点在台地南缘（标高 +1.0，与台地齐平），
-       终点落在塘的水面之上 0.35 米（−0.20），最后一级跌进塘里。
-       这条渠是全区唯一「水在动」的一处，也是水务与湿地之间唯一的因果。 */
-    hero.push({ type: "ecoChannel", x: 0, z: 0, w: 8, h: 0.95,
-      pts: [[142, -40], [154, -6], [170, 26], [180, 66]],
-      lv: [1.0, 0.6, 0.2, -0.2],
-      block: false, found: false, occ: false });
-
-    /* --- 观鸟台：塘东岸 ---
-       水面必须有一个能站上去的地方。3.2 米高，正好越过芦苇。 */
-    hero.push({ type: "ecoDeck", x: 300, z: 132, w: 16, d: 12, h: 3.2,
-      rot: -0.45, block: false });
-
-    /* --- 生态社区：八栋，18–24 米 ---
-       全部压在南侧与塘北，把两片水面围出来。
-       高度一律低于 26 米——这一区的天际线只能由弧楼和调蓄塔说话。 */
-    [
-      { x: -345, z: 245, w: 62, d: 30, h: 19 },
-      { x: -345, z: 312, w: 54, d: 28, h: 17 },
-      { x: -205, z: 320, w: 66, d: 30, h: 21 },
-      { x: -300, z: 392, w: 70, d: 32, h: 17 },
-      { x: -105, z: 250, w: 40, d: 26, h: 18 },
-      { x: 205, z: -30, w: 48, d: 30, h: 22 },
-      { x: 268, z: -46, w: 42, d: 28, h: 19 },
-      { x: 330, z: -20, w: 40, d: 26, h: 17 }
-    ].forEach(function (b, bi) {
-      hero.push({ type: "ecoBlock", x: b.x, z: b.z, w: b.w, d: b.d, h: b.h,
-        plainMat: bi % 3 === 0 ? "ecoWhite" : "ecoWhite2" });
-    });
-
-    /* --- 社区中心：唯一一栋 24 米的公共建筑，压在社区路口 --- */
-    hero.push({ type: "ecoBlock", x: -210, z: 240, w: 56, d: 44, h: 24,
-      plainMat: "ecoWhite" });
-
-    /* --- 生态农田：填西北角 ---
-       弧楼以北、水务台地以西是全区最大的一块平地，半径 440 的场地上
-       它占了将近 1/7。原来那里只有草——俯视时是一块比路面还平的绿纸，
-       左下角空得能看穿整个区。
-       农田是这一区唯一「可以铺满、又不需要盖楼」的东西：
-       条田 3–5 段换色，田埂压深色，两栋玻璃温室当标点，
-       从空中看是十几条平行线——正好跟弧楼那一段圆弧、沉淀池那四个正圆
-       形成第三种几何：直线。三种几何各占一个角，构图才站得住。
-       地块稍微转一点（2°–5°），纯正交的田垄在这个尺度上像贴图。 */
-    [
-      { x: -320, z: -140, w: 140, d: 84, rot: 0.05 },
-      { x: -140, z: -150, w: 110, d: 72, rot: 0.09 }
-    ].forEach(function (f) {
-      hero.push({ type: "ecoField", x: f.x, z: f.z, w: f.w, d: f.d, h: 3.0,
-        rot: f.rot, found: false });
-    });
-
-    var avenues = [
-      /* 澄湾大道：南北主轴，把医院、湿地、水务连成一条 */
-      { from: [-25, -430], to: [-25, 430], w: 26 },
-      /* 医街：医院南界，也是西南社区与医疗园的分界 */
-      { from: [-430, 170], to: [-25, 170], w: 18 },
-      /* 水厂路：水务台地北缘 */
-      { from: [-300, -230], to: [330, -230], w: 16 },
-      /* 社区路 */
-      { from: [-430, 350], to: [-25, 350], w: 14 },
-      /* 社区支路：把社区中心与两片住区串起来 */
-      { from: [-250, 170], to: [-250, 350], w: 12 }
-    ];
-
-    return {
-      id: "D12", seed: 2212, R: 440,
-      /* 湿草甸的冷绿。比 D04 的 0x6e7d64 灰一档、冷一档——
-         湖区要暖绿托白墙，湿地要冷绿托浅水。 */
-      groundColor: 0x6b7a70, groundStyle: "lawn",
-      lake: POND,
-      /* 岸外 30 米不许落房：芦苇带 + 环塘路 + 一条步道 */
-      shoreGap: 30,
-      palette: ["white", "ivory", "mint", "stoneCool", "teal", "sky", "cream", "patina"],
-      paletteCore: ["white", "ivory", "stoneCool", "mint"],
-      paletteAccent: ["teal", "mint", "sky"],
-      accentRate: 0.18,
-      streetStyle: "asphalt",
-      coolRoof: true, roofWarm: false,
-      /* 屋顶光伏：这是全区俯视时唯一的深色，也是「生态城」最省力的一句实话 */
-      solarRoof: 0.52,
-      greenRoof: 0.16,
-      grid: { type: "none" },
-      rings: [], avenues: avenues,
-      plazas: [
-        /* 医疗庭院不做一整块铺装：150×150 的灰板在这个尺度上就是停车场。
-           改成十字步道——东西一条接门诊，南北一条接医街，其余全是草坪。 */
-        { x: -200, z: 35, w: 146, d: 9, trees: false, noMonument: true },
-        { x: -200, z: 35, w: 9, d: 146, trees: false, noMonument: true },
-        /* 门诊楼前的落客广场 */
-        { x: -56, z: 35, w: 30, d: 70, trees: true, noMonument: true }
-      ],
-      noBuild: [
-        /* 医疗园 */
-        { x: -215, z: 35, w: 300, d: 190 },
-        /* 水务台地 */
-        { x: 80, z: -120, w: 210, d: 180 },
-        /* 湿地北岸绿带：从水厂路到水面，这一带只许有渠、栈道和草 */
-        { x: 110, z: 5, w: 480, d: 74 },
-        /* 渠与观景台 */
-        { x: 155, z: 10, w: 60, d: 120 },
-        { x: 300, z: 132, w: 54, d: 54 }
-      ],
-      /* 填充压得很低：这一区的内容是三件大东西 + 八栋社区，
-         填充楼一多，弧楼和水面立刻被淹没成「又一片普通街区」。 */
-      profile: { hMin: 8, hMax: 18, lotW: 30, lotD: 26, setback: 6, lotGap: 6, lotGapRand: 4,
-        innerFill: 0.20, innerStep: 74, innerCap: 0.54, farMax: 18, ringFront: false,
-        gable: 0.04, lowRise: 0.42 },
-      types: [
-        { t: "pavilion", w: 2.6 }, { t: "courtyard", w: 2.4 }, { t: "terrace", w: 2.0 },
-        { t: "slab", w: 1.8 }, { t: "rowHouse", w: 1.0 }, { t: "loft", w: 0.8 }
-      ],
-      hero: hero,
-      fringeRing: true,
-      fringePal: ["white", "ivory", "stoneCool", "mint"],
-      /* 大量草地要自己种树：路网只有五条，剩下的空地全是草，俯视会糊成一张绿纸 */
-      parkTrees: { clusters: 44 },
-      /* 机位：从南偏东 580 米看，塘在中右近景、弧楼在左、沉淀池在远处中轴 */
-      view: { x: -60, y: 20, z: 40, dist: 580, phi: 0.29, theta: 0.28 },
-      exposure: 1.00, exposureK: 0.96, sunIntensity: 1.10, hemiScale: 0.96,
-      fogScale: 0.92, paneColor: 0x2f4048, nightLit: 0.26,
-      streetLife: { pedGap: 30, pedRun: 0.30, stall: 0.004, cart: 0.002, treeGap: 13 }
-    };
-  })();
-
-  /* ---------------- D13 东部制造港 ----------------
-     前三十二个街区都是「街 + 房」：有街道、有沿街立面、有广场。
-     这一区反过来——没有街，只有作业道；没有沿街立面，只有作业面；
-     没有广场，只有堆场。
-
-     它由三件事定义，缺一件就不成立：
-
-     一、一条直线海岸。x = 200，垂直岸壁，海面 −2.6，落差 3 米。
-     全城唯一一条用尺规画出来的硬边水岸（D04 是环湖的弧、
-     D09 是自然草坡、D11 是带长堤的湾、D12 是芦苇碎岸）。
-     二、六台岸桥。同一种构件重复六次，间距 76 米，60 米高的剪影
-     压在海平线上。全城只有这一区能靠一排机器而不是一栋楼定位。
-     三、三条地面铁轨。从北边界进城，南下 1240 米，在货场分出一股
-     尽头线，向西 570 米直插月台仓。全城没有地面铁轨
-     （D06 是高架城际的箱梁，另一回事）。
-
-     从西到东是一条真实港区的作业剖面：仓库 → 铁路 → 堆场 → 岸桥 → 海。
-     这是货物流转的顺序，也正好构成「近低远高」——
-     别的区都是中心高、外围低，只有这一区越靠海越高。 */
-  PLANS.D13 = (function () {
-    var hero = [];
-
-    /* --- 一 · 岸壁与码头面。
-       block:false —— 它是一条 1240 米的带状物，按 w/d 切路会把整片 apron
-       锁死，进港大道连码头边都到不了。occ:false 同理，占位交给 noBuild。 --- */
-    /* 码头面 800 米，不是 1240 米。第一版按总平面画了 1240 米，
-       六台岸桥却只占中间 380 米——从斜角看过去，近处那一大片空码头
-       是整个画面最弱的地方。800 米六个泊位（一泊一机，间距 120），
-       岸线本身仍然由 3400 米的海塘贯通，直线海岸的identity不受影响。 */
-    hero.push({ type: "portQuay", x: 200, z: 0, w: 72, d: 800,
-      block: false, occ: false, wallL: 3400, seaY: -2.6 });
-
-    /* --- 二 · 六台岸桥，一泊一机，间距 120 米 --- */
-    var craneZ = [-300, -180, -60, 60, 180, 300];
-    craneZ.forEach(function (cz, ci) {
-      hero.push({ type: "stsCrane", x: 164, z: cz, w: 24, d: 20, h: 60,
-        found: false, trolley: ci % 3 === 1 ? 32 : 20,
-        load: ci === 2 || ci === 4 });
-    });
-
-    /* --- 三 · 三条地面铁路。轨距 5 米线间距，从北边界进城，
-       在 z=160 分出一股尽头线向西插进月台仓。
-       北端不放「断头」：第一版停在 -640，正好是区界，画面里三条股道
-       在一大片空地上凭空截断，读成「铁轨没修完」。主干线必须驶出视野——
-       拉到 -1500（2.4 倍半径），穿过外围工业带之后消失在地平线的雾里。 --- */
-    hero.push({ type: "railLine", pts: [[105, -1500], [105, 166]], tracks: 3,
-      block: false, occ: false, found: false });
-    hero.push({ type: "railLine", pts: [[105, 160], [-470, 160]], tracks: 1,
-      block: false, occ: false, found: false });
-
-    /* --- 月台仓：300 米长、120 米进深，40 个卷帘门朝东对着铁路。
-       第一版写成 280×300 的方块，从空中看是一整片白屋顶——
-       仓库的比例必须是「长条」，长边 2.5 倍于短边，才读得出是仓库。 --- */
-    hero.push({ type: "freightShed", x: -380, z: 350, w: 120, d: 300, h: 17 });
-
-    /* --- 拆装箱区：月台仓东侧的箱区，也是站台的作业缓冲 --- */
-    hero.push({ type: "portYard", x: -160, z: 350, w: 230, d: 270, h: 12 });
-
-    /* --- 推理芯片洁净厂房：全区最大的一块白 --- */
-    hero.push({ type: "chipFab", x: -320, z: -460, w: 240, d: 180, h: 24 });
-
-    /* --- 调度塔：40 米，全区唯一的高层，正对闸口 --- */
-    hero.push({ type: "portTower", x: 168, z: -352, w: 26, d: 26, h: 40 });
-
-    /* --- 堆场：两块主箱区 + 一块空箱区。 --- */
-    hero.push({ type: "portYard", x: -235, z: -177, w: 350, d: 230, h: 12 });
-    hero.push({ type: "portYard", x: -235, z: 61, w: 350, d: 162, h: 12 });
-    hero.push({ type: "portYard", x: 38, z: 40, w: 88, d: 120, h: 12 });
-
-    /* --- 西侧配套：220 kV 变电站、港区消防站、港务办公楼。
-       三栋都是低矮的白盒子——它们只负责把西边界封住，不参与构图。 --- */
-    hero.push({ type: "warehouse", x: -520, z: -70, w: 66, d: 190, h: 13, plainMat: "portShed2" });
-    hero.push({ type: "warehouse", x: -520, z: 150, w: 66, d: 130, h: 11, plainMat: "portShed2" });
-    hero.push({ type: "warehouse", x: -520, z: 560, w: 66, d: 100, h: 15, plainMat: "portFab2" });
-
-    return {
-      id: "D13", seed: 1313, R: 620,
-      /* 海。地面在岸线以西就结束——不是在岸上开个洞，
-         是整块地到此为止（湖才开洞，海是城市的一侧边界）。
-         水色比湖深两档：港池是有潮差的深水，不是景观湖。 */
-      basin: { x0: 200, surfY: -2.6, depth: 9, seed: 913,
-        color: 0x24434e, shine: 0.40, refl: 0.18, tile: 140 },
-      /* 地面：压实土 + 混凝土板。港区没有草坪——
-         唯一的绿在西边界那一条防护林带里。 */
-      /* 场地色：中性灰的压实土，不是沙。第一版用 0x8f8578 暖砂色，
-         整片空地读成沙漠——港区没有植被，暖色只会让人想到荒地。
-         降饱和到 0x847f75，砾石与混凝土板才是「硬化场地」的读法。 */
-      groundColor: 0x847f75,
-      palette: ["sand", "graphite", "slate", "stoneGrey", "ivory", "rust"],
-      paneColor: 0x27383f, nightLit: 0.22,
-      /* 没有网格：这一区的路不是「网」，是三条尽端路 + 一条大道。 */
-      grid: { type: "none" },
-      rings: [],
-      avenues: [
-        /* 进港大道：从西边界直插码头，26 米，全区唯一的「街」 */
-        { from: [-660, -320], to: [132, -320], w: 26 },
-        /* 北段纵路：厂房与铁路之间 */
-        { from: [-160, -650], to: [-160, -300], w: 16 },
-        /* 纵一路：进港大道 → 月台仓，堆场与铁路之间的集卡通道 */
-        { from: [-24, -320], to: [-24, 178], w: 16 },
-        /* 货场路：铁路尽头线与月台仓之间 */
-        { from: [-470, 182], to: [100, 182], w: 13 }
-      ],
-      /* 没有广场。这一区唯一一块「空地」是闸口前的集卡等候区，
-         它不是广场，是停车场——所以不给铺装、不给纪念物、不给树。 */
-      plazas: [],
-      noBuild: [
-        /* apron 与岸桥带：从墙根到岸桥后轨外 8 米 */
-        { x: 164, z: 0, w: 80, d: 1260 },
-        /* 铁路走廊：三条股道 + 两侧排水沟。南北都要够长——
-           北端一直护到 -1500，主干线穿过外围工业带时不能有厂房压上来。 */
-        { x: 105, z: -665, w: 34, d: 1670 },
-        /* 尽头线与货场路 */
-        { x: -185, z: 172, w: 620, d: 48 },
-        /* 调度塔与闸口 */
-        { x: 168, z: -352, w: 46, d: 46 },
-        /* 西边界防护林带 */
-        { x: -600, z: 0, w: 80, d: 1300 }
-      ],
-      /* 填充压到很低：这一区的信息量全在五件大东西上，
-         多出二十栋小厂房，岸桥的剪影立刻被淹没成「又一片工业区」。 */
-      profile: { hMin: 8, hMax: 15, lotW: 34, lotD: 30, setback: 6, lotGap: 8,
-        innerFill: 0.20, innerStep: 96, innerCap: 0.40, farMax: 14, ringFront: false,
-        gable: 0.06, lowRise: 0.55 },
-      types: [
-        { t: "warehouse", w: 4.0 }, { t: "loft", w: 1.4 },
-        { t: "slab", w: 1.0 }, { t: "silo", w: 0.5 }
-      ],
-      hero: hero,
-      /* 海边不能种一圈行道树：那是公园的做法。
-         只在西边界留一条防护林带，用 fringeRing 的一半就够。 */
-      fringeRing: true,
-      /* 外围一圈必须是平屋顶厂房，不能是赭红瓦顶的坡屋。
-         第一版漏了这一条，港区北面 620–1100 米处围出一圈瓦房小院——
-         从全景图上看，整个港口像陷在县城里，六台岸桥再高也压不住。
-         fringeFlat 换掉三件事：屋顶（坡→平加女儿墙）、尺寸（大到 60 米）、
-         转角（跟着方格走而不是乱转），围出来才是「港区外面的工业带」。 */
-      fringeFlat: true,
-      /* 屋面板只给金属灰蓝：钢构厂房、集装箱堆场、洁净厂房，
-         港区没有一块坡瓦屋顶。coolRoof 之后屋顶从赭红转成灰蓝，
-         俯视时占画面最多的那一层颜色才对得上「作业场地」。 */
-      coolRoof: true,
-      /* 环外不种林带。整片腹地是压实土与混凝土板，
-         环带上撒几十丛树，读到的是一颗颗浮在灰地上的绿点——
-         真正的绿化已经在西边那条防护林带里了。 */
-      outerGrove: false,
-      parkTrees: { clusters: 8 },
-      /* 机位：从东南方的海面上看回来——六台岸桥正对镜头，
-         岸线斜穿画面，堆场与月台仓在它们身后。
-         打开页面时看到的就是这张：dist 680、phi 0.42、theta 0.74。
-         phi 不能低于 0.42——轨道俯角的下限就在那里，低于它一拖动镜头，
-         画面会先跳一下再跟上。 */
-      view: { x: -120, y: 0, z: 20, dist: 680, phi: 0.42, theta: 0.74 },
-      exposure: 1.02, exposureK: 0.98, sunIntensity: 1.12, hemiScale: 0.94,
-      fogScale: 0.90,
-      streetLife: { pedGap: 60, pedRun: 0.18, stall: 0, cart: 0.001, treeGap: 18 }
-    };
-  })();
-
-  /* ---------------- D14 蜂巢实验区 ----------------
-     前十三个区里，只有 D08 的方环、D12 的一段弧不是直角，其余全是正交方格。
-     D14 是第一个「60° 是唯一角度」的区：路在 120° 上相交，楼是六棱柱，
-     广场是六边形，连场地边界都是六边形。
-     三样东西定义它：一圈六边形环路、一片十八格的蜂窝台地、
-     从蜂窝正中升起来的 96 米锥台。
-     东侧与西侧的环外草地上再立三座 AI 大厂总部——
-     26–58 米的蜂巢格是研究者的，96 米的锥台是国家的，214 米的塔是资本的。
-     从西往东，楼越来越高，地在越来越少。 */
-  PLANS.D14 = (function () {
-    var hero = [];
-    var CX = 0, CZ = -50;              /* 蜂窝台地中心 */
-    var HR = 330;                      /* 环路外接圆 */
-
-    /* --- 一 · 蜂窝台地：十八格六棱柱 ---
-       单格外接半径 32、中心距 55.4 米。没有再密：
-       R16–20 的格子在 600 米机位上会糊成一片马赛克，读不出「格子」；
-       一格 64 米相当于一栋实验楼，密度和可读性都在这个尺度上成立。 */
-    hero.push({ type: "hiveCluster", x: CX, z: CZ, w: 312, d: 312, r: 32, pad: 156,
-      cells: [
-        /* ring 1 —— 六格，48–58 米 */
-        [1, 0, 48], [0, 1, 56], [-1, 1, 52], [-1, 0, 46], [0, -1, 58], [1, -1, 50],
-        /* ring 2 —— 十二格，26–42 米 */
-        [2, 0, 32], [0, 2, 28], [-2, 2, 34], [-2, 0, 30], [0, -2, 40], [2, -2, 26],
-        [1, 1, 38], [-1, 2, 30], [-2, 1, 26], [-1, -1, 36], [1, -2, 42], [2, -1, 34]
-      ] });
-
-    /* --- 二 · 档案锥台：从蜂窝正中升起来 ---
-       它不是「园区里的博物馆」，是「蜂巢正中的那一格」。
-       底 R32 与单格同尺寸，顶 R19，十段外收，段间一道 1.4 米暗槽。
-       底下 40 米被周围 46–58 米的格子挡住，看到的是一根从巢里冒出来的塔。 */
-    hero.push({ type: "archiveFrustum", x: CX, z: CZ, w: 64, d: 64,
-      h: 96, r0: 32, r1: 19, bands: 10, found: false });
-
-    /* --- 三 · 六边形广场与观察井 --- */
-    hero.push({ type: "hexPlaza", x: 0, z: 190, w: 176, d: 176, r: 84, found: false });
-
-    /* --- 四 · 六边形环路的六个转角 ---
-       六条 16 米的带子在顶点平头对接，中间会缺一个 60° 的楔形口。
-       每个顶点铺一块 R15 的六边形，缺口变成转角——
-       这是「不做完整蜂窝路网」的代价，也是它唯一需要补的地方。 */
-    [[330, 0], [165, 286], [-165, 286], [-330, 0], [-165, -286], [165, -286]]
-      .forEach(function (v) {
-        hero.push({ type: "hexPlaza", x: v[0], z: v[1], w: 30, d: 30, r: 15,
-          plain: true, found: false, occ: false, block: false });
-      });
-
-    /* --- 五 · 三座 AI 大厂总部 ---
-       硬约束：有名字（塔身竖排 + 塔顶横匾）、比区内次高的锥台高一倍以上。
-       三座落在六边形东、西南、西北三个顶点的环外带子正中（距中心 368 米）——
-       带子只有 164 米宽，塔基放在 441 上，裙房的角离场地边界只剩 2 米。
-       rot 全部按「正面朝区中心」算：从区里任何一个位置抬头，都看得到那名字。 */
-    hero.push({ type: "aiTower", x: 420, z: 0, w: 100, d: 110, h: 214, variant: 0,
-      rot: 0, plainMat: "aiShellA",
-      brand: { name: "昇界", en: "SHENGJIE · WORLD MODEL", tone: "#eef6f8" },
-      sign: { name: "昇界", en: "SHENGJIE AI", tone: "#a8e0ea", w: 66 } });
-
-    hero.push({ type: "aiTower", x: -184, z: 319, w: 94, d: 94, h: 196, variant: 1,
-      tw: 60, rot: -2.0944, plainMat: "aiShellB",
-      brand: { name: "极栈", en: "JIZHAN · SILICON STACK", tone: "#ffe4cf" },
-      sign: { name: "极栈", en: "JIZHAN AI", tone: "#ffb987", w: 62 } });
-
-    hero.push({ type: "aiTower", x: -184, z: -319, w: 92, d: 92, h: 182, variant: 2,
-      tw: 56, rot: 2.0944, plainMat: "aiShellC",
-      brand: { name: "言枢", en: "YANSHU · LANGUAGE CORE", tone: "#e6e2ff" },
-      sign: { name: "言枢", en: "YANSHU AI", tone: "#b9aef0", w: 60 } });
-
-    /* --- 六 · 三组卫星蜂窝 ---
-       主蜂窝之外的三小簇。它们不是装饰：一片 18 格的蜂窝不可能装下整所研究院，
-       真正的研究单元是这些 3–5 格的小簇，散在环路外的草地上。 */
-    hero.push({ type: "hiveCluster", x: -330, z: -150, w: 132, d: 132, r: 24, pad: 72,
-      cells: [[0, 0, 30], [1, 0, 26], [0, 1, 34], [1, -1, 28]] });
-    hero.push({ type: "hiveCluster", x: -320, z: 180, w: 112, d: 112, r: 21, pad: 58,
-      cells: [[0, 0, 24], [1, 0, 30], [1, -1, 26]] });
-    /* 组 3 原先在 (130,360)：平台半径 92，南入口那条 18 米的路从 x=100 直穿平台正中，
-       实景里路在场地边界处断掉，剩一截 130 米的死胡同。
-       环外带子只有 164 米宽（环路边心距 286 → 场地边心距 450），
-       半径 92 的平台根本放不进去；收到 66 并放到东侧带子正中（边心距 368）。 */
-    hero.push({ type: "hiveCluster", x: 319, z: 184, w: 104, d: 104, r: 20, pad: 66,
-      cells: [[0, 0, 28], [1, 0, 32], [0, 1, 26], [1, -1, 30]] });
-
-    /* --- 七 · 半埋绿玻璃实验舱 ---
-       露出 4.2 米。既不能站人，也不能种树，只能读成「地下面还有一个东西」。 */
-    [[-208, 42, 15], [-232, -92, 11], [206, 52, 14], [246, -66, 10], [-432, -34, 13]]
-      .forEach(function (p) {
-        hero.push({ type: "labPod", x: p[0], z: p[1], w: p[2] * 2.4, d: p[2] * 2.4,
-          r: p[2], expose: 3.6 + (p[2] - 10) * 0.16, found: false });
-      });
-
-    /* 六条步行道：蜂窝台基直通环路。130 米宽的环形草坪上不铺路，
-       俯视就是一块空地；六条 4.5 米的道沿六条边的法线铺出去，草地才有结构。
-       走 spec.paths 而不是 hero——它不是建筑，是路。 */
-    var paths = [];
-    for (var w6 = 0; w6 < 6; w6++) {
-      var wt = Math.PI / 3 * w6 + Math.PI / 6;
-      paths.push({ pts: [[CX + 135 * Math.cos(wt), CZ + 135 * Math.sin(wt)],
-        [286 * Math.cos(wt), 286 * Math.sin(wt)]], w: 4.5, cls: "lane", smooth: false });
-    }
-
-    /* 环路：外接圆 330 的正六边形。六条边各一条 16 米，
-       转角由顶点上那六块小铺装收口。 */
-    var HV = [];
-    for (var hv = 0; hv < 6; hv++) {
-      HV.push([HR * Math.cos(Math.PI / 3 * hv), HR * Math.sin(Math.PI / 3 * hv)]);
-    }
-    var avenues = [];
-    for (var ha = 0; ha < 6; ha++) {
-      avenues.push({ from: HV[ha], to: HV[(ha + 1) % 6], w: 16 });
-    }
-    /* 没有辐条。方案里写的是「三条辐条在 120° 上把环路切成三块」，
-       但那三条 14 米的辐条内端停在 R180——不在环路上，也不在台基上，
-       是三级草地上凭空断掉的三根舌头。真正承担「从蜂窝走到环路」的
-       是下面那六条 4.5 米的步道，它才是方案里画的东西。 */
-    /* 三条进出道路：西顶点、南边中点、东北顶点。
-       东北那条斜着出城，也给「从城里来」的人一个非正交的入口。 */
-    /* 三条进出道路，端点都正好落在六边形的三个顶点上：
-       西顶点 (−330,0)、南边中点 (100,286)、东北顶点 (165,−286)。
-       环路的圆心是 (0,0)（蜂窝台地的圆心才是 (0,−50)，那是为了给南侧
-       的观察井广场腾出位置），所以道路端点要按 (0,0) 算。 */
-    avenues.push({ from: [-700, 0], to: [-330, 0], w: 22 });
-    avenues.push({ from: [100, 700], to: [100, 286], w: 18 });
-    avenues.push({ from: [165, -286], to: [440, -540], w: 14 });
-
-    /* 场地边界：外接圆 520 的正六边形，六条 8 米的界道，圆心同样是 (0,0)。
-       「场地是六边形」这件事在实景里原先完全不存在——地面是一整块草地平面，
-       520 这个位置上没有任何东西。结果俯视只剩环路 330 和台基 156 两层，
-       「三层六边形嵌套」塌成两层。
-       8 米只有环路的一半宽：读成园区的界，不读成又一条路。 */
-    var SR = 520;
-    for (var sb = 0; sb < 6; sb++) {
-      avenues.push({
-        from: [SR * Math.cos(Math.PI / 3 * sb), SR * Math.sin(Math.PI / 3 * sb)],
-        to: [SR * Math.cos(Math.PI / 3 * (sb + 1)), SR * Math.sin(Math.PI / 3 * (sb + 1))],
-        w: 8, cls: "lane"
-      });
-    }
-
-    var noBuild = [
-      { x: CX, z: CZ, w: 344, d: 344 },          /* 蜂窝台地 */
-      { x: 0, z: 190, w: 190, d: 190 },          /* 广场 */
-      { x: 420, z: 0, w: 132, d: 142 },          /* 昇界 */
-      { x: -184, z: 319, w: 124, d: 124 },       /* 极栈 */
-      { x: -184, z: -319, w: 122, d: 122 },      /* 言枢 */
-      { x: -330, z: -150, w: 152, d: 152 },      /* 卫星组 1 */
-      { x: -320, z: 180, w: 128, d: 128 },       /* 卫星组 2 */
-      { x: 319, z: 184, w: 122, d: 122 }         /* 卫星组 3 */
-    ];
-
-    return {
-      name: "蜂巢实验区", en: "HIVE LABS",
-      R: 520, seed: 1414,
-      /* 场地是一个正六边形，不是一个圆。俯视时三层六边形嵌套
-         （场地 520 / 环路 330 / 台基 156），60° 这件事才成立。 */
-      groundColor: 0x8d9b7f,
-      groundStyle: "lawn",
-      grid: { type: "none" },
-      rings: [],
-      avenues: avenues,
-      paths: paths,
-      plazas: [],
-      noBuild: noBuild,
-      /* 这一区不需要小楼。信息量全在十八格蜂窝、一座锥台、三座塔上，
-         环路里再长出二十栋实验楼，蜂巢立刻退化成「又一片园区」。 */
-      profile: { hMin: 10, hMax: 22, lotW: 30, lotD: 26, setback: 7, lotGap: 10,
-        /* 0.12 还是长出了一圈小楼，把环路外的草地填满——
-           俯视图上蜂窝被一圈白方块围住，像「园区里挤了十八户人家」。
-           这一区的空地就是空地。 */
-        innerFill: 0.02, innerStep: 130, innerCap: 0.10, farMax: 16, ringFront: false,
-        gable: 0.02, lowRise: 0.62, streetFill: false },
-      types: [{ t: "campusLab", w: 3.0 }, { t: "labCourt", w: 2.2 },
-        { t: "slab", w: 1.2 }, { t: "campusLibrary", w: 0.6 }],
-      /* 外围只给四种颜色：白、象牙、浅灰蓝、暖石。
-         默认调色板里有橙、芥黄、砖红，撒在实验区外面就是一片彩色积木——
-         园区的外围是「同一套标准厂房」，不是城中村。 */
-      palette: ["white", "ivory", "cream", "stoneGrey", "sand", "warmStone"],
-      paletteCore: ["white", "ivory", "stoneGrey"],
-      paletteAccent: ["sand", "warmStone"],
-      accentRate: 0.10,
-      hero: hero,
-      fringeRing: true,
-      fringeFlat: true,
-      /* 外围那一圈：白、象牙、浅灰蓝、石灰色。
-         palette 只管场地内；外围建筑走 fringeFlat 的厂房分支，原先被写死成
-         hallWall2 / hallBand 那套偏黄的色，画面上是橙红与芥黄的积木堆。
-         给了 fringePal 之后 edgeMats 优先用它，外围才跟园区是同一套语言。 */
-      fringePal: ["white", "ivory", "stoneCool", "stoneGrey"],
-      /* coolRoof 只保证屋面板是「冷色系」，可是 roofWarm 默认为真，
-         那套冷色板里仍混着 0x8a5236 锈红与 0xa08c62 土黄两块暖色。
-         俯视时屋顶面积比墙还大，这两块撒进外围就是一片橙顶。 */
-      roofWarm: false,
-      coolRoof: true,
-      /* 场地内基本不种行道树：蜂窝与环路之间的环形草坪已经是「空」的，
-         再撒一圈树，蜂巢的锯齿天际线就埋进绿化里了。 */
-      parkTrees: { clusters: 5 },
-      groveClusters: 34,
-      /* 机位：从南偏西的草地上看回来——锥台在正中，
-         蜂窝在它身后铺开，昇界在右侧远处，极栈在左前景。
-         phi 0.34 是这一区的下限：再低，十八格的顶面会连成一片白。 */
-      /* 机位：从场地的北侧看回来。
-         三座塔的跨度 638 米，45° 视角在任何合理距离上都装不下全部——
-         这是这一区唯一一个「总平面能画、透视图装不下」的构图。
-         把目标点往东挪 80 米，昇界才勉强进画；theta 2.60 让双塔的
-         南北排列斜过来，不至于和视线完全重合、缩成一根柱子。 */
-      view: { x: 80, y: 0, z: 0, dist: 800, phi: 0.42, theta: 2.60 },
-      exposure: 1.03, exposureK: 0.97, sunIntensity: 1.10, hemiScale: 0.92,
-      fogScale: 0.96,
-      streetLife: { pedGap: 44, pedRun: 0.26, stall: 0, cart: 0.002, treeGap: 22 }
-    };
-  })();
-
-  /* ---------------- 东南设计社区（D15） ----------------
-     这一区故意不做中心。前十四区都是「环路 + 中心」：D01 是主塔，
-     D08 是漏斗，D14 是六边形蜂窝。D15 没有环路、没有中心广场、没有中轴，
-     它的结构是两张斜交的街——45° 是这一区唯一的角度。
-     街的西南端没有广场，只有一阶伸进水里的台阶；球壳架空在埠头上方，
-     街从它底下钻过去。湾在 D11 是 520 米，到这里收成 140 米，
-     东端再收成湿地——「湾尾」不是一个湖，是水退出去的地方。
-     ------------------------------------------------------------ */
-  PLANS.D15 = (function () {
-    /* 坐标系与方案图完全一致：45° 街轴。
-       PU(u,v) = [70 + C(u+v), 70 + C(v−u)]，u 沿街（东北为正），v 垂直街（东南为正）。
-       rot = π/4 正好把局部 (x,z) 映射到 (u,v)——所以所有院落共用一个转角，
-       这不是巧合，是这套坐标唯一的用处。 */
-    var C = Math.SQRT1_2;
-    var ROT = Math.PI / 4;
-    function PU(u, v) { return [70 + C * (u + v), 70 + C * (v - u)]; }
-    var hero = [], i;
-
-    /* --- 一 · 学园湾尾：140 米宽的水 ---
-       水面只能给一条等宽的 ribbon（引擎里水就是「折线 + 宽度」），
-       所以取两岸的中线、宽 146；岸线的波动交给埠头、芦苇滩和木栈道去完成。
-       soft:1 —— 南岸是软岸，不铺压顶石、不铺滨河步道、不立栏杆。 */
-    var WAT = [[-620, 274], [-420, 272], [-200, 264], [0, 266],
-      [200, 266], [360, 276], [620, 280]];
-
-    /* --- 二 · 两条街 ---
-       设计大街 26 米，从水埠头一直向东北出区；
-       设计二街 16 米，平行错开 141 米。两个方向正交，45°。
-       大街的西南端停在 u=−168：再往前 20 米就进水了。 */
-    var avenues = [];
-    avenues.push({ from: PU(-158, 0), to: PU(470, 0), w: 26 });
-    avenues.push({ from: PU(-302, -134), to: PU(470, -134), w: 16 });
-
-    /* --- 三 · 次巷改成「每两户之间一条」，不做成道路 ---
-       原先用 avenues 铺六条 10 米巷，问题是巷子得一路铺到底，
-       而 45° 街轴在西南角是斜着切进湾里的——u=−185 那条走到 z=196 就进水，
-       于是每条巷的长度都不一样，还得逐条算停点。
-       更根本的是：10 米沥青巷铺在浅色地面上是六条黑渠，整片网格读成一张黑网。
-       改成「排内铺装」——巷子是院落之间的一条铺地，跟着那一排走 100 米深，
-       既不会进水，也不会变成车道。巷子由院落自己的 pad 之间留出 10 米形成。 */
-
-    /* --- 四 · 十九组工坊院 + 三座样机塔 ---
-       L 形围合，开口朝街角；64 × 100 米的地块，12 米进深。
-       侧翼左右交替——全部同向的话，一排院子就是一把梳子。
-
-       地块 64 米、间距 74 米：中间留出的 10 米就是巷。
-       巷不是道路，是两家的山墙之间的一条铺地，跟着那一排走 100 米深。
-       这样每一排从东到西是一整片连续铺装，只在巷的位置变一档颜色——
-       这才是「街区」；铺 60 米、空 14 米草地，那是「草地上的房子」。 */
-    var LOT_W = 64, LOT_D = 100, LOT_H = [16, 19, 15, 21, 17, 14, 20, 16, 22, 15,
-      18, 21, 16, 17, 14, 19, 22, 15, 18];
-    var TOWERS = [[0, -70], [222, -70], [222, 70]];
-    function isTower(u, v) {
-      return TOWERS.some(function (t) { return t[0] === u && t[1] === v; });
-    }
-    /* 三排的 v 不是随便排的：排间距必须正好等于「街宽 + 两条人行道」。
-       主街 26 + 两侧各 7 = 40 → 两排中心差 140；二街 16 + 两侧各 6 = 28 → 差 128。
-       差得多了，街和院子之间就镶一条草边；整片街区立刻回到「草坪上的模型」。 */
-    var ROWS = [
-      { v: -198, us: [-222, -148, -74, 0, 74, 148, 222, 296, 370] },
-      { v: -70, us: [-148, -74, 0, 74, 148, 222, 296, 370] },
-      { v: 70, us: [74, 148, 222, 296, 370] }
-    ];
-    /* 屋顶语言三种轮换：锯齿（加建过的车间）、双坡（老库房）、平屋面（新盖的）。
-       十九个一模一样的院子比十个院子更糟——重复本身就是错误。 */
-    var ROOF_MODE = ["saw", "gable", "saw", "flat", "gable", "saw", "flat"];
-    var li = 0, alleys = [];
-    ROWS.forEach(function (row, ri) {
-      row.us.forEach(function (u, ci) {
-        var p = PU(u, row.v);
-        if (isTower(u, row.v)) {
-          /* 样机塔 40 米：三层通高，一层只放得下一次试验。
-             它是全区的第二高度，仅次于架空球壳——院落一律压在 22 米以下，
-             所以这三座塔是网格里唯一能定位的竖线。 */
-          hero.push({ type: "protoTower", x: p[0], z: p[1], w: 44, d: 44, h: 40, rot: ROT });
-          return;
+      ]
+    },
+    {
+      id: "lineage",
+      date: "2026-10-11",
+      vendor: "gewu",
+      joint: [],
+      title: "数据血统台",
+      titleEn: "DATA LINEAGE DESK",
+      kind: "数据工具",
+      status: "archived",
+      lead: "给每一条训练数据查户口：它从哪来、被谁改过、有没有偷偷流进测试集。",
+      summary: "格物上线的数据溯源台。为 3200 万条样本打上来源标记与流转记录，用于在评测异常时回溯到具体的数据批次。",
+      play: "",
+      cover: "",
+      metric: [["标注样本", "3200 万"], ["追溯层级", "4 级"], ["定位耗时", "6 小时"]],
+      tags: ["数据治理", "评测", "已归档"],
+      sections: [
+        {
+          h: "它要解决的那件事",
+          p: "模型分数突然上涨，最常见的原因不是变强了，而是测试集被训练数据污染了。数据血统台做的事很朴素：每条样本都有来源、有流转记录、有版本号，评测之前先跑一遍交集检查。交集非空的样本会被剔除，剩下的才允许用来打分。"
+        },
+        {
+          h: "为什么归档",
+          p: "它太好用了，好用到掩盖了真正的问题——大部分团队在数据进来的时候就没有留痕，血统台只能追到「某次批量导入」，再往前是一片空白。补记录的成本高于重建数据集，于是项目关闭，结论整理成一份《数据留痕最低要求》对外公开。"
+        },
+        {
+          h: "留下了什么",
+          p: "现在杨城所有对外公布的模型评测，都必须附带一份污染检查声明。没有这份声明的分数，公告栏不予刊登。"
         }
-        var h = LOT_H[li % LOT_H.length];
-        hero.push({ type: "workshopLoft", x: p[0], z: p[1], w: LOT_W, d: LOT_D, h: h,
-          rot: ROT, ind: 15, padD: 110, flip: (ri + ci) % 2 === 1,
-          roofMode: ROOF_MODE[li % ROOF_MODE.length],
-          wallMat: li % 5 === 3 ? "dqRender2" : "dqRender" });
-        /* 巷：在这户和下一户之间。只在这排的头几户后面补，最后不再补。 */
-        if (ci < row.us.length - 1) alleys.push([u + 37, row.v]);
-        li++;
-      });
-    });
-    /* 巷的铺地：10 × 100，比院坝低 6 厘米、比地坪高 2 厘米——
-       读成「两家之间的一条窄铺地」，不是路，也不是院子。 */
-    alleys.forEach(function (a) {
-      var q = PU(a[0], a[1]);
-      hero.push({ type: "pad", x: q[0], z: q[1], w: 10, d: 110, rot: ROT, h: 0.20,
-        mat: "dqCourt", found: false, occ: false, block: false });
-    });
-
-    /* 湾头铺地：街的西南端到南排院子之间那块地。
-       南排只从 u=74 起——再往西南，地块的西南角就斜插进水里了（45° 网格的通病）。
-       空出来的这块正好做「埠头前场」：一块 150 × 56 的铺地把街口接到岸边，
-       剩下的留给草和树——滨水本来就该有一段软的。 */
-    (function () {
-      /* 一块 150 × 56 的素色板在球壳前面就是一块没铺完的停车场。
-         拆成四条 14 米的带，深浅交替、每带高 5 毫米——远看是一片有缝的石铺地。 */
-      for (var k = 0; k < 4; k++) {
-        var q = PU(0, 20 + 14 * k + 7);
-        hero.push({ type: "pad", x: q[0], z: q[1], w: 150, d: 14, rot: ROT,
-          h: 0.14 + k * 0.005, mat: k % 2 ? "dqPave" : "dqCourt",
-          found: false, occ: false, block: false });
-      }
-    })();
-
-    /* --- 五 · 三栋旧厂房 + 材料场 ---
-       1960 年代的大跨车间，14 米，锯齿屋面。它们挂的还是同一个 45° 网格，
-       但网格是直接切进厂房的——这就是设计社区的真实来历：
-       先有厂房，后来才有人把院子排进去。 */
-    [[-350, -290, 106, 48], [-238, -300, 112, 50], [-308, -368, 88, 44]]
-      .forEach(function (s) {
-        var p = PU(s[0], s[1]);
-        hero.push({ type: "workshopLoft", x: p[0], z: p[1], w: s[2], d: s[3], h: 14,
-          rot: ROT, shed: true, wallMat: "dqShed" });
-      });
-    var yp = PU(-136, -374);
-    hero.push({ type: "stockYard", x: yp[0], z: yp[1], w: 80, d: 60, rot: ROT, h: 13 });
-
-    /* --- 六 · 架空球壳：川启智能 ---
-       球半径 34、球心 62 米，四根斜柱立在 z=148 的岸线上，
-       球向南悬挑到 z=204，街从球底下穿过——平面图上那颗虚线圆，
-       就是街在这一段的天花板。
-       硬约束：AI 大厂必须有名字（赤道横匾 + 撑柱竖幅）、必须很高。
-       区内次高是 40 米的样机塔，球顶 96 米，是它的 2.4 倍。 */
-    hero.push({ type: "orbHall", x: -30, z: 170, w: 96, d: 96, h: 96, r: 34, cy: 62,
-      brand: { name: "川启", sign: "川启智能", en: "CHUANQI · DESIGN ENGINE",
-        tone: "#fff2f7", tone2: "#ffd9e8", w: 30 } });
-
-    /* --- 七 · 台阶埠头 ---
-       140 × 48 米，三级大台阶下到水面上的低台。
-       它同时是「街的起点」和「船的终点」——这一区没有广场，起点就是岸。 */
-    hero.push({ type: "waterSteps", x: -40, z: 202, w: 140, d: 48, h: 1.4 });
-
-    /* 二街西南端的下水坡：台阶不能推车，坡道才能把皮划艇拖上来。
-       转角比街轴再转 90°：坡要顺着街的方向往水里走。 */
-    hero.push({ type: "waterSteps", x: -264, z: 206, w: 60, d: 60, rot: ROT - Math.PI / 2,
-      ramp: true, h: 1.0 });
-
-    /* --- 八 · 过水人行桥 ---
-       6 米宽，从北岸 174 跨到南岸 346。桥面 2.9 米：
-       再低就是一条贴着水面的栈道，再高两岸就得上坡道。 */
-    hero.push({ type: "plankWay", x: 0, z: 0, w: 6,
-      pts: [[200, 174], [200, 346]], y: 2.9, base: -3.4, rail: 1, stepEnds: true,
-      found: false, occ: false, block: false });
-
-    /* --- 九 · 南岸湿地：144 米全给芦苇与一条架空木栈道 ---
-       不加景观构筑物，不通车。水退出去的地方不该有设计。 */
-    hero.push({ type: "reedBank", x: 0, z: 405, w: 860, d: 118, count: 2000, clumps: 44,
-      limit: 466, found: false, occ: false, block: false });
-    hero.push({ type: "plankWay", x: 0, z: 0, w: 4.2,
-      pts: [[203, 346], [250, 356], [315, 372], [385, 404], [452, 428]],
-      y: 0.85, base: -1.2, rail: 1, found: false, occ: false, block: false });
-
-    /* 这一区的路网是手绘的 45° 网格，巷子就夹在两排院子之间（净距 1.7 米）。
-       引擎默认会用地标的轴对齐包围盒去切路——45° 转过的 60×56 地块，
-       包围盒在 x/z 两个方向各占 63.6/59.4 米，巷子的中心线正好从盒子里穿过去。
-       结果六条巷子被切成十几段，画面上是一排黑槽。
-       所以 D15 的地标全部 block:false：路不切，占位仍然记（occ 默认照旧）。 */
-    hero.forEach(function (h) { h.block = false; });
-
-    var noBuild = [
-      { x: -46, z: 208, w: 150, d: 58 },          /* 埠头（收窄：街要走到岸上） */
-      { x: 200, z: 260, w: 40, d: 190 },          /* 过水桥 */
-      { x: 0, z: 408, w: 940, d: 150 },           /* 湿地 */
-      { x: -276, z: 216, w: 90, d: 90 }           /* 下水坡 */
-    ];
-
-    return {
-      name: "东南设计社区", en: "DESIGN QUARTER",
-      R: 480, seed: 1541,
-      groundColor: 0x93a083,
-      groundStyle: "lawn",
-      grid: { type: "none" },
-      rings: [],
-      avenues: avenues,
-      paths: [],
-      plazas: [],
-      noBuild: noBuild,
-      /* 湾尾。nrm 0.7：146 米宽的水摊 3 个法线循环，
-         比 520 米的湾密、比 80 米的河疏——高光不能按循环排成一串白点。 */
-      water: { pts: WAT, w: 146, surfY: -1.5, depth: 4.2, nrm: 0.7, soft: 1, moor: 0,
-        softMat: "dqMud", shoreGap: 6 },
-      /* 这一区不需要填充。十九组院子、三座塔、三栋厂房已经把地块占满，
-         再撒一层小楼就是「又一片园区」。留白的地方本来就该是空的。 */
-      profile: { hMin: 12, hMax: 24, lotW: 26, lotD: 22, setback: 6, lotGap: 9,
-        innerFill: 0.03, innerStep: 150, innerCap: 0.08, farMax: 17, ringFront: false,
-        gable: 0.03, lowRise: 0.72, streetFill: false },
-      types: [{ t: "loft", w: 2.4 }, { t: "campusLab", w: 2.0 },
-        { t: "slab", w: 1.0 }, { t: "rowHouse", w: 0.8 }],
-      /* 外围与场内同一套：白、象牙、暖石、石灰。设计社区的外圈是
-         「别的设计公司」，不是城中村——橙、芥黄、砖红一律不给。 */
-      palette: ["white", "ivory", "cream", "warmStone", "sand", "stoneGrey"],
-      paletteCore: ["white", "ivory", "cream"],
-      paletteAccent: ["warmStone", "sand"],
-      accentRate: 0.14,
-      hero: hero,
-      fringeRing: true,
-      fringeFlat: true,
-      fringePal: ["white", "ivory", "warmStone", "stoneGrey"],
-      roofWarm: false,
-      coolRoof: true,
-      parkTrees: { clusters: 40 },
-      groveClusters: 46,
-      /* 机位：从湾上往北看。水面在前，街从画面左下方斜进来，
-         球壳压在街口，院落沿 45° 铺到东北——这是这一区唯一能同时
-         读到「水、街、院」三件事的角度。 */
-      view: { x: 10, y: 0, z: -40, dist: 820, phi: 0.50, theta: 0.30 },
-      exposure: 1.02, exposureK: 0.98, sunIntensity: 1.08, hemiScale: 0.94,
-      fogScale: 0.97,
-      /* treeOn：行道树只种在两条街上。10 米的次巷贴着院落侧翼走，
-         树按 r.w/2+2.6 落在 7.6 米处，正好插进那道 12 米厚的墙里。 */
-      streetLife: { pedGap: 34, pedRun: 0.30, stall: 0.05, cart: 0.02,
-        treeGap: 20, treeOn: ["avenue"] }
-    };
-  })();
-
-  /* ---------------- 其余区域：按气质推导 ----------------
-     每类的路网、色板、高度、原型都不同，至少不会退化成同一张图；
-     逐个区域设计时再用 PLANS.Dxx 覆盖。 */
-  var VIBE = {
-    heritage: { spacing: [92, 84], angle: 0.19, h: [9, 26], types: [["rowHouse", 6], ["courtyard", 2], ["terrace", 3], ["pavilion", 1], ["loft", 0.5]],
-      pal: ["cream", "sand", "warmStone", "terracotta", "brickRed", "ochre", "ivory", "brickBrown"], ground: 0x887f6b },
-    compute: { spacing: [150, 132], angle: 0, h: [22, 62], types: [["courtyard", 4], ["slab", 3], ["warehouse", 2], ["ziggurat", 1], ["coolingTower", 0.6]],
-      pal: ["slate", "steelBlue", "stoneCool", "graphite", "navy", "white"], ground: 0x737875 },
-    research: { spacing: [124, 118], angle: 0.31, h: [14, 40], types: [["pavilion", 3], ["courtyard", 3], ["dome", 1], ["slab", 2], ["loft", 1.5]],
-      pal: ["white", "ivory", "mint", "stoneCool", "teal", "sky"], ground: 0x747f6e },
-    justice: { spacing: [110, 120], angle: 0.06, h: [20, 52], types: [["slab", 5], ["courtyard", 3], ["gate", 1], ["podium", 1]],
-      pal: ["stoneGrey", "stoneCool", "slate", "white", "charcoal"], ground: 0x7a7c73 },
-    transit: { spacing: [140, 96], angle: 0.08, h: [16, 58], types: [["slab", 3], ["loft", 2], ["warehouse", 2], ["tower", 1.2], ["pavilion", 1]],
-      pal: ["stoneGrey", "graphite", "steelBlue", "sand", "amber"], ground: 0x77756f },
-    campus: { spacing: [132, 112], angle: 0.22, h: [10, 32], types: [["courtyard", 4], ["terrace", 3], ["pavilion", 2], ["slab", 2], ["dome", 0.6]],
-      pal: ["ivory", "cream", "sand", "ochre", "mustard", "white"], ground: 0x817a63 },
-    recursive: { spacing: [116, 104], angle: 0.44, h: [18, 64], types: [["ziggurat", 3], ["tower", 2], ["slab", 2], ["cylinderTower", 1.4], ["courtyard", 1]],
-      pal: ["plum", "violet", "indigo", "graphite", "stoneCool", "rose"], ground: 0x767078 },
-    green: { spacing: [104, 96], angle: 0.36, h: [8, 26], types: [["terrace", 4], ["stilt", 2], ["rowHouse", 2], ["pavilion", 1], ["courtyard", 1]],
-      pal: ["mint", "white", "olive", "cream", "teal", "ivory"], ground: 0x697859 },
-    mixed: { spacing: [96, 88], angle: 0.11, h: [12, 44], types: [["rowHouse", 3], ["slab", 3], ["market", 2], ["loft", 2], ["courtyard", 1.5]],
-      pal: ["rose", "cream", "terracotta", "mustard", "sand", "white", "brickRed"], ground: 0x7e7569 },
-    living: { spacing: [108, 100], angle: 0.16, h: [14, 46], types: [["terrace", 3], ["slab", 4], ["stilt", 1.5], ["courtyard", 1.5], ["rowHouse", 1.5]],
-      pal: ["white", "ivory", "sky", "mint", "sand", "stoneCool", "rose"], ground: 0x747c71 },
-    eco: { spacing: [126, 118], angle: 0.28, h: [10, 30], types: [["pavilion", 3], ["dome", 1.4], ["terrace", 2], ["slab", 2], ["silo", 0.8]],
-      pal: ["white", "mint", "sky", "ivory", "teal"], ground: 0x697c6e },
-    port: { spacing: [104, 168], angle: 0.04, h: [10, 30], types: [["warehouse", 6], ["silo", 2], ["hangar", 1.4], ["crane", 1], ["loft", 0.6]],
-      pal: ["sand", "rust", "ochre", "graphite", "slate", "amber", "terracotta"], ground: 0x787164 },
-    lab: { spacing: [120, 116], angle: 0.24, h: [16, 50], types: [["courtyard", 3], ["slab", 3], ["dome", 1.5], ["cylinderTower", 1], ["ziggurat", 1.4], ["loft", 1.4]],
-      pal: ["olive", "white", "ivory", "stoneCool", "mint", "graphite"], ground: 0x73796b },
-    design: { spacing: [104, 100], angle: 0.19, h: [12, 40], types: [["loft", 4], ["courtyard", 2], ["pavilion", 2], ["rowHouse", 1.6], ["warehouse", 1]],
-      pal: ["rose", "white", "cream", "terracotta", "plum", "ivory", "brickRed"], ground: 0x7d736e },
-    cbd: { spacing: [136, 126], angle: 0.07, h: [46, 150], types: [["glassTower", 4], ["tower", 3], ["podium", 3], ["twin", 1.4], ["cylinderTower", 1]],
-      pal: ["steelBlue", "navy", "slate", "white", "stoneCool", "graphite", "sky"], ground: 0x747672 },
-    energy: { spacing: [150, 138], angle: 0.02, h: [12, 44], types: [["silo", 2], ["coolingTower", 2], ["warehouse", 3], ["slab", 2], ["pavilion", 1.4]],
-      pal: ["white", "stoneGrey", "sky", "sand", "graphite", "amber"], ground: 0x767972 },
-    core: { spacing: [118, 112], angle: 0.13, h: [24, 100], types: [["tower", 3], ["podium", 3], ["slab", 3], ["glassTower", 2], ["courtyard", 1]],
-      pal: ["white", "ivory", "stoneCool", "steelBlue", "slate", "graphite"], ground: 0x767870 }
-  };
-
-  /* ---------------- D16 云门商务区 ----------------
-     全城唯一站在城界线上的区：圆心、半径 600，圆正好顶在北界，
-     正南 1140 米对着 D01 中枢。所以它负责的不是「又一个繁华区」，
-     而是「仅次于市中心」的那一档——全城的第二、第三、第四高点都在这里。
-
-     一 · 0° 正交网。前十五区只有 D01 用过正交网格，还偏了 7°。
-     这里是全城唯一完全 0° 的区：北边那道门必须正对南来的轴线，门一歪轴线就散了。
-
-     二 · 七家 AI 大厂。天衡坐镇云门（210/196），无相 186、归墟 168、九章 156、
-     垂天 144、玄枢 132、观复 120。裙房一律压在 40 米以下——
-     最低的大厂塔是裙房的 3 倍，这是全城的规矩。
-
-     三 · 北面不做山。D03 的北岭从世界 z≈−1330 起坡，两个地形网格在区界必然错开，
-     错开就是一道几十米的黑缝。改成三级台地（12/24/36 m）+ 台后密林：
-     绝对干净，还省出五分之一的场地给街区。 */
-  PLANS.D16 = (function () {
-    var hero = [], i;
-
-    /* --- 一 · 0° 正交网：一条 46 米大道 + 三条横街 + 六条纵街 --- */
-    var avenues = [
-      /* 大道止于 z=−280：再往北 144 米是门前人行广场。
-         车行直插到门洞底下，46 米宽的沥青会正好把倒影池从中切成两半——
-         真实 CBD 也不会让车道压着水景进大门。广场段由下面的 200×78 铺地接上。 */
-      /* 中央大道走沥青，横街走石板。
-         全铺石板时，46 米车行道 + 两侧各 9 米人行道是同一个色，
-         整条街读成一块 64 米宽的空石头场——人再多也像没开业。
-         车行道压深、人行道留浅，街道的宽度才有「路」这个意思。 */
-      { from: [0, 592], to: [0, -280], w: 46, cls: "avenue", asphalt: true },
-      { from: [-540, -262], to: [540, -262], w: 24, cls: "avenue", stone: true },
-      { from: [-556, -34], to: [556, -34], w: 28, cls: "avenue", stone: true },
-      { from: [-540, 196], to: [540, 196], w: 22, cls: "street", stone: true },
-      { from: [-160, -424], to: [-160, 212], w: 20, cls: "street", stone: true },
-      { from: [160, -424], to: [160, 212], w: 20, cls: "street", stone: true },
-      { from: [-320, -424], to: [-320, 212], w: 18, cls: "street", stone: true },
-      { from: [320, -424], to: [320, 212], w: 18, cls: "street", stone: true },
-      { from: [-460, -258], to: [-460, 212], w: 16, cls: "lane", stone: true },
-      { from: [460, -258], to: [460, 212], w: 16, cls: "lane", stone: true },
-      { from: [-540, -148], to: [540, -148], w: 12, cls: "lane", stone: true },
-      { from: [-540, 80], to: [540, 80], w: 12, cls: "lane", stone: true }
-    ];
-
-    /* --- 二 · 二十八块地块：六列 × 五行 ---
-       为什么不是十二块大的：278 × 194 米的地块上只摆一栋裙房一座塔，
-       从 1200 米外看是「科技园里的几个大盒子」，不叫 CBD。
-       真正读得出「繁华」的是地块数——每块 109–127 × 94–105，
-       块块有临街面，块块都要起楼。角点跑出圆的地块直接削掉：
-       区域是圆的、地块是方的，不能硬塞。 */
-    var COLS = [
-      [-86, 113], [-240, 127], [-390, 109],
-      [86, 113], [240, 127], [390, 109]
-    ];
-    var ROWS = [
-      [-347, 146], [-201, 96], [-95, 94], [27, 94], [135, 99]
-    ];
-    var BLOCKS = [];
-    COLS.forEach(function (c) {
-      ROWS.forEach(function (r, ri) {
-        /* 北排的两块内列让给云门：塔身占 x ±34…±90，地块从 30 起，必撞 */
-        if (ri === 0 && Math.abs(c[0]) < 200) return;
-        var hw = c[1] / 2, hd = r[1] / 2, ok = true;
-        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (q) {
-          var px = c[0] + q[0] * hw, pz = r[0] + q[1] * hd;
-          if (Math.sqrt(px * px + pz * pz) > 584) ok = false;
-        });
-        if (ok) BLOCKS.push([c[0], r[0], c[1], r[1]]);
-      });
-    });
-    /* 裙房 40–52 米：这是「十层上下的商业办公」，不是台子。
-       再高就威胁到 AL 大厂「比别人高一倍」这条规矩——最低的观复 120 米，
-       120 / 52 = 2.3 倍，仍守得住。 */
-    /* 高度必须错开：26 块裙房全在 40–52 之间，沿街天际线就是一条直线，
-       400 米外读成「一片十层楼」。34–56 的落差才有起伏。
-       上限 56 也守得住规矩：最低的大厂塔观复 120，120 / 56 = 2.14 倍。 */
-    var BH = [34, 54, 40, 50, 36, 56, 42, 48, 38, 52];
-    BLOCKS.forEach(function (b, bi) {
-      /* 石材按加权随机取，不按序号轮排：
-         轮排出来的是一张规整的棋盘格，比单色更假。
-         五成浅石灰岩、两成半浅灰石、一成半暖砂岩、一成深花岗岩。 */
-      var q = Math.abs((Math.sin(bi * 12.9898 + 78.233) * 43758.5453) % 1);
-      hero.push({ type: "cbdBlock", x: b[0], z: b[1], w: b[2], d: b[3],
-        h: BH[bi % BH.length],
-        plainMat: q < 0.50 ? "ymStone" : q < 0.76 ? "ymStone2"
-          : q < 0.90 ? "ymStone5" : "ymStone4",
-        block: false });
-    });
-
-    /* --- 三 · 七家 AI 大厂 ---
-       高度是排过序的：210 / 196 / 186 / 168 / 156 / 144 / 132 / 120。
-       云门东塔 210 是全城第二（第一是 D01 深智塔 236），
-       这不是「让」，是这一区的定位——仅次于市中心，不取代它。 */
-    hero.push({ type: "yunmen", x: 0, z: -370, w: 58, d: 58, h: 210, h2: 196,
-      gap: 68, beamY: 140, beamH: 26, rot: 0, color: 0x9fbccd, block: false,
-      brand: { name: "天衡", en: "TIANHENG", tone: "#dceaf4" } });
-
-    [
-      /* 无相：多模态大模型。扭转体量，总转角 27° */
-      { shape: "twist", x: -240, z: -347, w: 52, h: 186, color: 0x6d8ea3,
-        nm: "无相", en: "WUXIANG", tn: "#cfe8ff" },
-      /* 归墟：数据与存储。三级收分 */
-      { shape: "taper", x: 240, z: -347, w: 54, h: 168, color: 0x7898ac,
-        nm: "归墟", en: "GUIXU", tn: "#bfe0ff" },
-      /* 九章：量子计算。双筒咬合 */
-      { shape: "binode", x: -240, z: -201, w: 54, h: 156, color: 0x66879c,
-        nm: "九章", en: "JIUZHANG", tn: "#ffe0a8" },
-      /* 垂天：卫星互联网。竖肋 */
-      { shape: "rib", x: 240, z: 27, w: 52, h: 144, color: 0x71929f,
-        nm: "垂天", en: "CHUITIAN", tn: "#c8f0e8" },
-      /* 玄枢：AI 芯片。扭转，小一号 */
-      { shape: "twist", x: 390, z: -201, w: 44, h: 132, color: 0x7a99ad,
-        nm: "玄枢", en: "XUANSHU", tn: "#d8e8ff" },
-      /* 观复：具身智能。收分 */
-      { shape: "taper", x: -240, z: 27, w: 50, h: 120, color: 0x6a8b9f,
-        nm: "观复", en: "GUANFU", tn: "#ffd8c0" }
-    ].forEach(function (t) {
-      hero.push({ type: "cbdTower", shape: t.shape, x: t.x, z: t.z, w: t.w, d: t.w,
-        h: t.h, color: t.color, rot: Math.PI * 0.25,
-        /* 竖排字用深色：塔身是浅蓝幕墙，tone 给浅色时字直接化掉。
-           横匾（brand）走深底浅字，仍用原来的 t.tn。 */
-        sign: { name: t.nm, en: t.en, tone: "#0e2836", w: Math.min(t.w * 0.92, 46) },
-        brand: { name: t.nm, tone: t.tn } });
-    });
-
-    /* --- 三b · 十座商业塔：62–78 米 ---
-       CBD 的天际线不是「七根筷子插在台子上」，是塔群 + 中高层，一层压一层。
-       这些楼没有名字——名字只给 AI 大厂，这是这一城的规矩。
-       最高 78，比最低的大厂塔（观复 120）还差 42 米，主次不会乱。 */
-    [
-      [-390, -201, 72, 0], [-86, -201, 68, 1], [86, -201, 66, 0],
-      [-390, -95, 76, 1], [-86, -95, 70, 0], [86, -95, 64, 1],
-      [390, -95, 74, 0], [86, 27, 62, 1],
-      [-390, 135, 78, 0], [390, 135, 66, 1],
-      /* 第二批：把剩下的地块也立起来。十七座塔摊在 1200 米里，
-         平均 70 米一座，从 1200 米外看就是「一个塔群」，不是「几根柱子」。 */
-      [240, -201, 74, 0], [-240, -95, 70, 1], [240, -95, 76, 0],
-      [-390, 27, 68, 1], [-86, 27, 72, 0], [390, 27, 64, 1],
-      [-240, 135, 66, 0], [86, 135, 70, 1]
-    ].forEach(function (q, qi) {
-      hero.push({
-        type: qi % 3 === 2 ? "glassTower" : "tower",
-        x: q[0], z: q[1], w: q[1] % 2 ? 40 : 38, d: 36, h: q[2],
-        rot: (qi % 4) * 0.08,
-        /* 冷暖交替：十八座商业塔全用蓝灰，整片场地就是一块蓝色积木盘。
-           真实的 CBD 是杂的——玻璃塔、石材塔、棕褐色老楼各占一份。 */
-        color: [0x6d8698, 0x9a8f7c, 0x7b94a4, 0x8a7f72, 0x60798c, 0xa89c88][qi % 6],
-        block: false
-      });
-    });
-
-    /* --- 四 · 空中连廊：只跨纵街，不跨中央大道 ---
-       原来有两条横跨在 z=−200 / z=+30 的轴线上，15 米高、88 米长，
-       从南门户望过去正好是一道横梁，把「门」的进深切成两截。
-       轴线是这一区唯一不能碰的东西：从区界到门洞，视线里不许有第二条横线。 */
-    [
-      { x: -160, z: -201, w: 62, rot: Math.PI / 2 },
-      { x: 160, z: -201, w: 62, rot: Math.PI / 2 },
-      { x: -320, z: -95, w: 58, rot: Math.PI / 2 },
-      { x: 320, z: 27, w: 58, rot: Math.PI / 2 },
-      { x: -86, z: -34, w: 70, rot: 0 },
-      { x: 240, z: 196, w: 66, rot: 0 }
-    ].forEach(function (b) {
-      hero.push({ type: "skyBridge", x: b.x, z: b.z, w: b.w, d: 8, h: 15, rot: b.rot,
-        plainMat: "ymStone2", found: false, occ: false, block: false });
-    });
-
-    /* --- 五 · 云门前：铺地 + 倒影池 --- */
-    hero.push({ type: "pad", x: 0, z: -304, w: 200, d: 78, rot: 0, h: 0.16,
-      mat: "ymPave", found: false, occ: false, block: false });
-    hero.push({ type: "reflectPool", x: 0, z: -298, w: 112, d: 34,
-      found: false, occ: false, block: false });
-
-    /* --- 六 · 南门户：轴线两侧各一座前庭 ---
-       原来是一整块 552 × 192 的石板横跨大道，四条带、两排树池、一条水带。
-       实际渲出来是「一大片米色停车场 + 几个绿方块」——树池只是铺在地上的
-       绿色方块，一棵树都没有；水带又被 46 米大道从中切断。
-       改成左右对称的一对前庭：铺装分带 → 水渠 → 草坪 → 树阵。 */
-    for (i = 0; i < 4; i++) {
-      [-1, 1].forEach(function (sd) {
-        hero.push({ type: "pad", x: sd * 153, z: 235 + i * 48, w: 246, d: 48, rot: 0,
-          h: 0.14 + i * 0.006, mat: i % 2 ? "ymPave" : "ymPave2",
-          found: false, occ: false, block: false });
-      });
+      ]
+    },
+    {
+      id: "ripple",
+      date: "2026-09-12",
+      vendor: "lanzhou",
+      joint: [],
+      title: "涟漪",
+      titleEn: "RIPPLE",
+      kind: "推理服务",
+      status: "archived",
+      lead: "把长文档的推理开销压到按页计价，让只有三个人的小机构也用得起。",
+      summary: "澜舟上线的按需推理服务。把长上下文拆成分段召回与增量缓存，同一份文档再问第二次，只付新增部分的算力。运营十一个月后因调度成本高于预期而关闭。",
+      play: "",
+      cover: "",
+      metric: [["服务调用", "2.1 亿次"], ["平均省算力", "63%"], ["运营周期", "11 个月"]],
+      tags: ["推理服务", "长上下文", "已归档"],
+      sections: [
+        {
+          h: "它要解决的那件事",
+          p: "长文档问答的账单不是按「问题」算的，是按「整篇再读一遍」算的。一份两百页的规程，问十个问题就读十遍。小机构用不起，于是只有大机构用得上——这不是技术差距，是计价方式造出来的门槛。"
+        },
+        {
+          h: "怎么用",
+          p: "接入时把文档切段建索引，问题先做一次轻量召回，只把命中的段落送进模型；同一会话里重复出现的段落走增量缓存，不再重算。对外只报「页数 × 次数」，不报 token——使用者能预估成本，才敢真的用起来。"
+        },
+        {
+          h: "为什么归档",
+          p: "召回命中率在结构化文档上很好，在会议记录、手写批注这类文本上掉得厉害，投诉集中在「答非所问」。要修就得给每一类文档单独做切分策略，运维成本超过了它省下来的算力。服务关闭，切分策略与缓存方案已开源。"
+        }
+      ]
     }
-    /* 草坪：每侧两块，夹出中间的水渠 */
-    [[252, 76], [364, 76]].forEach(function (lz) {
-      [-1, 1].forEach(function (sd) {
-        hero.push({ type: "pad", x: sd * 168, z: lz[0], w: 196, d: lz[1], rot: 0,
-          h: 0.18, mat: "ymGreen", found: false, occ: false, block: false });
-      });
-    });
-    /* 水渠：两条 26 米宽的水带平行于轴线，从区界一直通到广场北端 */
-    [-1, 1].forEach(function (sd) {
-      hero.push({ type: "pad", x: sd * 58, z: 307, w: 26, d: 176, rot: 0, h: 0.22,
-        mat: "ymWater", found: false, occ: false, block: false });
-    });
-    /* 树阵：沿水渠两列 + 草坪外缘两列。广场的「有树」只能靠这一层。 */
-    [-1, 1].forEach(function (sd) {
-      hero.push({ type: "grove", x: sd * 74, z: 307, w: 6, d: 170, cols: 1, rows: 11,
-        hMin: 7, hMax: 10, found: false, occ: false, block: false });
-      hero.push({ type: "grove", x: sd * 262, z: 307, w: 6, d: 170, cols: 1, rows: 11,
-        hMin: 7, hMax: 10, found: false, occ: false, block: false });
-      [[252, 76], [364, 76]].forEach(function (lz) {
-        hero.push({ type: "grove", x: sd * 168, z: lz[0], w: 180, d: lz[1] - 10,
-          cols: 7, rows: 3, hMin: 6, hMax: 9,
-          found: false, occ: false, block: false });
-      });
-    });
+  ];
 
-    /* --- 七 · 地铁厅 + 东南角公园 --- */
-    hero.push({ type: "metroBox", x: 170, z: 300, w: 46, d: 30, h: 9.5 });
-    /* 公园：一整块纯绿在 1000 米外就是一张绿纸，几个深绿方块像补丁。
-       重做成「一池水 + 十字园路 + 三片林子」：
-       树必须有实体（grove），铺在地上的绿色方块从空中看只是色块。 */
-    hero.push({ type: "pad", x: 306, z: 336, w: 224, d: 186, rot: 0, h: 0.10,
-      mat: "ymGreen", found: false, occ: false, block: false });
-    hero.push({ type: "pad", x: 306, z: 336, w: 104, d: 74, rot: 0, h: 0.14,
-      mat: "ymGreen2", found: false, occ: false, block: false });
-    /* 水塘：偏北，接住从广场来的水渠 */
-    hero.push({ type: "pad", x: 300, z: 296, w: 92, d: 46, rot: 0, h: 0.18,
-      mat: "ymWater", found: false, occ: false, block: false });
-    /* 十字园路：两道 8 米的石板，把 224 × 186 切成四块 */
-    hero.push({ type: "pad", x: 306, z: 336, w: 8, d: 186, rot: 0, h: 0.16,
-      mat: "ymPave", found: false, occ: false, block: false });
-    hero.push({ type: "pad", x: 306, z: 336, w: 224, d: 8, rot: 0, h: 0.16,
-      mat: "ymPave", found: false, occ: false, block: false });
-    /* 三片林子：西南 / 东北 / 东南，各十几棵，疏密不同 */
-    hero.push({ type: "grove", x: 258, z: 386, w: 76, d: 66, cols: 4, rows: 3,
-      hMin: 7, hMax: 11, found: false, occ: false, block: false });
-    hero.push({ type: "grove", x: 358, z: 288, w: 88, d: 60, cols: 5, rows: 3,
-      hMin: 8, hMax: 12, found: false, occ: false, block: false });
-    hero.push({ type: "grove", x: 356, z: 388, w: 92, d: 56, cols: 5, rows: 3,
-      hMin: 6, hMax: 10, found: false, occ: false, block: false });
+  items.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
 
-    /* --- 八 · 北面：三级台地 + 台后密林（不做山，见文件头） --- */
-    hero.push({ type: "pad", x: 306, z: 388, w: 200, d: 12, rot: 0, h: 0.16,
-      mat: "ymPave2", found: false, occ: false, block: false });
-    hero.push({ type: "pad", x: 306, z: 258, w: 200, d: 12, rot: 0, h: 0.16,
-      mat: "ymPave2", found: false, occ: false, block: false });
-    hero.push({ type: "pad", x: 232, z: 336, w: 12, d: 170, rot: 0, h: 0.16,
-      mat: "ymPave2", found: false, occ: false, block: false });
-    hero.push({ type: "pad", x: 380, z: 336, w: 12, d: 170, rot: 0, h: 0.16,
-      mat: "ymPave2", found: false, occ: false, block: false });
-    hero.push({ type: "terracePark", x: 0, z: -452, w: 700, d: 114, tiers: 3,
-      /* 7/14/21 米：原设 12/24/36 时，从南面门洞望进去正好是一道 700 米宽的灰墙，
-         把「门」的进深压成了平片。压到 21 米、收窄到 560，
-         门里读到的才是「台地 + 密林」，不是挡土墙。 */
-      tierH: 6, tierD: 30, ws: [560, 470, 380], forest: 150, find: false,
-      found: false, occ: false, block: false });
-
-    /* 手排的东西一律不切路：0° 网格是本区唯一的序，被包围盒切一刀就散了 */
-    hero.forEach(function (h) { if (h.block === undefined) h.block = false; });
-
+  function vendorOf(it) {
+    var v = VENDORS[it.vendor] || { name: it.vendor, en: "", field: "", tone: "#5b8ea8" };
     return {
-      id: "D16", seed: 1616, R: 592,
-      groundColor: 0xb2b4ab,
-      palette: ["white", "stoneCool", "stoneGrey", "slate", "steelBlue",
-        "graphite", "navy", "ivory"],
-      paneColor: 0x3c5765, nightLit: 0.10,
-      /* type:"none" 是必须的：不给 grid，引擎会按 120 米间距铺一整套默认网格，
-         那套网格是沥青的，压在手排的石板路上面——第一次渲染整片场地读成一张黑网，
-         根因就在这里，跟 stone 开关没关系。 */
-      grid: { type: "none" },
-      /* 车行道单独给材质：默认沥青线性化后接近黑色，整条大道会变成一条黑河。 */
-      roadMat: "ymRoad",
-      /* 人行道也铺石板：默认的人行道贴图在 32 米宽 × 上千米长的带子上
-         会被拉成一道密集横纹，低角度看就是一片脏底。 */
-      streetStyle: "stone",
-      avenues: avenues,
-      rings: [],
-      plazas: [],
-      profile: { hMin: 14, hMax: 40, lotW: 24, lotD: 22, setback: 5, lotGap: 4,
-        innerFill: 0.06, innerStep: 120, innerCap: 0.08, farMax: 28,
-        ringFront: false, streetFill: false, gable: 0, lowRise: 0.18 },
-      types: [{ t: "podium", w: 3 }, { t: "slab", w: 3 }, { t: "tower", w: 2 },
-        { t: "shopRow", w: 1 }, { t: "parkingGarage", w: 0.8 }],
-      hero: hero,
-      noBuild: [
-        { x: 0, z: -304, w: 220, d: 96 },
-        { x: 0, z: 320, w: 580, d: 220 },
-        { x: 0, z: -478, w: 720, d: 140 },
-        { x: 170, z: 300, w: 70, d: 52 },
-        { x: 306, z: 336, w: 244, d: 206 }
-      ],
-      fringeRing: true, fringeFlat: true, fringeGap: 1.55,
-      fringePal: ["stoneGrey", "slate", "stoneCool", "graphite", "steelBlue", "stoneGrey"],
-      /* 塔楼幕墙：金属 0.46 → 0.18、粗糙 0.22 → 0.46。
-         没有环境贴图时高金属度把漫反射压掉，塔身读成「黑格栅 + 白点」。 */
-      heroFacade: { metal: 0.18, rough: 0.46, lit: 0.12, ratio: 0.60 },
-      roofWarm: false, coolRoof: true,
-      parkTrees: { clusters: 26 },
-      groveClusters: 30,
-      exposure: 1.18, exposureK: 0.99, sunIntensity: 1.20,
-      hemiScale: 1.02, fogScale: 0.94,
-      /* 街道活力。上一版 pedGap 给到 20 米一个行人，是从「园区」那几档抄来的数——
-         商务区的人流是沿街连续的一层，不是散点。3.2 米一个人、五成结伴，
-         再加上车道车流和沿街咖啡座，低机位才不是「刚交付的新区」。 */
-      streetLife: { pedGap: 3.2, pedRun: 0.52, stall: 0.014, cart: 0.006,
-        pedWalk: true, traffic: 0.88, cafe: 0.52,
-        piazza: [[0, -304, 200, 78, 150], [0, 283, 540, 186, 260]],
-        treeGap: 15, treeOn: ["avenue", "street"] },
-      view: { x: 0, y: 70, z: -180, dist: 1060, phi: 0.52, theta: 0.06 }
-    };
-  })();
-
-  /* ---------------- D17 西北能源新区 ----------------
-     全城唯一一个「地面不是草、也不是铺装」的区，也是唯一一条 30° 的轴。
-     前十六区的轴不是正南北就是 45°——这里的斜是因为风从西北来，
-     轴就是风向本身，不是制图习惯。
-
-     一 · 一条 30° 的风轴。主轴 26 米，两端直插区界；在中心广场处断开，
-     广场是步行区，车不上岛。两道 16 米横路在 v = ±320 处横切，
-     把环路以内切成六块——中间两块落着三座硬化岛，其余四块全是板。
-
-     二 · 三座岛浮在一片板海上。中心 272 × 196 试验广场（灵犀在其中）、
-     东南 180 × 140 储罐群（6 × Ø34）、西北 180 × 140 升压站。
-     两座设备岛分居轴的两端：一个在下风向收，一个在上风向送。
-
-     三 · 八台风机落在 R430 环上，每 45° 一台。环不是画着好看的，
-     它是检修环路，风机位间距由它定，剩下的每块地都由它切分。
-
-     四 · 光伏是这一区的地面材料，不是景观。行距 13 米、板宽 4.2 米、
-     倾角 22°，占全区 74%——所以这个区的「绿化率」是 0，
-     只在环路外侧贴一条 8 米宽的防风林带（宿主体量之外，不占地面）。
-
-     五 · 不需要高楼。这一区的尺度是设备给的：风机叶尖 122 米、
-     灵犀 104 米、储罐 24 米、格构架 18 米。除了灵犀，全区没有一栋楼。 */
-  PLANS.D17 = (function () {
-    var A = Math.PI / 6, ca = Math.cos(A), sa = Math.sin(A);
-    /* (u, v) → 区本地坐标：u 沿风轴（+ 为下风向），v 垂直风轴（+ 为西南）。
-       所有手排坐标都写在这一套里，读起来就是那张总平面。 */
-    function P(u, v) { return [u * ca - v * sa, u * sa + v * ca]; }
-    var hero = [], i;
-
-    /* --- 一 · 路网：一条断头主轴 + 两道横路 + 一条检修环 --- */
-    var avenues = [
-      /* 主轴在广场前断开：广场是步行区，车不上岛。
-         两段各 406 米，断口正好卡在广场 272 米的两端各留 15 米。 */
-      { from: P(-556, 0), to: P(-152, 0), w: 26, cls: "avenue", asphalt: true },
-      { from: P(152, 0), to: P(556, 0), w: 26, cls: "avenue", asphalt: true },
-      { from: P(-430, -320), to: P(430, -320), w: 16, cls: "street", asphalt: true },
-      { from: P(-430, 320), to: P(430, 320), w: 16, cls: "street", asphalt: true }
-    ];
-
-    /* --- 二 · 光伏海：一整片，被路网与三座岛切开 ---
-       一个 pvField 就是全区的地面。clipR 直接给出圆界（每排半长 √(R²−v²)），
-       cutRings 依次挖掉检修环与防风林带，cut 挖掉主轴、横路和三座岛。
-       86 行板，视觉上是一片「按 13 米行距铺开的深蓝」。 */
-    hero.push({
-      type: "pvField", x: 0, z: 0, w: 1130, d: 1130, h: 2.4, rot: -A,
-      len: 1130, dep: 1130, clipR: 556, gap: 13, pw: 4.2, tilt: 0.384,
-      cutRings: [{ r: 430, w: 17 }, { r: 450, w: 17 }],
-      cut: [
-        [0, 0, 1130, 32],        /* 主轴（含路肩） */
-        [0, -320, 880, 20],      /* 北横路 */
-        [0, 320, 880, 20],       /* 南横路 */
-        [0, 0, 296, 220],        /* 中心试验广场 */
-        [230, 196, 206, 166],    /* 东南储罐岛 */
-        [-230, -196, 206, 166]   /* 西北升压站岛 */
-      ],
-      occ: false, found: false, block: false
-    });
-
-    /* 防风林带：环路外侧 8 米，全区唯一的一条绿。
-       它同时是这一区的边界——再往外就是荒地，不需要围墙。 */
-    hero.push({ type: "treeRing", x: 0, z: 0, w: 15, d: 15, h: 9, rot: 0,
-      r: 450, w2: 15, step: 22, occ: false, found: false, block: false });
-
-    /* --- 三 · 中心试验广场 + 灵犀智研 --- */
-    var pc = P(0, 0);
-    hero.push({ type: "pad", x: pc[0], z: pc[1], w: 272, d: 196, rot: -A, h: 0.30,
-      mat: "enPad2", found: false, occ: false, block: false });
-    /* 广场里的三条分格带：一整块 272 × 196 的硬化面在 1000 米外是一张白纸 */
-    [-62, 0, 62].forEach(function (v) {
-      var q = P(0, v);
-      hero.push({ type: "pad", x: q[0], z: q[1], w: 272, d: 1.6, rot: -A, h: 0.34,
-        mat: "enPad2", found: false, occ: false, block: false });
-    });
-    /* 广场四角的设备基座 */
-    [[-104, -70], [104, -70], [-104, 70], [104, 70]].forEach(function (q2) {
-      var q = P(q2[0], q2[1]);
-      hero.push({ type: "pad", x: q[0], z: q[1], w: 26, d: 18, rot: -A, h: 0.5,
-        mat: "enGravel", found: false, occ: false, block: false });
-    });
-
-    /* 灵犀：核心筒放在轴上（u = −55），两翼朝下风向张开 32°。
-       AI 大厂必须有名字：塔身东西两面的竖排字 + 塔冠南北两面的横匾，
-       四条边全挂，来向和回望读到的都是同一块牌子。 */
-    var lx = P(-55, 0);
-    hero.push({ type: "lingxi", x: lx[0], z: lx[1], w: 72, d: 58, h: 104, rot: -A,
-      cw: 72, cd: 58, wl: 140, ww: 26, spread: 22.5, segs: 5,
-      wingH: 96, wingTipH: 64, px: 22,
-      brand: { name: "灵犀", en: "LINGXI", tone: "#d8f6f4" },
-      sign: { name: "灵犀", en: "LINGXI", tone: "#0e2836", w: 42 },
-      occ: false, block: false });
-
-    /* --- 四 · 东南储罐群 --- */
-    var tk = P(230, 196);
-    hero.push({ type: "tankFarm", x: tk[0], z: tk[1], w: 180, d: 140, h: 26, rot: -A,
-      r: 17, th: 24, px: 62, pz: 40, occ: false, block: false });
-
-    /* --- 五 · 西北升压站 --- */
-    var ss = P(-230, -196);
-    hero.push({ type: "substationYard", x: ss[0], z: ss[1], w: 180, d: 140, h: 18,
-      rot: -A, occ: false, block: false });
-
-    /* --- 六 · 八台风机：每 45° 一台落在 R430 环上 ---
-       朝向由风轴定：rot = +A 时局部 +z 正好指向下风向（+u），
-       机舱朝下风向、风轮迎上风向——八台一致，不是随机转的。 */
-    for (i = 0; i < 8; i++) {
-      var fa = -Math.PI / 2 + i * Math.PI / 4;
-      /* 落点 R482，不是 R430：430 是环路的中心线，塔基压在车道上就是错。
-         环路外缘 438，再让出 44 米做吊装场地——风机要检修，得有一块平地。 */
-      hero.push({ type: "windTurbine", x: Math.cos(fa) * 482, z: Math.sin(fa) * 482,
-        w: 20, d: 20, h: 78, rot: A, baseR: 4.8, topR: 2.0, blade: 40,
-        rot0: 0.5 + i * 0.22, found: false, occ: false, block: false });
-    }
-
-    /* --- 七 · 区界上的计量站与门卫：能源区唯一的「人待的地方」 ---
-       主轴两端各一对。没有它，全区就是一片无人区；
-       有了这两个小房子，风机和板阵才读成「有人值守的场」。 */
-    [[-1, 0], [1, 0]].forEach(function (sd) {
-      [-1, 1].forEach(function (sv) {
-        var q = P(sd * 508, sv * 40);
-        hero.push({ type: "pad", x: q[0], z: q[1], w: 44, d: 26, rot: -A, h: 0.26,
-          mat: "enPad2", found: false, occ: false, block: false });
-        hero.push({ type: "slab", x: q[0], z: q[1], w: 22, d: 13, h: 7.2, rot: -A,
-          plainMat: "enPad", found: false, occ: false, block: false });
-        hero.push({ type: "slab", x: q[0], z: q[1], w: 23, d: 14, h: 0.7,
-          rot: -A, plainMat: "enGalv", occ: false, block: false });
-      });
-    });
-
-    /* 手排的东西一律不切路：30° 网格是本区唯一的序 */
-    hero.forEach(function (h) { if (h.block === undefined) h.block = false; });
-
-    return {
-      id: "D17", seed: 1717, R: 560,
-      /* 旱地。全区不种草的真正实现就在这一行加 streetLife.treeGap——
-         地面色只是底，没有树才是「这里不长东西」这件事的证据。 */
-      groundColor: 0xb3a687,
-      palette: ["stoneGrey", "slate", "steelBlue", "graphite"],
-      paneColor: 0x3a4a52, nightLit: 0.16,
-      /* 手排路网必须显式关掉默认网格：不给 grid 会铺一整套 120 米沥青格网，
-         压在手排路上面，整片场地读成一张黑网。 */
-      grid: { type: "none" },
-      roadMat: "enRoad",
-      avenues: avenues,
-      rings: [{ cx: 0, cz: 0, r: 430, w: 16, cls: "avenue" }],
-      plazas: [],
-      /* 全区没有程序化楼：街区不沿街、内部不填充。
-         这一区的「建筑」全是 hero——光伏场、储罐、构架、风机、双翼楼。 */
-      profile: { hMin: 6, hMax: 14, lotW: 20, lotD: 18, setback: 6, lotGap: 6,
-        innerFill: 0, innerStep: 120, innerCap: 0.06, farMax: 20,
-        ringFront: false, streetFill: false, gable: 0, lowRise: 0 },
-      types: [{ t: "slab", w: 1 }, { t: "warehouse", w: 1 }],
-      hero: hero,
-      /* 外围：一圈灰色的标准厂房，间距放到 2.4 倍。
-         能源区的外面是更空的能源区，不是郊区住宅——所以不能有坡屋顶、
-         不能有彩色箱子，只能是平屋顶的灰盒子。 */
-      fringeRing: true, fringeFlat: true, fringeGap: 7.2, fringeNear: 1.18, fringeFar: false,
-      fringePal: ["enRoad", "enGravel", "enPad2", "enFrame"],
-      outerGrove: false,
-      heroFacade: { metal: 0.20, rough: 0.44, lit: 0.14, ratio: 0.58 },
-      roofWarm: false, coolRoof: true,
-      solarRoof: 0,
-      /* 曝光：旱地加板海，画面本来就比别的区「浅」，曝光再抬就全糊了。
-         0.98 让土黄留在地面那一档，深蓝板才是画面里唯一的重色。
-         雾压到 0.95：1100 米机位下默认 3.4 的雾会把八台风机抹平。 */
-      exposure: 0.98, exposureK: 0.94, sunIntensity: 1.10,
-      hemiScale: 0.82, fogScale: 0.95,
-      /* 街道活力：这一区几乎没有人，但也不能是废墟。
-         26 米一个人、不成群；车流 0.35（运维车与罐车）；没有摊、没有咖啡座。
-         treeGap 9999 是「不种树」的开关——不是「少种」，是一棵都不种。 */
-      streetLife: { pedGap: 26, pedRun: 0.26, stall: 0, cart: 0,
-        pedWalk: false, traffic: 0.35, cafe: 0,
-        treeGap: 9999, treeOn: [] },
-      /* 从下风向看进来：相机在 +u 方向。theta 按 sinθ/cosθ 给，
-         +u = (cos30, sin30) → θ = 90° − 30° = 60°。
-         灵犀双翼正对镜头，两翼之间那道庭院是画面中心，八台风机分列两侧。 */
-      view: { x: 0, y: 48, z: 0, dist: 1080, phi: 0.50, theta: Math.PI / 2 - A }
-    };
-  })();
-
-  function fallback(d) {
-    var v = VIBE[d.vibe] || VIBE.mixed;
-    var R = d.r ? Math.round(d.r * 0.78) : 440;
-    return {
-      id: d.id, seed: 2000 + parseInt(d.id.slice(1), 10) * 7, R: R,
-      groundColor: v.ground,
-      palette: v.pal,
-      paneColor: 0x2c3a42, nightLit: 0.24,
-      grid: { type: "grid", angle: v.angle, spacingX: v.spacing[0], spacingZ: v.spacing[1],
-        majorEvery: 3, jitter: 10 },
-      rings: d.vibe === "core" ? [{ cx: 0, cz: 0, r: 160, w: 28, cls: "avenue", stone: true }] : [],
-      avenues: [],
-      plazas: [{ x: 0, z: 0, w: 110, d: 92, pool: d.vibe === "green" || d.vibe === "eco", trees: true }],
-      profile: { hMin: v.h[0], hMax: v.h[1], lotW: 24, lotD: 21, setback: 5,
-        innerFill: 0.58, innerStep: 42, farMax: 80, ringFront: true },
-      types: v.types.filter(function (t) { return t[1] > 0; }).map(function (t) { return { t: t[0], w: t[1] }; }),
-      hero: [],
-      view: { x: 0, z: 0, dist: 240, phi: 0.72, theta: 0.4 }
+      name: v.name,
+      en: v.en,
+      field: v.field,
+      tone: v.tone,
+      joint: (it.joint || []).map(function (k) { return VENDORS[k] ? VENDORS[k].name : k; })
     };
   }
 
-  global.YC_DISTRICT_PLAN = PLANS;
-  global.ycDistrictPlan = function (d) { return PLANS[d.id] || fallback(d); };
+  function byId(id) {
+    for (var i = 0; i < items.length; i++) if (items[i].id === id) return items[i];
+    return null;
+  }
+
+  function fmtDate(iso) {
+    var p = String(iso).split("-");
+    return p[0] + "." + p[1] + "." + p[2];
+  }
+
+  w.YC_BULLETIN = {
+    vendors: VENDORS,
+    items: items,
+    published: items.length ? items[0].date : "",
+    byId: byId,
+    vendorOf: vendorOf,
+    fmtDate: fmtDate,
+    live: function () {
+      return items.filter(function (i) { return i.status === "live"; });
+    }
+  };
 })(window);
 
 </script>
 <script>
-/* 杨城 · 17 区平面总图（figure-ground 制图风）
+/* 杨城首页 · 动态部分
    ------------------------------------------------------------
-   上一版是一张「程序化全息图」：19 条竖线 + 15 条横线铺满全图，
-   再给每个区画一个随机抖动的圆斑。它和杨城没有任何关系——
-   圆的半径是 d.r 乘随机数，河流是手写的一串坐标，桥、高架、
-   街区全是装饰。所以它「黑漆漆的」，也「体现不出杨城的容貌」。
-
-   这一版换掉整套画法：直接读 3D 用的那两份数据源
-     · YC_DISTRICTS    —— 17 个地块的真实矩形（cx/cz/hx/hz）
-     · YC_CITY_PLAN    —— 澄川河、三座桥、城际高架、干道
-     · ycDistrictPlan  —— 每区自己的街网、环路、林荫道、广场与真建筑
-   于是这张图上画出来的每一条街、每一栋楼，都是 3D 里真有的那一条、那一栋。
-   图上没有一处是「随机」：所有抖动都来自各区自己的 seed。
-
-   配色按纸质总图来做：浅米底、白街、灰楼，高度越高越深。
-   19:00 之后切到夜图（深底、亮街、楼里点灯），滑杆可手动拨时间。 */
+   这一页只渲染两处数据：17 区清单、最近三条公告。
+   两处都读现有数据源，不在这里抄一份：
+     · 17 区  ← shared/yc-districts.js（和三维、二维图同一份）
+     · 公告    ← shared/yc-bulletin.js（和三维公告栏、详情页同一份）
+   所以以后改区名或发新公告，首页自动跟着变。
+   ------------------------------------------------------------ */
 (function () {
   "use strict";
-  var DISTRICTS = window.YC_DISTRICTS || [];
-  var CP = window.YC_CITY_PLAN;
-  if (!DISTRICTS.length || !CP) return;
-  var PLAN = window.ycDistrictPlan;
-  var SVG = "http://www.w3.org/2000/svg";
   var $ = function (id) { return document.getElementById(id); };
-  var map = $("cmMap");
 
-  /* 馆 → 原型。和 shared/yc3d/yc3d-city.js 里的 HALL_TYPE 同一张表，
-     用来在地块里把「那座馆」那栋楼找出来，标在它真正的位置上。 */
-  var HALL_TYPE = { H1: "museum", H2: "forensicHall", H3: "twist",
-    H4: "archiveFrustum", H5: "collapseFunnel", H6: "archMuseum" };
-  var HALLS = {
-    H1: { name: "能力与边界博物馆", short: "能力与边界", href: "h1-museum.html", color: "#e8862b" },
-    H2: { name: "推理法医馆", short: "推理法医", href: "h2-museum.html", color: "#2b8fc4" },
-    H3: { name: "指标失效博物馆", short: "指标失效", href: "h3-museum.html", color: "#d63d7e" },
-    H4: { name: "数据污染博物馆", short: "数据污染", href: "h4-museum.html", color: "#5c9a2e" },
-    H5: { name: "递归坍塌博物馆", short: "递归坍塌", href: "h5-museum.html", color: "#6a4bd0" },
-    H6: { name: "潜能与预算博物馆", short: "潜能与预算", href: "h6-museum.html", color: "#c8761c" }
-  };
-  var VIBE_LABEL = { core: "核心商务", heritage: "文化老城", compute: "算力园区", research: "科研园区",
-    justice: "司法文化", transit: "交通枢纽", campus: "大学城", recursive: "科学园区", green: "生态居住",
-    mixed: "市井混合", living: "滨水居住", eco: "生态城", port: "制造港口", lab: "实验区",
-    design: "设计社区", cbd: "商务区", energy: "能源新区" };
-
-  /* ---------------- 投影：世界米 → 视图单位 ---------------- */
-  var B = CP.bounds, VB_W = 1600, VB_H = 1400;
-  var S = Math.min((VB_W - 108) / (B.maxX - B.minX), (VB_H - 104) / (B.maxZ - B.minZ));
-  var OX = (VB_W - (B.maxX - B.minX) * S) / 2, OY = (VB_H - (B.maxZ - B.minZ) * S) / 2;
-  function PX(x) { return +(OX + (x - B.minX) * S).toFixed(1); }
-  function PY(z) { return +(OY + (z - B.minZ) * S).toFixed(1); }
-  /* 米 → 视图单位（长度） */
-  function L(m) { return +(m * S).toFixed(2); }
-
-  function el(name, attrs, parent) {
-    var node = document.createElementNS(SVG, name);
-    for (var k in attrs) node.setAttribute(k, attrs[k]);
-    (parent || map).appendChild(node);
-    return node;
-  }
-  function rng(seedStr) {
-    var h = 2166136261;
-    for (var i = 0; i < seedStr.length; i++) { h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
-    return function () { h = Math.imul(h ^ (h >>> 15), 2246822519); h = Math.imul(h ^ (h >>> 13), 3266489917); return ((h ^= h >>> 16) >>> 0) / 4294967296; };
-  }
-
-  /* ---------------- 0. 底图 ---------------- */
-  el("rect", { x: 0, y: 0, width: VB_W, height: VB_H, class: "cm-paper" });
-  /* 郊野：城界以外的一圈。稍微深一档，让城界本身就看得见。 */
-  var mrg = 78;
-  el("rect", { x: PX(B.minX) - mrg, y: PY(B.minZ) - mrg, width: L(B.maxX - B.minX) + mrg * 2,
-    height: L(B.maxZ - B.minZ) + mrg * 2, rx: 26, class: "cm-country" });
-  el("rect", { x: PX(B.minX), y: PY(B.minZ), width: L(B.maxX - B.minX), height: L(B.maxZ - B.minZ),
-    class: "cm-land" });
-
-  var gRoad = el("g", { class: "cm-g-road" });
-  var gWater = el("g", { class: "cm-g-water" });
-  var gRail = el("g", { class: "cm-g-rail" });
-  var gBridge = el("g", { class: "cm-g-bridge" });
-  var gDistrict = el("g", { class: "cm-g-district" });
-  var gLabel = el("g", { class: "cm-g-label" });
-  var gPin = el("g", { class: "cm-g-pin" });
-
-  /* ---------------- 1. 干道（在江下面，被江截断） ---------------- */
-  CP.roads.forEach(function (r) {
-    if (!r.a || !r.b) return;                       /* ring:true 那条是环城路，二维图不画 */
-    el("line", { x1: PX(r.a[0]), y1: PY(r.a[1]), x2: PX(r.b[0]), y2: PY(r.b[1]),
-      class: "cm-ave " + (r.cls === "spine" ? "spine" : ""),
-      "stroke-width": Math.max(1.4, L(r.w) * 1.5) }, gRoad);
-  });
-
-  /* ---------------- 2. 澄川河 ---------------- */
-  function ribbon(pts) {
-    var A = [], Bk = [], n = pts.length, i;
-    for (i = 0; i < n; i++) {
-      var p = pts[i], a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)];
-      var dx = b[0] - a[0], dz = b[1] - a[1], len = Math.sqrt(dx * dx + dz * dz) || 1;
-      var nx = -dz / len, nz = dx / len, hw = p[2];
-      A.push([p[0] + nx * hw, p[1] + nz * hw]);
-      Bk.push([p[0] - nx * hw, p[1] - nz * hw]);
-    }
-    var d = "M" + A.map(function (q) { return PX(q[0]) + "," + PY(q[1]); }).join("L");
-    d += "L" + Bk.reverse().map(function (q) { return PX(q[0]) + "," + PY(q[1]); }).join("L") + "Z";
-    return d;
-  }
-  var rd = ribbon(CP.river);
-  el("path", { d: rd, class: "cm-river-bank" }, gWater);
-  el("path", { d: rd, class: "cm-river" }, gWater);
-
-  /* ---------------- 3. 城际高架 ---------------- */
-  var railD = "M" + CP.rail.pts.map(function (p) { return PX(p[0]) + "," + PY(p[1]); }).join("L");
-  el("path", { d: railD, class: "cm-rail-casing" }, gRail);
-  el("path", { d: railD, class: "cm-rail" }, gRail);
-  CP.rail.stations.forEach(function (s) {
-    el("circle", { cx: PX(s.x), cy: PY(railAt(s.x)), r: 3.6, class: "cm-station" }, gRail);
-  });
-  function railAt(x) {
-    var p = CP.rail.pts;
-    for (var i = 0; i < p.length - 1; i++) {
-      if ((p[i][0] <= x && p[i + 1][0] >= x) || (p[i][0] >= x && p[i + 1][0] <= x)) {
-        var t = (x - p[i][0]) / ((p[i + 1][0] - p[i][0]) || 1);
-        return p[i][1] + (p[i + 1][1] - p[i][1]) * t;
-      }
-    }
-    return p[0][1];
-  }
-
-  /* ---------------- 4. 三座桥 ---------------- */
-  CP.bridges.forEach(function (b) {
-    var x = PX(b.x), w = Math.max(3.4, L(b.w)), y0 = PY(b.z0), y1 = PY(b.z1);
-    el("rect", { x: x - w / 2, y: y0, width: w, height: y1 - y0, rx: w / 2, class: "cm-bridge" }, gBridge);
-    el("rect", { x: x - w / 2 + 1.1, y: y0 + 1.2, width: Math.max(1, w - 2.2), height: y1 - y0 - 2.4,
-      rx: (w - 2.2) / 2, class: "cm-bridge-in" }, gBridge);
-  });
-
-  /* ---------------- 5. 17 个地块 ---------------- */
-  var HEIGHT_STEPS = [
-    [16, 0], [30, 1], [55, 2], [95, 3], [150, 4], [230, 5], [400, 6]
-  ];
-  function hClass(h) {
-    for (var i = 0; i < HEIGHT_STEPS.length; i++) if (h <= HEIGHT_STEPS[i][0]) return "h" + HEIGHT_STEPS[i][1];
-    return "h6";
-  }
-
-  var zones = {}, hallPos = {};
-
-  DISTRICTS.forEach(function (d, di) {
-    var plan = PLAN ? PLAN(d) : null;
-    var hx = d.hx || d.r, hz = d.hz || d.r;
-    var g = el("g", { transform: "translate(" + PX(d.cx) + "," + PY(d.cz) + ") scale(" + S + ")" }, gDistrict);
-    g.style.setProperty("--i", di);
-    var cid = "cmclip-" + d.id;
-    var cp = el("clipPath", { id: cid }, el("defs", {}, map));
-    el("rect", { x: -hx, y: -hz, width: hx * 2, height: hz * 2 }, cp);
-
-    var body = el("g", { "clip-path": "url(#" + cid + ")" }, g);
-
-    /* 地块底板 */
-    el("rect", { x: -hx, y: -hz, width: hx * 2, height: hz * 2, class: "cm-plate" }, body);
-    /* 地块轮廓：这一圈是二维图上唯一「硬」的边界，读图靠它分块 */
-    el("rect", { x: -hx, y: -hz, width: hx * 2, height: hz * 2, class: "cm-plate-edge",
-      "vector-effect": "non-scaling-stroke" }, body);
-
-    if (plan) {
-      /* --- 5a. 水系：海 / 湖 / 河 --- */
-      if (plan.basin) {
-        var bx = plan.basin.x0;
-        el("rect", { x: bx, y: -hz, width: hx - bx, height: hz * 2, class: "cm-sea" }, body);
-        el("line", { x1: bx, y1: -hz, x2: bx, y2: hz, class: "cm-shore",
-          "vector-effect": "non-scaling-stroke" }, body);
-      }
-      if (plan.lake) {
-        var lk = plan.lake;
-        el("ellipse", { cx: lk.x, cy: lk.z, rx: lk.rx, ry: lk.rz, class: "cm-lake",
-          transform: "rotate(" + ((lk.rot || 0) * 180 / Math.PI).toFixed(1) + "," + lk.x + "," + lk.z + ")" }, body);
-      }
-      if (plan.water && plan.water.pts) {
-        var wp = plan.water.pts, hw = (plan.water.w || 60) / 2, A = [], Bk = [];
-        for (var wi = 0; wi < wp.length; wi++) {
-          var a2 = wp[Math.max(0, wi - 1)], b2 = wp[Math.min(wp.length - 1, wi + 1)];
-          var dx2 = b2[0] - a2[0], dz2 = b2[1] - a2[1], l2 = Math.sqrt(dx2 * dx2 + dz2 * dz2) || 1;
-          var nx2 = -dz2 / l2, nz2 = dx2 / l2;
-          A.push([wp[wi][0] + nx2 * hw, wp[wi][1] + nz2 * hw]);
-          Bk.push([wp[wi][0] - nx2 * hw, wp[wi][1] - nz2 * hw]);
-        }
-        var wd = "M" + A.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join("L")
-          + "L" + Bk.reverse().map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join("L") + "Z";
-        el("path", { d: wd, class: "cm-inner-water" }, body);
-      }
-
-      /* --- 5b. 街网：街区是一块块浅灰，街是它们之间露出来的底板 --- */
-      var gd = plan.grid;
-      var R = plan.R || 470;
-      if (gd && gd.type === "grid") {
-        var ang = (gd.angle || 0) * 180 / Math.PI;
-        var gg = el("g", { transform: "rotate(" + ang.toFixed(2) + ")" }, body);
-        var sx = gd.spacingX || 96, sz = gd.spacingZ || 96;
-        var major = gd.majorEvery || 3;
-        var limX = hx * 1.45, limZ = hz * 1.45;
-        var ix = 0;
-        for (var cx0 = -limX; cx0 < limX; cx0 += sx, ix++) {
-          var iz = 0;
-          for (var cz0 = -limZ; cz0 < limZ; cz0 += sz, iz++) {
-            /* 交叉口留得更宽 */
-            var padX = (ix % major === 0) ? 13 : 8, padZ = (iz % major === 0) ? 13 : 8;
-            el("rect", { x: +(cx0 + padX).toFixed(1), y: +(cz0 + padZ).toFixed(1),
-              width: Math.max(2, sx - padX * 2), height: Math.max(2, sz - padZ * 2), class: "cm-block" }, gg);
-          }
-        }
-      }
-
-      /* --- 5c. 环路与林荫道 --- */
-      (plan.rings || []).forEach(function (r) {
-        el("circle", { cx: r.cx || 0, cy: r.cz || 0, r: r.r, fill: "none",
-          class: "cm-ring-road", "stroke-width": Math.max(1.6, L(r.w || 26) * 1.4),
-          "vector-effect": "non-scaling-stroke" }, body);
-      });
-      (plan.avenues || []).forEach(function (av) {
-        el("line", { x1: av.from[0], y1: av.from[1], x2: av.to[0], y2: av.to[1],
-          class: "cm-dist-ave", "stroke-width": Math.max(1.5, L(av.w || 30) * 1.4),
-          "vector-effect": "non-scaling-stroke" }, body);
-      });
-      /* --- 5d. 广场 --- */
-      (plan.plazas || []).forEach(function (pz) {
-        el("rect", { x: pz.x - pz.w / 2, y: pz.z - pz.d / 2, width: pz.w, height: pz.d,
-          rx: 3, class: "cm-plaza" }, body);
-      });
-      /* --- 5e. 真建筑 --- */
-      var gh = el("g", { class: "cm-bldg-g" }, body);
-      (plan.hero || []).forEach(function (h) {
-        if (!h.w || !h.d) return;
-        var rot = h.rot ? (h.rot * 180 / Math.PI) : 0;
-        var tr = "rotate(" + rot.toFixed(1) + "," + h.x + "," + h.z + ")";
-        if ((h.h || 0) >= 110) {
-          /* 只有高个子才投影子：低层楼也投，图会糊成一片灰。 */
-          el("rect", { x: +(h.x - h.w / 2 + 7).toFixed(1), y: +(h.z - h.d / 2 + 7).toFixed(1),
-            width: h.w, height: h.d, transform: tr, class: "cm-bldg-sh" }, gh);
-        }
-        el("rect", { x: +(h.x - h.w / 2).toFixed(1), y: +(h.z - h.d / 2).toFixed(1),
-          width: h.w, height: h.d, transform: tr, class: "cm-bldg " + hClass(h.h || 20) }, gh);
-        /* 灯：夜里高楼上的一层亮窗 */
-        if ((h.h || 0) >= 55) {
-          el("rect", { x: +(h.x - h.w * 0.22).toFixed(1), y: +(h.z - h.d * 0.22).toFixed(1),
-            width: +(h.w * 0.44).toFixed(1), height: +(h.d * 0.44).toFixed(1), transform: tr,
-            class: "cm-lit" }, gh);
-        }
-        /* 记下每座馆在本区里的位置 */
-        for (var hid in HALL_TYPE) {
-          if (HALL_TYPE[hid] === h.type && (d.museums || []).indexOf(hid) >= 0 && !hallPos[hid]) {
-            hallPos[hid] = { x: d.cx + h.x, z: d.cz + h.z };
-          }
-        }
-      });
-    }
-
-    /* 交互层：透明矩形盖住整块地 */
-    var hit = el("rect", { x: -hx, y: -hz, width: hx * 2, height: hz * 2, class: "cm-hit" }, body);
-    zones[d.id] = { g: g, hit: hit, d: d, hx: hx, hz: hz, plan: plan };
-    hit.addEventListener("mouseenter", function () { show(d); });
-    hit.addEventListener("click", function () { location.href = "district.html?zone=" + d.id; });
-
-    /* --- 5f. 标签：挂在每块地头上那条缝里，不压街区 --- */
-    var lx = PX(d.cx - hx) + 2, ly = PY(d.cz - hz) - 6;
-    var nmW = d.name.length * 11.4 + 30;
-    var gl = el("g", { class: "cm-lab" + (d.featured ? " featured" : "") }, gLabel);
-    gl.dataset.id = d.id;
-    el("rect", { x: lx - 3.5, y: ly - 10.5, width: nmW, height: 15, rx: 2, class: "cm-lab-bg" }, gl);
-    el("text", { x: lx, y: ly, class: "cm-lab-id" }, gl).textContent = d.id;
-    el("text", { x: lx + 22, y: ly, class: "cm-lab-name" }, gl).textContent = d.name;
-    gl.addEventListener("mouseenter", function () { show(d); });
-    zones[d.id].lab = gl;
-  });
-
-  /* ---------------- 6. 六馆 ---------------- */
-  for (var hid in HALLS) {
-    var p = hallPos[hid];
-    if (!p) continue;
-    var mu = HALLS[hid];
-    var a = el("a", { class: "cm-hall", href: mu.href, "aria-label": "参观" + mu.name }, gPin);
-    a.style.color = mu.color;
-    var mx = PX(p.x), my = PY(p.z);
-    el("circle", { cx: mx, cy: my, r: 7.5, class: "cm-hall-halo" }, a);
-    el("circle", { cx: mx, cy: my, r: 4.6, class: "cm-hall-dot" }, a);
-    el("circle", { cx: mx, cy: my, r: 1.8, class: "cm-hall-core" }, a);
-    var t = el("text", { x: mx + 8, y: my + 3.4, class: "cm-hall-t" }, a);
-    t.textContent = hid;
-    var tt = document.createElementNS(SVG, "title"); tt.textContent = mu.name; a.appendChild(tt);
-  }
-  /* 中央广场与主塔 */
-  var d01 = DISTRICTS.filter(function (x) { return x.id === "D01"; })[0];
-  if (d01) {
-    var tx = PX(d01.cx), ty = PY(d01.cz - 60);
-    var bg = el("g", { class: "cm-badge" }, gPin);
-    el("rect", { x: tx - 40, y: ty - 34, width: 80, height: 17, rx: 2 }, bg);
-    el("text", { x: tx, y: ty - 22 }, bg).textContent = "中央广场 · 主塔";
-  }
-
-  /* ---------------- 7. 面板与选中 ---------------- */
-  var selected = null;
-  function show(d) {
-    selected = d;
-    for (var id in zones) {
-      var z = zones[id];
-      z.hit.classList.toggle("sel", id === d.id);
-      z.lab.classList.toggle("on", id === d.id);
-    }
-    $("cmPanel").style.setProperty("--c", d.color || "#4a7f9c");
-    $("cmKick").textContent = d.featured ? "推荐参观" : (VIBE_LABEL[d.vibe] || d.vibe);
-    $("cmKick").className = "cm-panel-kicker" + (d.featured ? " rec" : "");
-    $("cmName").textContent = d.name;
-    $("cmEn").textContent = d.id + " · " + d.en;
-    $("cmDesc").textContent = d.desc;
-    var tags = $("cmTags"); tags.replaceChildren();
-    [[VIBE_LABEL[d.vibe] || d.vibe], ["天际线 " + d.minH + "–" + d.maxH + " m"],
-      [d.museums.length ? d.museums.length + " 座博物馆" : "无常设馆"]].forEach(function (pair) {
-      var tag = document.createElement("i");
-      var b = document.createElement("b"); b.textContent = pair[0];
-      tag.appendChild(b); tags.appendChild(tag);
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c];
     });
-    var box = $("cmMuseums"); box.replaceChildren();
-    d.museums.forEach(function (hid) {
-      var mu = HALLS[hid]; if (!mu) return;
-      var a = document.createElement("a"); a.href = mu.href; a.style.color = mu.color;
-      var dot = document.createElement("span"); dot.className = "dot"; a.appendChild(dot);
-      var nm = document.createElement("span"); nm.textContent = hid + " · " + mu.name; a.appendChild(nm);
-      var go = document.createElement("span"); go.className = "go"; go.textContent = "直接参观 →"; a.appendChild(go);
-      box.appendChild(a);
+  }
+
+  /* ---------- 17 区 ---------- */
+  var Z = window.YC_DISTRICTS || [];
+  var box = $("hmZones");
+  if (box && Z.length) {
+    /* 按地块编号排：D01…D17。数据里的顺序是按地理分组给的，
+       首页是索引，不是地图，按编号排更好找。 */
+    var list = Z.slice().sort(function (a, b) {
+      return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
     });
-    $("cmEnter").href = "district.html?zone=" + d.id + "&" + phaseQuery();
-    $("cmEnter").textContent = "进入" + d.name + " →";
-    $("cmPanel").hidden = false;
+    box.innerHTML = list.map(function (d) {
+      return '<a class="hm-zone" href="district.html?zone=' + encodeURIComponent(d.id) + '">' +
+        "<b>" + esc(d.id) + "</b>" +
+        "<span>" + esc(d.name) + "<em>" + esc(d.en || "") + "</em></span></a>";
+    }).join("");
   }
-  $("cmClose").addEventListener("click", function () { $("cmPanel").hidden = true; });
-  $("cmRandom").addEventListener("click", roll);
-  function roll() {
-    show(DISTRICTS[Math.floor(Math.random() * DISTRICTS.length)]);
-  }
-  document.addEventListener("keydown", function (e) {
-    if (e.metaKey || e.ctrlKey || e.altKey) return;
-    if (e.key === "r" || e.key === "R") roll();
-  });
 
-  /* ---------------- 8. 时间 ---------------- */
-  /* 和 3D 同一套口径：默认跟随北京时间，滑杆只冻结「演练时钟」。
-     二维图上时间不是装饰——它决定这张图是白天总图还是夜间灯图。 */
-  var autoTime = true, simHour = null;
-  function phaseOf(h) {
-    if (h >= 6.5 && h < 17.5) return "day";
-    if (h >= 5 && h < 6.5) return "dawn";
-    if (h >= 17.5 && h < 19.5) return "dusk";
-    return "night";
-  }
-  function phaseQuery() { return autoTime ? "" : "time=" + simHour; }
-  function fmt(h) {
-    var hh = Math.floor(h) % 24, mm = Math.round((h - Math.floor(h)) * 60);
-    return ("0" + hh).slice(-2) + ":" + ("0" + mm).slice(-2);
-  }
-  function applyPhase(h) {
-    var ph = phaseOf(h);
-    document.body.dataset.phase = ph;
-    $("cmHourOut").textContent = fmt(h);
-    document.body.classList.toggle("is-night", ph === "night");
-  }
-  function beijingNow() { var n = new Date(Date.now() + 8 * 3600000); return n.getUTCHours() + n.getUTCMinutes() / 60; }
-  function tick() {
-    if (autoTime) {
-      var h = beijingNow();
-      applyPhase(h);
-      $("cmHour").value = h.toFixed(2);
-      $("cmReset").classList.add("on");
-      $("cmClock").textContent = fmt(h) + " 北京时间";
-    }
-  }
-  $("cmHour").addEventListener("input", function () {
-    autoTime = false; simHour = parseFloat(this.value);
-    $("cmReset").classList.remove("on");
-    applyPhase(simHour);
-    $("cmClock").textContent = fmt(simHour) + " 演练时间";
-  });
-  $("cmReset").addEventListener("click", function () {
-    autoTime = true; simHour = null; tick();
-  });
+  /* ---------- 公告 ---------- */
+  var B = window.YC_BULLETIN;
+  var nb = $("hmNotices2");
+  if (B && nb) {
+    var cnt = $("hmNoticeCount");
+    if (cnt) cnt.textContent = B.items.length;
 
-  var q = new URLSearchParams(location.search);
-  var pinned = q.get("zone");
-  if (q.get("time") !== null && q.get("time") !== "") {
-    autoTime = false; simHour = parseFloat(q.get("time")) || 0;
-    $("cmHour").value = simHour;
-    applyPhase(simHour);
-    $("cmClock").textContent = fmt(simHour) + " 演练时间";
-  } else {
-    tick();
+    nb.innerHTML = B.items.slice(0, 3).map(function (it) {
+      var v = B.vendorOf(it);
+      return '<a class="hm-notice" href="project.html?id=' + encodeURIComponent(it.id) + '">' +
+        '<span class="d">' + esc(B.fmtDate(it.date)) + "<b>" + esc(v.name) +
+          (v.joint.length ? " × " + esc(v.joint.join("、")) : "") + "</b></span>" +
+        '<span class="m">' +
+          "<h3>" + esc(it.title) +
+            (it.titleEn ? "<em>" + esc(it.titleEn) + "</em>" : "") + "</h3>" +
+          "<p>" + esc(it.lead) + "</p>" +
+        "</span>" +
+        '<span class="s">' + esc(it.kind) +
+          (it.status === "live" ? "<i>可立即体验</i>" : "<i class='off'>已归档</i>") + "</span>" +
+        '<span class="ar">→</span></a>';
+    }).join("");
   }
-  setInterval(tick, 20000);
 
-  var initial = pinned && zones[pinned] ? DISTRICTS.filter(function (d) { return d.id === pinned; })[0] : null;
-  if (initial) show(initial); else roll();
+  /* ---------- 图版：加载失败时留一块同色底板，不出现破图图标 ---------- */
+  var img = document.querySelector(".hm-plate img");
+  if (img) {
+    img.addEventListener("error", function () {
+      img.style.display = "none";
+      var f = img.parentNode;
+      f.style.minHeight = "260px";
+      f.style.background = "linear-gradient(135deg,#dfe4d3,#eef0e6 55%,#d8dfcc)";
+    });
+  }
 })();
 
 </script>

@@ -1,0 +1,244 @@
+<style>
+/* ============================================================
+   杨城 · 首页（城市介绍）
+   ------------------------------------------------------------
+   这一页要回答的不是「有什么可玩」，而是「这是座什么城」。
+   所以它长得像一份城市志：编号章节、宋体标题、细线分栏、
+   大量留白。地图和三维都在次页，这里只给一张图版和几个入口。
+   ------------------------------------------------------------
+   配色与二维总图、公告详情页同源（米纸 + 墨绿 + 一点砖金），
+   三页连起来看是同一套印刷品，不是三个网站。
+   ============================================================ */
+:root{
+  --hm-paper:#eef0e6; --hm-card:#fbfcf5; --hm-slab:#e5e8dc;
+  --hm-ink:#222b26; --hm-ink2:#47524a; --hm-muted:#6d7a70; --hm-faint:#8e9a90;
+  --hm-line:#d1d7c8; --hm-line2:#e2e6d9;
+  --hm-ac:#3f5f4a; --hm-warm:#a97c3c;
+  --hm-serif:"Songti SC","SimSun","Noto Serif SC",Georgia,serif;
+  --hm-sans:"Microsoft YaHei","PingFang SC","Segoe UI",system-ui,sans-serif;
+  --hm-mono:"Cascadia Code","Consolas","SF Mono",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:clip}   /* 移动端：装饰底纹会溢出 25px，裁掉免得整页能左右拖 */
+body{margin:0;background:var(--hm-paper);color:var(--hm-ink);font-family:var(--hm-sans);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+.hm-bg{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(var(--hm-line2) 1px,transparent 1px),
+    linear-gradient(90deg,var(--hm-line2) 1px,transparent 1px);
+  background-size:96px 96px;opacity:.4;
+  -webkit-mask-image:linear-gradient(180deg,#000,transparent 62%);
+          mask-image:linear-gradient(180deg,#000,transparent 62%)}
+
+/* ---------- 顶栏 ---------- */
+.hm-top{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:24px;
+  height:58px;padding:0 36px;background:rgba(238,240,230,.9);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--hm-line)}
+.hm-brand{display:flex;align-items:baseline;gap:9px;text-decoration:none;color:var(--hm-ink)}
+.hm-brand b{font-family:var(--hm-serif);font-size:19px;font-weight:500;letter-spacing:.12em}
+.hm-brand i{font-style:normal;font-family:var(--hm-mono);font-size:10px;
+  letter-spacing:.18em;color:var(--hm-faint)}
+.hm-nav{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
+.hm-nav a{position:relative;padding:7px 13px;font-size:13px;color:var(--hm-ink2);
+  text-decoration:none;border-radius:4px;transition:background .18s,color .18s}
+.hm-nav a:hover{background:var(--hm-slab);color:var(--hm-ink)}
+.hm-nav a[aria-current="page"]{color:var(--hm-ac);font-weight:500}
+.hm-nav a[aria-current="page"]::after{content:"";position:absolute;left:13px;right:13px;
+  bottom:1px;height:1.5px;background:var(--hm-ac)}
+
+/* ---------- 通用容器 ---------- */
+.hm-wrap{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:0 36px}
+
+/* ---------- 章节头 ---------- */
+.hm-sec{padding:76px 0 0}
+.hm-kick{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.hm-kick b{font-family:var(--hm-mono);font-size:11px;font-weight:400;letter-spacing:.14em;
+  color:var(--hm-faint)}
+.hm-kick i{flex:none;width:26px;height:1px;background:var(--hm-line);font-style:normal}
+.hm-kick span{font-family:var(--hm-mono);font-size:10.5px;letter-spacing:.2em;
+  color:var(--hm-faint);text-transform:uppercase}
+.hm-sec h2{font-family:var(--hm-serif);font-size:34px;font-weight:500;letter-spacing:.02em;
+  line-height:1.32;margin:0 0 16px;max-width:24em}
+.hm-sec .hm-desc{font-size:14.5px;line-height:1.95;color:var(--hm-ink2);margin:0 0 38px;
+  max-width:40em;text-wrap:pretty}
+
+/* ---------- 主视觉 ---------- */
+.hm-hero{display:grid;grid-template-columns:minmax(0,1fr) 520px;gap:52px;align-items:start;
+  padding:66px 0 0}
+.hm-hk{display:flex;align-items:center;gap:10px;font-family:var(--hm-mono);font-size:11px;
+  letter-spacing:.12em;color:var(--hm-faint)}
+.hm-hk b{color:var(--hm-warm);font-weight:500}
+.hm-h1{font-family:var(--hm-serif);font-size:clamp(64px,7.2vw,96px);font-weight:500;
+  line-height:1;letter-spacing:.09em;margin:22px 0 10px;text-indent:.04em}
+.hm-h1e{font-family:var(--hm-mono);font-size:12px;letter-spacing:.42em;color:var(--hm-faint);
+  margin-bottom:30px}
+.hm-lead{font-size:15.5px;line-height:2.05;color:var(--hm-ink2);max-width:33em;margin:0 0 8px;
+  text-wrap:pretty}
+.hm-tag{font-family:var(--hm-serif);font-size:19px;line-height:1.7;color:var(--hm-ink);
+  margin:20px 0 0;letter-spacing:.02em}
+.hm-tag em{font-style:normal;border-bottom:1.5px solid var(--hm-warm);padding-bottom:1px}
+
+.hm-hero-act{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+.hm-btn{display:inline-flex;align-items:center;gap:9px;height:46px;padding:0 26px;
+  font-size:14px;font-weight:500;letter-spacing:.02em;text-decoration:none;border-radius:5px;
+  border:1px solid transparent;transition:transform .16s,background .18s,border-color .18s,color .18s}
+.hm-btn:active{transform:translateY(1px)}
+.hm-btn.primary{background:var(--hm-ink);color:#f6f7f0}
+.hm-btn.primary:hover{background:#0f1612}
+.hm-btn.primary svg{transition:transform .2s}
+.hm-btn.primary:hover svg{transform:translateX(3px)}
+.hm-btn.ghost{border-color:#c3cabc;color:var(--hm-ink)}
+.hm-btn.ghost:hover{background:var(--hm-card);border-color:var(--hm-ink2)}
+
+/* 图版：像贴在档案上的一张照片 */
+.hm-plate{position:relative;background:var(--hm-card);border:1px solid var(--hm-line);
+  padding:9px 9px 0;box-shadow:0 18px 40px rgba(34,43,38,.09)}
+.hm-plate img{display:block;width:100%;height:auto}
+.hm-plate figcaption{display:flex;justify-content:space-between;gap:12px;
+  padding:11px 3px 12px;font-family:var(--hm-mono);font-size:10px;letter-spacing:.05em;
+  color:var(--hm-faint);border-top:1px solid var(--hm-line2);margin-top:9px}
+.hm-plate figcaption b{font-weight:500;color:var(--hm-muted)}
+
+/* ---------- 数字条 ---------- */
+/* 分栏线用单元格自身的 border 画，不用「容器底色 + 1px gap」那种做法：
+   后者一旦条目数除不尽列数，空出来的格子就会露出一块灰方块。
+   列数变化时只需改 n 的倍数（5 / 3 / 2），换行处的横线用 nth-child(n+k) 补。 */
+.hm-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:70px;
+  border-top:1px solid var(--hm-line);border-bottom:1px solid var(--hm-line)}
+.hm-stats div{padding:26px 20px 24px;border-left:1px solid var(--hm-line)}
+.hm-stats div:nth-child(5n+1){border-left:0}
+.hm-stats b{display:block;font-family:var(--hm-serif);font-size:38px;font-weight:500;
+  line-height:1;letter-spacing:.02em;margin-bottom:9px}
+.hm-stats b small{font-size:15px;margin-left:3px;color:var(--hm-muted)}
+.hm-stats span{font-size:12px;color:var(--hm-muted);letter-spacing:.03em}
+
+/* ---------- 市长致辞 ---------- */
+.hm-letter{max-width:672px}
+.hm-letter p{font-size:15.5px;line-height:2.15;color:#39443c;margin:0 0 22px;text-wrap:pretty}
+.hm-letter p:first-of-type::first-letter{font-family:var(--hm-serif);float:left;font-size:52px;
+  line-height:.92;padding:6px 10px 0 0;color:var(--hm-ac)}
+.hm-letter strong{font-weight:500;color:var(--hm-ink);
+  background:linear-gradient(transparent 64%,rgba(169,124,60,.24) 64%)}
+.hm-sign{display:flex;align-items:center;gap:16px;margin-top:34px;padding-top:22px;
+  border-top:1px solid var(--hm-line)}
+.hm-sign b{font-family:var(--hm-serif);font-size:19px;font-weight:500;letter-spacing:.14em}
+.hm-sign span{font-family:var(--hm-mono);font-size:10.5px;letter-spacing:.1em;color:var(--hm-faint)}
+
+/* ---------- 六馆 ---------- */
+.hm-halls{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--hm-line);
+  border:1px solid var(--hm-line)}
+.hm-hall{display:flex;flex-direction:column;gap:0;background:var(--hm-card);
+  padding:24px 24px 22px;text-decoration:none;color:inherit;transition:background .2s}
+.hm-hall:hover{background:#f4f6ec}
+.hm-hall .n{font-family:var(--hm-mono);font-size:10.5px;letter-spacing:.12em;color:var(--hm-faint);
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.hm-hall .n i{font-style:normal;color:#c4cbbb;transition:transform .2s,color .2s}
+.hm-hall:hover .n i{transform:translateX(3px);color:var(--hm-ac)}
+.hm-hall h3{font-family:var(--hm-serif);font-size:19px;font-weight:500;letter-spacing:.03em;
+  margin:0 0 7px;line-height:1.45}
+.hm-hall .e{font-family:var(--hm-mono);font-size:9.5px;letter-spacing:.13em;color:var(--hm-faint);
+  margin-bottom:18px}
+.hm-hall .q{font-size:12.5px;line-height:1.85;color:var(--hm-muted);margin:auto 0 0;
+  padding-top:14px;border-top:1px dotted #dde1d3}
+.hm-hall .q::before{content:"“";font-family:var(--hm-serif);color:var(--hm-warm);margin-right:1px}
+.hm-hall .q::after{content:"”";font-family:var(--hm-serif);color:var(--hm-warm);margin-left:1px}
+
+/* ---------- 17 区 ---------- */
+.hm-zones{display:grid;grid-template-columns:repeat(4,1fr);gap:0 30px}
+.hm-zone{display:flex;align-items:baseline;gap:10px;padding:13px 2px;
+  border-bottom:1px dotted #d9ded0;text-decoration:none;color:inherit;
+  transition:background .16s,padding-left .16s}
+.hm-zone:hover{background:rgba(169,124,60,.07);padding-left:8px}
+.hm-zone b{font-family:var(--hm-mono);font-size:10px;font-weight:400;color:var(--hm-faint);
+  letter-spacing:.06em;flex:none;width:26px}
+.hm-zone span{font-size:13.5px;letter-spacing:.01em}
+.hm-zone em{display:block;font-style:normal;font-family:var(--hm-mono);font-size:9px;
+  letter-spacing:.1em;color:var(--hm-faint);margin-top:3px}
+
+/* ---------- 公告 ---------- */
+.hm-notices{border-top:1px solid var(--hm-line)}
+.hm-notice{display:grid;grid-template-columns:104px 1fr 132px 22px;gap:26px;align-items:center;
+  padding:26px 4px;border-bottom:1px solid var(--hm-line);text-decoration:none;color:inherit;
+  transition:background .18s,padding-left .18s}
+.hm-notice:hover{background:var(--hm-card);padding-left:14px}
+.hm-notice .d{font-family:var(--hm-mono);font-size:11px;letter-spacing:.05em;color:var(--hm-faint)}
+.hm-notice .d b{display:block;font-size:10px;font-weight:500;color:var(--hm-warm);
+  letter-spacing:.1em;margin-top:5px}
+.hm-notice h3{font-family:var(--hm-serif);font-size:20px;font-weight:500;margin:0 0 6px;
+  letter-spacing:.02em}
+.hm-notice h3 em{font-style:normal;font-family:var(--hm-mono);font-size:9.5px;
+  letter-spacing:.12em;color:var(--hm-faint);margin-left:9px}
+.hm-notice p{margin:0;font-size:12.5px;line-height:1.8;color:var(--hm-muted)}
+.hm-notice .s{font-size:11px;color:var(--hm-muted);text-align:right;letter-spacing:.04em}
+.hm-notice .s i{display:block;font-style:normal;font-size:9.5px;font-family:var(--hm-mono);
+  color:#2f7a4a;margin-top:4px;letter-spacing:.1em}
+.hm-notice .s i.off{color:#96702f}
+.hm-notice .ar{color:#c4cbbb;transition:transform .2s,color .2s;font-size:15px}
+.hm-notice:hover .ar{transform:translateX(4px);color:var(--hm-ac)}
+
+/* ---------- 结尾 ---------- */
+.hm-next{margin-top:96px;padding:64px 0 72px;border-top:1px solid var(--hm-line);
+  display:grid;grid-template-columns:1fr auto;gap:48px;align-items:end}
+.hm-next h2{font-family:var(--hm-serif);font-size:38px;font-weight:500;letter-spacing:.03em;
+  margin:0 0 20px;line-height:1.35}
+.hm-next p{font-size:14.5px;line-height:2.05;color:var(--hm-ink2);margin:0;max-width:34em;
+  text-wrap:pretty}
+.hm-next-act{display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-end}
+
+/* ---------- 页脚 ---------- */
+.hm-foot{border-top:1px solid var(--hm-line);padding:28px 36px;display:flex;
+  justify-content:space-between;gap:18px;flex-wrap:wrap;font-family:var(--hm-mono);
+  font-size:10.5px;letter-spacing:.05em;color:var(--hm-faint)}
+.hm-foot a{color:var(--hm-muted);text-decoration:none;border-bottom:1px solid var(--hm-line)}
+.hm-foot a:hover{color:var(--hm-ac);border-bottom-color:var(--hm-ac)}
+
+@media (max-width:1000px){
+  .hm-hero{grid-template-columns:1fr;gap:34px;padding-top:44px}
+  .hm-plate{max-width:520px}
+  .hm-halls{grid-template-columns:repeat(2,1fr)}
+  .hm-zones{grid-template-columns:repeat(2,1fr)}
+  /* 数字条不折行：5 条数据排 5 列，只收窄内边距与字号。
+     一旦折成 3 列，末行必然空出一格，画出来像缺了一块。 */
+  .hm-stats div{padding:22px 12px 20px;border-left:1px solid var(--hm-line)}
+  .hm-stats div:nth-child(5n+1){border-left:0}
+  .hm-stats b{font-size:30px}
+  .hm-stats span{font-size:11.5px;line-height:1.5}
+  .hm-next{grid-template-columns:1fr;gap:26px;align-items:start}
+  .hm-next-act{justify-content:flex-start}
+}
+@media (max-width:680px){
+  .hm-wrap{padding:0 20px}
+  .hm-top{padding:0 16px;height:auto;flex-wrap:wrap;padding-top:8px;padding-bottom:8px;gap:8px}
+  .hm-nav{margin-left:0;width:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
+  .hm-nav::-webkit-scrollbar{display:none}
+  .hm-nav a{padding:6px 7px;font-size:12.5px;white-space:nowrap}
+  .hm-sec{padding-top:52px}
+  .hm-sec h2{font-size:25px}
+  .hm-h1{letter-spacing:.1em}
+  .hm-plate figcaption{flex-direction:column;gap:4px}
+  .hm-stats{grid-template-columns:repeat(2,1fr)}
+  .hm-stats div:nth-child(n){border-left:1px solid var(--hm-line)}
+  .hm-stats div:nth-child(2n+1){border-left:0}
+  .hm-stats div:nth-child(n+3){border-top:1px solid var(--hm-line)}
+  .hm-stats div:last-child{grid-column:1/-1}
+  .hm-halls{grid-template-columns:1fr}
+  .hm-zones{grid-template-columns:1fr}
+  /* 窄屏改成 3 行堆叠：日期厂牌 / 标题+一句话 / 状态，箭头单占右列。
+     必须写死行列，靠自动排布会把标题塞进 22px 的箭头列，变成一字一行的竖排。 */
+  .hm-notice{grid-template-columns:1fr 20px;gap:7px 12px;padding:20px 2px;align-items:start}
+  .hm-notice>span{min-width:0}
+  .hm-notice .d{grid-column:1;grid-row:1;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+  .hm-notice .m{grid-column:1;grid-row:2}
+  .hm-notice .s{grid-column:1;grid-row:3;text-align:left;margin-top:3px}
+  .hm-notice .ar{grid-column:2;grid-row:1;align-self:center}
+  .hm-notice .d b{margin-top:0}
+  .hm-notice h3{font-size:18px}
+  .hm-notice h3 em{display:block;margin:3px 0 0}
+  .hm-notice .s{grid-column:1;text-align:left}
+  .hm-notice .s i{display:inline;margin-left:8px}
+  .hm-next h2{font-size:28px}
+  .hm-foot{padding:22px 20px}
+  .hm-letter p{font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}
+  *{animation:none!important;transition:none!important}}
+</style>

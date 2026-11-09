@@ -1,0 +1,257 @@
+<style>
+/* ============================================================
+   织识 · Knowledge Weaver（杨城版 · 白泽）
+   ------------------------------------------------------------
+   底色沿用杨城的米纸，灯火用暖金——「点灯」是这个工具的隐喻：
+   知识点是灯，掌握度是亮到第几档。所以整页只有两种颜色在动：
+   纸（背景）与灯火（掌握度），其余全是墨线。
+
+   三栏：灯单 / 画布 / 守灯人。画布是主角，两侧都可以收起。
+   ============================================================ */
+:root{
+  --wv-paper:#eff1e7; --wv-card:#fbfcf5; --wv-stage:#f6f7ef; --wv-slab:#e6e9dd;
+  --wv-ink:#222b26; --wv-ink2:#48534b; --wv-muted:#6d7a70; --wv-faint:#8e9a90;
+  --wv-line:#d3d9ca; --wv-line2:#e3e7da;
+  --wv-ac:#3f5f4a; --wv-gold:#c08a33; --wv-glow:#e8b64a;
+  --wv-serif:"Songti SC","SimSun","Noto Serif SC",Georgia,serif;
+  --wv-sans:"Microsoft YaHei","PingFang SC","Segoe UI",system-ui,sans-serif;
+  --wv-mono:"Cascadia Code","Consolas","SF Mono",monospace;
+  --wv-l0:#b9c0b2; --wv-l1:#c9a86a; --wv-l2:#d2a23c; --wv-l3:#e0ab34; --wv-l4:#f0bd3e;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+body{background:var(--wv-paper);color:var(--wv-ink);font-family:var(--wv-sans);
+  -webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+input,textarea{font:inherit;color:inherit}
+a{color:var(--wv-ac);text-decoration:none}
+[hidden]{display:none!important}
+
+.wv-app{display:grid;grid-template-columns:236px minmax(0,1fr) 340px;
+  grid-template-rows:58px minmax(0,1fr);height:100vh;height:100dvh}
+
+/* ---------------- 顶栏 ---------------- */
+.wv-top{grid-column:1/-1;display:flex;align-items:center;gap:18px;padding:0 20px;
+  background:var(--wv-paper);border-bottom:1px solid var(--wv-line);z-index:20}
+.wv-brand{display:flex;align-items:baseline;gap:9px;flex:none}
+.wv-brand b{font-family:var(--wv-serif);font-size:21px;font-weight:500;letter-spacing:.14em}
+.wv-brand i{font-style:normal;font-family:var(--wv-mono);font-size:9px;letter-spacing:.16em;
+  color:var(--wv-faint)}
+.wv-now{display:flex;align-items:baseline;gap:9px;padding-left:18px;
+  border-left:1px solid var(--wv-line);min-width:0}
+.wv-now b{font-size:14px;font-weight:500;letter-spacing:.04em;white-space:nowrap}
+.wv-now i{font-style:normal;font-family:var(--wv-mono);font-size:9px;letter-spacing:.12em;
+  color:var(--wv-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wv-prog{margin-left:auto;display:flex;align-items:center;gap:11px;flex:none}
+.wv-seg{display:flex;gap:2px;align-items:flex-end;height:20px}
+.wv-seg i{display:block;width:5px;border-radius:1px;background:var(--wv-line);height:8px;
+  transition:height .3s,background .3s}
+.wv-seg i.on{background:var(--wv-gold);height:16px}
+.wv-seg i.half{background:#dcc28b;height:12px}
+.wv-pct{font-family:var(--wv-mono);font-size:13px;font-variant-numeric:tabular-nums;
+  letter-spacing:.02em;min-width:44px;text-align:right}
+.wv-tb{display:flex;gap:6px;flex:none}
+.wv-btn{padding:8px 13px;font-size:12px;border:1px solid var(--wv-line);border-radius:5px;
+  background:var(--wv-card);transition:border-color .16s,background .16s,color .16s;white-space:nowrap}
+.wv-btn:hover{border-color:var(--wv-ink2)}
+.wv-btn.solid{background:var(--wv-ink);color:#f5f7ee;border-color:var(--wv-ink)}
+.wv-btn.solid:hover{background:#0f1612}
+
+/* ---------------- 左栏 · 灯单 ---------------- */
+.wv-left{grid-row:2;display:flex;flex-direction:column;min-height:0;
+  background:var(--wv-paper);border-right:1px solid var(--wv-line)}
+.wv-search{padding:12px 14px 10px}
+.wv-search input{width:100%;padding:9px 11px;font-size:12.5px;border:1px solid var(--wv-line);
+  border-radius:5px;background:var(--wv-card);outline:none;transition:border-color .16s}
+.wv-search input:focus{border-color:var(--wv-ac)}
+.wv-sorts{display:flex;gap:2px;padding:0 14px 10px}
+.wv-sorts button{flex:1;padding:6px 2px;font-size:11px;color:var(--wv-muted);border-radius:4px;
+  border:1px solid transparent;transition:background .14s,color .14s}
+.wv-sorts button:hover{background:var(--wv-slab)}
+.wv-sorts button[aria-pressed="true"]{color:var(--wv-ink);background:var(--wv-slab);font-weight:500}
+.wv-list{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:0 8px 16px}
+.wv-item{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:8px 8px;
+  border-radius:5px;transition:background .14s}
+.wv-item:hover{background:var(--wv-slab)}
+.wv-item[aria-current="true"]{background:#e9ead9;box-shadow:inset 2px 0 0 var(--wv-ac)}
+.wv-item .dot{width:7px;height:7px;border-radius:50%;flex:none;background:var(--wv-l0)}
+.wv-item .nm{flex:1;min-width:0;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.wv-item .lv{font-family:var(--wv-mono);font-size:9.5px;color:var(--wv-faint);flex:none}
+.wv-empty{padding:22px 14px;font-size:12px;line-height:1.8;color:var(--wv-faint)}
+
+/* ---------------- 中 · 画布 ---------------- */
+.wv-stage{grid-row:2;position:relative;min-width:0;background:var(--wv-stage);overflow:hidden}
+#wvCv{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+#wvCv.grabbing{cursor:grabbing}
+#wvCv.hot{cursor:pointer}
+.wv-tools{position:absolute;left:16px;bottom:16px;display:flex;gap:6px;
+  background:rgba(251,252,245,.93);border:1px solid var(--wv-line);border-radius:7px;
+  padding:6px;backdrop-filter:blur(8px)}
+.wv-tools button{width:30px;height:30px;border-radius:4px;font-size:15px;line-height:1;
+  color:var(--wv-ink2);transition:background .14s,color .14s}
+.wv-tools button:hover{background:var(--wv-slab);color:var(--wv-ink)}
+.wv-zoom{position:absolute;right:16px;bottom:16px;font-family:var(--wv-mono);font-size:10.5px;
+  color:var(--wv-faint);background:rgba(251,252,245,.9);padding:5px 9px;border-radius:4px;
+  border:1px solid var(--wv-line2)}
+.wv-hintbar{position:absolute;left:16px;top:14px;font-size:11px;color:var(--wv-muted);
+  background:rgba(251,252,245,.92);border:1px solid var(--wv-line2);border-radius:5px;
+  padding:6px 10px;max-width:min(420px,60%);line-height:1.6;
+  transition:opacity .2s}
+/* 卡片和提示条同在画布顶部，窄屏时会压在一起。开卡片就让提示让位。 */
+.wv-stage:has(.wv-card.on) .wv-hintbar{opacity:0;pointer-events:none}
+
+/* 节点详情卡 */
+.wv-card{position:absolute;right:16px;top:14px;width:300px;max-height:calc(100% - 84px);
+  overflow-y:auto;background:var(--wv-card);border:1px solid var(--wv-line);
+  border-radius:8px;box-shadow:0 14px 34px rgba(34,43,38,.13);padding:18px 18px 16px;
+  transform:translateX(8px);opacity:0;visibility:hidden;transition:.2s}
+.wv-card.on{transform:none;opacity:1;visibility:visible}
+.wv-card .k{font-family:var(--wv-mono);font-size:9.5px;letter-spacing:.14em;color:var(--wv-faint);
+  margin-bottom:9px;display:flex;justify-content:space-between}
+.wv-card h3{font-family:var(--wv-serif);font-size:19px;font-weight:500;margin:0 0 8px;
+  line-height:1.4;letter-spacing:.02em}
+.wv-card p{margin:0 0 16px;font-size:12.5px;line-height:1.85;color:var(--wv-ink2)}
+.wv-lvlab{font-size:10.5px;color:var(--wv-muted);margin-bottom:8px;letter-spacing:.04em}
+.wv-lvs{display:flex;gap:5px;margin-bottom:16px}
+.wv-lvs button{flex:1;padding:7px 2px;font-size:10px;border:1px solid var(--wv-line);
+  border-radius:4px;color:var(--wv-muted);background:var(--wv-paper);transition:.14s;line-height:1.3}
+.wv-lvs button:hover{border-color:var(--wv-ink2);color:var(--wv-ink)}
+.wv-lvs button[aria-pressed="true"]{background:var(--wv-ink);color:#f5f7ee;border-color:var(--wv-ink)}
+.wv-card-act{display:flex;gap:7px}
+.wv-card-act .wv-btn{flex:1;text-align:center;font-size:11.5px;padding:9px 6px}
+.wv-card-x{position:absolute;right:10px;top:8px;font-size:18px;color:var(--wv-faint);
+  width:24px;height:24px;line-height:1;border-radius:4px}
+.wv-card-x:hover{background:var(--wv-slab);color:var(--wv-ink)}
+
+/* ---------------- 右栏 · 守灯人 ---------------- */
+.wv-right{grid-row:2;display:flex;flex-direction:column;min-height:0;
+  background:var(--wv-paper);border-left:1px solid var(--wv-line)}
+.wv-rh{padding:14px 16px 12px;border-bottom:1px solid var(--wv-line)}
+.wv-rh .t{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:500;
+  letter-spacing:.05em}
+.wv-lamp{width:9px;height:9px;border-radius:50%;background:var(--wv-l0);flex:none;
+  box-shadow:0 0 0 3px rgba(192,138,51,.1);transition:background .4s,box-shadow .4s}
+.wv-lamp.on{background:var(--wv-glow);box-shadow:0 0 10px rgba(232,182,74,.75)}
+.wv-rh .s{margin-top:5px;font-family:var(--wv-mono);font-size:9.5px;letter-spacing:.1em;
+  color:var(--wv-faint)}
+.wv-talk{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:16px 14px 10px;
+  display:flex;flex-direction:column;gap:12px}
+.wv-msg{max-width:94%;font-size:12.5px;line-height:1.85;padding:10px 13px;border-radius:9px}
+.wv-msg.bot{background:var(--wv-card);border:1px solid var(--wv-line2);border-bottom-left-radius:3px;
+  color:var(--wv-ink2);align-self:flex-start}
+.wv-msg.me{background:#dfe4d2;color:var(--wv-ink);align-self:flex-end;border-bottom-right-radius:3px}
+.wv-msg b{color:var(--wv-ink);font-weight:500}
+.wv-msg .q{display:block;margin-top:8px;padding-left:10px;border-left:2px solid var(--wv-gold);
+  color:var(--wv-ink)}
+.wv-msg .sug{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.wv-msg .sug button{font-size:11px;padding:4px 9px;border:1px solid var(--wv-line);
+  border-radius:12px;color:var(--wv-ink2);background:var(--wv-paper)}
+.wv-msg .sug button:hover{border-color:var(--wv-ac);color:var(--wv-ac)}
+.wv-input{padding:10px 12px 12px;border-top:1px solid var(--wv-line)}
+.wv-row{display:flex;gap:7px;align-items:flex-end}
+.wv-row textarea{flex:1;resize:none;min-height:38px;max-height:110px;padding:9px 11px;
+  font-size:12.5px;line-height:1.6;border:1px solid var(--wv-line);border-radius:7px;
+  background:var(--wv-card);outline:none;transition:border-color .16s}
+.wv-row textarea:focus{border-color:var(--wv-ac)}
+.wv-send{width:38px;height:38px;border-radius:7px;background:var(--wv-ink);color:#f5f7ee;
+  font-size:15px;flex:none}
+.wv-send:hover{background:#0f1612}
+.wv-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.wv-chips button{font-size:10.5px;padding:4px 8px;border:1px solid var(--wv-line2);
+  border-radius:10px;color:var(--wv-muted)}
+.wv-chips button:hover{border-color:var(--wv-ac);color:var(--wv-ac)}
+
+/* ---------------- 体系选择 ---------------- */
+.wv-pick{position:fixed;inset:0;z-index:60;background:var(--wv-paper);overflow-y:auto}
+.wv-pick-in{max-width:1000px;margin:0 auto;padding:56px 32px 64px}
+.wv-pick h1{font-family:var(--wv-serif);font-size:40px;font-weight:500;letter-spacing:.14em;
+  margin:0 0 8px}
+.wv-pick .sub{font-family:var(--wv-mono);font-size:10.5px;letter-spacing:.2em;
+  color:var(--wv-faint);margin-bottom:14px}
+.wv-pick .lead{font-size:14px;line-height:1.95;color:var(--wv-ink2);max-width:38em;margin:0 0 36px}
+.wv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--wv-line);
+  border:1px solid var(--wv-line)}
+.wv-sys{display:flex;flex-direction:column;text-align:left;background:var(--wv-card);
+  padding:22px 20px;transition:background .18s;min-height:180px}
+.wv-sys:hover{background:#f2f4e8}
+.wv-sys .n{font-family:var(--wv-mono);font-size:10px;letter-spacing:.12em;color:var(--wv-faint);
+  display:flex;justify-content:space-between;margin-bottom:16px}
+.wv-sys h3{font-family:var(--wv-serif);font-size:20px;font-weight:500;margin:0 0 5px;
+  letter-spacing:.03em}
+.wv-sys .e{font-family:var(--wv-mono);font-size:9px;letter-spacing:.12em;color:var(--wv-faint);
+  margin-bottom:12px}
+.wv-sys .note{font-size:12.5px;color:var(--wv-ink2);line-height:1.7;margin:0 0 auto}
+.wv-sys .bar{margin-top:16px;height:3px;background:var(--wv-line2);border-radius:2px;overflow:hidden}
+.wv-sys .bar i{display:block;height:100%;background:var(--wv-gold);width:0}
+.wv-sys .pc{margin-top:7px;font-family:var(--wv-mono);font-size:10px;color:var(--wv-faint);
+  letter-spacing:.06em}
+.wv-pick-f{margin-top:34px;font-size:11.5px;color:var(--wv-muted);line-height:1.9}
+.wv-pick-f a{border-bottom:1px solid var(--wv-line)}
+
+/* ---------------- 复盘浮层 ---------------- */
+.wv-modal{position:fixed;inset:0;z-index:70;background:rgba(30,38,32,.34);
+  display:grid;place-items:center;padding:24px;backdrop-filter:blur(3px)}
+.wv-box{width:min(560px,100%);max-height:86vh;overflow-y:auto;background:var(--wv-card);
+  border:1px solid var(--wv-line);border-radius:10px;padding:26px 26px 22px;
+  box-shadow:0 24px 60px rgba(20,30,24,.24)}
+.wv-box h2{font-family:var(--wv-serif);font-size:23px;font-weight:500;margin:0 0 6px;
+  letter-spacing:.04em}
+.wv-box .bx-sub{font-size:12px;color:var(--wv-muted);margin:0 0 22px}
+.wv-box h4{font-size:11px;font-weight:500;letter-spacing:.12em;color:var(--wv-faint);
+  margin:0 0 10px;font-family:var(--wv-mono)}
+.wv-tagrow{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:11.5px}
+.wv-tagrow .tn{width:76px;flex:none;color:var(--wv-ink2)}
+.wv-tagrow .tb{flex:1;height:7px;background:var(--wv-line2);border-radius:3px;overflow:hidden}
+.wv-tagrow .tb i{display:block;height:100%;background:var(--wv-gold)}
+.wv-tagrow .tp{width:38px;text-align:right;font-family:var(--wv-mono);font-size:10px;
+  color:var(--wv-faint)}
+.wv-weak{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.wv-weak button{font-size:11.5px;padding:5px 10px;border:1px solid var(--wv-line);
+  border-radius:12px;color:var(--wv-ink2);background:var(--wv-paper)}
+.wv-weak button:hover{border-color:var(--wv-ac);color:var(--wv-ac)}
+.wv-box .close{margin-top:22px;width:100%}
+
+/* ---------------- 响应式 ---------------- */
+@media (max-width:1180px){
+  .wv-app{grid-template-columns:200px minmax(0,1fr) 300px}
+  .wv-now i{display:none}
+}
+@media (max-width:980px){
+  .wv-app{grid-template-columns:minmax(0,1fr)}
+  .wv-left,.wv-right{position:fixed;top:58px;bottom:0;z-index:40;width:min(320px,86vw);
+    background:var(--wv-paper);transition:transform .28s ease;box-shadow:0 0 40px rgba(20,30,24,.16)}
+  .wv-left{left:0;transform:translateX(-102%);border-right:1px solid var(--wv-line)}
+  .wv-right{right:0;transform:translateX(102%);border-left:1px solid var(--wv-line)}
+  .wv-left.open,.wv-right.open{transform:none}
+  .wv-stage{grid-column:1;grid-row:2}
+  .wv-pick-in{padding:36px 20px 48px}
+  .wv-pick h1{font-size:30px}
+  .wv-grid{grid-template-columns:1fr}
+  .wv-card{right:10px;left:10px;width:auto;top:auto;bottom:64px;max-height:52%}
+  .wv-hintbar{display:none}
+  .wv-tb .hide-sm{display:none}
+}
+/* 手机：顶栏 390px 放不下一行，改成两行——
+   上行「织识 · 体系名 · 进度」，下行五个按钮等分宽度。
+   同时把 980px 断点里被隐藏的「灯单 / 守灯人」放回来：
+   这两个是左右抽屉唯一的开关，藏了抽屉就永远打不开了。 */
+@media (max-width:640px){
+  .wv-app{grid-template-rows:92px minmax(0,1fr)}
+  .wv-top{flex-wrap:wrap;align-content:center;row-gap:3px;column-gap:8px;
+    padding:8px 12px;height:92px}
+  .wv-brand b{font-size:18px;letter-spacing:.1em}
+  .wv-brand i{display:none}
+  .wv-now{padding-left:0;border-left:0;gap:0;flex:1}
+  .wv-now b{font-size:13px}
+  .wv-seg{display:none}
+  .wv-prog{gap:0;margin-left:0}
+  .wv-pct{font-size:12px;min-width:38px}
+  .wv-tb{flex:0 0 100%;justify-content:space-between;gap:5px}
+  .wv-tb .hide-sm{display:block}
+  .wv-tb .wv-btn{flex:1;text-align:center;padding:7px 4px;font-size:11.5px;white-space:nowrap}
+  .wv-left,.wv-right{top:92px}
+  .wv-card{bottom:56px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>

@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../favicon.svg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="杨城 · AI 认知失效证据城市">
+<meta property="og:title" content="织识 · 白泽 · 杨城">
+<meta property="og:description" content="织识 Knowledge Weaver：一张会长大的知识地图。五级掌握度，离线守灯人，六套体系，纯本地运行。白泽出品，杨城全城开放。">
+<meta property="og:image" content="https://ycx666994.github.io/Yang-City/docs/screens/01-city.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="织识 · 白泽 · 杨城">
+<meta name="twitter:description" content="织识 Knowledge Weaver：一张会长大的知识地图。五级掌握度，离线守灯人，六套体系，纯本地运行。白泽出品，杨城全城开放。">
+<meta name="twitter:image" content="https://ycx666994.github.io/Yang-City/docs/screens/01-city.jpg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>织识 · 白泽 · 杨城</title>
+<meta name="description" content="织识 Knowledge Weaver：一张会长大的知识地图。五级掌握度，离线守灯人，六套体系，纯本地运行。白泽出品，杨城全城开放。">
+<style>
+/* ============================================================
+   织识 · Knowledge Weaver（杨城版 · 白泽）
+   ------------------------------------------------------------
+   底色沿用杨城的米纸，灯火用暖金——「点灯」是这个工具的隐喻：
+   知识点是灯，掌握度是亮到第几档。所以整页只有两种颜色在动：
+   纸（背景）与灯火（掌握度），其余全是墨线。
+
+   三栏：灯单 / 画布 / 守灯人。画布是主角，两侧都可以收起。
+   ============================================================ */
+:root{
+  --wv-paper:#eff1e7; --wv-card:#fbfcf5; --wv-stage:#f6f7ef; --wv-slab:#e6e9dd;
+  --wv-ink:#222b26; --wv-ink2:#48534b; --wv-muted:#6d7a70; --wv-faint:#8e9a90;
+  --wv-line:#d3d9ca; --wv-line2:#e3e7da;
+  --wv-ac:#3f5f4a; --wv-gold:#c08a33; --wv-glow:#e8b64a;
+  --wv-serif:"Songti SC","SimSun","Noto Serif SC",Georgia,serif;
+  --wv-sans:"Microsoft YaHei","PingFang SC","Segoe UI",system-ui,sans-serif;
+  --wv-mono:"Cascadia Code","Consolas","SF Mono",monospace;
+  --wv-l0:#b9c0b2; --wv-l1:#c9a86a; --wv-l2:#d2a23c; --wv-l3:#e0ab34; --wv-l4:#f0bd3e;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+body{background:var(--wv-paper);color:var(--wv-ink);font-family:var(--wv-sans);
+  -webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+input,textarea{font:inherit;color:inherit}
+a{color:var(--wv-ac);text-decoration:none}
+[hidden]{display:none!important}
+
+.wv-app{display:grid;grid-template-columns:236px minmax(0,1fr) 340px;
+  grid-template-rows:58px minmax(0,1fr);height:100vh;height:100dvh}
+
+/* ---------------- 顶栏 ---------------- */
+.wv-top{grid-column:1/-1;display:flex;align-items:center;gap:18px;padding:0 20px;
+  background:var(--wv-paper);border-bottom:1px solid var(--wv-line);z-index:20}
+.wv-brand{display:flex;align-items:baseline;gap:9px;flex:none}
+.wv-brand b{font-family:var(--wv-serif);font-size:21px;font-weight:500;letter-spacing:.14em}
+.wv-brand i{font-style:normal;font-family:var(--wv-mono);font-size:9px;letter-spacing:.16em;
+  color:var(--wv-faint)}
+.wv-now{display:flex;align-items:baseline;gap:9px;padding-left:18px;
+  border-left:1px solid var(--wv-line);min-width:0}
+.wv-now b{font-size:14px;font-weight:500;letter-spacing:.04em;white-space:nowrap}
+.wv-now i{font-style:normal;font-family:var(--wv-mono);font-size:9px;letter-spacing:.12em;
+  color:var(--wv-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wv-prog{margin-left:auto;display:flex;align-items:center;gap:11px;flex:none}
+.wv-seg{display:flex;gap:2px;align-items:flex-end;height:20px}
+.wv-seg i{display:block;width:5px;border-radius:1px;background:var(--wv-line);height:8px;
+  transition:height .3s,background .3s}
+.wv-seg i.on{background:var(--wv-gold);height:16px}
+.wv-seg i.half{background:#dcc28b;height:12px}
+.wv-pct{font-family:var(--wv-mono);font-size:13px;font-variant-numeric:tabular-nums;
+  letter-spacing:.02em;min-width:44px;text-align:right}
+.wv-tb{display:flex;gap:6px;flex:none}
+.wv-btn{padding:8px 13px;font-size:12px;border:1px solid var(--wv-line);border-radius:5px;
+  background:var(--wv-card);transition:border-color .16s,background .16s,color .16s;white-space:nowrap}
+.wv-btn:hover{border-color:var(--wv-ink2)}
+.wv-btn.solid{background:var(--wv-ink);color:#f5f7ee;border-color:var(--wv-ink)}
+.wv-btn.solid:hover{background:#0f1612}
+
+/* ---------------- 左栏 · 灯单 ---------------- */
+.wv-left{grid-row:2;display:flex;flex-direction:column;min-height:0;
+  background:var(--wv-paper);border-right:1px solid var(--wv-line)}
+.wv-search{padding:12px 14px 10px}
+.wv-search input{width:100%;padding:9px 11px;font-size:12.5px;border:1px solid var(--wv-line);
+  border-radius:5px;background:var(--wv-card);outline:none;transition:border-color .16s}
+.wv-search input:focus{border-color:var(--wv-ac)}
+.wv-sorts{display:flex;gap:2px;padding:0 14px 10px}
+.wv-sorts button{flex:1;padding:6px 2px;font-size:11px;color:var(--wv-muted);border-radius:4px;
+  border:1px solid transparent;transition:background .14s,color .14s}
+.wv-sorts button:hover{background:var(--wv-slab)}
+.wv-sorts button[aria-pressed="true"]{color:var(--wv-ink);background:var(--wv-slab);font-weight:500}
+.wv-list{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:0 8px 16px}
+.wv-item{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:8px 8px;
+  border-radius:5px;transition:background .14s}
+.wv-item:hover{background:var(--wv-slab)}
+.wv-item[aria-current="true"]{background:#e9ead9;box-shadow:inset 2px 0 0 var(--wv-ac)}
+.wv-item .dot{width:7px;height:7px;border-radius:50%;flex:none;background:var(--wv-l0)}
+.wv-item .nm{flex:1;min-width:0;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.wv-item .lv{font-family:var(--wv-mono);font-size:9.5px;color:var(--wv-faint);flex:none}
+.wv-empty{padding:22px 14px;font-size:12px;line-height:1.8;color:var(--wv-faint)}
+
+/* ---------------- 中 · 画布 ---------------- */
+.wv-stage{grid-row:2;position:relative;min-width:0;background:var(--wv-stage);overflow:hidden}
+#wvCv{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+#wvCv.grabbing{cursor:grabbing}
+#wvCv.hot{cursor:pointer}
+.wv-tools{position:absolute;left:16px;bottom:16px;display:flex;gap:6px;
+  background:rgba(251,252,245,.93);border:1px solid var(--wv-line);border-radius:7px;
+  padding:6px;backdrop-filter:blur(8px)}
+.wv-tools button{width:30px;height:30px;border-radius:4px;font-size:15px;line-height:1;
+  color:var(--wv-ink2);transition:background .14s,color .14s}
+.wv-tools button:hover{background:var(--wv-slab);color:var(--wv-ink)}
+.wv-zoom{position:absolute;right:16px;bottom:16px;font-family:var(--wv-mono);font-size:10.5px;
+  color:var(--wv-faint);background:rgba(251,252,245,.9);padding:5px 9px;border-radius:4px;
+  border:1px solid var(--wv-line2)}
+.wv-hintbar{position:absolute;left:16px;top:14px;font-size:11px;color:var(--wv-muted);
+  background:rgba(251,252,245,.92);border:1px solid var(--wv-line2);border-radius:5px;
+  padding:6px 10px;max-width:min(420px,60%);line-height:1.6;
+  transition:opacity .2s}
+/* 卡片和提示条同在画布顶部，窄屏时会压在一起。开卡片就让提示让位。 */
+.wv-stage:has(.wv-card.on) .wv-hintbar{opacity:0;pointer-events:none}
+
+/* 节点详情卡 */
+.wv-card{position:absolute;right:16px;top:14px;width:300px;max-height:calc(100% - 84px);
+  overflow-y:auto;background:var(--wv-card);border:1px solid var(--wv-line);
+  border-radius:8px;box-shadow:0 14px 34px rgba(34,43,38,.13);padding:18px 18px 16px;
+  transform:translateX(8px);opacity:0;visibility:hidden;transition:.2s}
+.wv-card.on{transform:none;opacity:1;visibility:visible}
+.wv-card .k{font-family:var(--wv-mono);font-size:9.5px;letter-spacing:.14em;color:var(--wv-faint);
+  margin-bottom:9px;display:flex;justify-content:space-between}
+.wv-card h3{font-family:var(--wv-serif);font-size:19px;font-weight:500;margin:0 0 8px;
+  line-height:1.4;letter-spacing:.02em}
+.wv-card p{margin:0 0 16px;font-size:12.5px;line-height:1.85;color:var(--wv-ink2)}
+.wv-lvlab{font-size:10.5px;color:var(--wv-muted);margin-bottom:8px;letter-spacing:.04em}
+.wv-lvs{display:flex;gap:5px;margin-bottom:16px}
+.wv-lvs button{flex:1;padding:7px 2px;font-size:10px;border:1px solid var(--wv-line);
+  border-radius:4px;color:var(--wv-muted);background:var(--wv-paper);transition:.14s;line-height:1.3}
+.wv-lvs button:hover{border-color:var(--wv-ink2);color:var(--wv-ink)}
+.wv-lvs button[aria-pressed="true"]{background:var(--wv-ink);color:#f5f7ee;border-color:var(--wv-ink)}
+.wv-card-act{display:flex;gap:7px}
+.wv-card-act .wv-btn{flex:1;text-align:center;font-size:11.5px;padding:9px 6px}
+.wv-card-x{position:absolute;right:10px;top:8px;font-size:18px;color:var(--wv-faint);
+  width:24px;height:24px;line-height:1;border-radius:4px}
+.wv-card-x:hover{background:var(--wv-slab);color:var(--wv-ink)}
+
+/* ---------------- 右栏 · 守灯人 ---------------- */
+.wv-right{grid-row:2;display:flex;flex-direction:column;min-height:0;
+  background:var(--wv-paper);border-left:1px solid var(--wv-line)}
+.wv-rh{padding:14px 16px 12px;border-bottom:1px solid var(--wv-line)}
+.wv-rh .t{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:500;
+  letter-spacing:.05em}
+.wv-lamp{width:9px;height:9px;border-radius:50%;background:var(--wv-l0);flex:none;
+  box-shadow:0 0 0 3px rgba(192,138,51,.1);transition:background .4s,box-shadow .4s}
+.wv-lamp.on{background:var(--wv-glow);box-shadow:0 0 10px rgba(232,182,74,.75)}
+.wv-rh .s{margin-top:5px;font-family:var(--wv-mono);font-size:9.5px;letter-spacing:.1em;
+  color:var(--wv-faint)}
+.wv-talk{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:16px 14px 10px;
+  display:flex;flex-direction:column;gap:12px}
+.wv-msg{max-width:94%;font-size:12.5px;line-height:1.85;padding:10px 13px;border-radius:9px}
+.wv-msg.bot{background:var(--wv-card);border:1px solid var(--wv-line2);border-bottom-left-radius:3px;
+  color:var(--wv-ink2);align-self:flex-start}
+.wv-msg.me{background:#dfe4d2;color:var(--wv-ink);align-self:flex-end;border-bottom-right-radius:3px}
+.wv-msg b{color:var(--wv-ink);font-weight:500}
+.wv-msg .q{display:block;margin-top:8px;padding-left:10px;border-left:2px solid var(--wv-gold);
+  color:var(--wv-ink)}
+.wv-msg .sug{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.wv-msg .sug button{font-size:11px;padding:4px 9px;border:1px solid var(--wv-line);
+  border-radius:12px;color:var(--wv-ink2);background:var(--wv-paper)}
+.wv-msg .sug button:hover{border-color:var(--wv-ac);color:var(--wv-ac)}
+.wv-input{padding:10px 12px 12px;border-top:1px solid var(--wv-line)}
+.wv-row{display:flex;gap:7px;align-items:flex-end}
+.wv-row textarea{flex:1;resize:none;min-height:38px;max-height:110px;padding:9px 11px;
+  font-size:12.5px;line-height:1.6;border:1px solid var(--wv-line);border-radius:7px;
+  background:var(--wv-card);outline:none;transition:border-color .16s}
+.wv-row textarea:focus{border-color:var(--wv-ac)}
+.wv-send{width:38px;height:38px;border-radius:7px;background:var(--wv-ink);color:#f5f7ee;
+  font-size:15px;flex:none}
+.wv-send:hover{background:#0f1612}
+.wv-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.wv-chips button{font-size:10.5px;padding:4px 8px;border:1px solid var(--wv-line2);
+  border-radius:10px;color:var(--wv-muted)}
+.wv-chips button:hover{border-color:var(--wv-ac);color:var(--wv-ac)}
+
+/* ---------------- 体系选择 ---------------- */
+.wv-pick{position:fixed;inset:0;z-index:60;background:var(--wv-paper);overflow-y:auto}
+.wv-pick-in{max-width:1000px;margin:0 auto;padding:56px 32px 64px}
+.wv-pick h1{font-family:var(--wv-serif);font-size:40px;font-weight:500;letter-spacing:.14em;
+  margin:0 0 8px}
+.wv-pick .sub{font-family:var(--wv-mono);font-size:10.5px;letter-spacing:.2em;
+  color:var(--wv-faint);margin-bottom:14px}
+.wv-pick .lead{font-size:14px;line-height:1.95;color:var(--wv-ink2);max-width:38em;margin:0 0 36px}
+.wv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--wv-line);
+  border:1px solid var(--wv-line)}
+.wv-sys{display:flex;flex-direction:column;text-align:left;background:var(--wv-card);
+  padding:22px 20px;transition:background .18s;min-height:180px}
+.wv-sys:hover{background:#f2f4e8}
+.wv-sys .n{font-family:var(--wv-mono);font-size:10px;letter-spacing:.12em;color:var(--wv-faint);
+  display:flex;justify-content:space-between;margin-bottom:16px}
+.wv-sys h3{font-family:var(--wv-serif);font-size:20px;font-weight:500;margin:0 0 5px;
+  letter-spacing:.03em}
+.wv-sys .e{font-family:var(--wv-mono);font-size:9px;letter-spacing:.12em;color:var(--wv-faint);
+  margin-bottom:12px}
+.wv-sys .note{font-size:12.5px;color:var(--wv-ink2);line-height:1.7;margin:0 0 auto}
+.wv-sys .bar{margin-top:16px;height:3px;background:var(--wv-line2);border-radius:2px;overflow:hidden}
+.wv-sys .bar i{display:block;height:100%;background:var(--wv-gold);width:0}
+.wv-sys .pc{margin-top:7px;font-family:var(--wv-mono);font-size:10px;color:var(--wv-faint);
+  letter-spacing:.06em}
+.wv-pick-f{margin-top:34px;font-size:11.5px;color:var(--wv-muted);line-height:1.9}
+.wv-pick-f a{border-bottom:1px solid var(--wv-line)}
+
+/* ---------------- 复盘浮层 ---------------- */
+.wv-modal{position:fixed;inset:0;z-index:70;background:rgba(30,38,32,.34);
+  display:grid;place-items:center;padding:24px;backdrop-filter:blur(3px)}
+.wv-box{width:min(560px,100%);max-height:86vh;overflow-y:auto;background:var(--wv-card);
+  border:1px solid var(--wv-line);border-radius:10px;padding:26px 26px 22px;
+  box-shadow:0 24px 60px rgba(20,30,24,.24)}
+.wv-box h2{font-family:var(--wv-serif);font-size:23px;font-weight:500;margin:0 0 6px;
+  letter-spacing:.04em}
+.wv-box .bx-sub{font-size:12px;color:var(--wv-muted);margin:0 0 22px}
+.wv-box h4{font-size:11px;font-weight:500;letter-spacing:.12em;color:var(--wv-faint);
+  margin:0 0 10px;font-family:var(--wv-mono)}
+.wv-tagrow{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:11.5px}
+.wv-tagrow .tn{width:76px;flex:none;color:var(--wv-ink2)}
+.wv-tagrow .tb{flex:1;height:7px;background:var(--wv-line2);border-radius:3px;overflow:hidden}
+.wv-tagrow .tb i{display:block;height:100%;background:var(--wv-gold)}
+.wv-tagrow .tp{width:38px;text-align:right;font-family:var(--wv-mono);font-size:10px;
+  color:var(--wv-faint)}
+.wv-weak{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.wv-weak button{font-size:11.5px;padding:5px 10px;border:1px solid var(--wv-line);
+  border-radius:12px;color:var(--wv-ink2);background:var(--wv-paper)}
+.wv-weak button:hover{border-color:var(--wv-ac);color:var(--wv-ac)}
+.wv-box .close{margin-top:22px;width:100%}
+
+/* ---------------- 响应式 ---------------- */
+@media (max-width:1180px){
+  .wv-app{grid-template-columns:200px minmax(0,1fr) 300px}
+  .wv-now i{display:none}
+}
+@media (max-width:980px){
+  .wv-app{grid-template-columns:minmax(0,1fr)}
+  .wv-left,.wv-right{position:fixed;top:58px;bottom:0;z-index:40;width:min(320px,86vw);
+    background:var(--wv-paper);transition:transform .28s ease;box-shadow:0 0 40px rgba(20,30,24,.16)}
+  .wv-left{left:0;transform:translateX(-102%);border-right:1px solid var(--wv-line)}
+  .wv-right{right:0;transform:translateX(102%);border-left:1px solid var(--wv-line)}
+  .wv-left.open,.wv-right.open{transform:none}
+  .wv-stage{grid-column:1;grid-row:2}
+  .wv-pick-in{padding:36px 20px 48px}
+  .wv-pick h1{font-size:30px}
+  .wv-grid{grid-template-columns:1fr}
+  .wv-card{right:10px;left:10px;width:auto;top:auto;bottom:64px;max-height:52%}
+  .wv-hintbar{display:none}
+  .wv-tb .hide-sm{display:none}
+}
+/* 手机：顶栏 390px 放不下一行，改成两行——
+   上行「织识 · 体系名 · 进度」，下行五个按钮等分宽度。
+   同时把 980px 断点里被隐藏的「灯单 / 守灯人」放回来：
+   这两个是左右抽屉唯一的开关，藏了抽屉就永远打不开了。 */
+@media (max-width:640px){
+  .wv-app{grid-template-rows:92px minmax(0,1fr)}
+  .wv-top{flex-wrap:wrap;align-content:center;row-gap:3px;column-gap:8px;
+    padding:8px 12px;height:92px}
+  .wv-brand b{font-size:18px;letter-spacing:.1em}
+  .wv-brand i{display:none}
+  .wv-now{padding-left:0;border-left:0;gap:0;flex:1}
+  .wv-now b{font-size:13px}
+  .wv-seg{display:none}
+  .wv-prog{gap:0;margin-left:0}
+  .wv-pct{font-size:12px;min-width:38px}
+  .wv-tb{flex:0 0 100%;justify-content:space-between;gap:5px}
+  .wv-tb .hide-sm{display:block}
+  .wv-tb .wv-btn{flex:1;text-align:center;padding:7px 4px;font-size:11.5px;white-space:nowrap}
+  .wv-left,.wv-right{top:92px}
+  .wv-card{bottom:56px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<div class="wv-app">
+  <header class="wv-top">
+    <div class="wv-brand"><b>织识</b><i>KNOWLEDGE WEAVER</i></div>
+    <div class="wv-now"><b id="wvSysName">—</b><i id="wvSysEn"></i></div>
+    <div class="wv-prog">
+      <div class="wv-seg" id="wvSeg" aria-hidden="true"></div>
+      <span class="wv-pct" id="wvPct">0%</span>
+    </div>
+    <div class="wv-tb">
+      <button class="wv-btn hide-sm" id="wvBtnLeft" type="button">灯单</button>
+      <button class="wv-btn" id="wvBtnPick" type="button">换体系</button>
+      <button class="wv-btn" id="wvBtnReview" type="button">复盘</button>
+      <button class="wv-btn hide-sm" id="wvBtnTalk" type="button">守灯人</button>
+      <a class="wv-btn" href="project.html?id=weave">← 项目</a>
+    </div>
+  </header>
+
+  <aside class="wv-left" id="wvLeft" aria-label="灯单">
+    <div class="wv-search"><input id="wvSearch" type="search" placeholder="搜索知识点…" autocomplete="off"></div>
+    <div class="wv-sorts" id="wvSorts">
+      <button type="button" data-sort="name" aria-pressed="true">名称</button>
+      <button type="button" data-sort="lv" aria-pressed="false">掌握度</button>
+      <button type="button" data-sort="tag" aria-pressed="false">分组</button>
+    </div>
+    <div class="wv-list" id="wvList"></div>
+  </aside>
+
+  <main class="wv-stage">
+    <canvas id="wvCv" aria-label="知识灯图：可拖动、缩放，点击知识点查看详情并调整掌握度"></canvas>
+    <div class="wv-hintbar" id="wvHint">拖动平移 · 滚轮缩放 · 点灯看详情 · 双击提一档</div>
+    <div class="wv-tools">
+      <button type="button" id="wvIn" title="放大" aria-label="放大">＋</button>
+      <button type="button" id="wvOut" title="缩小" aria-label="缩小">－</button>
+      <button type="button" id="wvFit" title="复位视图" aria-label="复位视图">⌾</button>
+      <button type="button" id="wvTier" title="按先决深度重排" aria-label="按先决深度重排">⌸</button>
+    </div>
+    <div class="wv-zoom" id="wvZoom">×1.00</div>
+    <div class="wv-card" id="wvCard" aria-live="polite">
+      <button class="wv-card-x" id="wvCardX" type="button" aria-label="关闭">×</button>
+      <div class="k"><span id="wvCardTag">—</span><span id="wvCardDepth"></span></div>
+      <h3 id="wvCardName">—</h3>
+      <p id="wvCardDesc"></p>
+      <div class="wv-lvlab" id="wvLvLab">掌握度</div>
+      <div class="wv-lvs" id="wvLvs"></div>
+      <div class="wv-card-act">
+        <button class="wv-btn" id="wvCardAsk" type="button">问守灯人</button>
+        <button class="wv-btn" id="wvCardPath" type="button">怎么学到这</button>
+      </div>
+    </div>
+  </main>
+
+  <aside class="wv-right" id="wvRight" aria-label="守灯人">
+    <div class="wv-rh">
+      <div class="t"><span class="wv-lamp" id="wvLamp"></span>守灯人</div>
+      <div class="s">评估 · 规划 · 追问 · 复盘</div>
+    </div>
+    <div class="wv-talk" id="wvTalk"></div>
+    <div class="wv-input">
+      <div class="wv-row">
+        <textarea id="wvText" rows="1" placeholder="说一句你刚学到的东西…"></textarea>
+        <button class="wv-send" id="wvSend" type="button" aria-label="发送">↑</button>
+      </div>
+      <div class="wv-chips">
+        <button type="button" data-fill="我刚学了「">学了…</button>
+        <button type="button" data-fill="规划一条从基础到「">路径</button>
+        <button type="button" data-fill="考考我，挑最弱的">考我</button>
+        <button type="button" data-fill="帮我分析一下我的掌握情况">分析我</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div class="wv-pick" id="wvPickWrap" hidden>
+  <div class="wv-pick-in">
+    <h1>织识</h1>
+    <div class="sub">KNOWLEDGE WEAVER · 白泽</div>
+    <p class="lead">选一张灯图。每个知识点是一盏灯，五级掌握度：未燃、引燃、微明、炽亮、鎏辉。灯点亮到哪一级，图上看得到，藏不住。</p>
+    <div class="wv-grid" id="wvPickGrid"></div>
+    <p class="wv-pick-f">首次打开带一份示例进度，方便你看到灯图长什么样。<br>想从零开始，在<b>复盘</b>里重置本体系。<a href="project.html?id=weave">回到项目页</a></p>
+  </div>
+</div>
+
+<div class="wv-modal" id="wvModal" hidden>
+  <div class="wv-box" role="dialog" aria-modal="true" aria-label="学习复盘">
+    <h2 id="wvMTitle">复盘</h2>
+    <p class="bx-sub" id="wvMSub">—</p>
+    <div id="wvMBody"></div>
+    <button class="wv-btn solid close" id="wvMClose" type="button">继续</button>
+  </div>
+</div>
+<script>
+/* ============================================================
+   织识 · 知识体系数据（杨城版）
+   ------------------------------------------------------------
+   这是整套工具唯一的内容源。六套体系，每套一张灯图。
+
+   节点格式：[id, 名称, 标签, 初始掌握度, 权重, 一句话说明]
+     id       体系内唯一，运行时拼上体系前缀
+     标签     用于分组着色与复盘统计
+     掌握度   0 未燃 / 1 引燃 / 2 微明 / 3 炽亮 / 4 鎏辉
+              初始值给的是「一位市民打开时已有的程度」，不是满分示范
+     权重     0.5–1.7，决定节点半径与排布间距
+     说明     一到两句，写清这个知识点到底在说什么
+
+   边格式：[源, 目标, 类型]
+     pre  先决：要先懂源，才谈得上懂目标
+     rel  相关：互相印证，不分先后
+     ext  外延：从这里继续往外的方向
+
+   数据放在这里而不是后端，是因为整套工具要能离线打开：
+   没有账号、没有请求、没有密钥，关掉网也能用。
+   ============================================================ */
+(function (w) {
+  "use strict";
+
+  var SYSTEMS = [
+    /* ---------------- 一 · AI 素养 ---------------- */
+    {
+      id: "ai",
+      name: "AI 素养",
+      en: "AI LITERACY",
+      note: "不失效地用",
+      core: "这套体系不教你怎么写提示词，教你怎么判断一个回答值不值得信。二十四盏灯，从「能用不等于会用」开始。",
+      nodes: [
+        ["root", "能用 ≠ 会用", "core", 2, 1.7, "装个应用、会点按钮，一晚上就学会；知道它在什么情况下会骗你，要靠一次次被纠正。"],
+        ["once", "一次成功不是证据", "core", 1, 1.5, "同一句提示连跑十次，结果可能差很远。单次观察只能算轶事。"],
+        ["fluent", "流畅不等于正确", "core", 2, 1.45, "通顺、有条理、分点清楚，只说明它写得像人，不说明它写对了。"],
+        ["falsify", "可证伪", "core", 0, 1.4, "一个说法如果无论怎样都成立，它就没有信息量。先问：什么情况下它是错的。"],
+        ["scope", "什么该交给模型", "core", 1, 1.55, "可逆、可核对、错了代价小的，交出去；不可逆、难核对的，留在手里。"],
+
+        ["hall", "幻觉", "edge", 2, 1.6, "没有依据时它也会生成看起来有出处的答案。它不是骗你，它是在补全。"],
+        ["hall3", "幻觉的三个来源", "edge", 1, 1.35, "训练数据里就没有、问题本身有歧义、或者它在模仿见过的文风而不是事实。"],
+        ["admit", "让它说不知道", "use", 2, 1.3, "明确允许「答不上来」，编造率会明显下降。不给出口，它就只能编。"],
+        ["ood", "分布外输入", "edge", 0, 1.4, "你的问题离训练数据越远，它越可能一本正经地瞎编。奇怪单位、内部术语、刚发生的事，都在分布外。"],
+        ["conf", "模型的自信没有含义", "edge", 1, 1.3, "语气笃定是训练出来的文风，不是它算出来的把握。它没有「我确定」这个内部读数。"],
+        ["know0", "知识截止", "edge", 2, 1.2, "训练什么时候停，它的世界就停在哪里。之后的事它不知道，但可能照样回答。"],
+
+        ["cite", "要出处", "use", 1, 1.25, "有出处的答案可以查，没出处的答案只能信。要求给出处，能把一半错误挡在门外。"],
+        ["check", "交叉核对", "use", 1, 1.5, "换个模型、换个问法、或者直接搜原文。三种里做一种，错误率就下得来。"],
+        ["first", "回到一手来源", "use", 0, 1.35, "法规、标准、论文、合同原文。二手转述在转述的时候就已经变形了。"],
+        ["restate", "复述即验证", "use", 0, 1.3, "让它把你的要求复述一遍，再看它有没有理解错。这一步拦下的返工最多。"],
+        ["math", "算术与精确事实", "edge", 1, 1.1, "它算数是猜的。涉及钱、日期、编号、剂量，用工具算，不要让它心算。"],
+
+        ["ask", "提问的粒度", "use", 1, 1.3, "一次只问一件事，把条件和输出格式写清楚。含糊的问题只会得到含糊的答案。"],
+        ["ctx", "上下文窗口", "edge", 1, 1.15, "它一次能看的字数是有限的。超出部分会被截掉，而它不会告诉你截了哪里。"],
+        ["ctxp", "上下文污染", "edge", 0, 1.3, "对话里一句错的假设，会被后面所有回答继承。发现不对就重开，别硬拽。"],
+        ["role", "角色的作用与限度", "use", 1, 1.05, "「你是一位资深律师」能改变语气和关注点，不能给它没学过的知识。"],
+        ["fmt", "结构化输出", "use", 0, 1.15, "让它输出 JSON、表格、固定字段，可核验性立刻高一档，也方便程序接。"],
+
+        ["rep", "可复现性", "work", 0, 1.35, "温度、模型版本、提示词、上下文，四个里变一个，结果就不再是同一个。"],
+        ["temp", "温度与随机性", "edge", 0, 1.05, "低温更稳但更平庸，高温更有想法也更容易跑偏。要稳定就别让它发挥。"],
+        ["sample", "抽样再批量", "work", 0, 1.3, "一批任务里先抽十条人工看，对了再全量跑。跳过抽样，等于把错误一次性放大。"],
+        ["loop", "人在回路", "work", 1, 1.5, "关键节点上留一个人确认。不是不信任模型，是不信任「没有人负责」的流程。"],
+        ["irrev", "不可逆操作", "edge", 1, 1.4, "删库、发公告、转账、签合同。可以让它起草，但执行前必须有人完整读一遍。"],
+        ["resp", "责任归属", "core", 1, 1.4, "出了事，「模型说的」不是理由。用了它，责任就跟着你。"],
+        ["log", "记录与追溯", "work", 0, 1.2, "留一份提示词和输出的记录。三个月后你会需要它来解释当时为什么这么决定。"]
+      ],
+      edges: [
+        ["root", "once", "pre"], ["once", "fluent", "rel"], ["fluent", "falsify", "pre"],
+        ["root", "scope", "pre"], ["falsify", "scope", "pre"],
+        ["root", "hall", "pre"], ["hall", "hall3", "pre"], ["hall", "admit", "pre"],
+        ["hall", "ood", "rel"], ["hall", "conf", "rel"], ["hall", "know0", "rel"],
+        ["hall", "cite", "pre"], ["cite", "check", "pre"], ["check", "first", "rel"],
+        ["check", "restate", "rel"], ["fluent", "math", "rel"],
+        ["scope", "ask", "pre"], ["ask", "ctx", "rel"], ["ctx", "ctxp", "pre"],
+        ["ask", "role", "rel"], ["ask", "fmt", "pre"],
+        ["fmt", "rep", "pre"], ["rep", "temp", "rel"], ["rep", "sample", "pre"],
+        ["sample", "loop", "pre"], ["scope", "irrev", "pre"], ["loop", "irrev", "rel"],
+        ["irrev", "resp", "pre"], ["loop", "resp", "rel"], ["rep", "log", "rel"],
+        ["resp", "log", "rel"]
+      ]
+    },
+
+    /* ---------------- 二 · 大模型原理 ---------------- */
+    {
+      id: "llm",
+      name: "大模型原理",
+      en: "HOW LLMS WORK",
+      note: "它到底在算什么",
+      core: "不要求会训练模型，只要求知道它每一步在做什么。知道机制，很多「它怎么会这样」的问题就有答案了。",
+      nodes: [
+        ["next", "从预测下一个词开始", "infer", 2, 1.7, "它做的唯一一件事，是根据前文猜下一个词。所有能力都是这件事的副产品。"],
+        ["token", "token 不是字", "infer", 1, 1.3, "按 token 切文本，一个汉字可能一个也可能两个。长度、计费、截断都按 token 算。"],
+        ["vec", "词向量", "repr", 0, 1.3, "词被表示成一串数字，意思相近的词距离近。这是它能「理解」相似性的起点。"],
+        ["attn", "注意力机制", "attn", 1, 1.6, "每个词去看句子里其他词，决定该关注谁。「它」指代谁，就是在这层解决的。"],
+        ["qkv", "QKV 投影", "attn", 0, 1.4, "三组投影：拿问题去比对所有位置的相关度，再按相关度加权取信息。"],
+        ["multi", "多头注意力", "attn", 0, 1.3, "同时用多组注意力看不同关系：语法一组、指代一组、语气一组。"],
+        ["pos", "位置编码", "attn", 0, 1.2, "注意力本身没有顺序感，位置信息要额外注入，否则「人咬狗」和「狗咬人」一样。"],
+        ["res", "残差与归一化", "train", 1, 1.2, "让几十层网络训得动：残差保住信息，归一化稳住数值。"],
+        ["ffn", "前馈层", "attn", 0, 1.15, "注意力负责「看哪里」，前馈层负责「算什么」。参数量的很大一部分在这里。"],
+
+        ["pre", "预训练", "train", 1, 1.5, "在海量文本上做下一个词预测。学到的是语言里的统计规律，不是事实数据库。"],
+        ["ft", "微调", "train", 0, 1.3, "在少量高质量数据上继续训练，把通用能力掰向特定任务与说话方式。"],
+        ["align", "对齐训练", "train", 0, 1.35, "用人类偏好数据调，让它更有用、更少有害。它学的是「人类喜欢什么样的回答」。"],
+        ["icl", "上下文学习", "infer", 1, 1.4, "不改参数，只在提示里给例子，它就能照做。这是它最像「学习」的地方。"],
+
+        ["scale", "参数与容量", "train", 0, 1.2, "参数多不等于对得多，但通常更会泛化。规模与数据质量的平衡点一直在变。"],
+        ["forward", "一次生成不回头", "infer", 1, 1.4, "只往前算，不回头改。所以它不会自我纠错，除非你把纠错写进流程。"],
+        ["cot", "思维链", "infer", 1, 1.35, "让它先写步骤再给结论，多步任务正确率会提高。步骤本身也可能是编的。"],
+        ["cut", "知识截止", "limit", 2, 1.25, "训练什么时候停，它的世界就停在哪里。之后的事它不知道，但可能照样回答。"],
+        ["tool", "工具调用", "infer", 1, 1.45, "让它查库、算数、搜索，把「记不住」和「算不准」外包出去。目前最有效的补短板方式。"],
+        ["small", "量化与蒸馏", "deploy", 0, 1.15, "把大模型压小：降精度、让小模型学大模型的输出。便宜了，也更容易在边缘情况出错。"],
+        ["cap", "涌现与天花板", "limit", 0, 1.25, "规模到一定程度会突然会做某些事；但也有怎么扩都做不好的事，比如精确算术。"]
+      ],
+      edges: [
+        ["next", "token", "pre"], ["token", "vec", "pre"], ["vec", "attn", "pre"],
+        ["attn", "qkv", "pre"], ["qkv", "multi", "pre"], ["attn", "pos", "rel"],
+        ["attn", "res", "pre"], ["res", "ffn", "pre"], ["ffn", "pre", "pre"],
+        ["pre", "ft", "pre"], ["ft", "align", "pre"], ["pre", "icl", "rel"],
+        ["pre", "scale", "rel"], ["next", "forward", "pre"], ["forward", "cot", "pre"],
+        ["cut", "tool", "pre"], ["scale", "small", "pre"], ["scale", "cap", "rel"],
+        ["tool", "cap", "rel"], ["icl", "cot", "rel"]
+      ]
+    },
+
+    /* ---------------- 三 · 提示与协作 ---------------- */
+    {
+      id: "prompt",
+      name: "提示与协作",
+      en: "PROMPTING & COLLABORATION",
+      note: "把 AI 当同事",
+      core: "把模型当同事，而不是搜索引擎。同事需要简报、需要反馈、需要你承担最终决定。",
+      nodes: [
+        ["spec", "提示是规格说明", "write", 2, 1.6, "不是在许愿，是在写需求：输入是什么、允许做什么、输出长什么样、什么算失败。"],
+        ["four", "四段式", "write", 1, 1.45, "任务、材料、约束、输出格式。四段写全，返工率明显下降。"],
+        ["examples", "给例子", "write", 1, 1.35, "一个正例胜过三句形容词。两个正例加一个反例，效果最稳。"],
+        ["checkable", "约束要可检验", "write", 0, 1.25, "「专业一点」没法检验，「不超过 200 字、不提品牌名」可以。"],
+        ["concl", "先说结论", "write", 1, 1.2, "先给结论再给理由，读起来省力，也更容易发现结论站不住。"],
+        ["askback", "允许它反问", "write", 0, 1.15, "材料不足时先问清再答，比硬答有用。要在提示里明确允许它反问。"],
+
+        ["iter", "迭代而非一次到位", "iter", 1, 1.4, "第一版用来对齐方向，第二版才谈质量。别指望一句话拿到终稿。"],
+        ["point", "改稿要指位置", "iter", 1, 1.3, "「第二段太虚」比「再好一点」有效得多：指出位置和问题类型。"],
+        ["prefer", "别让它猜你的偏好", "iter", 0, 1.25, "你脑子里的标准它看不到。写下来，或者给它看一份你满意的旧稿。"],
+        ["selfcheck", "让它自检", "iter", 0, 1.3, "出稿后让它列出「这份稿子里最不可靠的三处」。不完美，但常能捞回明显的错。"],
+        ["compare", "多方案对比", "iter", 0, 1.2, "要三个不同方向的方案再挑，比要一个「最好的」有用。"],
+
+        ["longsum", "长材料先摘要", "material", 0, 1.25, "先让它把材料压成要点，确认要点没错，再基于要点提问。"],
+        ["split", "分段处理长文档", "material", 0, 1.3, "按章节切开分别处理，最后合并。一次塞进去，中间会被忽略。"],
+
+        ["role2", "角色设定要具体", "team", 1, 1.1, "「你是审稿人，专挑逻辑漏洞」比「你是专家」有效得多。"],
+        ["coworker", "当同事而非搜索", "team", 2, 1.4, "搜索引擎给你链接，同事给你草稿。草稿要改，链接要读。"],
+        ["splitwork", "分工", "team", 1, 1.35, "它擅长起草、改写、找模式、调语气；不擅长担责、拍板、处理人情。"],
+        ["handoff", "交接要写上下文", "team", 0, 1.15, "换人接手时，把已确认的结论和放弃的方案都写下来，否则要重走一遍。"],
+        ["lib", "留下提示词库", "team", 0, 1.1, "好用的提示词存下来，标上适用场景。下次不用重新想。"]
+      ],
+      edges: [
+        ["spec", "four", "pre"], ["four", "examples", "rel"], ["four", "checkable", "rel"],
+        ["spec", "concl", "rel"], ["spec", "askback", "rel"],
+        ["spec", "iter", "pre"], ["iter", "point", "pre"], ["iter", "prefer", "rel"],
+        ["iter", "selfcheck", "rel"], ["iter", "compare", "rel"],
+        ["four", "longsum", "pre"], ["longsum", "split", "pre"],
+        ["spec", "role2", "rel"], ["role2", "coworker", "pre"], ["coworker", "splitwork", "pre"],
+        ["splitwork", "handoff", "rel"], ["coworker", "lib", "rel"], ["checkable", "selfcheck", "rel"]
+      ]
+    },
+
+    /* ---------------- 四 · 评测与验证 ---------------- */
+    {
+      id: "eval",
+      name: "评测与验证",
+      en: "EVALUATION",
+      note: "怎么知道它对了",
+      core: "没有验收标准，就没有「更好」。这套体系讲的全是「如何让一个说法站得住」。",
+      nodes: [
+        ["good", "先定什么叫好", "metric", 1, 1.6, "没有验收标准，就没有「更好」。标准要在动手之前写下来。"],
+        ["proxy", "指标是代理", "metric", 1, 1.45, "分数只是目标的替身。替身跑得比目标快，就会出现刷分。"],
+        ["single", "单一指标的代价", "metric", 0, 1.35, "只看一个数，其他维度会悄悄恶化。至少配一个反向指标。"],
+        ["base", "基线", "metric", 1, 1.3, "没有基线就没有进步。先跑一个笨办法，再谈提升。"],
+
+        ["contam", "测试集污染", "data", 1, 1.5, "训练数据里混进了测试题，分数就不再说明泛化。"],
+        ["holdout", "留出集与交叉验证", "data", 0, 1.35, "数据切三份：训练、验证、测试。测试集只能用一次。"],
+        ["sampleb", "抽样偏差", "data", 0, 1.3, "样本怎么来的，决定了结论能推广到哪。"],
+
+        ["ci", "置信区间", "stat", 0, 1.4, "小样本上的差距多半是噪声。给区间，别只给点估计。"],
+        ["pval", "p 值", "stat", 0, 1.2, "它说的是「如果没有效应，出现这种数据的概率」，不是「效应为真的概率」。"],
+        ["multi2", "多重比较", "stat", 0, 1.15, "试二十次总有一次显著。试得越多，越要打折。"],
+
+        ["human", "人工评估的一致性", "human", 0, 1.3, "两个人打分会不一致。先对齐标准，再谈分数。"],
+        ["cases", "错例比总分有用", "human", 1, 1.35, "总分说明现状，错例说明下一步。"],
+
+        ["regress", "回归测试", "ops", 1, 1.4, "每次改动都重跑同一批用例。改 A 坏 B 是最常见的事故。"],
+        ["online", "线上与离线", "ops", 0, 1.35, "离线好不代表线上好。真实输入的分布和测试集不一样。"],
+        ["ab", "灰度与 A/B", "ops", 0, 1.25, "小流量先跑，看真实指标，再放量。"],
+        ["guard", "护栏指标", "ops", 0, 1.3, "主指标涨了，但投诉率、延迟、成本也涨，这笔账要一起算。"],
+
+        ["repro", "可复现", "report", 1, 1.35, "记录模型版本、参数、数据快照。别人复现不出来，结论就不算成立。"],
+        ["sed", "不要用模型评模型", "report", 0, 1.2, "同类偏好会互相放大。要用也得先校准，并保留人工抽查。"],
+        ["claim", "结论要可反驳", "report", 0, 1.3, "「提升 3.2 个点，在 n=400 上，p<0.05」——这样写，别人才能否证你。"]
+      ],
+      edges: [
+        ["good", "proxy", "pre"], ["proxy", "single", "pre"], ["good", "base", "pre"],
+        ["good", "contam", "pre"], ["contam", "holdout", "pre"], ["holdout", "sampleb", "rel"],
+        ["proxy", "ci", "pre"], ["ci", "pval", "rel"], ["pval", "multi2", "rel"],
+        ["good", "human", "rel"], ["human", "cases", "pre"],
+        ["base", "regress", "pre"], ["regress", "online", "pre"], ["online", "ab", "pre"],
+        ["ab", "guard", "rel"], ["base", "repro", "pre"], ["repro", "claim", "pre"],
+        ["human", "sed", "rel"], ["ci", "claim", "rel"]
+      ]
+    },
+
+    /* ---------------- 五 · 概率与统计 ---------------- */
+    {
+      id: "stat",
+      name: "概率与统计",
+      en: "PROBABILITY",
+      note: "一门非 AI 的体系",
+      core: "这套和 AI 无关，但它是判断 AI 那些数字的地基。留着它，也是为了让这张图证明：织识不是只教 AI。",
+      nodes: [
+        ["rand", "随机不是均匀", "base", 2, 1.5, "随机只表示不可预测，不表示每种结果一样多。"],
+        ["expect", "期望", "base", 2, 1.4, "长期平均。单次结果可以偏离很远，这不矛盾。"],
+        ["var", "方差", "base", 1, 1.35, "平均一样，波动可以差很多。只看均值会被极端值骗。"],
+        ["law", "大数定律", "base", 1, 1.35, "次数多了频率才靠近概率。小样本上的规律不算规律。"],
+        ["dist", "分布的形状", "base", 0, 1.25, "均值、中位数、长尾。看错形状，后面所有推断都会歪。"],
+
+        ["cond", "条件概率", "infer", 1, 1.45, "在已知某事的条件下概率会变。忽略条件是用错概率的头号原因。"],
+        ["bayes", "贝叶斯", "infer", 0, 1.5, "新证据要乘以先验，不是取代先验。"],
+        ["baserate", "基率谬误", "infer", 0, 1.45, "罕见病加 99% 准确率的检测，阳性也可能大多数是误报。先看基率。"],
+        ["indep", "独立与相关", "infer", 1, 1.4, "相关不等于因果。两件事一起变，可能都由第三件事决定。"],
+        ["ci2", "置信区间", "infer", 0, 1.25, "估计要给范围，不给范围就等于假装精确。"],
+
+        ["surv", "幸存者偏差", "trap", 0, 1.35, "你看到的样本，是被筛选过的。"],
+        ["regmean", "回归均值", "trap", 0, 1.25, "极端表现之后往往回归正常，不是「纠正」，是统计。"],
+        ["multi3", "多重比较", "trap", 0, 1.15, "试得越多，越容易撞上一个「显著」。"],
+
+        ["samp", "抽样方法", "method", 0, 1.2, "随机抽样、分层抽样、方便抽样。方法决定结论能推广到哪。"],
+        ["mc", "模拟", "method", 0, 1.3, "算不清就用蒙特卡洛跑一万次，看分布，比硬推公式直观。"]
+      ],
+      edges: [
+        ["rand", "expect", "pre"], ["expect", "var", "rel"], ["expect", "law", "pre"],
+        ["law", "dist", "rel"], ["rand", "cond", "pre"], ["cond", "bayes", "pre"],
+        ["bayes", "baserate", "pre"], ["cond", "indep", "rel"], ["var", "ci2", "pre"],
+        ["indep", "surv", "rel"], ["var", "regmean", "rel"], ["ci2", "multi3", "rel"],
+        ["law", "samp", "pre"], ["samp", "mc", "rel"], ["multi3", "samp", "rel"]
+      ]
+    },
+
+    /* ---------------- 六 · 认知科学 ---------------- */
+    {
+      id: "cog",
+      name: "认知科学",
+      en: "COGNITIVE SCIENCE",
+      note: "人这边怎么学",
+      core: "学不会常常不是因为笨，是因为方法跟大脑的脾气反着来。这套体系讲的是人这一侧。",
+      nodes: [
+        ["wm", "工作记忆很窄", "memory", 2, 1.5, "同时能处理的信息只有几块。超了就会漏，这不是不努力。"],
+        ["chunk", "组块", "memory", 1, 1.4, "把零散信息打包成有意义的块，是记忆容量真正的扩展方式。"],
+        ["space", "间隔重复", "memory", 1, 1.45, "分散到多天复习，比一次猛背记得久。"],
+        ["retrieve", "提取练习", "memory", 1, 1.5, "自己回想一遍，比再读一遍有效。读得顺不等于记得住。"],
+        ["fluency", "流畅性错觉", "memory", 2, 1.4, "读起来轻松，会被误当成学会了。这是最常见的自欺。"],
+
+        ["schema", "图式", "think", 0, 1.35, "新知识要挂到已有的结构上，挂不上就记不住。"],
+        ["load", "认知负荷", "think", 0, 1.3, "材料本身难是必要的，呈现方式乱是多余的。先减后者。"],
+        ["transfer", "迁移很难", "think", 0, 1.4, "在一个场景学会的东西，不会自动用到另一个场景。"],
+
+        ["confirm", "确认偏误", "bias", 1, 1.3, "人倾向于找支持自己的证据。所以要让 AI 帮你找反例。"],
+        ["anchor", "锚定", "bias", 0, 1.2, "第一个数字会拖住后面的判断，哪怕它无关。"],
+        ["avail", "可得性", "bias", 0, 1.15, "容易想起的事会被高估概率。"],
+        ["overconf", "过度自信", "bias", 1, 1.25, "人对自己判断的准确度普遍估高，专家也一样。"],
+
+        ["depth", "解释深度错觉", "meta", 0, 1.35, "能说出名词，不等于真懂机制。试着讲一遍细节就会露馅。"],
+        ["meta", "元认知", "meta", 0, 1.45, "知道自己知道多少，比知道本身更决定学习效率。"]
+      ],
+      edges: [
+        ["wm", "chunk", "pre"], ["chunk", "space", "rel"], ["space", "retrieve", "pre"],
+        ["retrieve", "fluency", "rel"], ["chunk", "schema", "pre"], ["wm", "load", "rel"],
+        ["schema", "transfer", "pre"], ["fluency", "confirm", "rel"], ["anchor", "overconf", "rel"],
+        ["avail", "overconf", "rel"], ["transfer", "depth", "rel"], ["depth", "meta", "pre"],
+        ["fluency", "depth", "rel"]
+      ]
+    }
+  ];
+
+  /* ---------- 派生成统一结构：id 加体系前缀，便于跨体系引用与本地存储 ---------- */
+  SYSTEMS.forEach(function (s) {
+    s.nodes = s.nodes.map(function (n) {
+      return { id: s.id + ":" + n[0], key: n[0], name: n[1], tag: n[2], lv: n[3], w: n[4], desc: n[5] };
+    });
+    s.edges = s.edges.map(function (e, i) {
+      return { id: s.id + ":e" + i, s: s.id + ":" + e[0], t: s.id + ":" + e[1], k: e[2] };
+    });
+  });
+
+  w.YC_WEAVE = { systems: SYSTEMS };
+})(window);
+
+</script>
+<script>
+/* ============================================================
+   织识 · 应用逻辑（纯前端，无请求）
+   ------------------------------------------------------------
+   四块：布局 → 绘制 → 交互 → 守灯人。
+   所有状态（每个知识点到了第几级）存在 localStorage，不上传。
+   ------------------------------------------------------------ */
+(function () {
+  "use strict";
+
+  var D = window.YC_WEAVE;
+  if (!D) return;
+  var $ = function (id) { return document.getElementById(id); };
+  var SYS = D.systems;
+  var KEY = "yc.weave.v1";
+
+  /* ---------------- 状态 ---------------- */
+  var save = {};
+  try { save = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { save = {}; }
+
+  function persist() {
+    try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) {}
+  }
+
+  var LV_NAME = ["未燃", "引燃", "微明", "炽亮", "鎏辉"];
+  var LV_COLOR = ["#c3cab7", "#cda86b", "#d3a33e", "#e0ab34", "#f0bd3e"];
+  var TAG_NAME = {
+    core: "基本判断", use: "日常使用", edge: "边界", work: "工作流",
+    infer: "推断", repr: "表示", attn: "注意力", train: "训练", limit: "局限", deploy: "部署",
+    write: "写法", iter: "迭代", material: "材料", team: "协作",
+    metric: "指标", data: "数据", stat: "统计", human: "人工", ops: "上线", report: "结论",
+    base: "基础", trap: "陷阱", method: "方法",
+    memory: "记忆", think: "思考", bias: "偏差", meta: "元认知"
+  };
+
+  var cur = null;          // 当前体系
+  var selected = null;     // 选中节点
+  var hovered = null;
+  var pan = { x: 0, y: 0 };
+  var zoom = 1;
+  var sortBy = "name";
+  var query = "";
+
+  function lvOf(n) {
+    return save[n.id] === undefined ? n.lv : save[n.id];
+  }
+  function setLv(n, v) {
+    save[n.id] = Math.max(0, Math.min(4, v));
+    persist();
+  }
+  function progress(sys) {
+    var sum = 0;
+    sys.nodes.forEach(function (n) { sum += lvOf(n); });
+    return sys.nodes.length ? sum / (sys.nodes.length * 4) : 0;
+  }
+
+  /* ---------------- 布局 ----------------
+     层次按 BFS 最短路径算，不按最长路径：最长路径会把「谁先谁后」拉成
+     一条竖线，一层只剩一两个节点，整张图变成一列。
+     pre 边算不到的节点（只挂了 rel），借它最近的相关邻居的层 +1，
+     否则它们会被统一丢到最后一行，看着像一片没人管的散点。 */
+  function layout(sys) {
+    var nodes = sys.nodes, pres = sys.edges.filter(function (e) { return e.k === "pre"; });
+    var rels = sys.edges.filter(function (e) { return e.k === "rel"; });
+    var depth = {}, i;
+
+    nodes.forEach(function (n) { depth[n.id] = Infinity; });
+    var root = nodes.find(function (n) { return n.key === "root"; }) || nodes[0];
+    depth[root.id] = 0;
+    var q = [root.id];
+    while (q.length) {
+      var id = q.shift();
+      pres.forEach(function (e) {
+        if (e.s === id && depth[e.t] > depth[id] + 1) { depth[e.t] = depth[id] + 1; q.push(e.t); }
+      });
+    }
+
+    /* 第二遍：只挂 rel 的节点，贴着邻居的层 */
+    for (i = 0; i < 3; i++) {
+      rels.forEach(function (e) {
+        if (isFinite(depth[e.s]) && !isFinite(depth[e.t])) depth[e.t] = depth[e.s] + 1;
+        if (isFinite(depth[e.t]) && !isFinite(depth[e.s])) depth[e.s] = depth[e.t] + 1;
+      });
+    }
+
+    var maxD = 0;
+    nodes.forEach(function (n) { if (isFinite(depth[n.id])) maxD = Math.max(maxD, depth[n.id]); });
+    nodes.forEach(function (n) { if (!isFinite(depth[n.id])) depth[n.id] = maxD + 1; });
+
+    var rows = {};
+    nodes.forEach(function (n) {
+      var d = depth[n.id];
+      (rows[d] = rows[d] || []).push(n);
+    });
+
+    /* 层内排布：一行最多 6 个，多的折到第二排。
+       AI 素养有一层挤了 10 个节点，一行铺开要 1450 米宽，整张图被迫缩到 0.5 倍，
+       什么字都看不清。折成两排之后同样的节点占一半宽度，字就回来了。 */
+    var posX = {};
+    var keys = Object.keys(rows).map(Number).sort(function (a, b) { return a - b; });
+    var GAP = 158;
+
+    keys.forEach(function (d) {
+      var row = rows[d];
+      if (d > 0) row.sort(function (a, b) { return upX(a) - upX(b); });
+      var cols = row.length > 6 ? Math.ceil(row.length / 2) : row.length;
+      var w = (cols - 1) * GAP;
+      row.forEach(function (n, idx) {
+        n._sub = Math.floor(idx / cols);
+        n.tx = (idx % cols) * GAP - w / 2;
+        posX[n.id] = n.tx;
+      });
+    });
+
+    var y = 0;
+    keys.forEach(function (d) {
+      var row = rows[d];
+      var two = row.some(function (n) { return n._sub > 0; });
+      row.forEach(function (n) { n.ty = y + n._sub * 62 + (two ? 8 : 0); });
+      y += two ? 208 : 142;
+    });
+    var off = y / 2 - 30;
+    keys.forEach(function (d) {
+      rows[d].forEach(function (n) {
+        n.ty -= off;
+        n._d = d;
+        if (!n._placed) { n.px = n.tx; n.py = n.ty; n._placed = true; }
+      });
+    });
+
+    function upX(n) {
+      var ps = pres.filter(function (e) { return e.t === n.id; }).map(function (e) {
+        return posX[e.s];
+      }).filter(function (v) { return v !== undefined; });
+      return ps.length ? ps.reduce(function (a, b) { return a + b; }, 0) / ps.length : 0;
+    }
+  }
+
+  /* ---------------- 画布 ---------------- */
+  var cv = $("wvCv"), ctx = cv.getContext("2d");
+  var W = 0, H = 0, dpr = 1;
+
+  function resize() {
+    var r = cv.getBoundingClientRect();
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = r.width; H = r.height;
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    draw();
+  }
+
+  function toWorld(sx, sy) {
+    return { x: (sx - W / 2 - pan.x) / zoom, y: (sy - H / 2 - pan.y) / zoom };
+  }
+  function radius(n) { return 11 + n.w * 5.5; }
+
+  function draw() {
+    if (!ctx) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    if (!cur) return;
+
+    /* 细网格：跟着视图走，缩小时不至于变成一张噪点纸 */
+    var step = 44 * zoom;
+    if (step > 10) {
+      ctx.strokeStyle = "rgba(190,199,182,.32)";
+      ctx.lineWidth = 1;
+      var ox = (W / 2 + pan.x) % step, oy = (H / 2 + pan.y) % step;
+      ctx.beginPath();
+      for (var x = ox; x < W; x += step) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+      for (var y = oy; y < H; y += step) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
+      ctx.stroke();
+    }
+
+    ctx.save();
+    ctx.translate(W / 2 + pan.x, H / 2 + pan.y);
+    ctx.scale(zoom, zoom);
+
+    var byId = {};
+    cur.nodes.forEach(function (n) { byId[n.id] = n; });
+
+    /* --- 边 --- */
+    cur.edges.forEach(function (e) {
+      var a = byId[e.s], b = byId[e.t];
+      if (!a || !b) return;
+      var hot = selected && (e.s === selected.id || e.t === selected.id);
+      var lit = lvOf(a) >= 2 && lvOf(b) >= 2;
+      /* 跨三层以上的「相关」边不画：它只会拉出一条横贯全图的长斜线，
+         把结构读成一个蜘蛛网。选中节点时例外——那时它是有用的线索。 */
+      if (e.k === "rel" && !hot && Math.abs((a._d || 0) - (b._d || 0)) >= 3) return;
+      ctx.beginPath();
+      ctx.moveTo(a.px, a.py);
+      /* 轻微弧线：直线在密集处会糊成一团，弧一点能看清走向 */
+      var mx = (a.px + b.px) / 2, my = (a.py + b.py) / 2;
+      var dx = b.px - a.px, dy = b.py - a.py;
+      var bend = 0.055;
+      ctx.quadraticCurveTo(mx - dy * bend, my + dx * bend, b.px, b.py);
+      if (e.k === "pre") {
+        ctx.setLineDash([]);
+        ctx.strokeStyle = hot ? "rgba(63,95,74,.75)" : lit ? "rgba(192,138,51,.42)" : "rgba(150,163,146,.38)";
+        ctx.lineWidth = hot ? 1.7 : 1.15;
+      } else if (e.k === "rel") {
+        ctx.setLineDash([3, 4]);
+        ctx.strokeStyle = hot ? "rgba(63,95,74,.6)" : "rgba(150,163,146,.34)";
+        ctx.lineWidth = hot ? 1.4 : 1;
+      } else {
+        ctx.setLineDash([1, 4]);
+        ctx.strokeStyle = "rgba(150,163,146,.3)";
+        ctx.lineWidth = 1;
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+    });
+
+    /* --- 节点 --- */
+    cur.nodes.forEach(function (n) {
+      var lv = lvOf(n), r = radius(n);
+      var isSel = selected && selected.id === n.id;
+      var isHot = hovered && hovered.id === n.id;
+
+      if (lv > 0) {
+        /* 点亮的灯有光。光晕半径随等级涨，这是「鎏辉」和「炽亮」的唯一区别 */
+        ctx.save();
+        ctx.shadowColor = "rgba(232,182,74," + (0.28 + lv * 0.13) + ")";
+        ctx.shadowBlur = 8 + lv * 7;
+        ctx.beginPath();
+        ctx.arc(n.px, n.py, r, 0, Math.PI * 2);
+        ctx.fillStyle = LV_COLOR[lv];
+        ctx.fill();
+        ctx.restore();
+      } else {
+        ctx.beginPath();
+        ctx.arc(n.px, n.py, r, 0, Math.PI * 2);
+        ctx.fillStyle = LV_COLOR[0];
+        ctx.fill();
+      }
+
+      ctx.beginPath();
+      ctx.arc(n.px, n.py, r, 0, Math.PI * 2);
+      ctx.strokeStyle = isSel ? "#3f5f4a" : lv > 0 ? "rgba(160,110,30,.5)" : "#a9b1a3";
+      ctx.lineWidth = isSel ? 2.4 : 1.2;
+      ctx.stroke();
+
+      if (isSel || isHot) {
+        ctx.beginPath();
+        ctx.arc(n.px, n.py, r + (isSel ? 5.5 : 4), 0, Math.PI * 2);
+        ctx.strokeStyle = isSel ? "rgba(63,95,74,.5)" : "rgba(63,95,74,.22)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      /* 标签 */
+      ctx.font = (lv > 0 ? "500 " : "400 ") + "13px \"Microsoft YaHei\",\"PingFang SC\",sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillStyle = isSel ? "#1b241e" : lv > 0 ? "#2b352e" : "#68766b";
+      ctx.fillText(n.name, n.px, n.py + r + 8);
+    });
+
+    ctx.restore();
+  }
+
+  /* ---------------- 命中 ---------------- */
+  function hitTest(sx, sy) {
+    if (!cur) return null;
+    var w = toWorld(sx, sy), best = null, bestD = 1e9;
+    cur.nodes.forEach(function (n) {
+      var d = Math.hypot(n.px - w.x, n.py - w.y);
+      var rr = radius(n) + 6 / zoom;
+      if (d < rr && d < bestD) { best = n; bestD = d; }
+    });
+    return best;
+  }
+
+  /* ---------------- 鼠标 / 触摸 ---------------- */
+  var drag = null;
+
+  function localXY(e) {
+    var r = cv.getBoundingClientRect();
+    var p = e.touches ? e.touches[0] : e;
+    return { x: p.clientX - r.left, y: p.clientY - r.top };
+  }
+
+  function onDown(e) {
+    if (!cur) return;
+    var p = localXY(e);
+    var n = hitTest(p.x, p.y);
+    drag = { n: n, x: p.x, y: p.y, px: n ? n.px : 0, py: n ? n.py : 0, panx: pan.x, pany: pan.y, moved: 0 };
+    cv.classList.add("grabbing");
+    if (e.cancelable) e.preventDefault();
+  }
+
+  function onMove(e) {
+    if (!cur) return;
+    var p = localXY(e);
+    if (!drag) {
+      var h = hitTest(p.x, p.y);
+      if (h !== hovered) {
+        hovered = h;
+        cv.classList.toggle("hot", !!h);
+        draw();
+      }
+      return;
+    }
+    var dx = p.x - drag.x, dy = p.y - drag.y;
+    drag.moved = Math.max(drag.moved, Math.hypot(dx, dy));
+    if (drag.n) {
+      drag.n.px = drag.px + dx / zoom;
+      drag.n.py = drag.py + dy / zoom;
+    } else {
+      pan.x = drag.panx + dx;
+      pan.y = drag.pany + dy;
+    }
+    draw();
+  }
+
+  function onUp(e) {
+    if (!drag) return;
+    var d = drag; drag = null;
+    cv.classList.remove("grabbing");
+    if (d.moved < 5) {
+      if (d.n) selectNode(d.n);
+      else { selected = null; closeCard(); draw(); }
+      /* 窄屏：手指落在画布上就把两侧抽屉收掉，把画面还给灯图 */
+      if (window.innerWidth <= 980) {
+        $("wvLeft").classList.remove("open");
+        $("wvRight").classList.remove("open");
+      }
+    }
+  }
+
+  cv.addEventListener("mousedown", onDown);
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onUp);
+  cv.addEventListener("touchstart", onDown, { passive: false });
+  cv.addEventListener("touchmove", function (e) {
+    if (drag) { if (e.cancelable) e.preventDefault(); onMove(e); }
+  }, { passive: false });
+  cv.addEventListener("touchend", onUp);
+  cv.addEventListener("dblclick", function (e) {
+    var p = localXY(e), n = hitTest(p.x, p.y);
+    if (n) { bump(n); }
+  });
+  cv.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    var p = localXY(e), before = toWorld(p.x, p.y);
+    zoom = Math.max(0.35, Math.min(2.3, zoom * (e.deltaY > 0 ? 0.9 : 1.1)));
+    var after = toWorld(p.x, p.y);
+    pan.x += (after.x - before.x) * zoom;
+    pan.y += (after.y - before.y) * zoom;
+    updateZoomLabel();
+    draw();
+  }, { passive: false });
+
+  function bump(n) {
+    var v = (lvOf(n) + 1) % 5;
+    setLv(n, v);
+    renderAll();
+    toast(n.name + " → " + LV_NAME[v]);
+  }
+
+  /* ---------------- 节点卡片 ---------------- */
+  var card = $("wvCard");
+
+  function selectNode(n) {
+    selected = n;
+    $("wvCardTag").textContent = TAG_NAME[n.tag] || n.tag;
+    $("wvCardDepth").textContent = "";
+    $("wvCardName").textContent = n.name;
+    $("wvCardDesc").textContent = n.desc;
+    renderLvs();
+    card.classList.add("on");
+    renderList();
+    draw();
+  }
+  function closeCard() { card.classList.remove("on"); }
+
+  function renderLvs() {
+    if (!selected) return;
+    var cur0 = lvOf(selected);
+    $("wvLvLab").textContent = "掌握度 · " + LV_NAME[cur0];
+    $("wvLvs").innerHTML = LV_NAME.map(function (nm, i) {
+      return '<button type="button" data-lv="' + i + '" aria-pressed="' + (i === cur0) + '">' +
+        nm + "</button>";
+    }).join("");
+  }
+
+  $("wvLvs").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-lv]");
+    if (!b || !selected) return;
+    setLv(selected, Number(b.dataset.lv));
+    renderAll();
+  });
+  $("wvCardX").addEventListener("click", function () {
+    selected = null; closeCard(); draw(); renderList();
+  });
+  $("wvCardAsk").addEventListener("click", function () {
+    if (!selected) return;
+    ask("解释一下「" + selected.name + "」", false);
+  });
+  $("wvCardPath").addEventListener("click", function () {
+    if (!selected) return;
+    ask("规划一条到「" + selected.name + "」的路径", false);
+  });
+
+  /* ---------------- 左栏 ---------------- */
+  function renderList() {
+    if (!cur) return;
+    var list = cur.nodes.slice();
+    var q = query.trim();
+    if (q) list = list.filter(function (n) { return n.name.indexOf(q) >= 0 || n.desc.indexOf(q) >= 0; });
+    if (sortBy === "lv") list.sort(function (a, b) { return lvOf(a) - lvOf(b); });
+    else if (sortBy === "tag") list.sort(function (a, b) { return a.tag < b.tag ? -1 : a.tag > b.tag ? 1 : 0; });
+    else list.sort(function (a, b) { return a.name.localeCompare(b.name, "zh"); });
+
+    if (!list.length) {
+      $("wvList").innerHTML = '<p class="wv-empty">没有匹配的灯。<br>换个词，或者把它当作一张白纸，从别的方向找找。</p>';
+      return;
+    }
+    $("wvList").innerHTML = list.map(function (n) {
+      var lv = lvOf(n);
+      return '<button type="button" class="wv-item" data-id="' + n.id + '"' +
+        (selected && selected.id === n.id ? ' aria-current="true"' : "") + ">" +
+        '<span class="dot" style="background:' + LV_COLOR[lv] + '"></span>' +
+        '<span class="nm">' + esc(n.name) + "</span>" +
+        '<span class="lv">' + LV_NAME[lv] + "</span></button>";
+    }).join("");
+  }
+
+  $("wvList").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-id]");
+    if (!b) return;
+    var n = cur.nodes.find(function (x) { return x.id === b.dataset.id; });
+    if (n) { selectNode(n); centerOn(n); }
+    /* 窄屏时灯单是盖住画布的抽屉，选完必须收起来，否则详情卡被压在抽屉下面 */
+    if (window.innerWidth <= 980) $("wvLeft").classList.remove("open");
+  });
+
+  $("wvSearch").addEventListener("input", function (e) { query = e.target.value; renderList(); });
+  $("wvSorts").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-sort]");
+    if (!b) return;
+    sortBy = b.dataset.sort;
+    Array.prototype.forEach.call($("wvSorts").children, function (x) {
+      x.setAttribute("aria-pressed", String(x === b));
+    });
+    renderList();
+  });
+
+  function centerOn(n) {
+    pan.x = -n.px * zoom;
+    pan.y = -n.py * zoom;
+    draw();
+  }
+
+  /* ---------------- 进度条 ---------------- */
+  function renderProgress() {
+    var p = progress(cur);
+    var segs = 20, on = Math.round(p * segs);
+    var html = "";
+    for (var i = 0; i < segs; i++) html += "<i" + (i < on ? ' class="on"' : "") + "></i>";
+    $("wvSeg").innerHTML = html;
+    $("wvPct").textContent = (p * 100).toFixed(0) + "%";
+  }
+
+  function updateZoomLabel() { $("wvZoom").textContent = "×" + zoom.toFixed(2); }
+
+  /* ---------------- 显示提示 ---------------- */
+  var toastEl = null;
+  function toast(msg) {
+    if (!toastEl) {
+      toastEl = document.createElement("div");
+      toastEl.style.cssText = "position:fixed;left:50%;top:70px;transform:translateX(-50%);" +
+        "background:#222b26;color:#f5f7ee;font-size:12px;padding:8px 15px;border-radius:16px;" +
+        "z-index:80;opacity:0;transition:opacity .2s;pointer-events:none";
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = msg;
+    toastEl.style.opacity = "1";
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(function () { toastEl.style.opacity = "0"; }, 1400);
+  }
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c];
+    });
+  }
+
+  /* ---------------- 守灯人 ----------------
+     没有后端，也不打算假装有。它做的事是「拿着这张图追问你」：
+     认节点、找路径、挑薄弱、做统计。回答全部由本地数据和规则拼出，
+     所以离线可用，也不会编出一个图里没有的知识点。 */
+  var talk = $("wvTalk");
+
+  function say(text, me, extra) {
+    var d = document.createElement("div");
+    d.className = "wv-msg " + (me ? "me" : "bot");
+    d.innerHTML = text + (extra || "");
+    talk.appendChild(d);
+    talk.scrollTop = talk.scrollHeight;
+  }
+
+  function lampOn() { $("wvLamp").classList.add("on"); }
+
+  function findNode(text) {
+    if (!cur) return null;
+    var best = null;
+    cur.nodes.forEach(function (n) {
+      if (text.indexOf(n.name) >= 0 && (!best || n.name.length > best.name.length)) best = n;
+    });
+    return best;
+  }
+
+  function parentsOf(n) {
+    return cur.edges.filter(function (e) { return e.t === n.id && e.k === "pre"; })
+      .map(function (e) { return cur.nodes.find(function (x) { return x.id === e.s; }); })
+      .filter(Boolean);
+  }
+  function childrenOf(n) {
+    return cur.edges.filter(function (e) { return e.s === n.id && e.k === "pre"; })
+      .map(function (e) { return cur.nodes.find(function (x) { return x.id === e.t; }); })
+      .filter(Boolean);
+  }
+
+  function about(n, learned) {
+    var lv = lvOf(n), ps = parentsOf(n), cs = childrenOf(n);
+    var head = lv === 0
+      ? "这盏还灭着。<b>" + esc(n.name) + "</b>：" + esc(n.desc)
+      : "这盏在<b>" + LV_NAME[lv] + "</b>。你说的是这盏，那我先不重复它的定义。";
+    var body = "";
+
+    if (learned) {
+      body += '<span class="q">用一句话说清：它在什么情况下<b>不成立</b>？</span>';
+      body += "答得上来，这盏可以再往上提一档；答不上来，它其实就是「看过」，不是「会」。";
+    } else {
+      body += esc(n.desc);
+    }
+
+    if (ps.length) {
+      body += '<span class="q">它压在上面这 ' + ps.length + " 盏上：</span>" +
+        ps.map(function (p) { return esc(p.name) + "（" + LV_NAME[lvOf(p)] + "）"; }).join("、");
+    }
+    if (cs.length) {
+      body += "懂到这里，往下能推开：" + cs.slice(0, 4).map(function (c) { return esc(c.name); }).join("、") +
+        (cs.length > 4 ? "…" : "") + "。";
+    }
+
+    say(head + "<br><br>" + body,
+      false,
+      '<span class="sug"><button data-fill="我刚才学了「' + esc(n.name) + '」">我刚学了这盏</button>' +
+      (cs.length ? '<button data-fill="规划一条到「' + esc(cs[0].name) + '」的路径">往下走</button>' : "") +
+      "</span>");
+    return true;
+  }
+
+  function pathTo(n) {
+    /* 沿 pre 边从根做 BFS，找回一条最短的先决链 */
+    var prev = {}, seen = {}, q = [], root = cur.nodes.find(function (x) { return x.key === "root"; });
+    var start = root || cur.nodes[0];
+    q.push(start.id); seen[start.id] = 1;
+    while (q.length) {
+      var id = q.shift();
+      if (id === n.id) break;
+      cur.edges.filter(function (e) { return e.s === id && e.k === "pre"; }).forEach(function (e) {
+        if (!seen[e.t]) { seen[e.t] = 1; prev[e.t] = id; q.push(e.t); }
+      });
+    }
+    if (!seen[n.id]) return null;
+    var chain = [], c = n.id;
+    while (c) { chain.unshift(cur.nodes.find(function (x) { return x.id === c; })); c = prev[c]; }
+    return chain;
+  }
+
+  function doPath(n) {
+    var chain = pathTo(n);
+    if (!chain) {
+      say("沿先决边找不到一条到「" + esc(n.name) + "」的链。它可能挂在这张图的旁支上——先看它上游那几盏。");
+      return;
+    }
+    var done = chain.filter(function (x) { return lvOf(x) >= 2; }).length;
+    var lines = chain.map(function (x, i) {
+      var lv = lvOf(x);
+      return (i + 1) + ". " + esc(x.name) + "　" + LV_NAME[lv] +
+        (lv >= 2 ? " ✓" : lv === 1 ? " ← 刚起头" : " ← 全灭");
+    }).join("<br>");
+    say("到「" + esc(n.name) + "」一共 " + chain.length + " 盏，其中 " + done + " 盏已经到了「微明」以上。<br><br>" +
+      lines + '<span class="q">断点在第一条不是「微明」的地方。先把那一盏说清，别跳。</span>');
+  }
+
+  function doQuiz() {
+    var weak = cur.nodes.slice().sort(function (a, b) { return lvOf(a) - lvOf(b); })
+      .filter(function (n) { return lvOf(n) < 3; }).slice(0, 3);
+    if (!weak.length) {
+      say("这张图基本亮了。要我挑，就挑最靠上的那几盏——越靠上，越容易自以为懂。");
+      return;
+    }
+    var qs = weak.map(function (n, i) {
+      var p = parentsOf(n)[0];
+      return (i + 1) + ". 「" + esc(n.name) + "」" +
+        (p ? "和它上游的「" + esc(p.name) + "」是什么关系？少了上游会怎样？" : "在什么情况下会失效？");
+    }).join("<br>");
+    say("三道，挑你没把握的答：<br><br>" + qs +
+      '<span class="q">不用发给我。答完之后自己打开那盏灯看说明，对不上的地方就是缺口。</span>');
+  }
+
+  function doAnalyze() {
+    var byTag = {}, total = 0, full = 0;
+    cur.nodes.forEach(function (n) {
+      var lv = lvOf(n), t = TAG_NAME[n.tag] || n.tag;
+      byTag[t] = byTag[t] || { s: 0, c: 0 };
+      byTag[t].s += lv; byTag[t].c++;
+      total += lv;
+      if (lv === 4) full++;
+    });
+    var arr = Object.keys(byTag).map(function (k) {
+      return { k: k, v: byTag[k].s / (byTag[k].c * 4) };
+    }).sort(function (a, b) { return b.v - a.v; });
+    var strong = arr[0], weak = arr[arr.length - 1];
+    var pct = (total / (cur.nodes.length * 4) * 100).toFixed(0);
+
+    say("这张图现在 <b>" + pct + "%</b>。" + cur.nodes.length + " 盏里，" + full + " 盏到了鎏辉。<br><br>" +
+      "最稳的是<b>" + esc(strong.k) + "</b>（" + (strong.v * 100).toFixed(0) + "%），" +
+      "最空的是<b>" + esc(weak.k) + "</b>（" + (weak.v * 100).toFixed(0) + "%）。" +
+      '<span class="q">差距这么大的时候，别去补最弱的——先去补「最弱那一组的上游」。上游灭着，下游点不亮。</span>');
+  }
+
+  function doWeak() {
+    var weak = cur.nodes.slice().sort(function (a, b) { return lvOf(a) - lvOf(b); })
+      .filter(function (n) { return lvOf(n) < 2; }).slice(0, 5);
+    if (!weak.length) { say("没有低于「微明」的灯了。这时候该做的是回头讲一遍，不是往前加。"); return; }
+    say("最暗的五盏：<br><br>" + weak.map(function (n, i) {
+      return (i + 1) + ". " + esc(n.name) + "　" + LV_NAME[lvOf(n)];
+    }).join("<br>") + '<span class="q">挑一盏，用一句你自己的话讲它。讲不顺，就是还没懂。</span>');
+  }
+
+  function guide() {
+    say("我在。<br>你可以直接说「我刚学了「某个名字」」，我来追问；也可以让我规划路径、挑薄弱、做统计。" +
+      '<span class="sug">' +
+      '<button data-fill="考考我，挑最弱的">考我</button>' +
+      '<button data-fill="帮我分析一下我的掌握情况">分析我</button>' +
+      '<button data-fill="规划一条到「">规划路径</button></span>');
+  }
+
+  function respond(text) {
+    var t = text.trim();
+    if (!t) return;
+    if (/分析|画像|统计|学得怎么样|掌握情况/.test(t)) return doAnalyze();
+    if (/复盘|薄弱|最弱|最差/.test(t)) return doWeak();
+    if (/考我|考考|测验|出题|测一下/.test(t)) return doQuiz();
+    var n = findNode(t);
+    if (n) {
+      if (/路径|怎么走|先学什么|怎么学到|规划/.test(t)) return doPath(n);
+      return about(n, /学了|刚学|学到|看了|懂了/.test(t));
+    }
+    if (/路径|怎么走|先学什么|规划/.test(t)) {
+      var root = cur.nodes.find(function (x) { return x.key === "root"; }) || cur.nodes[0];
+      say("从「" + esc(root.name) + "」往下走，先把它说清楚，再挑它下游任意一盏。<br>" +
+        '<span class="q">具体要去哪一盏？告诉我名字，我给你排顺序。</span>');
+      return;
+    }
+    guide();
+  }
+
+  function ask(text, echo) {
+    if (echo !== false) say(esc(text), true);
+    $("wvText").value = "";
+    setTimeout(function () { respond(text); }, 220);
+  }
+
+  $("wvSend").addEventListener("click", function () {
+    var v = $("wvText").value;
+    if (v.trim()) ask(v);
+  });
+  $("wvText").addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      var v = $("wvText").value;
+      if (v.trim()) ask(v);
+    }
+  });
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-fill]");
+    if (!b) return;
+    var s = b.dataset.fill;
+    if (s.slice(-1) === "「") {
+      $("wvText").value = s;
+      $("wvText").focus();
+    } else {
+      ask(s);
+    }
+  });
+
+  /* ---------------- 复盘 ---------------- */
+  function openReview() {
+    var p = progress(cur) * 100;
+    var byTag = {};
+    cur.nodes.forEach(function (n) {
+      var t = TAG_NAME[n.tag] || n.tag;
+      byTag[t] = byTag[t] || { s: 0, c: 0 };
+      byTag[t].s += lvOf(n); byTag[t].c++;
+    });
+    var rows = Object.keys(byTag).map(function (k) {
+      return { k: k, v: byTag[k].s / (byTag[k].c * 4) };
+    }).sort(function (a, b) { return b.v - a.v; });
+
+    var weak = cur.nodes.slice().sort(function (a, b) { return lvOf(a) - lvOf(b); })
+      .filter(function (n) { return lvOf(n) < 2; }).slice(0, 6);
+
+    $("wvMTitle").textContent = cur.name + " · 复盘";
+    $("wvMSub").textContent = "总进度 " + p.toFixed(0) + "%　·　" + cur.nodes.length +
+      " 盏灯，其中 " + cur.nodes.filter(function (n) { return lvOf(n) >= 2; }).length + " 盏已过微明";
+
+    $("wvMBody").innerHTML =
+      "<h4>分组</h4>" +
+      rows.map(function (r) {
+        return '<div class="wv-tagrow"><span class="tn">' + esc(r.k) + '</span>' +
+          '<span class="tb"><i style="width:' + (r.v * 100).toFixed(0) + '%"></i></span>' +
+          '<span class="tp">' + (r.v * 100).toFixed(0) + "%</span></div>";
+      }).join("") +
+      "<h4 style='margin-top:22px'>还灭着的</h4>" +
+      (weak.length
+        ? '<div class="wv-weak">' + weak.map(function (n) {
+            return '<button data-goto="' + n.id + '">' + esc(n.name) + "</button>";
+          }).join("") + "</div>"
+        : '<p class="bx-sub" style="margin:0">这张图全亮了。</p>') +
+      "<h4 style='margin-top:24px'>重置</h4>" +
+      '<button class="wv-btn" id="wvReset" type="button">把「' + esc(cur.name) + "」的进度清回初始</button>";
+
+    $("wvModal").hidden = false;
+  }
+
+  $("wvMBody").addEventListener("click", function (e) {
+    var g = e.target.closest("[data-goto]");
+    if (g) {
+      var n = cur.nodes.find(function (x) { return x.id === g.dataset.goto; });
+      $("wvModal").hidden = true;
+      if (n) { selectNode(n); centerOn(n); }
+      return;
+    }
+    if (e.target.id === "wvReset") {
+      cur.nodes.forEach(function (n) { delete save[n.id]; });
+      persist(); renderAll();
+      $("wvModal").hidden = true;
+      toast("已重置为初始进度");
+    }
+  });
+
+  $("wvBtnReview").addEventListener("click", openReview);
+  $("wvMClose").addEventListener("click", function () { $("wvModal").hidden = true; });
+  $("wvModal").addEventListener("click", function (e) {
+    if (e.target === $("wvModal")) $("wvModal").hidden = true;
+  });
+
+  /* ---------------- 体系切换 ---------------- */
+  function openPick() {
+    $("wvPickGrid").innerHTML = SYS.map(function (s, i) {
+      var p = progress(s) * 100;
+      return '<button type="button" class="wv-sys" data-sys="' + s.id + '">' +
+        '<span class="n"><span>' + (i < 9 ? "0" : "") + (i + 1) + "</span><span>" +
+          s.nodes.length + " 盏</span></span>" +
+        "<h3>" + esc(s.name) + "</h3>" +
+        '<div class="e">' + esc(s.en) + "</div>" +
+        '<p class="note">' + esc(s.note) + "</p>" +
+        '<span class="bar"><i style="width:' + p.toFixed(0) + '%"></i></span>' +
+        '<span class="pc">' + p.toFixed(0) + "% 已点亮</span></button>";
+    }).join("");
+    $("wvPickWrap").hidden = false;
+  }
+
+  $("wvPickGrid").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-sys]");
+    if (!b) return;
+    enter(b.dataset.sys);
+    $("wvPickWrap").hidden = true;
+  });
+  $("wvBtnPick").addEventListener("click", openPick);
+
+  /* ---------------- 进入体系 ---------------- */
+  function enter(id) {
+    var s = SYS.find(function (x) { return x.id === id; }) || SYS[0];
+    cur = s;
+    selected = null; hovered = null;
+    closeCard();
+    if (!s._laid) { layout(s); s._laid = true; }
+    else s.nodes.forEach(function (n) { if (n.px === undefined) { n.px = n.tx; n.py = n.ty; } });
+
+    $("wvSysName").textContent = s.name;
+    $("wvSysEn").textContent = s.en + " · " + s.nodes.length + " 盏";
+    try { localStorage.setItem("yc.weave.last", s.id); } catch (e) {}
+    renderAll();
+    fitView();
+
+    talk.innerHTML = "";
+    say("<b>" + esc(s.name) + "</b> —— " + esc(s.core || s.note));
+    say("先看图上最暗的那几盏。点一盏，我陪你把它说清楚；也可以先让我<b>考考你</b>，看看哪里是假的会。");
+    lampOn();
+  }
+
+  /* ---------------- 视图复位 ---------------- */
+  function fitView() {
+    if (!cur) return;
+    var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+    cur.nodes.forEach(function (n) {
+      minX = Math.min(minX, n.px - 90); maxX = Math.max(maxX, n.px + 90);
+      minY = Math.min(minY, n.py - 40); maxY = Math.max(maxY, n.py + 44);
+    });
+    var w = maxX - minX, h = maxY - minY;
+    var pad = 34;
+    /* 下限 0.72：全图塞进画布的代价是字号掉到 7px，谁也读不清。
+       宁可让图稍微超出画布、让人拖一下，也要先看清每盏灯叫什么。 */
+    zoom = Math.max(0.72, Math.min(1.2, Math.min((W - pad * 2) / w, (H - pad * 2) / h)));
+    pan.x = -((minX + maxX) / 2) * zoom;
+    pan.y = -((minY + maxY) / 2) * zoom;
+    updateZoomLabel();
+    draw();
+  }
+
+  $("wvIn").addEventListener("click", function () { zoom = Math.min(2.3, zoom * 1.18); updateZoomLabel(); draw(); });
+  $("wvOut").addEventListener("click", function () { zoom = Math.max(0.35, zoom / 1.18); updateZoomLabel(); draw(); });
+  $("wvFit").addEventListener("click", fitView);
+  $("wvTier").addEventListener("click", function () {
+    cur.nodes.forEach(function (n) { n.px = n.tx; n.py = n.ty; });
+    fitView();
+    toast("按先决深度重排");
+  });
+
+  /* ---------------- 移动端抽屉 ---------------- */
+  $("wvBtnLeft").addEventListener("click", function () { $("wvLeft").classList.toggle("open"); });
+  $("wvBtnTalk").addEventListener("click", function () { $("wvRight").classList.toggle("open"); });
+
+  /* ---------------- 汇总重绘 ---------------- */
+  function renderAll() {
+    renderProgress();
+    renderList();
+    if (selected) renderLvs();
+    draw();
+  }
+
+  /* ---------------- 启动 ---------------- */
+  window.addEventListener("resize", resize);
+  resize();
+
+  var last = null;
+  try { last = localStorage.getItem("yc.weave.last"); } catch (e) {}
+  if (last && SYS.some(function (s) { return s.id === last; })) {
+    $("wvPickWrap").hidden = true;
+    enter(last);
+  } else {
+    $("wvPickWrap").hidden = false;
+    openPick();
+    /* 没进体系时画布是空的，但进度条与顶栏仍需一个占位 */
+    $("wvSysName").textContent = "选一张灯图";
+    $("wvSysEn").textContent = "6 套体系 · 110 盏灯";
+  }
+})();
+
+</script>
+</body>
+</html>

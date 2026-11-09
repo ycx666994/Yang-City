@@ -24,6 +24,27 @@
   var $ = function (id) { return document.getElementById(id); };
   var map = $("cmMap");
 
+  /* 这一页现在有两个身份：
+     ① 三维页里「二维地图」按钮拉起的整屏图层（<iframe> 装载）；
+     ② 直接打开也能独立工作（发链接给人看总图时用）。
+     区别只在跳转：iframe 里点区域如果只跳本窗口，会把「图层」自己换成
+     街区页，三维页那一层就没了。所以凡是要换页的出口，统一走 go()。 */
+  var IN_FRAME = window.self !== window.top;
+  function go(url) {
+    if (IN_FRAME) { try { window.top.location.href = url; return; } catch (e) {} }
+    location.href = url;
+  }
+  if (IN_FRAME) {
+    /* 嵌在三维页里时，本页自己的顶栏是多余的（父页已经有一条更完整的），
+       而且两层顶栏会叠在一起。隐藏它，工具条由父页给。 */
+    document.body.classList.add("in-frame");
+    /* 图上的馆标是现建的 <a>，逐个补 target 太容易漏；捕获阶段统一兜住 */
+    document.addEventListener("click", function (e) {
+      var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+      if (a && !a.target) a.target = "_top";
+    }, true);
+  }
+
   /* 馆 → 原型。和 shared/yc3d/yc3d-city.js 里的 HALL_TYPE 同一张表，
      用来在地块里把「那座馆」那栋楼找出来，标在它真正的位置上。 */
   var HALL_TYPE = { H1: "museum", H2: "forensicHall", H3: "twist",
@@ -255,7 +276,7 @@
     var hit = el("rect", { x: -hx, y: -hz, width: hx * 2, height: hz * 2, class: "cm-hit" }, body);
     zones[d.id] = { g: g, hit: hit, d: d, hx: hx, hz: hz, plan: plan };
     hit.addEventListener("mouseenter", function () { show(d); });
-    hit.addEventListener("click", function () { location.href = "district.html?zone=" + d.id; });
+    hit.addEventListener("click", function () { go("district.html?zone=" + d.id); });
 
     /* --- 5f. 标签：挂在每块地头上那条缝里，不压街区 --- */
     var lx = PX(d.cx - hx) + 2, ly = PY(d.cz - hz) - 6;

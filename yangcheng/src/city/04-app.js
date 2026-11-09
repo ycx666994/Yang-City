@@ -188,12 +188,10 @@
     }
     stage.setScene(scene, camera);
     if (isMap) {
-      document.title = "杨城城市地图 · 六馆、" + YC3D_CITY.GIANTS.length + "家AI企业与" + YC3D_CITY.INFRA.length + "个设施";
+      document.title = "杨城 · 三维全景 · 十七区、六馆与" + YC3D_CITY.GIANTS.length + "家 AI 大厂";
       $("cityNodes").open = true; $("nodesTitle").textContent = "城市地图 · 分类定位";
       $("nodeFilters").hidden = false; $("mapTools").hidden = false;
-      /* 这一个按钮去的是二维《城市地图》(index.html)，所以就叫「城市地图」。
-         以前这里写「城市首页」——点下去落地的是张地图，名字和目标两张皮。 */
-      $("navMap").href = "index.html"; $("navMap").textContent = "城市地图";
+      /* 顶栏那枚「二维地图」按钮由页面里的独立一段脚本接管（切图层，不换页）。 */
       $("nodesFoot").textContent = "滚轮推近到片区，双击再进一档到单栋楼；坐标为虚构场景单位。";
       canvas.setAttribute("aria-label", "虚构杨城俯视地图，六馆、" + YC3D_CITY.GIANTS.length + "家AI企业及" + YC3D_CITY.INFRA.length + "个设施可分类定位");
     }
@@ -634,4 +632,92 @@
     requestAnimationFrame(function () { if (bootEl) bootEl.classList.add("done"); });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+})();
+
+/* ============================================================
+   城市公告栏 + 二维图层
+   ------------------------------------------------------------
+   单独一个 IIFE：district.html 也用这份脚本，那里没有公告栏的 DOM，
+   拿不到 #bulList 就直接退出，不影响街区页。
+   数据只有一份（shared/yc-bulletin.js），这里不写任何文案。
+   ============================================================ */
+(function () {
+  "use strict";
+  var B = window.YC_BULLETIN;
+  var list = document.getElementById("bulList");
+  if (!B || !list) return;
+  var $ = function (id) { return document.getElementById(id); };
+  var bul = $("bul"), btn = $("navBulletin"), frame = $("lyr2dFrame"), lyr = $("lyr2d");
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c];
+    });
+  }
+
+  /* ---------- 列表 ---------- */
+  list.innerHTML = B.items.map(function (it) {
+    var v = B.vendorOf(it);
+    var live = it.status === "live";
+    return '<a class="bul-item" href="project.html?id=' + encodeURIComponent(it.id) + '"' +
+      ' style="--tone:' + esc(v.tone) + '">' +
+      '<span class="bi-top">' +
+        '<span class="bi-date">' + esc(B.fmtDate(it.date)) + "</span>" +
+        '<span class="bi-vendor">' + esc(v.name) + "</span>" +
+        (v.joint.length ? '<span class="bi-joint">× ' + esc(v.joint.join("、")) + "</span>" : "") +
+        '<span class="bi-st' + (live ? " live" : "") + '">' + (live ? "开放中" : "已归档") + "</span>" +
+      "</span>" +
+      '<span class="bi-title">' + esc(it.title) +
+        (it.titleEn ? "<em>" + esc(it.titleEn) + "</em>" : "") + "</span>" +
+      '<span class="bi-lead">' + esc(it.lead) + "</span></a>";
+  }).join("");
+
+  var cnt = $("tnBulCount");
+  if (cnt) cnt.textContent = B.items.length;
+  var foot = $("bulFoot");
+  if (foot) foot.textContent = "共 " + B.items.length + " 条 · 最近更新 " + B.fmtDate(B.published);
+
+  /* ---------- 开关 ---------- */
+  function openBul(on) {
+    bul.classList.toggle("on", on);
+    bul.setAttribute("aria-hidden", String(!on));
+    if (btn) btn.setAttribute("aria-expanded", String(on));
+    if (on && lyr && !lyr.hidden) open2d(false);
+  }
+  if (btn) btn.addEventListener("click", function () { openBul(!bul.classList.contains("on")); });
+  if ($("bulClose")) $("bulClose").addEventListener("click", function () { openBul(false); });
+
+  /* ---------- 二维图层 ---------- */
+  function open2d(on) {
+    if (!lyr) return;
+    if (on) {
+      /* 第一次展开才给 src：三维首屏不必为一个可能不打开的图多付 100KB */
+      if (!frame.getAttribute("src")) {
+        var t = new URLSearchParams(location.search).get("time");
+        frame.setAttribute("src", "map2d.html" + (t !== null && t !== "" ? "?time=" + encodeURIComponent(t) : ""));
+      }
+      lyr.hidden = false;
+      document.body.classList.add("l2-open");
+      openBul(false);
+    } else {
+      lyr.hidden = true;
+      document.body.classList.remove("l2-open");
+    }
+    var b = $("nav2d");
+    if (b) b.setAttribute("aria-expanded", String(on));
+  }
+  if ($("nav2d")) $("nav2d").addEventListener("click", function () { open2d(lyr.hidden); });
+  if ($("btnMap")) $("btnMap").addEventListener("click", function () { open2d(true); });
+  if ($("lyr2dBack")) $("lyr2dBack").addEventListener("click", function () { open2d(false); });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    if (lyr && !lyr.hidden) { open2d(false); return; }
+    if (bul.classList.contains("on")) openBul(false);
+  });
+
+  /* ---------- URL 直达：公告栏 / 二维图都能被链接分享 ---------- */
+  var q = new URLSearchParams(location.search);
+  if (q.get("panel") === "bulletin") openBul(true);
+  if (q.get("layer") === "map") open2d(true);
 })();

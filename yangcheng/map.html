@@ -6,15 +6,15 @@
 <link rel="apple-touch-icon" href="../favicon.svg">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="杨城 · AI 认知失效证据城市">
-<meta property="og:title" content="杨城 · AI 认知失效证据城市">
+<meta property="og:title" content="杨城 · 三维全景">
 <meta property="og:description" content="一座让每个关于 AI 的判断都能接受实验的城市。六馆、一套证据协议。">
 <meta property="og:image" content="https://ycx666994.github.io/Yang-City/docs/screens/01-city.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="杨城 · AI 认知失效证据城市">
+<meta name="twitter:title" content="杨城 · 三维全景">
 <meta name="twitter:description" content="一座让每个关于 AI 的判断都能接受实验的城市。六馆、一套证据协议。">
 <meta name="twitter:image" content="https://ycx666994.github.io/Yang-City/docs/screens/01-city.jpg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>杨城 · AI 认知失效证据城市</title>
+<title>杨城 · 三维全景</title>
 <meta name="description" content="一座让每个关于 AI 的判断都能接受实验的城市。六馆、一套证据协议。">
 <link rel="stylesheet" href="shared/yc-core.css">
 <link rel="stylesheet" href="shared/yc-cast.css">
@@ -94,7 +94,98 @@ body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-
 .dh-nav a,.dh-nav button{flex:1;text-align:center;padding:8px 6px;border:1px solid var(--yc-line);background:transparent;font-size:11.5px;color:var(--yc-muted)}
 .dh-nav a:hover,.dh-nav button:hover{color:var(--yc-ink);border-color:var(--yc-accent)}
 @media(max-width:760px){.district-hud{left:10px;right:10px;top:auto;bottom:96px;width:auto;padding:11px 13px}.district-hud h2{font-size:18px}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* ============================================================
+   城市公告栏 + 二维图层（本轮新增）
+   ------------------------------------------------------------
+   公告栏是右侧抽屉：收起时完全在画面外，不占场景；展开时压住
+   六馆列表那一列（那一列本来也要收起）。抽屉不上遮罩——看公告
+   的时候城还在转，这符合「城市里的一块告示板」而不是弹窗。
+   ============================================================ */
+.topnav button{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;font-size:12px;
+  white-space:nowrap;border:1px solid var(--yc-line);background:var(--yc-panel);border-radius:6px;
+  backdrop-filter:blur(12px);color:var(--yc-ink);cursor:pointer;transition:border-color .16s,background .16s}
+.topnav button:hover{border-color:var(--yc-accent)}
+.topnav button[aria-expanded="true"]{background:var(--yc-accent);color:var(--yc-bg);border-color:var(--yc-accent)}
+.tn-count{display:inline-grid;place-items:center;min-width:16px;height:16px;padding:0 4px;
+  border-radius:8px;background:var(--yc-accent);color:var(--yc-bg);font-size:9.5px;font-weight:700;
+  font-variant-numeric:tabular-nums;line-height:1}
+.topnav button[aria-expanded="true"] .tn-count{background:var(--yc-bg);color:var(--yc-accent)}
+
+/* ---------- 公告抽屉 ---------- */
+.bul{position:fixed;right:0;top:72px;bottom:0;z-index:55;width:min(376px,100vw);
+  display:flex;flex-direction:column;padding:20px 0 0;
+  background:var(--yc-panel);backdrop-filter:blur(20px);
+  border-left:1px solid var(--yc-line);border-top:1px solid var(--yc-line);
+  border-radius:10px 0 0 0;box-shadow:-18px 0 46px rgba(20,44,60,.14);
+  transform:translateX(calc(100% + 20px));visibility:hidden;
+  transition:transform .32s cubic-bezier(.22,.7,.3,1),visibility .32s}
+.bul.on{transform:none;visibility:visible}
+.bul-h{display:flex;align-items:flex-start;gap:12px;padding:0 22px 12px}
+.bul-ht{flex:1;min-width:0}
+.bul-ht b{display:block;font-size:17px;font-weight:700;letter-spacing:.06em;color:var(--yc-ink)}
+.bul-ht i{display:block;margin-top:4px;font-style:normal;font-size:9.5px;letter-spacing:.2em;
+  color:var(--yc-muted)}
+.bul-x{border:1px solid var(--yc-line);background:transparent;border-radius:5px;
+  width:28px;height:28px;font-size:18px;line-height:1;color:var(--yc-muted);flex:none}
+.bul-x:hover{color:var(--yc-ink);border-color:var(--yc-accent)}
+.bul-sub{margin:0 22px 14px;padding-bottom:14px;border-bottom:1px solid var(--yc-line);
+  font-size:11px;line-height:1.75;color:var(--yc-muted)}
+.bul-list{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:0 12px 8px}
+
+.bul-item{display:block;position:relative;padding:13px 12px 13px 16px;border-radius:7px;
+  text-decoration:none;color:var(--yc-ink);transition:background .16s}
+.bul-item::before{content:"";position:absolute;left:5px;top:14px;bottom:14px;width:2.5px;
+  border-radius:2px;background:var(--tone,#5b8ea8);opacity:.75;transition:opacity .16s}
+.bul-item:hover{background:rgba(79,153,186,.1)}
+.bul-item:hover::before{opacity:1}
+.bi-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bi-date{font-family:Consolas,"Microsoft YaHei",monospace;font-size:10.5px;
+  color:var(--yc-muted);font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.bi-vendor{font-size:10.5px;font-weight:700;color:var(--tone,#5b8ea8)}
+.bi-joint{font-size:9.5px;color:var(--yc-muted)}
+.bi-st{margin-left:auto;font-size:9px;letter-spacing:.08em;padding:2px 6px;border-radius:3px;
+  border:1px solid var(--yc-line);color:var(--yc-muted);white-space:nowrap}
+.bi-st.live{color:#2f7a4a;border-color:rgba(47,122,74,.5);background:rgba(47,122,74,.09)}
+:root[data-city-theme="night"] .bi-st.live{color:#7fd6a0;border-color:rgba(127,214,160,.45);
+  background:rgba(127,214,160,.1)}
+.bi-title{font-size:14px;font-weight:700;line-height:1.45;letter-spacing:.02em}
+.bi-title em{font-style:normal;font-size:10px;font-weight:400;letter-spacing:.12em;
+  color:var(--yc-muted);margin-left:7px}
+.bi-lead{margin:6px 0 0;font-size:11.5px;line-height:1.72;color:var(--yc-muted);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bul-f{display:flex;align-items:center;gap:12px;padding:12px 22px 14px;
+  border-top:1px solid var(--yc-line);font-size:10px;color:var(--yc-muted)}
+.bul-f a{margin-left:auto;color:var(--yc-accent);font-size:10.5px}
+
+/* ---------- 二维图层 ---------- */
+.lyr2d{position:fixed;inset:0;z-index:60;background:#dfe5d6;
+  animation:l2in .28s ease both}
+@keyframes l2in{from{opacity:0}to{opacity:1}}
+.lyr2d iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#eef0e6}
+.l2b{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:2;
+  display:flex;align-items:center;gap:14px;padding:8px 10px 8px 8px;
+  background:rgba(247,249,241,.95);backdrop-filter:blur(14px);
+  border:1px solid #c9cfc2;border-radius:9px;box-shadow:0 10px 26px rgba(38,48,43,.14)}
+.l2b-back{padding:8px 12px;font-size:12px;font-weight:600;border:1px solid #b9c1b2;
+  background:#fff;border-radius:6px;color:#26302b;cursor:pointer}
+.l2b-back:hover{background:#26302b;color:#f4f6ec;border-color:#26302b}
+.l2b-t{display:flex;flex-direction:column;gap:2px;line-height:1.3}
+.l2b-t b{font-size:12.5px;font-weight:700;color:#26302b;letter-spacing:.03em}
+.l2b-t i{font-style:normal;font-size:10px;color:#6f7d74}
+.l2b-open{font-size:11px;color:#3f5f4a;text-decoration:none;padding:6px 8px;border-radius:5px;
+  border:1px solid transparent;white-space:nowrap}
+.l2b-open:hover{border-color:#c9cfc2;background:#fff}
+body.l2-open .topbar,body.l2-open .hudleft,body.l2-open .nodes,body.l2-open .phaseNote,
+body.l2-open .time-control,body.l2-open .cta,body.l2-open .map-tools,body.l2-open .card,
+body.l2-open .botbar,body.l2-open .bul{filter:blur(2px);pointer-events:none;opacity:.5}
+
+@media(max-width:760px){
+  .bul{width:100vw;top:auto;height:76vh;bottom:0;border-left:0;border-top:1px solid var(--yc-line);
+    border-radius:14px 14px 0 0;transform:translateY(100%)}
+  .bul.on{transform:none}
+  .l2b{left:10px;right:10px;transform:none;gap:8px;padding:7px 8px}
+  .l2b-t i,.l2b-open{display:none}
+}
 </style>
 </head>
 <canvas id="cityCv" aria-label="虚构杨城三维场景，光照随UTC+8时间变化"></canvas>
@@ -118,7 +209,11 @@ body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-
     <span class="real-clock" id="realClock" hidden></span>
   </div>
   <nav class="topnav" aria-label="业务入口">
-    <a id="navMap" href="index.html">城市地图</a>
+    <a href="index.html">城市介绍</a>
+    <button type="button" id="navBulletin" aria-expanded="false" aria-controls="bul">
+      城市公告<span class="tn-count" id="tnBulCount">0</span>
+    </button>
+    <button type="button" id="nav2d" aria-expanded="false" aria-controls="lyr2d">二维地图</button>
     <a href="evidence.html">公共证据厅</a>
   </nav>
 </header>
@@ -157,7 +252,7 @@ body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-
 
 <div class="cta">
   <div class="maphint" id="mapHint">先看地图，定位六馆与城市设施</div>
-  <a class="mapbtn" id="btnMap" href="index.html"><span class="mbt"><b>城市地图</b><i>17 区总图 · 二维导览</i></span></a>
+  <button class="mapbtn" id="btnMap" type="button"><span class="mbt"><b>二维地图</b><i>17 区总图 · 点击切换</i></span></button>
 </div>
 <div class="map-tools" id="mapTools" hidden>
   <div class="zoomctl" role="group" aria-label="缩放">
@@ -193,6 +288,30 @@ body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-
   <a class="card-go" id="cardGo" href="map.html">进入这座馆</a>
   <div class="card-links" id="cardLinks"></div>
 </div>
+
+<!-- 二维图层：同一座城的另一张画法，不是跳去另一页。
+     用 iframe 而不是把 SVG 塞进本页，是因为那张图自带昼夜翻图、时间滑杆
+     和一整套 .cm-* 样式，两套壳的变量名会互相踩。隔离在框里最干净，
+     而且 src 只在第一次点「二维地图」时才写入，三维首屏不多下 100KB。 -->
+<div class="lyr2d" id="lyr2d" hidden>
+  <div class="l2b">
+    <button type="button" class="l2b-back" id="lyr2dBack">← 返回三维</button>
+    <div class="l2b-t"><b>杨城 · 17 区总图</b><i>点地块进街区 · 拨时间看昼夜</i></div>
+    <a class="l2b-open" href="map2d.html" target="_blank" rel="noopener">单独打开 ↗</a>
+  </div>
+  <iframe id="lyr2dFrame" title="杨城 17 区二维总图" loading="lazy"></iframe>
+</div>
+
+<!-- 城市公告栏：右侧抽屉，与三维同屏，不遮挡城市 -->
+<aside class="bul" id="bul" aria-hidden="true" aria-labelledby="bulTitle">
+  <header class="bul-h">
+    <div class="bul-ht"><b id="bulTitle">城市公告</b><i>CITY BULLETIN</i></div>
+    <button type="button" class="bul-x" id="bulClose" aria-label="收起公告栏">×</button>
+  </header>
+  <p class="bul-sub">AI 大厂与云湖研究院在杨城上线的项目。点一条，看它的档案。</p>
+  <div class="bul-list" id="bulList"></div>
+  <div class="bul-f"><span id="bulFoot">—</span><a href="index.html">关于杨城 →</a></div>
+</aside>
 
 <footer class="botbar">
   <span id="clockMode">北京时间 UTC+8 实时驱动</span>
@@ -667,6 +786,198 @@ body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-
     makeId: makeId
   };
 })();
+
+</script>
+<script>
+/* ============================================================
+   yc-bulletin.js — 杨城城市公告栏 · 唯一数据源
+   ------------------------------------------------------------
+   首页（公告预览）、三维杨城（公告面板）、project.html（详情页）
+   三处共用这一份数据，绝不在页面里各写一份文案。
+
+   一条公告 = 一家 AI 大厂（或联合体）在杨城上线的一个项目。
+   字段约定：
+     id        URL 参数用（project.html?id=weave）
+     date      ISO 日期，面板按此倒序
+     vendor    出品的 AI 大厂，必须是城中六家之一或联合署名
+     kind      项目类别（认知工具 / 评测 / 数据 / 研究）
+     status    live（可立即体验） | archived（已归档，只能了解）
+     lead      一句话，公告面板里只显示这一句
+     sections  详情页正文，按「问题 → 做法 → 和六馆的关系」三段
+     play      立即体验的目标页；archived 留空
+   ------------------------------------------------------------
+   维护约定：新增项目只往 items 头部插，不需要改任何页面代码；
+   published 是公告栏页脚的「最近更新」，跟着最新一条走。
+   ============================================================ */
+(function (w) {
+  var VENDORS = {
+    baize: { name: "白泽", en: "BAIZE", field: "认知工程 · 推理集群", tone: "#5b8ea8" },
+    deepwit: { name: "深智", en: "DEEPWIT", field: "基础模型 · 通用能力", tone: "#4a6f8c" },
+    zhulong: { name: "烛龙", en: "ZHULONG", field: "长上下文 · 训练集群", tone: "#a8595f" },
+    lanzhou: { name: "澜舟", en: "LANZHOU", field: "液冷算力 · 推理服务", tone: "#3f7d80" },
+    gewu: { name: "格物", en: "GEWU", field: "数据工程 · 评测基准", tone: "#6b7a86" },
+    entropy: { name: "熵减", en: "ENTROPY", field: "能效 · 冷却系统", tone: "#586a76" },
+    cloudlake: { name: "云湖研究院", en: "CLOUDLAKE", field: "城市级 AI 研究机构", tone: "#7d8f6a" }
+  };
+
+  var items = [
+    {
+      id: "weave",
+      date: "2026-11-09",
+      vendor: "baize",
+      joint: ["cloudlake"],
+      title: "织识",
+      titleEn: "KNOWLEDGE WEAVER",
+      kind: "认知工具",
+      status: "live",
+      lead: "一张会长大的知识地图，把「我好像懂了」变成「我确实点亮了哪几盏灯」。",
+      summary: "白泽与云湖研究院联合上线。把知识拆成可以点亮的节点，用五级掌握度记录你真正走到哪一步；守灯人不给答案，只追问你还没想清楚的那一层。默认内置 AI 素养体系，也能学习任何学科。",
+      play: "weave.html",
+      cover: "",
+      metric: [["内置体系", "6 套"], ["掌握度分级", "五级"], ["是否联网", "完全离线"]],
+      tags: ["AI 素养", "知识图谱", "离线可用", "免费"],
+      sections: [
+        {
+          h: "它要解决的那件事",
+          p: "市民对 AI 的依赖，多数不是「不会用」，而是「以为自己会用」。问一句得到一个像样的回答，读起来通顺、结构清楚，于是判断力提前退场。织识把这件事拆开：一个知识点不是「看过」就算会，而是能说清它的边界、知道它什么时候不成立、能判断别人用得对不对。图上每盏灯的五级，对应的就是这四件事的进度。"
+        },
+        {
+          h: "怎么用",
+          p: "打开任何一个体系，会看到一张可以无限拖动的灯图：上游是地基，下游是它推得动的东西。点一盏灯，写下你刚学到的一句话，守灯人会追问一句——不是夸你，是找出这句话里还悬着的地方。你答不上来，那盏灯就停在「微明」，图上会留下一个可见的缺口。整张图的价值不在好看，在于缺口藏不住。"
+        },
+        {
+          h: "开放安排",
+          p: "即日起向全城开放，免费，不需要注册。打开就能用，所有学习记录存在你自己的浏览器里，不上传、不跨设备同步——这是刻意的：练判断力不该先交出自己的数据。首版内置六套体系，AI 素养是默认打开的那一套；学校与图书馆的公共终端本月内会预装。此后每季度增补一套。"
+        }
+      ]
+    },
+    {
+      id: "pact",
+      date: "2026-10-26",
+      vendor: "deepwit",
+      joint: [],
+      title: "提示契约",
+      titleEn: "PROMPT CONTRACT",
+      kind: "评测工具",
+      status: "archived",
+      lead: "把一句提示词拆成可复现的契约条款，看它在第几次改写之后开始失效。",
+      summary: "深智上线的提示压力测试台。同一份任务意图，用 40 种写法投给不同模型，记录结果漂移。上线三周后并入《能力与边界博物馆》的第二展区。",
+      play: "",
+      cover: "",
+      metric: [["测试写法", "40 种"], ["参与模型", "9 个"], ["上线周期", "3 周"]],
+      tags: ["提示工程", "可复现", "已归档"],
+      sections: [
+        {
+          h: "它要解决的那件事",
+          p: "「同样的提示词，昨天好用今天不行」是市民最常报的故障，但几乎没人能说清变的是模型、是上下文，还是自己那句提示本来就含糊。提示契约要求把一个任务写成四段：输入是什么、允许做什么、输出长什么样、什么情况算失败。写不满四段的提示词，不允许进入测试。"
+        },
+        {
+          h: "为什么归档",
+          p: "四十种写法里有十七种在第二轮就产生了互相矛盾的结果，而这些矛盾大多来自评测集本身的歧义，不是模型的问题。继续公开这套数据，会让人把「测试设计不当」误读成「模型不可靠」。方法论文档公开之后，工具本身关闭。"
+        },
+        {
+          h: "留下了什么",
+          p: "一条现在还在用的规则：任何关于 AI 的结论，先问「这个结论是在多少次、多少种写法下成立的」。单次观察只能当轶事。"
+        }
+      ]
+    },
+    {
+      id: "lineage",
+      date: "2026-10-11",
+      vendor: "gewu",
+      joint: [],
+      title: "数据血统台",
+      titleEn: "DATA LINEAGE DESK",
+      kind: "数据工具",
+      status: "archived",
+      lead: "给每一条训练数据查户口：它从哪来、被谁改过、有没有偷偷流进测试集。",
+      summary: "格物上线的数据溯源台。为 3200 万条样本打上来源标记与流转记录，用于在评测异常时回溯到具体的数据批次。",
+      play: "",
+      cover: "",
+      metric: [["标注样本", "3200 万"], ["追溯层级", "4 级"], ["定位耗时", "6 小时"]],
+      tags: ["数据治理", "评测", "已归档"],
+      sections: [
+        {
+          h: "它要解决的那件事",
+          p: "模型分数突然上涨，最常见的原因不是变强了，而是测试集被训练数据污染了。数据血统台做的事很朴素：每条样本都有来源、有流转记录、有版本号，评测之前先跑一遍交集检查。交集非空的样本会被剔除，剩下的才允许用来打分。"
+        },
+        {
+          h: "为什么归档",
+          p: "它太好用了，好用到掩盖了真正的问题——大部分团队在数据进来的时候就没有留痕，血统台只能追到「某次批量导入」，再往前是一片空白。补记录的成本高于重建数据集，于是项目关闭，结论整理成一份《数据留痕最低要求》对外公开。"
+        },
+        {
+          h: "留下了什么",
+          p: "现在杨城所有对外公布的模型评测，都必须附带一份污染检查声明。没有这份声明的分数，公告栏不予刊登。"
+        }
+      ]
+    },
+    {
+      id: "ripple",
+      date: "2026-09-12",
+      vendor: "lanzhou",
+      joint: [],
+      title: "涟漪",
+      titleEn: "RIPPLE",
+      kind: "推理服务",
+      status: "archived",
+      lead: "把长文档的推理开销压到按页计价，让只有三个人的小机构也用得起。",
+      summary: "澜舟上线的按需推理服务。把长上下文拆成分段召回与增量缓存，同一份文档再问第二次，只付新增部分的算力。运营十一个月后因调度成本高于预期而关闭。",
+      play: "",
+      cover: "",
+      metric: [["服务调用", "2.1 亿次"], ["平均省算力", "63%"], ["运营周期", "11 个月"]],
+      tags: ["推理服务", "长上下文", "已归档"],
+      sections: [
+        {
+          h: "它要解决的那件事",
+          p: "长文档问答的账单不是按「问题」算的，是按「整篇再读一遍」算的。一份两百页的规程，问十个问题就读十遍。小机构用不起，于是只有大机构用得上——这不是技术差距，是计价方式造出来的门槛。"
+        },
+        {
+          h: "怎么用",
+          p: "接入时把文档切段建索引，问题先做一次轻量召回，只把命中的段落送进模型；同一会话里重复出现的段落走增量缓存，不再重算。对外只报「页数 × 次数」，不报 token——使用者能预估成本，才敢真的用起来。"
+        },
+        {
+          h: "为什么归档",
+          p: "召回命中率在结构化文档上很好，在会议记录、手写批注这类文本上掉得厉害，投诉集中在「答非所问」。要修就得给每一类文档单独做切分策略，运维成本超过了它省下来的算力。服务关闭，切分策略与缓存方案已开源。"
+        }
+      ]
+    }
+  ];
+
+  items.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+
+  function vendorOf(it) {
+    var v = VENDORS[it.vendor] || { name: it.vendor, en: "", field: "", tone: "#5b8ea8" };
+    return {
+      name: v.name,
+      en: v.en,
+      field: v.field,
+      tone: v.tone,
+      joint: (it.joint || []).map(function (k) { return VENDORS[k] ? VENDORS[k].name : k; })
+    };
+  }
+
+  function byId(id) {
+    for (var i = 0; i < items.length; i++) if (items[i].id === id) return items[i];
+    return null;
+  }
+
+  function fmtDate(iso) {
+    var p = String(iso).split("-");
+    return p[0] + "." + p[1] + "." + p[2];
+  }
+
+  w.YC_BULLETIN = {
+    vendors: VENDORS,
+    items: items,
+    published: items.length ? items[0].date : "",
+    byId: byId,
+    vendorOf: vendorOf,
+    fmtDate: fmtDate,
+    live: function () {
+      return items.filter(function (i) { return i.status === "live"; });
+    }
+  };
+})(window);
 
 </script>
 <script>
@@ -16382,12 +16693,10 @@ body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-
     }
     stage.setScene(scene, camera);
     if (isMap) {
-      document.title = "杨城城市地图 · 六馆、" + YC3D_CITY.GIANTS.length + "家AI企业与" + YC3D_CITY.INFRA.length + "个设施";
+      document.title = "杨城 · 三维全景 · 十七区、六馆与" + YC3D_CITY.GIANTS.length + "家 AI 大厂";
       $("cityNodes").open = true; $("nodesTitle").textContent = "城市地图 · 分类定位";
       $("nodeFilters").hidden = false; $("mapTools").hidden = false;
-      /* 这一个按钮去的是二维《城市地图》(index.html)，所以就叫「城市地图」。
-         以前这里写「城市首页」——点下去落地的是张地图，名字和目标两张皮。 */
-      $("navMap").href = "index.html"; $("navMap").textContent = "城市地图";
+      /* 顶栏那枚「二维地图」按钮由页面里的独立一段脚本接管（切图层，不换页）。 */
       $("nodesFoot").textContent = "滚轮推近到片区，双击再进一档到单栋楼；坐标为虚构场景单位。";
       canvas.setAttribute("aria-label", "虚构杨城俯视地图，六馆、" + YC3D_CITY.GIANTS.length + "家AI企业及" + YC3D_CITY.INFRA.length + "个设施可分类定位");
     }
@@ -16828,6 +17137,94 @@ body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-
     requestAnimationFrame(function () { if (bootEl) bootEl.classList.add("done"); });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+})();
+
+/* ============================================================
+   城市公告栏 + 二维图层
+   ------------------------------------------------------------
+   单独一个 IIFE：district.html 也用这份脚本，那里没有公告栏的 DOM，
+   拿不到 #bulList 就直接退出，不影响街区页。
+   数据只有一份（shared/yc-bulletin.js），这里不写任何文案。
+   ============================================================ */
+(function () {
+  "use strict";
+  var B = window.YC_BULLETIN;
+  var list = document.getElementById("bulList");
+  if (!B || !list) return;
+  var $ = function (id) { return document.getElementById(id); };
+  var bul = $("bul"), btn = $("navBulletin"), frame = $("lyr2dFrame"), lyr = $("lyr2d");
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c];
+    });
+  }
+
+  /* ---------- 列表 ---------- */
+  list.innerHTML = B.items.map(function (it) {
+    var v = B.vendorOf(it);
+    var live = it.status === "live";
+    return '<a class="bul-item" href="project.html?id=' + encodeURIComponent(it.id) + '"' +
+      ' style="--tone:' + esc(v.tone) + '">' +
+      '<span class="bi-top">' +
+        '<span class="bi-date">' + esc(B.fmtDate(it.date)) + "</span>" +
+        '<span class="bi-vendor">' + esc(v.name) + "</span>" +
+        (v.joint.length ? '<span class="bi-joint">× ' + esc(v.joint.join("、")) + "</span>" : "") +
+        '<span class="bi-st' + (live ? " live" : "") + '">' + (live ? "开放中" : "已归档") + "</span>" +
+      "</span>" +
+      '<span class="bi-title">' + esc(it.title) +
+        (it.titleEn ? "<em>" + esc(it.titleEn) + "</em>" : "") + "</span>" +
+      '<span class="bi-lead">' + esc(it.lead) + "</span></a>";
+  }).join("");
+
+  var cnt = $("tnBulCount");
+  if (cnt) cnt.textContent = B.items.length;
+  var foot = $("bulFoot");
+  if (foot) foot.textContent = "共 " + B.items.length + " 条 · 最近更新 " + B.fmtDate(B.published);
+
+  /* ---------- 开关 ---------- */
+  function openBul(on) {
+    bul.classList.toggle("on", on);
+    bul.setAttribute("aria-hidden", String(!on));
+    if (btn) btn.setAttribute("aria-expanded", String(on));
+    if (on && lyr && !lyr.hidden) open2d(false);
+  }
+  if (btn) btn.addEventListener("click", function () { openBul(!bul.classList.contains("on")); });
+  if ($("bulClose")) $("bulClose").addEventListener("click", function () { openBul(false); });
+
+  /* ---------- 二维图层 ---------- */
+  function open2d(on) {
+    if (!lyr) return;
+    if (on) {
+      /* 第一次展开才给 src：三维首屏不必为一个可能不打开的图多付 100KB */
+      if (!frame.getAttribute("src")) {
+        var t = new URLSearchParams(location.search).get("time");
+        frame.setAttribute("src", "map2d.html" + (t !== null && t !== "" ? "?time=" + encodeURIComponent(t) : ""));
+      }
+      lyr.hidden = false;
+      document.body.classList.add("l2-open");
+      openBul(false);
+    } else {
+      lyr.hidden = true;
+      document.body.classList.remove("l2-open");
+    }
+    var b = $("nav2d");
+    if (b) b.setAttribute("aria-expanded", String(on));
+  }
+  if ($("nav2d")) $("nav2d").addEventListener("click", function () { open2d(lyr.hidden); });
+  if ($("btnMap")) $("btnMap").addEventListener("click", function () { open2d(true); });
+  if ($("lyr2dBack")) $("lyr2dBack").addEventListener("click", function () { open2d(false); });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    if (lyr && !lyr.hidden) { open2d(false); return; }
+    if (bul.classList.contains("on")) openBul(false);
+  });
+
+  /* ---------- URL 直达：公告栏 / 二维图都能被链接分享 ---------- */
+  var q = new URLSearchParams(location.search);
+  if (q.get("panel") === "bulletin") openBul(true);
+  if (q.get("layer") === "map") open2d(true);
 })();
 
 </script>
