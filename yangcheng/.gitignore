@@ -4,6 +4,9 @@
 _build/
 .node-port
 
-# 调试截图（jpg 同样不入库，assets 下的正式图除外）
+# 调试截图（jpg/png 都不入库，assets 下的正式图除外）
 *.jpg
 !assets/*.jpg
+# 只挡根目录：藏在仓库根下的截图动辄几十上百张、上百 MB，
+# 而 shared/yc3d/assets 里的预览图是正式资源，不能误伤
+/*.png
