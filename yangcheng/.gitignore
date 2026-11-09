@@ -3,3 +3,7 @@
 !shared/yc3d/assets/*.png
 _build/
 .node-port
+
+# 调试截图（jpg 同样不入库，assets 下的正式图除外）
+*.jpg
+!assets/*.jpg

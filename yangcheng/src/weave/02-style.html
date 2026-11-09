@@ -12,14 +12,36 @@
   --wv-paper:#eff1e7; --wv-card:#fbfcf5; --wv-stage:#f6f7ef; --wv-slab:#e6e9dd;
   --wv-ink:#222b26; --wv-ink2:#48534b; --wv-muted:#6d7a70; --wv-faint:#8e9a90;
   --wv-line:#d3d9ca; --wv-line2:#e3e7da;
-  --wv-ac:#3f5f4a; --wv-gold:#c08a33; --wv-glow:#e8b64a;
+  --wv-ac:#3f5f4a; --wv-gold:#c08a33; --wv-glow:#e8b64a; --wv-ill:#a8543c;
+  --wv-on:#f5f7ee; --wv-me:#dfe4d2; --wv-sel:#e3e8d6; --wv-hover:#f2f4e8;
+  --wv-warnbg:#f6ece6; --wv-warnbd:#e2c9bb; --wv-warnfg:#a8543c;
+  --wv-ownbg:#efeaf4; --wv-ownbd:#d6cbe0;
+  --wv-panel:rgba(251,252,245,.93);
   --wv-serif:"Songti SC","SimSun","Noto Serif SC",Georgia,serif;
   --wv-sans:"Microsoft YaHei","PingFang SC","Segoe UI",system-ui,sans-serif;
   --wv-mono:"Cascadia Code","Consolas","SF Mono",monospace;
   --wv-l0:#b9c0b2; --wv-l1:#c9a86a; --wv-l2:#d2a23c; --wv-l3:#e0ab34; --wv-l4:#f0bd3e;
+  /* 选体系页是盖在灯图上的帘子。亮色下不透明，暗色下留一点缝，让下面的星透上来 */
+  --wv-veil:radial-gradient(120% 90% at 50% 0%,#f8f9f2 0%,#eff1e7 55%,#e8ebdd 100%);
+}
+/* 默认是夜里的那套：紫黑底、星点、暖金灯火。
+   灯图本来就是「点灯」，白天那套放在亮色开关里。 */
+html[data-theme="dark"]{
+  --wv-paper:#090b18; --wv-card:#111528; --wv-stage:#06080f; --wv-slab:#171d33;
+  --wv-ink:#e4e9ff; --wv-ink2:#a8b3d6; --wv-muted:#7b87ad; --wv-faint:#59638b;
+  --wv-line:#212a48; --wv-line2:#181f36;
+  --wv-ac:#8aa9ff; --wv-gold:#e6bd6a; --wv-glow:#ffd489; --wv-ill:#e07a5f;
+  --wv-on:#0a0d1a; --wv-me:#243158; --wv-sel:#1b2342; --wv-hover:#161c33;
+  --wv-warnbg:#2a1a18; --wv-warnbd:#553027; --wv-warnfg:#e8a08a;
+  --wv-ownbg:#241c2a; --wv-ownbd:#4a3548;
+  --wv-panel:rgba(15,19,36,.9);
+  --wv-l0:#2a3352; --wv-l1:#c9a86a; --wv-l2:#d8b25a; --wv-l3:#f0c862; --wv-l4:#ffe08a;
+  --wv-veil:radial-gradient(120% 92% at 50% 0%,#1a2348 0%,#0b0f20 46%,#05070e 100%);
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;overflow:hidden}
+/* 两侧抽屉收起时停在视口外，用 overflow:clip 才不会被算进 scrollWidth
+   （hidden 会生成滚动容器，clip 不会）。 */
+html,body{height:100%;margin:0;overflow:hidden;overflow:clip}
 body{background:var(--wv-paper);color:var(--wv-ink);font-family:var(--wv-sans);
   -webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
@@ -27,7 +49,7 @@ input,textarea{font:inherit;color:inherit}
 a{color:var(--wv-ac);text-decoration:none}
 [hidden]{display:none!important}
 
-.wv-app{display:grid;grid-template-columns:236px minmax(0,1fr) 340px;
+.wv-app{position:relative;overflow:hidden;display:grid;grid-template-columns:236px minmax(0,1fr) 340px;
   grid-template-rows:58px minmax(0,1fr);height:100vh;height:100dvh}
 
 /* ---------------- 顶栏 ---------------- */
@@ -37,34 +59,57 @@ a{color:var(--wv-ac);text-decoration:none}
 .wv-brand b{font-family:var(--wv-serif);font-size:21px;font-weight:500;letter-spacing:.14em}
 .wv-brand i{font-style:normal;font-family:var(--wv-mono);font-size:9px;letter-spacing:.16em;
   color:var(--wv-faint)}
+.wv-theme{width:27px;height:27px;border-radius:50%;border:1px solid var(--wv-line);
+  background:var(--wv-card);color:var(--wv-muted);font-size:12px;line-height:1;flex:none;
+  transition:border-color .16s,color .16s}
+.wv-theme:hover{border-color:var(--wv-ac);color:var(--wv-ac)}
+/* 选体系那一页盖住了顶栏，所以它自己带一颗 */
+.wv-theme-pick{position:fixed;right:24px;top:26px;z-index:61;
+  background:var(--wv-card);opacity:.9}
+@media(max-width:641px){.wv-theme-pick{right:16px;top:16px}}
 .wv-now{display:flex;align-items:baseline;gap:9px;padding-left:18px;
   border-left:1px solid var(--wv-line);min-width:0}
 .wv-now b{font-size:14px;font-weight:500;letter-spacing:.04em;white-space:nowrap}
 .wv-now i{font-style:normal;font-family:var(--wv-mono);font-size:9px;letter-spacing:.12em;
   color:var(--wv-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wv-prog{margin-left:auto;display:flex;align-items:center;gap:11px;flex:none}
-.wv-seg{display:flex;gap:2px;align-items:flex-end;height:20px}
-.wv-seg i{display:block;width:5px;border-radius:1px;background:var(--wv-line);height:8px;
-  transition:height .3s,background .3s}
-.wv-seg i.on{background:var(--wv-gold);height:16px}
-.wv-seg i.half{background:#dcc28b;height:12px}
+/* 进度条两段：金色是已经点亮的，赭红是「自评懂、其实没过」的错觉。
+   两段合起来永远不超过 100%，剩下的灰就是还没碰过的。 */
+.wv-bar{width:92px;height:6px;border-radius:3px;background:var(--wv-line);
+  display:flex;overflow:hidden}
+.wv-bar i{display:block;height:100%;width:0;transition:width .45s ease}
+.wv-bar .lit{background:var(--wv-gold)}
+.wv-bar .ill{background:var(--wv-ill)}
 .wv-pct{font-family:var(--wv-mono);font-size:13px;font-variant-numeric:tabular-nums;
   letter-spacing:.02em;min-width:44px;text-align:right}
 .wv-tb{display:flex;gap:6px;flex:none}
 .wv-btn{padding:8px 13px;font-size:12px;border:1px solid var(--wv-line);border-radius:5px;
   background:var(--wv-card);transition:border-color .16s,background .16s,color .16s;white-space:nowrap}
 .wv-btn:hover{border-color:var(--wv-ink2)}
-.wv-btn.solid{background:var(--wv-ink);color:#f5f7ee;border-color:var(--wv-ink)}
-.wv-btn.solid:hover{background:#0f1612}
+.wv-btn.solid{background:var(--wv-ink);color:var(--wv-on);border-color:var(--wv-ink)}
+.wv-btn.solid:hover{filter:brightness(1.12)}
 
 /* ---------------- 左栏 · 灯单 ---------------- */
 .wv-left{grid-row:2;display:flex;flex-direction:column;min-height:0;
   background:var(--wv-paper);border-right:1px solid var(--wv-line)}
-.wv-search{padding:12px 14px 10px}
-.wv-search input{width:100%;padding:9px 11px;font-size:12.5px;border:1px solid var(--wv-line);
+.wv-search{padding:12px 14px 4px;display:flex;gap:6px}
+.wv-search input{flex:1;min-width:0;padding:9px 11px;font-size:12.5px;border:1px solid var(--wv-line);
   border-radius:5px;background:var(--wv-card);outline:none;transition:border-color .16s}
 .wv-search input:focus{border-color:var(--wv-ac)}
-.wv-sorts{display:flex;gap:2px;padding:0 14px 10px}
+.wv-search button{flex:none;width:40px;border:1px solid var(--wv-line);border-radius:5px;
+  background:var(--wv-card);font-size:11.5px;color:var(--wv-ink2);transition:.14s}
+.wv-search button:hover{border-color:var(--wv-ac);color:var(--wv-ac)}
+.wv-search button:disabled{opacity:.45;cursor:default}
+/* 语义检索的结果区：它替代普通列表，顶部说明是怎么找出来的 */
+.wv-findhead{padding:6px 14px 8px;font-size:11px;line-height:1.7;color:var(--wv-muted)}
+.wv-findhead b{color:var(--wv-ink);font-weight:500}
+.wv-findhead button{color:var(--wv-ac);border-bottom:1px solid var(--wv-line);font-size:11px}
+.wv-filter{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:6px 14px 2px}
+.wv-filter button{padding:4px 0;font-size:9.5px;color:var(--wv-muted);border-radius:9px;
+  border:1px solid var(--wv-line2);transition:.14s;white-space:nowrap}
+.wv-filter button:hover{border-color:var(--wv-ink2);color:var(--wv-ink)}
+.wv-filter button[aria-pressed="true"]{background:var(--wv-ink);color:var(--wv-on);border-color:var(--wv-ink)}
+.wv-sorts{display:flex;gap:2px;padding:8px 14px 10px}
 .wv-sorts button{flex:1;padding:6px 2px;font-size:11px;color:var(--wv-muted);border-radius:4px;
   border:1px solid transparent;transition:background .14s,color .14s}
 .wv-sorts button:hover{background:var(--wv-slab)}
@@ -73,11 +118,18 @@ a{color:var(--wv-ac);text-decoration:none}
 .wv-item{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:8px 8px;
   border-radius:5px;transition:background .14s}
 .wv-item:hover{background:var(--wv-slab)}
-.wv-item[aria-current="true"]{background:#e9ead9;box-shadow:inset 2px 0 0 var(--wv-ac)}
+.wv-item[aria-current="true"]{background:var(--wv-sel);box-shadow:inset 2px 0 0 var(--wv-ac)}
 .wv-item .dot{width:7px;height:7px;border-radius:50%;flex:none;background:var(--wv-l0)}
+/* 两种异常状态要在灯单上一眼看见：错觉（自评懂、没过）、需复燃（亮过、暗了） */
+.wv-item .dot.ill{background:var(--wv-ill);box-shadow:0 0 0 2.5px rgba(168,84,60,.16)}
+.wv-item .dot.dim{background:var(--wv-l0);box-shadow:inset 0 0 0 1.5px #c9a86a}
 .wv-item .nm{flex:1;min-width:0;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;
   white-space:nowrap}
+/* 按意思找灯的结果是两行（灯名 + 体系·理由），这里得允许换行 */
+.wv-item .nm.multi{white-space:normal;line-height:1.45;padding:2px 0}
+.wv-item .nm .sub{display:block;font-size:10px;color:var(--wv-faint);margin-top:2px}
 .wv-item .lv{font-family:var(--wv-mono);font-size:9.5px;color:var(--wv-faint);flex:none}
+.wv-item .lv.ill{color:var(--wv-ill)}
 .wv-empty{padding:22px 14px;font-size:12px;line-height:1.8;color:var(--wv-faint)}
 
 /* ---------------- 中 · 画布 ---------------- */
@@ -86,16 +138,16 @@ a{color:var(--wv-ac);text-decoration:none}
 #wvCv.grabbing{cursor:grabbing}
 #wvCv.hot{cursor:pointer}
 .wv-tools{position:absolute;left:16px;bottom:16px;display:flex;gap:6px;
-  background:rgba(251,252,245,.93);border:1px solid var(--wv-line);border-radius:7px;
+  background:var(--wv-panel);border:1px solid var(--wv-line);border-radius:7px;
   padding:6px;backdrop-filter:blur(8px)}
 .wv-tools button{width:30px;height:30px;border-radius:4px;font-size:15px;line-height:1;
   color:var(--wv-ink2);transition:background .14s,color .14s}
 .wv-tools button:hover{background:var(--wv-slab);color:var(--wv-ink)}
 .wv-zoom{position:absolute;right:16px;bottom:16px;font-family:var(--wv-mono);font-size:10.5px;
-  color:var(--wv-faint);background:rgba(251,252,245,.9);padding:5px 9px;border-radius:4px;
+  color:var(--wv-faint);background:var(--wv-panel);padding:5px 9px;border-radius:4px;
   border:1px solid var(--wv-line2)}
 .wv-hintbar{position:absolute;left:16px;top:14px;font-size:11px;color:var(--wv-muted);
-  background:rgba(251,252,245,.92);border:1px solid var(--wv-line2);border-radius:5px;
+  background:var(--wv-panel);border:1px solid var(--wv-line2);border-radius:5px;
   padding:6px 10px;max-width:min(420px,60%);line-height:1.6;
   transition:opacity .2s}
 /* 卡片和提示条同在画布顶部，窄屏时会压在一起。开卡片就让提示让位。 */
@@ -108,18 +160,59 @@ a{color:var(--wv-ac);text-decoration:none}
   transform:translateX(8px);opacity:0;visibility:hidden;transition:.2s}
 .wv-card.on{transform:none;opacity:1;visibility:visible}
 .wv-card .k{font-family:var(--wv-mono);font-size:9.5px;letter-spacing:.14em;color:var(--wv-faint);
-  margin-bottom:9px;display:flex;justify-content:space-between}
+  margin-bottom:9px;display:flex;justify-content:space-between;gap:10px;
+  /* 右上角那颗 × 是绝对定位的，压着这一行，留出位置给它 */
+  padding-right:22px}
 .wv-card h3{font-family:var(--wv-serif);font-size:19px;font-weight:500;margin:0 0 8px;
   line-height:1.4;letter-spacing:.02em}
 .wv-card p{margin:0 0 16px;font-size:12.5px;line-height:1.85;color:var(--wv-ink2)}
-.wv-lvlab{font-size:10.5px;color:var(--wv-muted);margin-bottom:8px;letter-spacing:.04em}
-.wv-lvs{display:flex;gap:5px;margin-bottom:16px}
-.wv-lvs button{flex:1;padding:7px 2px;font-size:10px;border:1px solid var(--wv-line);
+
+/* ---------- 只读的五档 ----------
+   以前这里是五颗可点的按钮，点一下就升档。现在不行：
+   档位只能由考核授予，所以这里只画状态，不接点击。 */
+.wv-lvrow{display:flex;gap:5px;margin-bottom:16px}
+.wv-lvrow span{flex:1;text-align:center;font-size:10px;padding:7px 2px;border-radius:4px;
+  border:1px solid var(--wv-line);color:var(--wv-faint);background:var(--wv-paper);line-height:1.3}
+.wv-lvrow span.on{background:var(--wv-ink);color:var(--wv-on);border-color:var(--wv-ink)}
+.wv-lvrow span.next{border-color:var(--wv-gold);color:var(--wv-gold);border-style:dashed}
+
+/* ---------- 自评 ---------- */
+.wv-self{margin-bottom:14px}
+.wv-self .lab{font-size:11px;line-height:1.7;color:var(--wv-muted);margin-bottom:8px}
+.wv-self .opts{display:flex;gap:5px}
+.wv-self .opts button{flex:1;padding:7px 2px;font-size:10.5px;border:1px solid var(--wv-line);
   border-radius:4px;color:var(--wv-muted);background:var(--wv-paper);transition:.14s;line-height:1.3}
-.wv-lvs button:hover{border-color:var(--wv-ink2);color:var(--wv-ink)}
-.wv-lvs button[aria-pressed="true"]{background:var(--wv-ink);color:#f5f7ee;border-color:var(--wv-ink)}
+.wv-self .opts button:hover{border-color:var(--wv-ink2);color:var(--wv-ink)}
+.wv-self .opts button[aria-pressed="true"]{background:var(--wv-ink);color:var(--wv-on);border-color:var(--wv-ink)}
+.wv-self .done{font-size:11px;color:var(--wv-ill);line-height:1.7}
+
 .wv-card-act{display:flex;gap:7px}
 .wv-card-act .wv-btn{flex:1;text-align:center;font-size:11.5px;padding:9px 6px}
+.wv-card-act .wv-btn:disabled{opacity:.45;cursor:default}
+
+/* ---------- 考核视图 ---------- */
+.wv-quizbar{height:3px;background:var(--wv-line2);border-radius:2px;overflow:hidden;
+  margin-bottom:12px}
+.wv-quizbar i{display:block;height:100%;width:0;background:var(--wv-gold);transition:width .35s}
+.wv-qtext{font-size:12.5px;line-height:1.85;color:var(--wv-ink);margin-bottom:12px;
+  padding-left:10px;border-left:2px solid var(--wv-gold)}
+.wv-ans{width:100%;resize:none;padding:9px 11px;font-size:12.5px;line-height:1.7;
+  border:1px solid var(--wv-line);border-radius:6px;background:var(--wv-paper);outline:none;
+  margin-bottom:10px;transition:border-color .16s;font-family:inherit}
+.wv-ans:focus{border-color:var(--wv-ac)}
+.wv-verdict{margin-top:14px;padding-top:13px;border-top:1px solid var(--wv-line2)}
+.wv-verdict .sc{display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
+.wv-verdict .sc b{font-family:var(--wv-mono);font-size:24px;font-weight:500;line-height:1}
+.wv-verdict .sc.pass b,.wv-verdict .sc.ok b{color:var(--wv-ac)}
+.wv-verdict .sc.mid b{color:var(--wv-gold)}
+.wv-verdict .sc.fail b{color:var(--wv-ill)}
+.wv-verdict .sc i{font-style:normal;font-size:10.5px;color:var(--wv-faint);letter-spacing:.06em}
+.wv-verdict .say{font-size:12px;line-height:1.8;color:var(--wv-ink2);margin:0 0 10px}
+.wv-verdict .pt{font-size:11px;line-height:1.75;color:var(--wv-ink2);margin:0 0 4px}
+.wv-verdict .pt.hit{color:var(--wv-ac)}
+.wv-verdict .pt.miss{color:var(--wv-ill)}
+.wv-verdict .pt em{font-style:normal;color:var(--wv-faint);margin-right:5px}
+
 .wv-card-x{position:absolute;right:10px;top:8px;font-size:18px;color:var(--wv-faint);
   width:24px;height:24px;line-height:1;border-radius:4px}
 .wv-card-x:hover{background:var(--wv-slab);color:var(--wv-ink)}
@@ -137,33 +230,51 @@ a{color:var(--wv-ac);text-decoration:none}
   color:var(--wv-faint)}
 .wv-talk{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:16px 14px 10px;
   display:flex;flex-direction:column;gap:12px}
-.wv-msg{max-width:94%;font-size:12.5px;line-height:1.85;padding:10px 13px;border-radius:9px}
+.wv-msg{max-width:94%;font-size:12.5px;line-height:1.85;padding:10px 13px;border-radius:9px;
+  white-space:pre-wrap;word-break:break-word}
 .wv-msg.bot{background:var(--wv-card);border:1px solid var(--wv-line2);border-bottom-left-radius:3px;
   color:var(--wv-ink2);align-self:flex-start}
-.wv-msg.me{background:#dfe4d2;color:var(--wv-ink);align-self:flex-end;border-bottom-right-radius:3px}
+.wv-msg.me{background:var(--wv-me);color:var(--wv-ink);align-self:flex-end;border-bottom-right-radius:3px}
 .wv-msg b{color:var(--wv-ink);font-weight:500}
 .wv-msg .q{display:block;margin-top:8px;padding-left:10px;border-left:2px solid var(--wv-gold);
   color:var(--wv-ink)}
+/* 流式输出时在末尾挂一个闪动的方块，让「还在写」这件事看得见 */
+.wv-msg.busy::after{content:"▍";color:var(--wv-gold);animation:wvblink 1s steps(2) infinite}
+@keyframes wvblink{50%{opacity:0}}
+.wv-msg .note{margin-top:8px;font-size:10.5px;color:var(--wv-faint);line-height:1.6;
+  padding-top:7px;border-top:1px dashed var(--wv-line2)}
 .wv-msg .sug{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .wv-msg .sug button{font-size:11px;padding:4px 9px;border:1px solid var(--wv-line);
   border-radius:12px;color:var(--wv-ink2);background:var(--wv-paper)}
 .wv-msg .sug button:hover{border-color:var(--wv-ac);color:var(--wv-ac)}
+/* 守灯人不可用时的横幅：必须说清楚为什么，不能装作没事 */
+.wv-off{font-size:11.5px;line-height:1.8;padding:10px 12px;border-radius:6px;
+  background:var(--wv-warnbg);border:1px solid var(--wv-warnbd);color:var(--wv-warnfg)}
 .wv-input{padding:10px 12px 12px;border-top:1px solid var(--wv-line)}
 .wv-row{display:flex;gap:7px;align-items:flex-end}
 .wv-row textarea{flex:1;resize:none;min-height:38px;max-height:110px;padding:9px 11px;
   font-size:12.5px;line-height:1.6;border:1px solid var(--wv-line);border-radius:7px;
   background:var(--wv-card);outline:none;transition:border-color .16s}
 .wv-row textarea:focus{border-color:var(--wv-ac)}
-.wv-send{width:38px;height:38px;border-radius:7px;background:var(--wv-ink);color:#f5f7ee;
+.wv-send{width:38px;height:38px;border-radius:7px;background:var(--wv-ink);color:var(--wv-on);
   font-size:15px;flex:none}
-.wv-send:hover{background:#0f1612}
+.wv-send:hover{filter:brightness(1.12)}
 .wv-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .wv-chips button{font-size:10.5px;padding:4px 8px;border:1px solid var(--wv-line2);
   border-radius:10px;color:var(--wv-muted)}
 .wv-chips button:hover{border-color:var(--wv-ac);color:var(--wv-ac)}
 
 /* ---------------- 体系选择 ---------------- */
-.wv-pick{position:fixed;inset:0;z-index:60;background:var(--wv-paper);overflow-y:auto}
+.wv-pick{position:fixed;inset:0;z-index:60;background:var(--wv-veil);overflow-y:auto}
+/* 这一页盖在灯图上，看不见画布里的星。所以自己铺一层，三层错开格子铺，
+   看不出重复，也不会抢字。 */
+html[data-theme="dark"] .wv-pick{background-image:
+  radial-gradient(1.3px 1.3px at 24px 36px,rgba(206,219,255,.50),transparent),
+  radial-gradient(1px 1px at 96px 128px,rgba(206,219,255,.32),transparent),
+  radial-gradient(1.6px 1.6px at 168px 74px,rgba(255,226,170,.26),transparent),
+  var(--wv-veil);
+  background-size:210px 210px,170px 170px,290px 290px,100% 100%;
+  background-repeat:repeat,repeat,repeat,no-repeat}
 .wv-pick-in{max-width:1000px;margin:0 auto;padding:56px 32px 64px}
 .wv-pick h1{font-family:var(--wv-serif);font-size:40px;font-weight:500;letter-spacing:.14em;
   margin:0 0 8px}
@@ -174,7 +285,10 @@ a{color:var(--wv-ac);text-decoration:none}
   border:1px solid var(--wv-line)}
 .wv-sys{display:flex;flex-direction:column;text-align:left;background:var(--wv-card);
   padding:22px 20px;transition:background .18s;min-height:180px}
-.wv-sys:hover{background:#f2f4e8}
+/* 八张卡放进三列，最后一行会空出一格露出底色。让末张跨两列填满，
+   顺便把「自己建一张」摆在最显眼的位置。 */
+.wv-grid .wv-sys:last-child{grid-column:span 2}
+.wv-sys:hover{background:var(--wv-hover)}
 .wv-sys .n{font-family:var(--wv-mono);font-size:10px;letter-spacing:.12em;color:var(--wv-faint);
   display:flex;justify-content:space-between;margin-bottom:16px}
 .wv-sys h3{font-family:var(--wv-serif);font-size:20px;font-weight:500;margin:0 0 5px;
@@ -212,6 +326,25 @@ a{color:var(--wv-ac);text-decoration:none}
 .wv-weak button:hover{border-color:var(--wv-ac);color:var(--wv-ac)}
 .wv-box .close{margin-top:22px;width:100%}
 
+/* ---------------- 新建灯图 ---------------- */
+.wv-f{display:block;margin-bottom:16px}
+.wv-f>span{display:block;font-size:11px;color:var(--wv-muted);letter-spacing:.06em;margin-bottom:7px}
+.wv-f input,.wv-f textarea{width:100%;padding:9px 11px;font-size:13px;line-height:1.7;
+  border:1px solid var(--wv-line);border-radius:6px;background:var(--wv-paper);outline:none;
+  font-family:inherit;resize:vertical;transition:border-color .16s}
+.wv-f input:focus,.wv-f textarea:focus{border-color:var(--wv-ac)}
+.wv-bdact{display:flex;gap:8px}
+.wv-bdact .wv-btn{flex:1;text-align:center}
+.wv-bdstat{margin-top:16px;font-size:11.5px;line-height:1.8;color:var(--wv-muted);min-height:20px}
+.wv-bdstat b{color:var(--wv-ink)}
+.wv-bdstat.bad{color:var(--wv-ill)}
+
+/* 体系卡上的「自建」标记 */
+.wv-sys .own{position:absolute;right:14px;top:14px;font-family:var(--wv-mono);font-size:9px;
+  letter-spacing:.1em;color:var(--wv-ill);border:1px solid var(--wv-ownbd);border-radius:3px;
+  padding:2px 5px;background:var(--wv-ownbg)}
+.wv-sys{position:relative}
+
 /* ---------------- 响应式 ---------------- */
 @media (max-width:1180px){
   .wv-app{grid-template-columns:200px minmax(0,1fr) 300px}
@@ -219,7 +352,7 @@ a{color:var(--wv-ac);text-decoration:none}
 }
 @media (max-width:980px){
   .wv-app{grid-template-columns:minmax(0,1fr)}
-  .wv-left,.wv-right{position:fixed;top:58px;bottom:0;z-index:40;width:min(320px,86vw);
+  .wv-left,.wv-right{position:absolute;top:58px;bottom:0;z-index:40;width:min(320px,86vw);
     background:var(--wv-paper);transition:transform .28s ease;box-shadow:0 0 40px rgba(20,30,24,.16)}
   .wv-left{left:0;transform:translateX(-102%);border-right:1px solid var(--wv-line)}
   .wv-right{right:0;transform:translateX(102%);border-left:1px solid var(--wv-line)}
@@ -228,6 +361,7 @@ a{color:var(--wv-ac);text-decoration:none}
   .wv-pick-in{padding:36px 20px 48px}
   .wv-pick h1{font-size:30px}
   .wv-grid{grid-template-columns:1fr}
+  .wv-grid .wv-sys:last-child{grid-column:auto}
   .wv-card{right:10px;left:10px;width:auto;top:auto;bottom:64px;max-height:52%}
   .wv-hintbar{display:none}
   .wv-tb .hide-sm{display:none}
@@ -244,12 +378,14 @@ a{color:var(--wv-ac);text-decoration:none}
   .wv-brand i{display:none}
   .wv-now{padding-left:0;border-left:0;gap:0;flex:1}
   .wv-now b{font-size:13px}
-  .wv-seg{display:none}
-  .wv-prog{gap:0;margin-left:0}
+  .wv-bar{width:54px}
+  .wv-prog{gap:7px;margin-left:0}
   .wv-pct{font-size:12px;min-width:38px}
-  .wv-tb{flex:0 0 100%;justify-content:space-between;gap:5px}
+  .wv-tb{flex:0 0 100%;justify-content:space-between;gap:4px}
   .wv-tb .hide-sm{display:block}
-  .wv-tb .wv-btn{flex:1;text-align:center;padding:7px 4px;font-size:11.5px;white-space:nowrap}
+  .wv-tb .wv-btn{flex:1;text-align:center;padding:7px 3px;font-size:10.5px;
+    white-space:nowrap;min-width:0}
+  .wv-tb .hide-xs{display:none}
   .wv-left,.wv-right{top:92px}
   .wv-card{bottom:56px}
 }

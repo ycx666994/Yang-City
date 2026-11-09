@@ -1,22 +1,35 @@
 <div class="wv-app">
   <header class="wv-top">
     <div class="wv-brand"><b>织识</b><i>KNOWLEDGE WEAVER</i></div>
+    <button class="wv-theme" id="wvBtnTheme" type="button" aria-label="切换明暗" title="明 / 暗">☀</button>
     <div class="wv-now"><b id="wvSysName">—</b><i id="wvSysEn"></i></div>
     <div class="wv-prog">
-      <div class="wv-seg" id="wvSeg" aria-hidden="true"></div>
+      <div class="wv-bar" title="已燃 / 错觉"><i class="lit" id="wvBarLit"></i><i class="ill" id="wvBarIll"></i></div>
       <span class="wv-pct" id="wvPct">0%</span>
     </div>
     <div class="wv-tb">
       <button class="wv-btn hide-sm" id="wvBtnLeft" type="button">灯单</button>
       <button class="wv-btn" id="wvBtnPick" type="button">换体系</button>
+      <button class="wv-btn hide-sm" id="wvBtnBuild" type="button">新建</button>
       <button class="wv-btn" id="wvBtnReview" type="button">复盘</button>
       <button class="wv-btn hide-sm" id="wvBtnTalk" type="button">守灯人</button>
-      <a class="wv-btn" href="project.html?id=weave">← 项目</a>
+      <a class="wv-btn" href="project.html?id=weave"><span class="hide-xs">← </span>项目</a>
     </div>
   </header>
 
   <aside class="wv-left" id="wvLeft" aria-label="灯单">
-    <div class="wv-search"><input id="wvSearch" type="search" placeholder="搜索知识点…" autocomplete="off"></div>
+    <div class="wv-search">
+      <input id="wvSearch" type="search" placeholder="搜灯名，或问一句话…" autocomplete="off">
+      <button id="wvAsk" type="button" title="按意思找灯">问</button>
+    </div>
+    <div class="wv-findhead" id="wvFindHead" hidden></div>
+    <div class="wv-filter" id="wvFilter">
+      <button type="button" data-f="all" aria-pressed="true">全部</button>
+      <button type="button" data-f="lit" aria-pressed="false">已燃</button>
+      <button type="button" data-f="dark" aria-pressed="false">未燃</button>
+      <button type="button" data-f="ill" aria-pressed="false">错觉</button>
+      <button type="button" data-f="dim" aria-pressed="false">需复燃</button>
+    </div>
     <div class="wv-sorts" id="wvSorts">
       <button type="button" data-sort="name" aria-pressed="true">名称</button>
       <button type="button" data-sort="lv" aria-pressed="false">掌握度</button>
@@ -26,8 +39,8 @@
   </aside>
 
   <main class="wv-stage">
-    <canvas id="wvCv" aria-label="知识灯图：可拖动、缩放，点击知识点查看详情并调整掌握度"></canvas>
-    <div class="wv-hintbar" id="wvHint">拖动平移 · 滚轮缩放 · 点灯看详情 · 双击提一档</div>
+    <canvas id="wvCv" aria-label="知识灯图：拖动平移、滚轮缩放、点灯看详情"></canvas>
+    <div class="wv-hintbar" id="wvHint">点一盏灯，守灯人讲给你听，然后考你三问。答得过去，灯才亮。</div>
     <div class="wv-tools">
       <button type="button" id="wvIn" title="放大" aria-label="放大">＋</button>
       <button type="button" id="wvOut" title="缩小" aria-label="缩小">－</button>
@@ -35,56 +48,97 @@
       <button type="button" id="wvTier" title="按先决深度重排" aria-label="按先决深度重排">⌸</button>
     </div>
     <div class="wv-zoom" id="wvZoom">×1.00</div>
+
     <div class="wv-card" id="wvCard" aria-live="polite">
-      <button class="wv-card-x" id="wvCardX" type="button" aria-label="关闭">×</button>
-      <div class="k"><span id="wvCardTag">—</span><span id="wvCardDepth"></span></div>
-      <h3 id="wvCardName">—</h3>
-      <p id="wvCardDesc"></p>
-      <div class="wv-lvlab" id="wvLvLab">掌握度</div>
-      <div class="wv-lvs" id="wvLvs"></div>
-      <div class="wv-card-act">
-        <button class="wv-btn" id="wvCardAsk" type="button">问守灯人</button>
-        <button class="wv-btn" id="wvCardPath" type="button">怎么学到这</button>
+      <div class="wv-view" data-v="info">
+        <button class="wv-card-x" id="wvCardX" type="button" aria-label="关闭">×</button>
+        <div class="k"><span id="wvCardTag">—</span><span id="wvCardDepth"></span></div>
+        <h3 id="wvCardName">—</h3>
+        <p id="wvCardDesc"></p>
+        <div class="wv-lvrow" id="wvLvRow"></div>
+        <div class="wv-self" id="wvSelf">
+          <div class="lab">考之前先说一句：这盏，你觉得自己懂吗</div>
+          <div class="opts">
+            <button type="button" data-self="0">没听过</button>
+            <button type="button" data-self="1">有点印象</button>
+            <button type="button" data-self="2">我觉得我懂</button>
+          </div>
+        </div>
+        <div class="wv-card-act">
+          <button class="wv-btn" id="wvAskExplain" type="button">听守灯人讲</button>
+          <button class="wv-btn solid" id="wvStartQuiz" type="button">开始考核</button>
+        </div>
+      </div>
+
+      <div class="wv-view" data-v="quiz" hidden>
+        <button class="wv-card-x" id="wvQuizX" type="button" aria-label="关闭">×</button>
+        <div class="k"><span id="wvQuizStep">第 1 / 3 问</span><span id="wvQuizLv">—</span></div>
+        <div class="wv-quizbar"><i id="wvQuizProg"></i></div>
+        <h3 id="wvQuizName">—</h3>
+        <p class="wv-qtext" id="wvQuizQ">正在出题…</p>
+        <textarea class="wv-ans" id="wvQuizAns" rows="3" placeholder="用你自己的话答。背定义不算过。"></textarea>
+        <div class="wv-card-act">
+          <button class="wv-btn solid" id="wvQuizSend" type="button">交这一问</button>
+          <button class="wv-btn" id="wvQuizSkip" type="button">不答了</button>
+        </div>
+        <div class="wv-verdict" id="wvVerdict" hidden></div>
       </div>
     </div>
   </main>
 
   <aside class="wv-right" id="wvRight" aria-label="守灯人">
     <div class="wv-rh">
-      <div class="t"><span class="wv-lamp" id="wvLamp"></span>守灯人</div>
-      <div class="s">评估 · 规划 · 追问 · 复盘</div>
+      <div class="t"><span class="wv-lamp" id="wvLamp"></span><span id="wvWho">守灯人</span></div>
+      <div class="s" id="wvWhoSub">讲解 · 出题 · 判分</div>
     </div>
     <div class="wv-talk" id="wvTalk"></div>
     <div class="wv-input">
       <div class="wv-row">
-        <textarea id="wvText" rows="1" placeholder="说一句你刚学到的东西…"></textarea>
+        <textarea id="wvText" rows="1" placeholder="问一句，或者说说你学到的东西…"></textarea>
         <button class="wv-send" id="wvSend" type="button" aria-label="发送">↑</button>
       </div>
-      <div class="wv-chips">
-        <button type="button" data-fill="我刚学了「">学了…</button>
-        <button type="button" data-fill="规划一条从基础到「">路径</button>
-        <button type="button" data-fill="考考我，挑最弱的">考我</button>
-        <button type="button" data-fill="帮我分析一下我的掌握情况">分析我</button>
+      <div class="wv-chips" id="wvChips">
+        <button type="button" data-fill="这盏灯和旁边的灯是什么关系？">跟旁边的什么关系</button>
+        <button type="button" data-fill="举个我在工作里会遇到的例子">举个例子</button>
+        <button type="button" data-fill="我理解成……对吗？">我说一遍你看对不对</button>
+        <button type="button" data-fill="为什么它不总是成立？">为什么它不总成立</button>
       </div>
     </div>
   </aside>
 </div>
 
 <div class="wv-pick" id="wvPickWrap" hidden>
+  <button class="wv-theme wv-theme-pick" id="wvBtnTheme2" type="button" aria-label="切换明暗" title="明 / 暗">☀</button>
   <div class="wv-pick-in">
     <h1>织识</h1>
     <div class="sub">KNOWLEDGE WEAVER · 白泽</div>
-    <p class="lead">选一张灯图。每个知识点是一盏灯，五级掌握度：未燃、引燃、微明、炽亮、鎏辉。灯点亮到哪一级，图上看得到，藏不住。</p>
+    <p class="lead">选一张灯图。每个知识点是一盏灯，五档：未燃、引燃、微明、炽亮、鎏辉。<b>灯不能自己点亮</b>——守灯人讲完，考你三问，答得过去才亮。自评说「我懂」却考不过的，会被标成错觉灯。</p>
     <div class="wv-grid" id="wvPickGrid"></div>
-    <p class="wv-pick-f">首次打开带一份示例进度，方便你看到灯图长什么样。<br>想从零开始，在<b>复盘</b>里重置本体系。<a href="project.html?id=weave">回到项目页</a></p>
+    <p class="wv-pick-f">七套官方体系，加上你自己建的图。想从零开始，在复盘里清空进度。<a href="project.html?id=weave">回到项目页</a></p>
   </div>
 </div>
 
 <div class="wv-modal" id="wvModal" hidden>
-  <div class="wv-box" role="dialog" aria-modal="true" aria-label="学习复盘">
+  <div class="wv-box" role="dialog" aria-modal="true" aria-label="复盘">
     <h2 id="wvMTitle">复盘</h2>
     <p class="bx-sub" id="wvMSub">—</p>
     <div id="wvMBody"></div>
     <button class="wv-btn solid close" id="wvMClose" type="button">继续</button>
+  </div>
+</div>
+
+<div class="wv-modal" id="wvBuildWrap" hidden>
+  <div class="wv-box" role="dialog" aria-modal="true" aria-label="新建灯图">
+    <h2>新建一张灯图</h2>
+    <p class="bx-sub">给一个主题。守灯人会把它拆成十来个知识点，连成一张图，之后你可以自己改。</p>
+    <label class="wv-f"><span>主题</span>
+      <input id="wvBdTopic" placeholder="比如：向量数据库 / 宋词格律 / 咖啡萃取"></label>
+    <label class="wv-f"><span>材料（可选）</span>
+      <textarea id="wvBdMat" rows="4" placeholder="粘一段大纲、笔记或文章，生成的图会更贴你手上的事"></textarea></label>
+    <div class="wv-bdact">
+      <button class="wv-btn solid" id="wvBdGo" type="button">生成</button>
+      <button class="wv-btn" id="wvBdCancel" type="button">取消</button>
+    </div>
+    <div class="wv-bdstat" id="wvBdStat"></div>
   </div>
 </div>

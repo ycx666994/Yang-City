@@ -186,7 +186,9 @@ def build_targets(targets):
         # 织识：白泽出品的认知工具，纯前端、无请求、可离线。
         # 数据（六套体系）单独一个文件，改内容不必碰逻辑。
         built.append(("weave.html", page("weave.html", "src/weave/01-head.html", "src/weave/02-style.html", "src/weave/03-body.html",
-            ["src/weave/03b-data.js", "src/weave/04-app.js"], "src/weave/05-tail.html", cast_css=False)))
+            ["src/weave/03c-data-ai.js", "src/weave/03c-data-a.js", "src/weave/03d-data-b.js",
+             "src/weave/03e-data.js", "src/weave/04-llm.js", "src/weave/05-app.js"],
+            "src/weave/05-tail.html", cast_css=False)))
     if "map" in targets:
         built.append(("map.html", page("map.html", "src/city/01-head.html", "src/city/02-style.html", "src/city/03-body.html",
             [THREE, "shared/yc-evidence.js", "shared/yc-bulletin.js", "shared/yc3d/yc3d-core.js", "shared/yc3d/yc3d-build.js", "shared/yc-districts.js", "shared/yc-city-plan.js", "shared/yc-district-plan.js", "shared/yc3d/yc3d-district.js", "shared/yc3d/yc3d-city.js", "src/city/04-app.js"], "src/city/05-tail.html")))

@@ -4,4 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>织识 · 白泽 · 杨城</title>
-<meta name="description" content="织识 Knowledge Weaver：一张会长大的知识地图。五级掌握度，离线守灯人，六套体系，纯本地运行。白泽出品，杨城全城开放。">
+<meta name="description" content="织识 Knowledge Weaver：一张要靠考核才点得亮的知识灯图。七套前沿 AI 体系、一百五十四个知识点，守灯人讲解、出题、判分。也能自己建一张，什么学科都行。白泽出品，杨城全城开放。">
+<!-- 主题在建任何东西之前就定下来，否则会闪一下白 -->
+<script>
+try { document.documentElement.setAttribute("data-theme", localStorage.getItem("yc.weave.theme") || "dark"); }
+catch (e) { document.documentElement.setAttribute("data-theme", "dark"); }
+</script>
+<!-- 云 SDK 放在仓库里（vendor/），不走 CDN。jsdelivr 在国内经常连不上，
+     而这一页的全部价值都压在守灯人身上——SDK 下不来，剩下的只是个静态图。 -->
+<script src="vendor/workbuddy-cloud-sdk.js"></script>
