@@ -189,7 +189,7 @@
     stage.setScene(scene, camera);
     if (isMap) {
       document.title = "杨城 · 三维全景 · 十七区、六馆与" + YC3D_CITY.GIANTS.length + "家 AI 大厂";
-      $("cityNodes").open = true; $("nodesTitle").textContent = "城市地图 · 分类定位";
+      $("nodesTitle").textContent = "分类定位";
       $("nodeFilters").hidden = false; $("mapTools").hidden = false;
       /* 顶栏那枚「二维地图」按钮由页面里的独立一段脚本接管（切图层，不换页）。 */
       $("nodesFoot").textContent = "滚轮推近到片区，双击再进一档到单栋楼；坐标为虚构场景单位。";
@@ -685,9 +685,21 @@
     document.body.classList.toggle("bul-open", on);
     if (btn) btn.setAttribute("aria-expanded", String(on));
     if (on && lyr && !lyr.hidden) open2d(false);
+    /* 分类定位的下拉和公告抽屉都从顶栏下面拉开，会叠在一起；
+       公告展开时把下拉收掉，免得两个浮层打架。 */
+    if (on && $("cityNodes") && $("cityNodes").open) $("cityNodes").open = false;
   }
   if (btn) btn.addEventListener("click", function () { openBul(!bul.classList.contains("on")); });
   if ($("bulClose")) $("bulClose").addEventListener("click", function () { openBul(false); });
+
+  /* 反方向也要管：公告开着时点开「分类定位」，下拉会被 376px 宽的公告整个盖住。
+     两者都从右上角往下拉，只能留一个。这里借公告按钮的点击复用它的收起逻辑
+     （aria、body.bul-open、右下角让位都是一处改的）。 */
+  if ($("cityNodes")) {
+    $("cityNodes").addEventListener("toggle", function () {
+      if (this.open && bul.classList.contains("on") && btn) btn.click();
+    });
+  }
 
   /* ---------- 二维图层 ---------- */
   function open2d(on) {

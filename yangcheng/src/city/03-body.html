@@ -25,6 +25,22 @@
     </button>
     <button type="button" id="nav2d" aria-expanded="false" aria-controls="lyr2d">二维地图</button>
     <a href="evidence.html">公共证据厅</a>
+    <!-- 分类定位原来是压在地图右上角的浮层（right:24px / top:83px），
+         公告抽屉 top:72px 一展开就把它整个盖住。挪进顶栏和其余四个入口并排，
+         折叠列表改成从按钮下方浮出的下拉。 -->
+    <details class="nodes" id="cityNodes">
+      <summary id="nodesTitle">分类定位</summary>
+      <div class="nodes-pop">
+        <div class="node-filters" id="nodeFilters" role="group" aria-label="地图节点分类" hidden>
+          <button type="button" data-filter="halls" aria-pressed="true">六馆</button>
+          <button type="button" data-filter="giants" aria-pressed="false">AI企业</button>
+          <button type="button" data-filter="infra" aria-pressed="false">基础设施</button>
+          <button type="button" data-filter="zones" aria-pressed="false">17 区</button>
+        </div>
+        <div id="nodeList"></div>
+        <p class="nodes-f" id="nodesFoot">点击建筑查看；双击画面再近一档，可一路推到单栋楼。</p>
+      </div>
+    </details>
   </nav>
 </header>
 
@@ -36,20 +52,8 @@
   <div class="hudmini" id="hudMini">六馆 · 多片区 AI 企业 · 医疗/教育/水务/交通/物流设施</div>
 </details>
 
-<details class="nodes" id="cityNodes">
-  <summary id="nodesTitle">六馆入口</summary>
-  <div class="node-filters" id="nodeFilters" role="group" aria-label="地图节点分类" hidden>
-    <button type="button" data-filter="halls" aria-pressed="true">六馆</button>
-    <button type="button" data-filter="giants" aria-pressed="false">AI企业</button>
-    <button type="button" data-filter="infra" aria-pressed="false">基础设施</button>
-    <button type="button" data-filter="zones" aria-pressed="false">17 区</button>
-  </div>
-  <div id="nodeList"></div>
-  <p class="nodes-f" id="nodesFoot">点击建筑查看；双击画面再近一档，可一路推到单栋楼。</p>
-</details>
-
 <div class="phaseNote" id="phaseNote" aria-live="polite"></div>
-<details class="time-control" id="timeControl">
+<details class="time-control" id="timeControl" open>
   <summary>时间与阴影</summary>
   <label for="timeHour">时间演练 <output id="timeValue">--</output></label>
   <input id="timeHour" type="range" min="0" max="23.75" step="0.25" aria-label="演练小时，UTC+8">

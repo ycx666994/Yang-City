@@ -28,12 +28,28 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{o
 #clkPhase{font-size:10px;white-space:nowrap;color:var(--yc-muted)}
 .topnav{margin-left:auto;display:flex;gap:6px}.topnav a{padding:9px 12px;font-size:12px;white-space:nowrap;border:1px solid var(--yc-line);background:var(--yc-panel);border-radius:6px;backdrop-filter:blur(12px);color:var(--yc-ink)}
 .topnav a:hover{border-color:var(--yc-accent)}
-.hudleft,.nodes,.time-control{position:fixed;z-index:15;border:1px solid var(--yc-line);border-radius:9px;background:var(--yc-panel);backdrop-filter:blur(16px);box-shadow:var(--yc-shadow)}
+.hudleft,.time-control{position:fixed;z-index:15;border:1px solid var(--yc-line);border-radius:9px;background:var(--yc-panel);backdrop-filter:blur(16px);box-shadow:var(--yc-shadow)}
 summary{cursor:pointer;font-size:12px;padding:12px 14px;font-weight:600;user-select:none}
 .hudleft{left:24px;top:83px;width:178px}.hudleft summary span{float:right;font-variant-numeric:tabular-nums;font-weight:500}
 .hudrow{display:flex;align-items:baseline;justify-content:space-between;margin:0 14px;padding:5px 0;font-size:11px}.hudrow b{font-size:16px;font-variant-numeric:tabular-nums}.hudrow small{font-size:10px;font-weight:400;color:var(--yc-muted)}
 .hudmini{padding:12px 14px;font-size:10px;line-height:1.7;color:var(--yc-muted)}
-.nodes{right:24px;top:83px;width:252px}.nodes:not([open]){width:154px}#nodeList{padding:0 10px;max-height:45vh;overflow:auto;overscroll-behavior:contain}
+/* 分类定位：顶栏里的第五个入口。收起时就是一个普通按钮，
+   展开时列表从按钮左下方浮出，不再占据地图右上角。 */
+.nodes{position:relative;width:auto;flex:none}
+.nodes > summary{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;
+  font-size:12px;font-weight:500;white-space:nowrap;list-style:none;
+  border:1px solid var(--yc-line);background:var(--yc-panel);border-radius:6px;
+  backdrop-filter:blur(12px);color:var(--yc-ink);
+  transition:border-color .16s,background .16s,color .16s}
+.nodes > summary::-webkit-details-marker{display:none}
+.nodes > summary::after{content:"▾";font-size:8px;line-height:1;opacity:.55}
+.nodes > summary:hover{border-color:var(--yc-accent)}
+.nodes[open] > summary{background:var(--yc-accent);color:var(--yc-bg);border-color:var(--yc-accent)}
+.nodes-pop{position:absolute;right:0;top:calc(100% + 8px);z-index:16;width:266px;
+  max-height:min(58vh,440px);overflow:auto;overscroll-behavior:contain;
+  border:1px solid var(--yc-line);border-radius:9px;background:var(--yc-panel);
+  backdrop-filter:blur(16px);box-shadow:var(--yc-shadow);padding-top:10px}
+#nodeList{padding:0 10px;max-height:none;overflow:visible}
 .node-filters{display:flex;gap:4px;padding:0 10px 10px}.node-filters button{flex:1;padding:6px 3px;font-size:11px;border:1px solid var(--yc-line);background:transparent;border-radius:5px}.node-filters button[aria-pressed="true"]{background:var(--yc-accent);color:var(--yc-bg);border-color:var(--yc-accent)}
 .node{display:flex;width:100%;align-items:center;gap:8px;text-align:left;padding:9px 5px;border:0;border-top:1px solid var(--yc-line);border-radius:0;background:transparent;color:var(--yc-ink)}
 .node:hover,.node.selected{background:rgba(79,153,186,.13)}.node .dot{width:6px;height:20px;border-radius:2px;background:var(--c);flex:none}.node .nm{flex:1;min-width:0}.node .nm b{display:block;font-size:12px;font-weight:600}.node .nm i{display:block;font-size:10px;font-style:normal;color:var(--yc-muted);margin-top:3px;line-height:1.5}.node .st{font-size:9px;white-space:nowrap;color:var(--yc-muted)}
@@ -59,8 +75,8 @@ summary{cursor:pointer;font-size:12px;padding:12px 14px;font-weight:600;user-sel
 body.map-mode .cta{display:none}body.map-mode .phaseNote{display:none}body.card-open .phaseNote{display:none}
 @media(max-width:1100px){.real-clock{display:none}.clock{max-width:420px}}
 @media(max-width:1050px){.brand em{display:none}.topbar{gap:16px}#clkPhase{font-size:9px}.topnav a{padding:8px;font-size:11px}.botbar .hide-sm{display:none}#footPhase{display:none}}
-@media(max-width:760px){.topbar{top:10px;left:12px;right:12px;gap:10px;flex-wrap:wrap}.brand{font-size:21px}.clock{padding:7px 9px;gap:6px}#clkTime{font-size:18px}#clkPhase{font-size:9px}.topnav{gap:4px}.topnav a{padding:7px 8px;font-size:10px}.topnav a:last-child{display:none}.hudleft,.phaseNote{display:none}.nodes{right:12px;top:74px;width:226px}.nodes:not([open]){width:135px}#nodeList{max-height:34vh}.time-control{left:12px;bottom:55px;width:208px}.cta{right:12px;bottom:62px}.maphint{display:none}.mapbtn{padding:10px 12px}.mbt b{font-size:12px}.mbt i{display:none}.new-hall{font-size:10px}.botbar{padding:7px 12px;gap:7px;font-size:9px}.botbar .right{max-width:46%;text-align:right}.map-tools{right:12px;bottom:57px}.map-tools span{display:none}.card{left:12px;bottom:102px;width:min(304px,calc(100vw - 24px));max-height:calc(100vh - 186px)}body.card-open .nodes{visibility:hidden}}
-@media(max-width:480px){.topnav{margin-left:0;flex:1;justify-content:flex-end}.topnav a{font-size:9px;padding:7px 6px}.brand{font-size:19px}.clock{gap:5px}#clkPhase{max-width:86px;white-space:normal;font-size:8px}.topbar{gap:7px}.time-control{width:178px}.time-actions{flex-wrap:wrap}.time-control summary{font-size:11px}.nodes{top:96px}}
+@media(max-width:760px){.topbar{top:10px;left:12px;right:12px;gap:10px;flex-wrap:wrap}.brand{font-size:21px}.clock{padding:7px 9px;gap:6px}#clkTime{font-size:18px}#clkPhase{font-size:9px}.topnav{gap:4px}.topnav a{padding:7px 8px;font-size:10px}.topnav>a:last-of-type{display:none}.hudleft,.phaseNote{display:none}.nodes-pop{width:min(266px,calc(100vw - 24px));max-height:52vh}.nodes>summary{padding:8px;font-size:10.5px}.time-control{left:12px;bottom:55px;width:208px}body.bul-open .time-control{display:none}.cta{right:12px;bottom:62px}.maphint{display:none}.mapbtn{padding:10px 12px}.mbt b{font-size:12px}.mbt i{display:none}.new-hall{font-size:10px}.botbar{padding:7px 12px;gap:7px;font-size:9px}.botbar .right{max-width:46%;text-align:right}.map-tools{right:12px;bottom:57px}.map-tools span{display:none}.card{left:12px;bottom:102px;width:min(304px,calc(100vw - 24px));max-height:calc(100vh - 186px)}}
+@media(max-width:480px){.topnav{margin-left:0;flex:1;justify-content:flex-end}.topnav a{font-size:9px;padding:7px 6px}.brand{font-size:19px}.clock{gap:5px}#clkPhase{max-width:86px;white-space:normal;font-size:8px}.topbar{gap:7px}.time-control{width:178px;bottom:118px}.time-actions{flex-wrap:wrap}.time-control summary{font-size:11px}.nodes>summary{font-size:9.5px;padding:7px 6px}}
 /* 手机上公告栏是铺满宽度的底部抽屉，不用给谁让位 */
 @media(max-width:760px){body.bul-open .cta,body.bul-open .map-tools{right:12px}}
 /* 区域视角 HUD（district.html?zone=） */
