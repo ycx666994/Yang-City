@@ -441,11 +441,18 @@
         ].join("\n"))
         .replace("#include <normal_fragment_maps>", [
           "#include <normal_fragment_maps>",
-          "float ycRipK = mix(0.34, 1.0, 1.0 - smoothstep(140.0, 560.0, length(vViewPosition)));",
+          /* 远处把波纹压到接近 0。原来远处保留 0.34，湖面在 600 米外会读成一排排
+             平行深色横带——那是法线贴图 46 米一格的重复周期在斜视下压出来的摩尔纹，
+             不是水色。压到 0.06 之后远处是一整片干净的平水，近处波光不受影响。 */
+          "float ycRipK = mix(0.06, 1.0, 1.0 - smoothstep(110.0, 460.0, length(vViewPosition)));",
           "vec3 ycN2 = texture2D(rip2, vRip * 0.43 + vec2(0.31, 0.67)).xyz * 2.0 - 1.0;",
           "vec3 ycN3 = texture2D(rip2, vRip * 1.71 + vec2(0.53, 0.19)).xyz * 2.0 - 1.0;",
           "vec2 ycRip = (ycN2.xy * 0.60 + ycN3.xy * 0.40) * 0.30 * ycRipK;",
-          "normal = normalize(normal + vec3(ycRip.x, 0.0, ycRip.y));"
+          "normal = normalize(normal + vec3(ycRip.x, 0.0, ycRip.y));",
+          /* 基础法线贴图（nrm1）也要随距离拍平：材质自带的 normalMap 是重复贴图，
+             470 米外一格只有几个像素，摩尔纹比波纹本身还显眼，湖面会变成一片条纹。
+             远处直接回到平滑法线，近处照旧有细波。 */
+          "normal = normalize(mix(normal, vec3(0.0, 0.0, 1.0), smoothstep(180.0, 470.0, length(vViewPosition))));"
         ].join("\n"));
     };
     m.customProgramCacheKey = function () { return "yc-river-v2"; };
@@ -8157,20 +8164,27 @@
          改成把地形压下去，让水面去「切」地形——岸线因此由地形本身决定，
          既是平滑的，也自带一道缓坡河滩，比一条水泥直壁自然。
          剖面是平底 + 斜岸：河心必须留出足够宽的平底，否则水面只剩中间一条线。 */
-      var CH = TER.channel;
+      var CH = TER.channel, chCut = 0;
       if (CH && CH.pts) {
         var cd = distToPoly(CH.pts, x, z);
         if (cd < CH.half) {
           var chIn = (CH.flat === undefined ? 0.62 : CH.flat) * CH.half;
           var chD = CH.depth === undefined ? 4 : CH.depth;
-          h -= cd <= chIn ? chD : chD * (1 - (cd - chIn) / (CH.half - chIn));
+          chCut = cd <= chIn ? chD : chD * (1 - (cd - chIn) / (CH.half - chIn));
+          h -= chCut;
         }
       }
       /* 全城拼装：地形必须在自己的地块边界上收平。
-         否则地块被裁成方形之后，山坡会在边界处被切出一道直上直下的断崖。 */
+         否则地块被裁成方形之后，山坡会在边界处被切出一道直上直下的断崖。
+
+         收平只能作用在「没被河挖掉的那部分地形」上：山是往上长的，乘一个小于 1 的
+         系数就是铲平，没问题；可河床是往下挖的，乘系数等于把河往上填——填到 0 就把
+         水面（-1.2 ~ -1.5 米）整个埋进地里，整条河在画面上变成一块空地。
+         D11、D09 的河就是这么没的。所以先把下切量剥出来，平地照收，河床原样保留：
+         河道一路流到地块边缘，由裁剪面干净地切断。 */
       if (CITY) {
         var tX = Math.abs(x) / PHX, tZ = Math.abs(z) / PHZ;
-        h *= 1 - sstep(0.74, 0.99, Math.max(tX, tZ));
+        h = (h + chCut) * (1 - sstep(0.74, 0.99, Math.max(tX, tZ))) - chCut;
       }
       return h;
     }
@@ -8326,6 +8340,15 @@
          河就变成一条看不见的暗渠。 */
       var HS = CITY ? Math.max(PHX, PHZ) : R * 3, hw0 = (wspec0.w || 80) / 2;
       var wpts0 = wspec0.pts, nrms = [], i0;
+      /* 洞必须整个落在地面多边形内部。河道是按「一条流经整块地的河」画的，
+         经常一路画到 ±900 米，而地块只有 470 米——洞口戳出外轮廓之后 earcut 直接
+         给不出一块像样的地面，三角形乱长，整条河被自家地面盖成一片空地。
+         全城模式下地面本来就由裁剪面切在地块边界上，这里把方块放大到包住整条河即可。 */
+      if (CITY) {
+        for (i0 = 0; i0 < wpts0.length; i0++) {
+          HS = Math.max(HS, Math.abs(wpts0[i0][0]) + hw0 + 24, Math.abs(wpts0[i0][1]) + hw0 + 24);
+        }
+      }
       for (i0 = 0; i0 < wpts0.length; i0++) {
         var a0 = wpts0[Math.max(0, i0 - 1)], b0 = wpts0[Math.min(wpts0.length - 1, i0 + 1)];
         var dx0 = b0[0] - a0[0], dz0 = b0[1] - a0[1], L0 = Math.sqrt(dx0 * dx0 + dz0 * dz0) || 1;
@@ -8455,7 +8478,85 @@
       if (run.length > 1) clipped.push({ pts: run, w: r.w, cls: r.cls, stone: r.stone,
         asphalt: r.asphalt, axis: r.axis });
     });
-    roads = clipped;
+    /* ---------------- 路不能铺进水里 ----------------
+       斜向网格的街区（D08 / D10 / D11）把整张路网一路画过江面：路面在 +0.4 米，
+       水面在 -1.5 米，俯瞰时就是一整片深色格栅凭空架在河上，比什么都显眼。
+       临岸的房子有 inWater 拦着，路没有——路是按网格线无条件铺的。
+       这里把每条路在水位线处断开，跨水的段落整段丢掉。只在靠近水域的线段上
+       加密（10 米一段），界外保持原来的控制点，别的区一个顶点都不多。
+       断路的余量取半个路宽，免得路缘探进水里。 */
+    var lakePoly = spec.lake ? lakeShore(spec.lake) : null;
+    var rdWater = spec.water && spec.water.pts
+      ? { pts: spec.water.pts, half: (spec.water.w || 80) / 2 + (spec.shoreGap === undefined ? 5 : spec.shoreGap) }
+      : null;
+    var rdBank = spec.basin ? spec.basin.x0 - (spec.shoreGap === undefined ? 5 : spec.shoreGap) : null;
+    var wbox = null;
+    if (rdWater) {
+      var wb0 = 1e9, wb1 = -1e9, wb2 = 1e9, wb3 = -1e9;
+      rdWater.pts.forEach(function (q) {
+        wb0 = Math.min(wb0, q[0]); wb1 = Math.max(wb1, q[0]);
+        wb2 = Math.min(wb2, q[1]); wb3 = Math.max(wb3, q[1]);
+      });
+      wbox = [wb0 - rdWater.half - 60, wb1 + rdWater.half + 60, wb2 - rdWater.half - 60, wb3 + rdWater.half + 60];
+    }
+    function rdInWater(x, z, pad) {
+      if (rdBank !== null) return x > rdBank - pad;
+      if (wbox && (x < wbox[0] || x > wbox[1] || z < wbox[2] || z > wbox[3])) {
+        /* 河落在包围盒外就是陆地；湖再往下判 */
+        if (!lakePoly) return false;
+      }
+      if (lakePoly) {
+        var nL = lakePoly.length, ins = false, il, jl;
+        for (il = 0, jl = nL - 1; il < nL; jl = il++) {
+          var xi = lakePoly[il][0], zi = lakePoly[il][1];
+          var xj = lakePoly[jl][0], zj = lakePoly[jl][1];
+          if (((zi > z) !== (zj > z)) && (x < (xj - xi) * (z - zi) / (zj - zi) + xi)) ins = !ins;
+        }
+        if (ins) return true;
+        var lg = (spec.shoreGap === undefined ? 7 : spec.shoreGap) + pad;
+        var bl = 1e9;
+        for (il = 0; il < nL; il++) {
+          var la = lakePoly[il], lb = lakePoly[(il + 1) % nL];
+          var ldx = lb[0] - la[0], ldz = lb[1] - la[1], lL2 = ldx * ldx + ldz * ldz || 1;
+          var lt = ((x - la[0]) * ldx + (z - la[1]) * ldz) / lL2;
+          lt = lt < 0 ? 0 : lt > 1 ? 1 : lt;
+          var lpx = la[0] + ldx * lt, lpz = la[1] + ldz * lt;
+          var ld = (x - lpx) * (x - lpx) + (z - lpz) * (z - lpz);
+          if (ld < bl) bl = ld;
+        }
+        if (bl < lg * lg) return true;
+      }
+      if (rdWater) return distToPoly(rdWater.pts, x, z) < rdWater.half + pad;
+      return false;
+    }
+    var cutRoads = [];
+    var hasWater = rdBank !== null || !!rdWater || !!lakePoly;
+    if (!hasWater) cutRoads = roads;
+    else roads.forEach(function (r) {
+      var pad = r.w / 2 + 1.2, run = [], pts = r.pts, i, k;
+      function flush() {
+        if (run.length > 1) cutRoads.push({ pts: run, w: r.w, cls: r.cls, stone: r.stone,
+          asphalt: r.asphalt, axis: r.axis });
+        run = [];
+      }
+      for (i = 0; i < pts.length; i++) {
+        if (i === 0) { run.push([pts[0][0], pts[0][1]]); continue; }
+        var a = pts[i - 1], b = pts[i];
+        /* 只有可能碰到水的线段才加密，界外的线段原样保留 */
+        var near = rdBank !== null || !!lakePoly || !wbox
+          || !(Math.min(a[0], b[0]) > wbox[1] || Math.max(a[0], b[0]) < wbox[0]
+            || Math.min(a[1], b[1]) > wbox[3] || Math.max(a[1], b[1]) < wbox[2]);
+        var n = near ? Math.max(1, Math.round(Math.sqrt(
+          (b[0] - a[0]) * (b[0] - a[0]) + (b[1] - a[1]) * (b[1] - a[1])) / 10)) : 1;
+        for (k = 1; k <= n; k++) {
+          var px = a[0] + (b[0] - a[0]) * k / n, pz = a[1] + (b[1] - a[1]) * k / n;
+          if (near && rdInWater(px, pz, pad)) flush();
+          else run.push([px, pz]);
+        }
+      }
+      flush();
+    });
+    roads = cutRoads;
     api.roads = roads;
     var index = new RoadIndex(roads, 70);
     var roadGroup = new THREE.Group(); scene.add(roadGroup);
@@ -8660,7 +8761,13 @@
         var nrmArr = new Float32Array(pos.length);
         for (var vi = 1; vi < nrmArr.length; vi += 3) nrmArr[vi] = 1;
         geo.setAttribute("normal", new THREE.BufferAttribute(nrmArr, 3));
-        var m3 = new THREE.Mesh(geo, mat); m3.receiveShadow = true; scene.add(m3); return m3;
+        /* 水面不接收阴影。平、大、又接收阴影的水面在斜射太阳下会整片打成
+           一条条深色横带（阴影贴图 1 米一像素的自遮挡），湖比河更明显：
+           D04 的湖在 600 米外像铺了张横条纹地毯。水本身的明暗交给法线波纹，
+           岸边建筑的影子由岸线石带和压顶石承担。 */
+        var m3 = new THREE.Mesh(geo, mat);
+        m3.receiveShadow = false; m3.castShadow = false; m3.userData.noShadow = true;
+        scene.add(m3); return m3;
       }
       function wallRibbon(pts, off, yBot, yTop, mat) {
         var pos = [], idx = [], n = pts.length;
@@ -8787,7 +8894,7 @@
       seaGeo.rotateX(-Math.PI / 2);
       var seaMesh = new THREE.Mesh(seaGeo, seaMat);
       seaMesh.position.set(bsp.x0 + seaW / 2 - 6, seaSurf, 0);
-      seaMesh.receiveShadow = true;
+      seaMesh.receiveShadow = false; seaMesh.castShadow = false;
       scene.add(seaMesh);
       /* 岸壁脚下的水影试过一版：一条 52 米宽的半透明深色带。
          俯视时确实有「墙根更深」的层次，但只要机位压低到 12°，
@@ -8822,7 +8929,7 @@
 
       /* 形状按世界坐标直接建。绕 X 转 -90° 后世界 z = -shapeY，所以纵坐标取负。
          ShapeGeometry 的三角化跟随轮廓绕向，这里补成双面，免得半个湖面被背面剔除。 */
-      function lakeFill(off, y, mat) {
+      function lakeFill(off, y, mat, noShadow) {
         var P = off ? polyOffset(lakePoly, off) : lakePoly;
         var sh = new THREE.Shape();
         sh.moveTo(P[0][0], -P[0][1]);
@@ -8832,7 +8939,14 @@
         gp.rotateX(-Math.PI / 2);
         gp.translate(0, y, 0);
         var m2 = new THREE.Mesh(gp, mat);
-        m2.receiveShadow = true; scene.add(m2); return m2;
+        /* 水面既不接收也不投射阴影：一块又平又大的面在斜射太阳下，
+           自己投给自己就是满屏平行条纹。
+           湖床同样处理。它埋在水下四米多，是一整块完美平板，而阴影贴图在这个
+           尺度上一像素管一米多，采样误差足以在整片湖床上压出等距的深浅条带；
+           湖床又永远看不见真实的影子（水太深），接收阴影纯属白担风险，关掉零损失。 */
+        m2.receiveShadow = !noShadow;
+        if (noShadow) { m2.castShadow = false; m2.userData.noShadow = true; }
+        scene.add(m2); return m2;
       }
       /* 环形带：把两条等距线之间的地面铺出来（压顶石、环湖步道都用它） */
       function lakeBand(offA, offB, y, mat) {
@@ -8851,8 +8965,8 @@
       }
       /* 湖床必须沉到水面下四米多，水面才有「深度」；
          贴在地面上的水面读起来就是一块塑料布。 */
-      lakeFill(-2.0, -lDepth, lakeBedMat);
-      lakeFill(0, lSurf, lakeMat);
+      lakeFill(-2.0, -lDepth, lakeBedMat, true);
+      lakeFill(0, lSurf, lakeMat, true);
       /* 驳岸：一圈石墙从湖床直上到岸顶，挡住水面与地面的断口 */
       (function () {
         var nL = lakePoly.length, pos = [], idx = [];

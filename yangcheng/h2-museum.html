@@ -196,6 +196,9 @@
     r.toneMapping = THREE.NoToneMapping;
     r.shadowMap.enabled = true;
     r.shadowMap.type = THREE.PCFSoftShadowMap;
+    /* 地块裁剪靠 material.clippingPlanes，全局必须开；不给任何材质挂裁剪面时
+       等于没开，单区页面不受影响。 */
+    r.localClippingEnabled = true;
 
     this.clock = new THREE.Clock();
     this.time = 0;
@@ -647,6 +650,9 @@
         uBase: { value: new THREE.Color(o.base === undefined ? 0x060a12 : o.base) },
         uTime: { value: 0 },
         uGrid: { value: o.grid === undefined ? 26.0 : o.grid },
+        /* 网格线的强度。全城摊在一屏里的时候，26 米一格的地面网格会变成一张方格纸，
+           把整座城读成「一片程序化城市」。城市底地要淡到只剩一层纹理。 */
+        uGridK: { value: o.gridK === undefined ? 1.0 : o.gridK },
         uFade: { value: o.fade === undefined ? 260.0 : o.fade },
         uFlow: { value: o.flow === undefined ? 0.5 : o.flow },
         uDay: { value: 1 }
@@ -656,7 +662,7 @@
         "void main(){ vec4 wp = modelMatrix * vec4(position,1.0); vW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }"
       ].join("\n"),
       fragmentShader: [
-        "uniform vec3 uColor, uColor2, uBase; uniform float uTime, uGrid, uFade, uFlow, uDay;",
+        "uniform vec3 uColor, uColor2, uBase; uniform float uTime, uGrid, uFade, uFlow, uDay, uGridK;",
         "varying vec3 vW;",
         "float grid(vec2 p, float w){",
         "  vec2 g = abs(fract(p - 0.5) - 0.5) / fwidth(p);",
@@ -671,8 +677,8 @@
         /* 数据流：沿 +Z 走的亮带 */
         "  float flow = smoothstep(0.92, 1.0, sin(vW.z * 0.08 - uTime * 2.2) * 0.5 + 0.5);",
         "  vec3 col = mix(vec3(0.012,0.024,0.045),uBase,uDay);",
-        "  col += uColor * g1 * 0.42 * fade;",
-        "  col += uColor2 * g2 * 0.40 * fade;",
+        "  col += uColor * g1 * 0.42 * fade * uGridK;",
+        "  col += uColor2 * g2 * 0.40 * fade * uGridK;",
         "  col += uColor * flow * 0.16 * fade * uFlow;",
         "  gl_FragColor = vec4(col, 1.0);",
         "}"

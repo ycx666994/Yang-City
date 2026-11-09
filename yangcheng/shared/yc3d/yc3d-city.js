@@ -342,11 +342,43 @@
     riverHole.moveTo(ring[0][0], ring[0][1]);
     for (var rh = 1; rh < ring.length; rh++) riverHole.lineTo(ring[rh][0], ring[rh][1]);
     riverHole.closePath(); landShape.holes.push(riverHole);
+    /* 每块地都要在底板上开一个洞：地块自己的地面铺在上面，底板留着只会和它共面打架。
+       但洞和洞不能重叠。D11 的地块是 600×760（板式住宅排要往北顶到江边），
+       它的矩形洞直接压进江洞里——earcut 的洞桥接是一条链，遇到互相重叠的洞就断了，
+       **排在它后面的洞全部失效**：D15 的湾、D09 的河、D08/D12 的水面就这么被底板
+       整片盖住，俯视图里变成一块和草地同色的空地（这正是「放很大河就没了」的真相）。
+       D04 排在 D11 前面，所以它的湖一直是好的——这种「一半好一半坏」正是链式断裂的特征。
+       修法：跨江的地块按江的宽度切成江两侧两个洞，任何两个洞都不再重叠。 */
+    function bankZAt(x) {
+      var rp2 = riverAt(x);
+      return [rp2.z - rp2.half - BANK, rp2.z + rp2.half + BANK];
+    }
     plates.forEach(function (p) {
-      var h = new THREE.Path(), ins = 3;
-      h.moveTo(p.r.minX + ins, -(p.r.minZ + ins)); h.lineTo(p.r.maxX - ins, -(p.r.minZ + ins));
-      h.lineTo(p.r.maxX - ins, -(p.r.maxZ - ins)); h.lineTo(p.r.minX + ins, -(p.r.maxZ - ins)); h.closePath();
-      landShape.holes.push(h);
+      var ins = 3, gap = 8;
+      var x0 = p.r.minX + ins, x1 = p.r.maxX - ins;
+      var z0 = p.r.minZ + ins, z1 = p.r.maxZ - ins;
+      if (x1 - x0 < 2 || z1 - z0 < 2) return;
+      /* 江在这块地的横坐标范围内，岸带最低压到哪、最高抬到哪 */
+      var lo = Infinity, hi = -Infinity;
+      for (var sx = x0; sx <= x1; sx += 40) {
+        var bz = bankZAt(sx);
+        if (bz[0] < lo) lo = bz[0];
+        if (bz[1] > hi) hi = bz[1];
+      }
+      if (x1 > x0) { var bzE = bankZAt(x1); if (bzE[0] < lo) lo = bzE[0]; if (bzE[1] > hi) hi = bzE[1]; }
+      function rectHole(zA, zB) {
+        if (zB - zA < 2) return;
+        var h = new THREE.Path();
+        h.moveTo(x0, -zA); h.lineTo(x1, -zA);
+        h.lineTo(x1, -zB); h.lineTo(x0, -zB); h.closePath();
+        landShape.holes.push(h);
+      }
+      if (hi < z0 || lo > z1) {
+        rectHole(z0, z1);                       /* 不跨江：整块一个洞 */
+      } else {
+        rectHole(z0, Math.min(lo - gap, z1));   /* 江的北侧 */
+        rectHole(Math.max(hi + gap, z0), z1);   /* 江的南侧 */
+      }
     });
     var groundMat = B.ground({ base: 0x7f8b76, color: 0x64765e, color2: 0x7e8c72, grid: 300,
       gridK: 0.34, flow: 0.05, fade: 8200 });
@@ -661,7 +693,10 @@
         var far = Math.abs(d.d.cx - cx) > shadowReach || Math.abs(d.d.cz - cz) > shadowReach;
         if (d.near === !far) continue;
         d.near = !far;
-        d.group.traverse(function (o) { if (o.isMesh && !o.userData.alwaysShadow) o.castShadow = !far; });
+        /* noShadow：水面自己投给自己会在大面积平水上打出一排排横带，永远不投 */
+        d.group.traverse(function (o) {
+          if (o.isMesh && !o.userData.alwaysShadow && !o.userData.noShadow) o.castShadow = !far;
+        });
       }
     }
     /* 阴影盒跟着视点走：镜头挪到哪，2048 的阴影就重算哪一块 */
